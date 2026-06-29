@@ -5,6 +5,10 @@ import {
   BillRepository,
   BILL_REPOSITORY,
 } from '../domain/ports/bill-repository.port';
+import {
+  BillWriteRepository,
+  BILL_WRITE_REPOSITORY,
+} from '../domain/ports/bill-write-repository.port';
 
 /**
  * BillsService (application layer) — orchestrates use cases. No SQL here;
@@ -14,7 +18,18 @@ import {
 export class BillsService {
   constructor(
     @Inject(BILL_REPOSITORY) private readonly repo: BillRepository,
+    @Inject(BILL_WRITE_REPOSITORY)
+    private readonly writeRepo: BillWriteRepository,
   ) {}
+
+  /** Fetch a posted bill (header+lines+payments) from our MOTECH_POS schema. */
+  async getPostedById(id: string) {
+    const bill = await this.writeRepo.findById(id);
+    if (!bill) {
+      throw new BillNotFoundError(`Posted bill ${id} not found`, { id });
+    }
+    return bill;
+  }
 
   list(filter: BillListFilter) {
     return this.repo.list(filter);
