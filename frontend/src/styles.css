@@ -1,0 +1,88 @@
+@import 'tailwindcss';
+
+/*
+ * Motech POS — Design System (STANDARDS/02 §7)
+ * Touch-first, high contrast for bright cashier environments, RTL Arabic.
+ * Self-hosted Arabic font (Cairo) loaded from /fonts for offline support.
+ */
+@font-face {
+  font-family: 'Cairo';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/cairo.woff2') format('woff2');
+}
+
+@theme {
+  --font-sans:
+    'Cairo', 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
+
+  /* Brand / surfaces (teal POS palette) */
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
+
+  --color-bg: #0b1220;
+  --color-surface: #111c30;
+  --color-surface-2: #18253d;
+  --color-border: #25334d;
+  --color-fg: #e8eef7;
+  --color-muted: #93a4bf;
+
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+
+  --radius: 0.75rem;
+}
+
+* {
+  border-color: var(--color-border);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  /* Arabic numerals tuned, tabular for prices */
+  font-feature-settings: 'tnum';
+}
+
+/* Touch targets ≥ 44px (STANDARDS/02 §7) */
+button {
+  min-height: 44px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* Visible focus for keyboard / scanner workflow (a11y §8) */
+:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+/* Tabular numbers for money columns */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hide scrollbar visually but keep scroll (item grid) */
+.scroll-thin::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 8px;
+}
