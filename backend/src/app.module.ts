@@ -3,7 +3,9 @@ import { LoggerModule } from 'nestjs-pino';
 import { ConfigModule } from './config/config.module';
 import { HealthModule } from './health/health.module';
 import { OracleModule } from './infrastructure/oracle/oracle.module';
+import { AuthModule } from './modules/auth/auth.module';
 import { BillsModule } from './modules/bills/bills.module';
+import { CatalogModule } from './modules/catalog/catalog.module';
 import { ShiftsModule } from './modules/shifts/shifts.module';
 
 @Module({
@@ -22,6 +24,8 @@ import { ShiftsModule } from './modules/shifts/shifts.module';
     }),
     OracleModule,
     HealthModule,
+    AuthModule,
+    CatalogModule,
     ShiftsModule,
     BillsModule,
   ],
