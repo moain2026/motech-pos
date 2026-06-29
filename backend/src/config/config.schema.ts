@@ -19,6 +19,15 @@ export const configSchema = z.object({
   ORACLE_POOL_MIN: z.coerce.number().int().min(0).default(1),
   ORACLE_POOL_MAX: z.coerce.number().int().min(1).default(4),
   ORACLE_POOL_TIMEOUT: z.coerce.number().int().min(0).default(60),
+
+  // --- Auth / JWT (STANDARDS/07 §A02, §A07) ---
+  // Secret MUST be provided via env in any non-test run; long random string.
+  JWT_SECRET: z.string().min(16),
+  JWT_ACCESS_TTL: z.string().default('15m'),
+  JWT_REFRESH_TTL: z.string().default('7d'),
+  JWT_ISSUER: z.string().default('motech-pos'),
+  // Path to the local (temporary) users seed file (see auth module docs).
+  AUTH_USERS_FILE: z.string().default('auth-users.json'),
 });
 
 export type AppConfig = z.infer<typeof configSchema>;

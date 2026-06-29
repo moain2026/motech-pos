@@ -40,3 +40,15 @@ export class InvalidBillError extends DomainError {
   readonly httpStatus = 422;
   readonly title = 'Invalid bill';
 }
+
+export class ItemNotFoundError extends DomainError {
+  readonly typeSlug = 'item-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Item not found';
+}
+
+export class InvalidCredentialsError extends DomainError {
+  readonly typeSlug = 'invalid-credentials';
+  readonly httpStatus = 401;
+  readonly title = 'Invalid username or password';
+}
