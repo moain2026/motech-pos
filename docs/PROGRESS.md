@@ -2,6 +2,16 @@
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
 ## 2026-06-29
+### 17:55 — ✅ المرحلة 3 (Frontend) — واجهة POS حديثة React 19 PWA حيّة ومتصلة بالـ backend (subagent phase3-frontend)
+- **هُيّئ مشروع `frontend/`**: **React 19 + Vite 8 + TypeScript 6** + **Tailwind v4** (@tailwindcss/vite) + مكوّنات shadcn-style مملوكة (Button/Input/Card/StateView/OnlineBadge عبر CVA+Radix Slot) + **RTL عربي** (`<html dir=rtl lang=ar>`، logical properties `ps-*/ms-*/text-start`) + **i18next** (عربي افتراضي، صفر نص hardcoded) + **PWA** (vite-plugin-pwa/Workbox: app-shell precache، items=StaleWhileRevalidate، الـ sale POSTs لا تُخزَّن في SW؛ manifest standalone RTL). خط Cairo عربي self-hosted (`public/fonts/cairo.woff2`).
+- **طبقة API** (`shared/lib/api-client.ts`): axios + **interceptor للـ JWT** (حقن Bearer) + **refresh تلقائي single-flight** عند 401 ثم إعادة المحاولة + تطبيع أخطاء **RFC 9457** لـ `ApiError` (يعرض traceId). **TanStack Query v5** لحالة الخادم (cursor-infinite) + **Zustand v5** لحالة العميل (الجلسة/التوكنات persisted + سلة البيع) + **RHF+Zod** لنموذج الدخول. هيكلة **feature-based** (auth/shifts/pos-terminal/bills/reports + shared) حسب STANDARDS/02 §3.
+- **الشاشات (MVP wave 0):** (1) **تسجيل الدخول** (POSLGN) `/login`. (2) **شاشة فاتورة البيع** (POST001) `/pos` — الأهم: بحث صنف/باركود فوري (debounce) + Enter/scanner يضيف المطابقة، شبكة أصناف touch-first، سلة بكميات +/-، ملخّص فاتورة (إجمالي/خصم/ضريبة/صافي بمنطق يطابق الـ backend `net=Σqty·price − disc + vat`)، header وردية/كاشير، أزرار دفع. (3) **قائمة الفواتير** `/bills` (تصفية from/to/machine + cursor) + **تفاصيل فاتورة** `/bills/:billNo` (بنود + إجماليات مُعاد حسابها مقابل المخزّن). (4) **تقرير يومي** `/reports` (KPIs + جدول). كل عرض يعالج loading/error/empty/success + a11y/keyboard.
+- **proof حي (ليس افتراضاً):** الـ frontend dev server (5173) يُمرّر `/api`→backend(3100). تم فعلياً عبر البروكسي: **login** cashier1 → JWT حقيقي (طول 253) + role؛ **items?search=10100** → أصناف حقيقية (`1010010013` باركود 6287002861172 سعر 850، nextCursor)؛ **bills** → فواتير حقيقية (26303416579=300/سطر، 26303416578=500/4 أسطر)؛ **summary/daily** → تجميعات حقيقية (2026-06-24: 464 فاتورة، 169,377). index.html يُقدَّم `dir=rtl lang=ar`. manifest PWA + sw.js مُولَّدان.
+- **build نظيف** (`tsc -b && vite build` ✅): مقسَّم chunks (entry **8.19KB gzip**، react-vendor/query/i18n/vendor منفصلة، bills/reports lazy) — لا تحذير 500KB. **lint نظيف** (oxlint: 0 errors؛ 5 تحذيرات only-export-components حميدة فقط في barrels/stores).
+- **القيود (proof-based):** (أ) **الـ backend للقراءة فقط هذه المرحلة** — لا يوجد `POST /bills`/`/bills/calculate` بعد (تأكيد من openapi.json) → شاشة POS تحسب البيع محلياً وتُظهر تنبيهاً واضحاً عند "دفع" بدل تزييف حفظ. (ب) **أسماء الأصناف null** (المخطط IAS202623 الغائب) → الواجهة تعرض الكود/الباركود. (ج) لا وردية مفتوحة في البيانات → header يُظهر حالة "لا وردية". الخط Cairo مع سلسلة fallback عربية للنظام.
+- توثيق: `frontend/README.md` (المعمارية + طبقة API + الشاشات + PWA + القيود) + `.env.example`. commits منطقية بهوية MoainAlabbasi.
+- **التالي:** عند شحن جانب الكتابة (PostBillUseCase + payments + shifts open/close) → ربط أزرار الدفع فعلياً + idempotency (uuid v7) + طابور IndexedDB للـ offline-sync (الـ scaffold جاهز في `shared/offline/db.ts`) + طباعة ESC/POS.
+
 ### 17:40 — ✅ المرحلة 2-ب (Backend) — catalog + auth (JWT/RBAC) حيّان ومختبران (subagent phase2b-catalog-auth)
 - **catalog module** (`src/modules/catalog/`, Clean/Hexagonal 4 طبقات): `GET /api/v1/items` (بحث+ترقيم cursor)، `GET /api/v1/items/:code` (صنف+سعر+كمية لكل مخزن)، `GET /api/v1/items/barcode/:bc`. محمية بـ JWT+RBAC.
 - **اكتشاف حرج (proof, ليس افتراضاً):** جداول الأصناف/الأسعار المذكورة (`IAS_ITM_MST`, `IAS_ITM_DTL`, `IAS_ITEM_PRICE`) هي **synonyms** تشير للمخطط `IAS202623` الغائب في هذه الحاوية (0 objects) → كل الـ views (`IAS_V_ITM_UNT`…) **INVALID** (ORA-04063). البيانات الحقيقية المتاحة فقط: `MV_ITEM_AVL_QTY` (1,280 صنف + الكمية) + `IAS_POS_BILL_DTL` (آخر سعر/باركود/وحدة من 41,945 سطر بيع حقيقي). الـ repository يعيد بناء الصنف من تقاطعهما. موثّق في `docs/db/CATALOG_DATA_NOTE.md` (الاسم=null لأنه في المخطط الغائب؛ الحقل متروك للتوافق المستقبلي).
@@ -62,7 +72,7 @@
 - **التالي: المرحلة 0 — إكمال الفك الكامل (~100 شاشة + packages + توثيق).**
 
 ## الحالة العامة
-- المرحلة الحالية: **2 (Backend NestJS) — قيد التنفيذ:** الإقلاع مكتمل (NestJS + Oracle حي + bills/shifts + health + golden 100%). التالي catalog/auth/جانب الكتابة.
+- المرحلة الحالية: **3 (Frontend React 19 PWA) — MVP حي:** واجهة RTL عربية (login + POS + bills + bill-detail + reports) تتصل فعلياً بالـ backend وتعرض بيانات حقيقية (build+lint نظيفان). Backend (المرحلة 2): NestJS + Oracle حي + bills/shifts/catalog/auth/health + 36 اختبار. التالي: جانب الكتابة (PostBill + payments + offline-sync).
 - المعمارية معتمدة: Modular Monolith + Clean/Hexagonal + Tactical DDD (ADR-001..005 في docs/adr/). التصاميم الكاملة في docs/ARCHITECTURE.md + DATA_MODEL.md + API_DESIGN.md + SCREENS_PRIORITY.md + PROJECT_STRUCTURE.md.
 - القاعدة: حاوية oracle12 (YSPOS23، 118 جدول) شغّالة محلياً.
 - ✅ **فُكّت ووُثِّقت 80 شاشة POS كاملة** (المرحلة 0-أ). راجع `docs/screens/INDEX.md`.
