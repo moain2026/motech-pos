@@ -21,10 +21,16 @@ presentation (controllers, DTOs)  →  application (services/use-cases)
 - Ports are interfaces (DI tokens); adapters are bound per module.
 - `shared/` (Money, ProblemDetails, errors, exception filter) depends on nothing.
 
-Modules implemented this phase:
+Modules implemented:
 - **bills** (the core) — `Bill` aggregate + `BillLine` with the re-implemented
   tax/discount/total logic from `PKG_POS_API_PKG` (see `docs/db/PACKAGES_ANALYSIS.md`).
 - **shifts** — open-shift lookup (`GET_WRK_SHFT_OPN_FNC` logic); selling precondition.
+- **catalog** — items / last price / available quantity, read from the real
+  data that exists (`MV_ITEM_AVL_QTY` + `IAS_POS_BILL_DTL`). See
+  `docs/db/CATALOG_DATA_NOTE.md` for why the canonical item master is not used.
+- **auth** — JWT (HS256, access + refresh) + RBAC (`cashier`/`supervisor`/`admin`)
+  via guards. Local app-owned users store this phase (the Onyx user tables are
+  unreadable here) — see `docs/db/AUTH_DATA_NOTE.md`.
 - **health** — `/health` + `/ready` (Oracle `SELECT 1 FROM DUAL`).
 
 ---
@@ -59,6 +65,11 @@ cp .env.example .env      # adjust ORACLE_* if needed
 | `ORACLE_PASSWORD` | — | (gitignored .env) |
 | `ORACLE_CONNECT_STRING` | 127.0.0.1:1521/xe | easy-connect |
 | `ORACLE_SCHEMA` | YSPOS23 | owns the POS tables |
+| `JWT_SECRET` | — | HS256 signing secret (>= 16 chars; use 32+ random) |
+| `JWT_ACCESS_TTL` | 15m | access token lifetime |
+| `JWT_REFRESH_TTL` | 7d | refresh token lifetime |
+| `JWT_ISSUER` | motech-pos | token `iss` claim |
+| `AUTH_USERS_FILE` | auth-users.json | local (temporary) users seed |
 
 ---
 
@@ -85,19 +96,40 @@ npm run start:dev
 | GET | `/api/v1/bills/:billNo` | bill detail: header + lines + **recomputed** totals vs stored |
 | GET | `/api/v1/bills/summary/daily?from&to` | daily sales summary |
 | GET | `/api/v1/shifts/current?cashierNo` | open shift (409 `no-open-shift` if none) |
+| POST | `/api/v1/auth/login` | username + password → `{ accessToken, refreshToken, user }` |
+| POST | `/api/v1/auth/refresh` | refresh token → new token pair |
+| GET | `/api/v1/auth/me` | current user + role (Bearer access token) |
+| GET | `/api/v1/items?search&cursor&limit` | item list/search (code asc, cursor paginated) — **auth required** |
+| GET | `/api/v1/items/:code` | item + last price + per-warehouse available qty |
+| GET | `/api/v1/items/barcode/:bc` | resolve item by barcode |
 
 Errors follow **RFC 9457** (`application/problem+json`) with a `traceId`.
+
+### Auth & RBAC
+
+- `Authorization: Bearer <access JWT>` on protected routes (all `/items/*`).
+- `JwtAuthGuard` verifies the token (rejects refresh tokens); `RolesGuard`
+  enforces `@Roles(...)`. Secret + TTLs come from validated env
+  (`JWT_SECRET`, `JWT_ACCESS_TTL`, `JWT_REFRESH_TTL`, `JWT_ISSUER`).
+- Dev seed users live in `auth-users.json` (`AUTH_USERS_FILE`), bcrypt-hashed:
+  `cashier1/cashier123`, `supervisor1/super123`, `admin/admin123`
+  (**dev only** — replace for any real deployment).
 
 ---
 
 ## Tests
 
 ```bash
-npm run test         # unit (domain) only
-npm run test:unit    # same
-npm run test:golden  # golden: real Oracle bills vs recomputed totals
+npm run test         # unit only
+npm run test:unit    # 29 unit tests (Money/BillLine/DiscountPolicy/Bill + auth: token/service/RolesGuard)
+npm run test:golden  # 7 live-Oracle tests: bills golden + catalog integration (read-only)
 npm run lint
 ```
+
+The **catalog integration** spec exercises `OracleItemRepository` against the
+real `MV_ITEM_AVL_QTY` + `IAS_POS_BILL_DTL` data (list/pagination, by-code with
+stock, by-barcode resolution, search, unknown-code null). It needs the same
+`ORACLE_*` env as the golden test (`set -a && . ./.env && set +a`).
 
 ### Golden tests (proof-not-assumption)
 

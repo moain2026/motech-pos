@@ -2,6 +2,17 @@
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
 ## 2026-06-29
+### 17:40 — ✅ المرحلة 2-ب (Backend) — catalog + auth (JWT/RBAC) حيّان ومختبران (subagent phase2b-catalog-auth)
+- **catalog module** (`src/modules/catalog/`, Clean/Hexagonal 4 طبقات): `GET /api/v1/items` (بحث+ترقيم cursor)، `GET /api/v1/items/:code` (صنف+سعر+كمية لكل مخزن)، `GET /api/v1/items/barcode/:bc`. محمية بـ JWT+RBAC.
+- **اكتشاف حرج (proof, ليس افتراضاً):** جداول الأصناف/الأسعار المذكورة (`IAS_ITM_MST`, `IAS_ITM_DTL`, `IAS_ITEM_PRICE`) هي **synonyms** تشير للمخطط `IAS202623` الغائب في هذه الحاوية (0 objects) → كل الـ views (`IAS_V_ITM_UNT`…) **INVALID** (ORA-04063). البيانات الحقيقية المتاحة فقط: `MV_ITEM_AVL_QTY` (1,280 صنف + الكمية) + `IAS_POS_BILL_DTL` (آخر سعر/باركود/وحدة من 41,945 سطر بيع حقيقي). الـ repository يعيد بناء الصنف من تقاطعهما. موثّق في `docs/db/CATALOG_DATA_NOTE.md` (الاسم=null لأنه في المخطط الغائب؛ الحقل متروك للتوافق المستقبلي).
+- **auth module** (`src/modules/auth/`): `POST /auth/login` (+`/refresh`, `/me`). **JWT HS256** (access+refresh) + **RBAC** (`cashier`/`supervisor`/`admin`) عبر `JwtAuthGuard`+`RolesGuard`+`@Roles()`. أسرار JWT من .env (Zod fail-fast). bcrypt constant-time compare (لا enumeration). RFC 9457 للأخطاء.
+- **الأمن (proof):** `USER_R`/`S_BRN_USR_PRIV`/`PRIVILEGE_GC` أيضاً synonyms → IAS202623 غائب؛ وكلمات السر في Onyx مشفّرة (DECRYPT_PASS/POS_GNR_PKG غير متاح). لذا auth بـ **مخزن مستخدمين محلي مؤقّت** (bcrypt، seed JSON) — يحافظ على READ-ONLY على YSPOS23، وقابل للتبديل بـ `OracleUserRepository` خلف نفس الـ port لاحقاً. موثّق في `docs/db/AUTH_DATA_NOTE.md`.
+- **إثبات حي (proof):** login cashier1 → 200 (access+refresh+role)؛ كلمة خاطئة → 401 `invalid-credentials`؛ items بلا token → 401؛ مع token → أصناف حقيقية (`1010010013` وحدة كيس، باركود 6287002861172، سعر 850، مخزن 2)؛ barcode→code؛ /me؛ refresh؛ رفض refresh-كـ-access؛ 404 `item-not-found` بـ RFC 9457.
+- **اختبارات (36/36 تمرّ فعلاً):** 29 unit (منها 12 auth جديدة: TokenService round-trip/tamper، AuthService login/refresh/no-enumeration، RolesGuard) + 7 golden/integration (2 bills golden الأصلية تظل تمرّ = صفر regression + 5 catalog integration حية ضد Oracle). **lint نظيف، build نظيف.**
+- **READ-ONLY ملتزَم:** صفر كتابة على YSPOS23 (الأصناف قراءة، المستخدمون في مخزن محلي منفصل).
+- توثيق: `backend/README.md` محدّث (endpoints+auth+env+tests) + `docs/db/CATALOG_DATA_NOTE.md` + `docs/db/AUTH_DATA_NOTE.md` + `docs/api/openapi.json` (OpenAPI/Swagger محدّث — 11 مسار). commits بهوية MoainAlabbasi.
+- **التالي:** جانب الكتابة للفاتورة (PostBillUseCase خلف Idempotency-Key) + ربط المخطط الحقيقي IAS202623 (أسماء الأصناف/الأسعار + جداول المستخدمين) عند توفّره.
+
 ### 17:22 — ✅ المرحلة 2 (Backend) — الإقلاع: NestJS يعمل + Oracle حي + bills/shifts + golden tests (subagent phase2-backend)
 - **مشروع NestJS فعلي** في `backend/` (Clean/Hexagonal، 4 طبقات/module حسب PROJECT_STRUCTURE). يبني ويعمل: `npm run build` نظيف، `npm run start:prod` يقلع، **lint نظيف صفر تحذيرات**.
 - **config بـ Zod** (`config.schema.ts` + `TypedConfigService`) — تحقّق البيئة عند الإقلاع (fail-fast). `helmet` + CORS allowlist + `ValidationPipe(whitelist, forbidNonWhitelisted)` + pino logging + graceful shutdown.
