@@ -1,7 +1,15 @@
 # Motech POS — Backend (NestJS)
 
-REST API for Motech POS. **Phase 2** = read-only over the real Oracle YSPOS23
-schema, Clean/Hexagonal architecture, proof-tested against real bills.
+REST API for Motech POS. Clean/Hexagonal architecture, proof-tested against
+real databases.
+
+- **Read side** — read-only over the real Oracle **YSPOS23** schema (the live
+  Onyx DB) via the least-privilege `MOTECH_RO` user. Catalog, bill reports,
+  legacy shift lookup.
+- **Write side (Phase 2c)** — the new system writes its OWN bills/payments/
+  shifts into a **separate `MOTECH_POS` schema** (same Oracle container, distinct
+  user). It READS reference prices/tax from YSPOS23 but NEVER writes there.
+  `PostBillUseCase` (idempotent), shifts open/close, payments.
 
 > Stack: NestJS 10 · TypeScript · node-oracledb 6 (thin mode) · Zod config ·
 > pino logging · RFC 9457 errors · Vitest. See `docs/ARCHITECTURE.md`,
@@ -39,8 +47,22 @@ Modules implemented:
 
 - Node.js 22, npm 10.
 - Oracle reachable at `ORACLE_CONNECT_STRING` (local docker `oracle12`,
-  service `xe`). A least-privilege **read-only** user is used (`MOTECH_RO`,
-  `SELECT ANY TABLE` only — INSERT/UPDATE are rejected with ORA-01031).
+  service `xe`). Two users:
+  - **`MOTECH_RO`** — read-only on YSPOS23 (`SELECT ANY TABLE`; INSERT/UPDATE
+    rejected). Used by `OracleService` for all reference reads.
+  - **`MOTECH_POS`** — owns our write schema (`SHIFTS/BILLS/BILL_LINES/`
+    `PAYMENTS`). Has NO privilege on YSPOS23 (ORA-00942 if it tries), enforcing
+    "writes only to MOTECH_POS" at the DB level. Used by `OracleWriteService`.
+
+### Create the write schema (one-time)
+
+```bash
+# from repo root
+sudo docker cp db/migrations/V001__create_motech_pos_schema.sql oracle12:/tmp/V001.sql
+sudo docker cp db/migrations/V002__create_tables.sql oracle12:/tmp/V002.sql
+sudo docker exec -i oracle12 sqlplus -S "sys/oracle@//localhost:1521/xe as sysdba" @/tmp/V001.sql
+sudo docker exec -i oracle12 sqlplus -S "MOTECH_POS/motech_pos_2026@//localhost:1521/xe" @/tmp/V002.sql
+```
 
 > node-oracledb 6 runs in **thin mode** (pure JS) — no Oracle Instant Client
 > needed. Verified against Oracle Database 12.1.0.2.
@@ -95,7 +117,14 @@ npm run start:dev
 | GET | `/api/v1/bills?from&to&machineNo&cursor&limit` | bill list (cursor paginated, newest first) |
 | GET | `/api/v1/bills/:billNo` | bill detail: header + lines + **recomputed** totals vs stored |
 | GET | `/api/v1/bills/summary/daily?from&to` | daily sales summary |
-| GET | `/api/v1/shifts/current?cashierNo` | open shift (409 `no-open-shift` if none) |
+| GET | `/api/v1/shifts/current?cashierNo` | open shift in MOTECH_POS (409 `no-open-shift` if none) |
+| GET | `/api/v1/shifts/legacy/current?cashierNo` | open shift from YSPOS23 (read-only reference) |
+| POST | `/api/v1/shifts/open` | **open a work shift** (selling precondition) → MOTECH_POS.SHIFTS |
+| POST | `/api/v1/shifts/:id/close` | **close a shift** (expected cash + difference) |
+| GET | `/api/v1/shifts/:id/summary` | shift X/Z summary (sales + cash totals) |
+| POST | `/api/v1/bills` | **create a sale bill** (open shift required, `Idempotency-Key` mandatory) |
+| POST | `/api/v1/bills/:id/payments` | **add a payment** (cash/card/credit) to a posted bill |
+| GET | `/api/v1/bills/posted/:id` | fetch a posted bill from MOTECH_POS (header+lines+payments) |
 | POST | `/api/v1/auth/login` | username + password → `{ accessToken, refreshToken, user }` |
 | POST | `/api/v1/auth/refresh` | refresh token → new token pair |
 | GET | `/api/v1/auth/me` | current user + role (Bearer access token) |
@@ -121,10 +150,28 @@ Errors follow **RFC 9457** (`application/problem+json`) with a `traceId`.
 
 ```bash
 npm run test         # unit only
-npm run test:unit    # 29 unit tests (Money/BillLine/DiscountPolicy/Bill + auth: token/service/RolesGuard)
-npm run test:golden  # 7 live-Oracle tests: bills golden + catalog integration (read-only)
+npm run test:unit    # 33 unit tests (Money/BillLine/DiscountPolicy/Bill/uuidv7 + auth)
+npm run test:golden  # 17 live-Oracle tests: bills golden + catalog (read) + write-side (read+write)
 npm run lint
+npm run openapi      # regenerate ../docs/api/openapi.json from the live Swagger doc
 ```
+
+### Write-side integration (full live sale cycle)
+
+`test/golden/write-side-integration.spec.ts` boots the real app and drives the
+entire cycle against the REAL databases — **proof-not-assumption**:
+
+1. selling without an open shift → `409 no-open-shift`;
+2. open shift → row in `MOTECH_POS.SHIFTS`; second open for same cashier →
+   `409 shift-already-open`;
+3. create bill → reads reference price from YSPOS23, computes totals with the
+   proven `Bill` aggregate, writes header+lines into `MOTECH_POS` atomically;
+4. **idempotency**: same `Idempotency-Key` twice → same bill, exactly one row;
+   same key + different body → `409 idempotency-conflict`; missing key → `422`;
+5. add cash payment → row in `MOTECH_POS.PAYMENTS`, `PAID_AMT` recomputed;
+6. close shift → expected cash + difference; selling blocked again after close.
+
+It uses a unique cashier number per run and cleans up its own rows.
 
 The **catalog integration** spec exercises `OracleItemRepository` against the
 real `MV_ITEM_AVL_QTY` + `IAS_POS_BILL_DTL` data (list/pagination, by-code with

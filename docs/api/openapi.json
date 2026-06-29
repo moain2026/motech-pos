@@ -4,7 +4,7 @@
         "/health": {
             "get": {
                 "operationId": "HealthController_health",
-                "summary": "Liveness + Oracle connectivity (SELECT 1 FROM DUAL)",
+                "summary": "Liveness + Oracle connectivity (read + write DBs)",
                 "parameters": [],
                 "responses": {
                     "200": {
@@ -19,7 +19,7 @@
         "/ready": {
             "get": {
                 "operationId": "HealthController_ready",
-                "summary": "Readiness probe",
+                "summary": "Readiness probe (read + write DBs)",
                 "parameters": [],
                 "responses": {
                     "200": {
@@ -34,7 +34,7 @@
         "/api/v1/auth/login": {
             "post": {
                 "operationId": "AuthController_login",
-                "summary": "Login (username + password) \u2192 access & refresh JWT",
+                "summary": "Login (username + password) → access & refresh JWT",
                 "parameters": [],
                 "requestBody": {
                     "required": true,
@@ -182,7 +182,7 @@
         "/api/v1/shifts/current": {
             "get": {
                 "operationId": "ShiftsController_current",
-                "summary": "Open shift for a cashier (GET_WRK_SHFT_OPN_FNC)",
+                "summary": "Open shift for a cashier (MOTECH_POS.SHIFTS)",
                 "parameters": [
                     {
                         "name": "cashierNo",
@@ -200,10 +200,188 @@
                 },
                 "tags": [
                     "shifts"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/shifts/legacy/current": {
+            "get": {
+                "operationId": "ShiftsController_legacyCurrent",
+                "summary": "Open shift from YSPOS23 (GET_WRK_SHFT_OPN_FNC, read-only)",
+                "parameters": [
+                    {
+                        "name": "cashierNo",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "shifts"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/shifts/open": {
+            "post": {
+                "operationId": "ShiftsController_open",
+                "summary": "Open a work shift (selling precondition)",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/OpenShiftDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "shifts"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/shifts/{id}/close": {
+            "post": {
+                "operationId": "ShiftsController_close",
+                "summary": "Close a work shift (expected cash + difference)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CloseShiftDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "shifts"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/shifts/{id}/summary": {
+            "get": {
+                "operationId": "ShiftsController_summary",
+                "summary": "Shift summary (X/Z report: sales + cash totals)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "shifts"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
                 ]
             }
         },
         "/api/v1/bills": {
+            "post": {
+                "operationId": "BillsController_create",
+                "summary": "Create a sale bill (open shift required, idempotent)",
+                "parameters": [
+                    {
+                        "name": "idempotency-key",
+                        "required": true,
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "description": "uuid v7 — mandatory; replays return the same bill (no dup)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PostBillDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "bills"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
             "get": {
                 "operationId": "BillsController_list",
                 "summary": "List bills (newest first, cursor paginated)",
@@ -215,6 +393,74 @@
                 },
                 "tags": [
                     "bills"
+                ]
+            }
+        },
+        "/api/v1/bills/{id}/payments": {
+            "post": {
+                "operationId": "BillsController_pay",
+                "summary": "Add a payment (cash/card/credit) to a posted bill",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddPaymentDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "bills"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/bills/posted/{id}": {
+            "get": {
+                "operationId": "BillsController_getPosted",
+                "summary": "Fetch a posted bill from MOTECH_POS (header+lines+payments)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "bills"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
                 ]
             }
         },
@@ -260,8 +506,8 @@
     },
     "info": {
         "title": "Motech POS API",
-        "description": "NestJS backend (Oracle-first, Clean/Hexagonal) \u2014 read-only phase",
-        "version": "0.1.0",
+        "description": "NestJS backend (Oracle-first, Clean/Hexagonal)",
+        "version": "0.2.0",
         "contact": {}
     },
     "tags": [],
@@ -301,6 +547,183 @@
                 },
                 "required": [
                     "refreshToken"
+                ]
+            },
+            "OpenShiftDto": {
+                "type": "object",
+                "properties": {
+                    "cashierNo": {
+                        "type": "number",
+                        "example": 12,
+                        "description": "Cashier number (CSHR_NO)"
+                    },
+                    "shiftCode": {
+                        "type": "string",
+                        "example": "M",
+                        "description": "Shift code (POS_WRK_SHFT)"
+                    },
+                    "machineNo": {
+                        "type": "number",
+                        "example": 1,
+                        "description": "POS machine number"
+                    },
+                    "openingBalance": {
+                        "type": "number",
+                        "example": 1000,
+                        "description": "Opening cash balance"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "YER"
+                    }
+                },
+                "required": [
+                    "cashierNo"
+                ]
+            },
+            "CloseShiftDto": {
+                "type": "object",
+                "properties": {
+                    "closingBalance": {
+                        "type": "number",
+                        "example": 4250.5,
+                        "description": "Counted closing cash (defaults to expected if omitted)"
+                    },
+                    "closeNote": {
+                        "type": "string",
+                        "example": "End of morning shift"
+                    }
+                }
+            },
+            "PostBillLineDto": {
+                "type": "object",
+                "properties": {
+                    "itemCode": {
+                        "type": "string",
+                        "example": "100001",
+                        "description": "Item code (YSPOS23 I_CODE)"
+                    },
+                    "qty": {
+                        "type": "number",
+                        "example": 2
+                    },
+                    "unitPrice": {
+                        "type": "number",
+                        "example": 150,
+                        "description": "Override price (else reference)"
+                    },
+                    "discDtl": {
+                        "type": "number",
+                        "example": 0,
+                        "description": "Per-unit detail discount"
+                    },
+                    "freeQty": {
+                        "type": "number",
+                        "example": 0
+                    },
+                    "vatPercent": {
+                        "type": "number",
+                        "example": 15,
+                        "description": "Override VAT% (else reference)"
+                    }
+                },
+                "required": [
+                    "itemCode",
+                    "qty"
+                ]
+            },
+            "PostBillDto": {
+                "type": "object",
+                "properties": {
+                    "cashierNo": {
+                        "type": "number",
+                        "example": 12,
+                        "description": "Cashier number (must have open shift)"
+                    },
+                    "machineNo": {
+                        "type": "number",
+                        "example": 1
+                    },
+                    "customerCode": {
+                        "type": "string",
+                        "example": "C001"
+                    },
+                    "customerName": {
+                        "type": "string",
+                        "example": "Walk-in"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "YER"
+                    },
+                    "taxCalcType": {
+                        "type": "number",
+                        "example": 2,
+                        "enum": [
+                            1,
+                            2
+                        ],
+                        "description": "1=on price, 2=after discount"
+                    },
+                    "headerDiscount": {
+                        "type": "number",
+                        "example": 0,
+                        "description": "Header discount allocated across lines"
+                    },
+                    "clientOperationId": {
+                        "type": "string",
+                        "example": "018f2c1a-...uuidv7",
+                        "description": "Client op id"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PostBillLineDto"
+                        }
+                    }
+                },
+                "required": [
+                    "cashierNo",
+                    "lines"
+                ]
+            },
+            "AddPaymentDto": {
+                "type": "object",
+                "properties": {
+                    "method": {
+                        "type": "string",
+                        "example": "CASH",
+                        "enum": [
+                            "CASH",
+                            "CARD",
+                            "CREDIT"
+                        ]
+                    },
+                    "amount": {
+                        "type": "number",
+                        "example": 300
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "YER"
+                    },
+                    "rate": {
+                        "type": "number",
+                        "example": 1,
+                        "description": "Exchange rate to bill currency"
+                    },
+                    "cardNo": {
+                        "type": "string",
+                        "example": "****1234"
+                    },
+                    "customerCode": {
+                        "type": "string",
+                        "example": "C001"
+                    }
+                },
+                "required": [
+                    "method",
+                    "amount"
                 ]
             }
         }

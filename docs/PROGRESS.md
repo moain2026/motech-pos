@@ -2,6 +2,18 @@
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
 ## 2026-06-29
+### 18:40 — ✅ المرحلة 2‑ج — جانب الكتابة (قاعدة MOTECH_POS منفصلة + PostBill + payments + shifts) (subagent phase2c-write-side)
+- **قاعدة كتابة خاصة منفصلة `MOTECH_POS`** (مستخدم/سكيمة جديدة في نفس حاوية oracle12، **منفصلة تماماً عن YSPOS23 المقدّسة**). YSPOS23 = قراءة فقط عبر `MOTECH_RO`؛ الكتابة فقط في `MOTECH_POS`. **proof العزل:** `MOTECH_POS` لا يملك أي صلاحية على YSPOS23 → `SELECT … FROM YSPOS23.*` يرجع **ORA-00942** (عزل على مستوى الصلاحيات لا الكود).
+  - **migrations** في `db/migrations/`: `V001` (إنشاء المستخدم/الصلاحيات الدنيا) + `V002` (الجداول). جداول التصميم النظيف من DATA_MODEL: `SHIFTS, BILLS, BILL_LINES, PAYMENTS`. **NUMBER(18,4) للمال** (NUMERIC لا float)، **UUID v7 PK** (VARCHAR2(36)، مولّد محلياً time-ordered)، `CREATED_AT TIMESTAMP`، `IDEMPOTENCY_KEY UNIQUE`، فهرس فريد جزئي `UX_SHIFTS_ONE_OPEN` (وردية مفتوحة واحدة لكل كاشير)، FK + CHECK على المبالغ/الحالات.
+- **shifts write:** `POST /api/v1/shifts/open` (يكتب MOTECH_POS.SHIFTS، يرفض وردية ثانية → 409 shift-already-open) + `POST /:id/close` (يحسب expected cash + الفرق) + `GET /:id/summary` (X/Z) + `GET /current` (شرط البيع، 409 no-open-shift). محميّة بـ JWT/RBAC.
+- **PostBillUseCase** (`POST /api/v1/bills`، نظير `EXTRCT_POS_BILL_PRC`): (1) **Idempotency-Key إلزامي** (uuid v7، إعادة المفتاح = نفس الفاتورة بلا ازدواج؛ مفتاح+جسم مختلف = 409؛ بلا مفتاح = 422)؛ (2) **شرط وردية مفتوحة**؛ (3) **يقرأ الأسعار/الضريبة من YSPOS23** (read-only)؛ (4) يحسب الإجماليات بمنطق golden المُثبت (`Bill` aggregate: gross/discount/vat/net + توزيع خصم الرأس تناسبياً)؛ (5) **يكتب الرأس+الأسطر ذرّياً في MOTECH_POS** ضمن معاملة SERIALIZABLE، ترقيم آمن من SEQ + UNIQUE idempotency backstop، **فاتورة immutable بعد الحفظ**. RFC9457.
+- **payments:** `POST /api/v1/bills/:id/payments` (CASH/CARD/CREDIT) → MOTECH_POS.PAYMENTS، يعيد حساب PAID_AMT من سطور الدفع؛ آجل يتطلب customerCode.
+- **بنية:** `OracleWriteService` (pool منفصل + `withTransaction` SERIALIZABLE) منفصل عن `OracleService` (read-only). ports جديدة: `ShiftWriteRepository`, `BillWriteRepository`, `ItemReferenceReader`. أخطاء مجال جديدة (shift-already-open/closed، idempotency-conflict/required، bill-immutable). `/health` و`/ready` يفحصان القاعدتين.
+- **اختبارات (proof-not-assumption):** **33 unit** (+uuidv7) كلها تمر + **17 golden حيّة** (كلها تمر، صفر كسر للقديم). الجديد `write-side-integration.spec.ts` = **دورة بيع كاملة حيّة على القاعدتين الحقيقيتين**: بلا وردية→409 → فتح وردية → إنشاء فاتورة (قراءة سعر YSPOS23 + كتابة MOTECH_POS) → **Idempotency** (نفس المفتاح=صف واحد، مفتاح مختلف=409، بلا مفتاح=422) → دفع نقدي → إقفال (expected/diff) → البيع محجوب بعد الإقفال. **lint + build نظيفان.**
+- توثيق: `backend/README` محدّث (write side + migrations + tests) + `docs/api/openapi.json` مُعاد توليده (18 مسار، إضافة bills POST/payments + shifts open/close/summary) + سكربت `npm run openapi`.
+- قيود: الداتاسيت الحالي ضريبته/خصومه=صفر فالـ golden للقراءة يثبت مسار بلا‑ضريبة؛ منطق الضريبة نوع1/2+توزيع الخصم مُثبت unit. سعر الصنف يُعاد بناؤه من آخر بيع (IAS_POS_BILL_DTL) لغياب IAS202623. الترحيل للمركز (MOV_BILLS_PRC) + الفوترة الإلكترونية = مرحلة لاحقة.
+- commits بهوية MoainAlabbasi.
+
 ### 18:20 — ✅ المرحلة 0‑ج — توثيق المسارات الكاملة end‑to‑end (9 مسارات) في docs/flows/ (subagent flows-analysis)
 - **أُنشئ `docs/flows/`** بـ **9 ملفات مسار** + `INDEX.md`، كلٌّ يوثّق المسار الكامل **الواجهة (الشاشة) → المنطق (triggers/packages) → القاعدة (الجداول/الأعمدة الحقيقية)** بمنهج proof-not-assumption (أسماء مُستخرجة فعلياً من `docs/screens/`+`_raw/` و`db/schema/plsql/` 91 ملف و`db/schema/tables/` 117 DDL). كل ملف فيه: **مخطّط Mermaid sequence** + **جدول خطوات** + **ملاحظات لإعادة البناء** + **ثغرات**.
   1. **FLOW_LOGIN** (POSLGN → DECRYPT_PASS/VALIDATE_PASS/CHECK_HDSERIAL p‑code → USER_R/IAS_USR_LGN_HSTRY/الصلاحيات؛ تأكيد: auth في Forms client وليس DB pkg).
@@ -93,3 +105,12 @@
 - القاعدة: حاوية oracle12 (YSPOS23، 118 جدول) شغّالة محلياً.
 - ✅ **فُكّت ووُثِّقت 80 شاشة POS كاملة** (المرحلة 0-أ). راجع `docs/screens/INDEX.md`.
 - الباقي للمرحلة 0: أجساد حِزَم DB (POSLIB/IAS_*_PKG via ALL_SOURCE) + Visual RE للحقول/التسميات + شاشات غير-POS عند الحاجة.
+
+### 2026-06-29 18:38 — ✅ ترحيل IAS202623 (النظام المركزي ERP) → اكتمل النظام
+- **سُحب وأُستورد schema IAS202623 كاملاً** من القاعدة الحيّة (SERVER3, Oracle 12.1) إلى حاوية oracle12 بجانب YSPOS23 (export = قراءة فقط، صفر تعديل على الجهاز).
+- **proof:** 2595/2595 جدول · IAS_ITM_MST = 2391/2391 صف · **41945/41945 سطر فاتورة POS يربط باسم الصنف (تغطية 100%)**.
+- العمود الحامل لاسم الصنف العربي: `IAS202623.IAS_ITM_MST.I_NAME` — مفتاح الربط `I_CODE`. عيّنة محقّقة: `1020060001 → بيض`, `1050040063 → شراب كنده دراي 500مل احمر`.
+- **YSPOS23 INVALID objects: 135 → 48** بعد recompile (الـviews/synonyms التي كانت تشير لـ IAS202623 صارت VALID؛ المتبقي بسبب FGAC/db-links/PL-JSON غير المتوفرة في XE — مقبول).
+- معالجات رئيسية موثّقة: charset BYTE→CHAR (924 ORA-12899)، GTT في tablespace دائم (127 ORA-02195)، تعطيل/تفعيل FK+Triggers للـreload.
+- التوثيق الكامل: `/home/work/oracle/pos-alabasi/IAS202623_MIGRATION.md`.
+- **الأثر:** أسماء الأصناف والعملاء والمستخدمين صارت متاحة محلياً → نظام Onyx مكتمل البيانات (لم تعد فواتير POS مجرد أكواد).
