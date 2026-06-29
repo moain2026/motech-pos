@@ -1,0 +1,5 @@
+
+  CREATE TABLE "YSPOS23"."IAS_POS_BILL_TEMP"
+   (	"BILL_NO" NUMBER
+   ) ;
+

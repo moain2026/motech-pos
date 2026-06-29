@@ -1,0 +1,52 @@
+-- PROCEDURE: IAS_GET_ITM_WGHT_DATA (status: INVALID)
+CREATE OR REPLACE
+PROCEDURE IAS_GET_ITM_WGHT_DATA (P_BARCODE	  In  IAS_ITM_DTL.BARCODE%TYPE,
+							    P_WEIGHTED_PERFIX	    In	VARCHAR2    ,
+							    P_WEIGHTED_LENGTH	    In	NUMBER	  ,
+							    P_WEIGHTED_ITEM_LENGTH  In	NUMBER	  ,
+							    P_WEIGHTED_BASIC	    In	NUMBER	  ,
+							    P_REMOVE_WEIGHT_DIGIT   In	NUMBER	  ,
+							    P_INCLD_ITM_UNT	    In	NUMBER DEFAULT 0,
+							    P_ICODE   OUT  IAS_ITM_MST.I_CODE%TYPE,
+							    P_QTY OUT NUMBER ,
+							    P_ITM_UNT OUT IAS_ITM_DTL.ITM_UNT%TYPE)  IS
+
+							BEGIN
+							   If  Upper(SubStr(P_BARCODE,1,Length(P_WEIGHTED_PERFIX))) = Upper(P_WEIGHTED_PERFIX)	And  Length(P_BARCODE)= P_WEIGHTED_LENGTH Then
+							
+								P_ICODE:= SubStr(P_BARCODE,Length(P_WEIGHTED_PERFIX) +1,P_WEIGHTED_ITEM_LENGTH );
+							
+								IF P_INCLD_ITM_UNT = 0 Then
+								    -- Remove_Weight_Digit    1- From Right 2- From Left
+								     IF P_REMOVE_WEIGHT_DIGIT = 1  THEN
+									 P_QTY := SUBSTR(TO_NUMBER(SUBSTR(P_BARCODE,Length(P_WEIGHTED_PERFIX)+P_WEIGHTED_ITEM_LENGTH+1)),1,LENGTH(TO_NUMBER(TO_NUMBER(SUBSTR(P_BARCODE,Length(P_WEIGHTED_PERFIX)+P_WEIGHTED_ITEM_LENGTH+1))))-1 )/P_WEIGHTED_BASIC  ;
+								     ELSIF P_REMOVE_WEIGHT_DIGIT = 2  THEN
+									 P_QTY := TO_NUMBER(SUBSTR(P_BARCODE,Length(P_WEIGHTED_PERFIX)+P_WEIGHTED_ITEM_LENGTH+2))/P_WEIGHTED_BASIC;
+								     ELSE
+									 P_QTY := TO_NUMBER(SUBSTR(P_BARCODE,Length(P_WEIGHTED_PERFIX)+P_WEIGHTED_ITEM_LENGTH+1))/P_WEIGHTED_BASIC ;
+								     END IF ;
+								Else
+								    --Get Item unit
+								     Begin
+									  Select Itm_unt Into P_ITM_UNT
+									    From Ias_Itm_Dtl
+									   Where I_Code =SubStr(P_BARCODE,Length(P_WEIGHTED_PERFIX) +1,P_WEIGHTED_ITEM_LENGTH )
+									     And Lvl_Unit=SUBSTR(P_BARCODE,Length(P_WEIGHTED_PERFIX)+P_WEIGHTED_ITEM_LENGTH+1,1);
+								     Exception When Others Then
+									  Select Itm_unt Into P_ITM_UNT
+									    From Ias_Itm_Dtl
+									   Where I_Code =SubStr(P_BARCODE,Length(P_WEIGHTED_PERFIX) +1,P_WEIGHTED_ITEM_LENGTH )
+									     And Main_Unit=1;
+								     End;
+								    -- Remove_Weight_Digit    1- From Right 2- From Left
+								     IF P_REMOVE_WEIGHT_DIGIT = 1  THEN
+									 P_QTY := SUBSTR(TO_NUMBER(SUBSTR(P_BARCODE,Length(P_WEIGHTED_PERFIX)+P_WEIGHTED_ITEM_LENGTH+2)),1,LENGTH(TO_NUMBER(TO_NUMBER(SUBSTR(P_BARCODE,Length(P_WEIGHTED_PERFIX)+P_WEIGHTED_ITEM_LENGTH+1))))-1 )/P_WEIGHTED_BASIC  ;
+								     ELSIF P_REMOVE_WEIGHT_DIGIT = 2  THEN
+									 P_QTY := TO_NUMBER(SUBSTR(P_BARCODE,Length(P_WEIGHTED_PERFIX)+P_WEIGHTED_ITEM_LENGTH+3))/P_WEIGHTED_BASIC;
+								     ELSE
+									 P_QTY := TO_NUMBER(SUBSTR(P_BARCODE,Length(P_WEIGHTED_PERFIX)+P_WEIGHTED_ITEM_LENGTH+2))/P_WEIGHTED_BASIC ;
+								     END IF ;
+								End If;
+							   END IF;
+							END IAS_GET_ITM_WGHT_DATA;
+/

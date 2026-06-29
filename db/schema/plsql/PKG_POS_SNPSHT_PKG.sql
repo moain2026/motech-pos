@@ -1,0 +1,174 @@
+-- =============================================
+-- PACKAGE SPEC: POS_SNPSHT_PKG  (status: VALID)
+-- =============================================
+CREATE OR REPLACE
+PACKAGE POS_SNPSHT_PKG AS
+			  FUNCTION   CHK_MATCH_FLDS  (P_TBL_NM	 VARCHAR2,P_USR_RMT   VARCHAR2 ,P_MV_NM  VARCHAR2 ,P_USR_MV  VARCHAR2,P_LNK_NM	VARCHAR2) RETURN BOOLEAN;
+			  FUNCTION   GET_FLDS_TBL    (P_TBL_NM	 VARCHAR2,P_USR_RMT   VARCHAR2 ,P_LNK_NM  VARCHAR2) RETURN VARCHAR2;
+			  PROCEDURE  ADD_MINUS_FLDS  (P_TAB_NM	VARCHAR2,P_COL_NM  VARCHAR2,P_USR_RMT VARCHAR2,P_LNK_NM  VARCHAR2,P_USR_MV VARCHAR2,P_MV_NM VARCHAR2) ;
+			  PROCEDURE  MVIEW_EDIT      (P_USR_MV	 VARCHAR2 );
+			  PROCEDURE  MVIEW_REFRESH   (P_LIST IN VARCHAR2, P_METHOD IN VARCHAR2:= NULL);
+	    END POS_SNPSHT_PKG;
+/
+
+-- ---------------------------------------------
+-- PACKAGE BODY: POS_SNPSHT_PKG  (status: VALID)
+-- ---------------------------------------------
+CREATE OR REPLACE
+PACKAGE BODY POS_SNPSHT_PKG AS
+   FUNCTION   CHK_MATCH_FLDS  (P_TBL_NM   VARCHAR2,P_USR_RMT   VARCHAR2 ,P_MV_NM  VARCHAR2 ,P_USR_MV  VARCHAR2,P_LNK_NM  VARCHAR2) RETURN BOOLEAN IS
+     V_CNT_COL_TAB    NUMBER:=0;
+     V_CNT_COL_MV     NUMBER:=0;
+   BEGIN
+     EXECUTE  IMMEDIATE  ' SELECT COUNT(1) FROM ALL_TAB_COLS'||P_LNK_NM||' WHERE  TABLE_NAME=:B1  AND COLUMN_ID IS NOT NULL AND OWNER=:B2 ' INTO V_CNT_COL_TAB USING P_TBL_NM,P_USR_RMT ;
+     EXECUTE  IMMEDIATE  ' SELECT COUNT(1) FROM ALL_TAB_COLS WHERE  TABLE_NAME=:B1 AND COLUMN_ID IS NOT NULL AND OWNER=:B2 ' INTO V_CNT_COL_MV USING P_MV_NM,P_USR_MV ;
+
+     IF V_CNT_COL_TAB>V_CNT_COL_MV  THEN
+       RETURN TRUE;
+     ELSE
+       RETURN FALSE;
+     END IF;
+
+   END CHK_MATCH_FLDS;
+  FUNCTION  GET_FLDS_TBL    (P_TBL_NM	VARCHAR2,P_USR_RMT   VARCHAR2 ,P_LNK_NM  VARCHAR2) RETURN VARCHAR2 IS
+    C_REF SYS_REFCURSOR;
+    V_ALL_COL	VARCHAR2(4000);
+    V_COL_NM	VARCHAR2(4000);
+
+  BEGIN
+
+    OPEN C_REF FOR ' SELECT COLUMN_NAME FROM ALL_TAB_COLS'||P_LNK_NM||' WHERE OWNER='||''''||P_USR_RMT||''''||
+								      ' AND TABLE_NAME='||''''||P_TBL_NM||''''||' AND COLUMN_ID IS NOT NULL ORDER BY COLUMN_ID';
+    LOOP
+      FETCH  C_REF  INTO V_COL_NM  ;
+      EXIT WHEN  C_REF%NOTFOUND;
+      V_ALL_COL:= V_ALL_COL||','||V_COL_NM;
+    END LOOP;
+
+      V_ALL_COL := SUBSTR(V_ALL_COL,2);
+
+    RETURN  V_ALL_COL;
+
+  END  GET_FLDS_TBL;
+  --##-----------------------------------------------------------------------------------------------------------------------------------##--
+  PROCEDURE   ADD_MINUS_FLDS  (P_TAB_NM  VARCHAR2,P_COL_NM  VARCHAR2,P_USR_RMT VARCHAR2,P_LNK_NM  VARCHAR2,P_USR_MV VARCHAR2,P_MV_NM VARCHAR2) IS
+     V_NULL	  VARCHAR2(4000);
+     V_DATE_TYPE  VARCHAR2(4000);
+     V_DATA_PRN   NUMBER;
+     V_DATA_SCL   NUMBER;
+     V_CHAR_LNGTH NUMBER;
+     V_LNGTH	  NUMBER;
+     V_DATE_DFLT  VARCHAR2(4000);
+     V_CRT_COL	  VARCHAR2(4000);
+
+    BEGIN
+
+      EXECUTE IMMEDIATE ' SELECT DATA_TYPE	 ,
+				 CHAR_LENGTH	 ,
+				 DATA_LENGTH	 ,
+				 DATA_PRECISION  ,
+				 DATA_SCALE	 ,
+				 NULLABLE	 ,
+				 DATA_DEFAULT
+			  FROM ALL_TAB_COLS'||P_LNK_NM||
+		       '  WHERE TABLE_NAME='||''''||UPPER(P_TAB_NM)||''''||
+		       '  AND  COLUMN_NAME='||''''||UPPER(P_COL_NM)||''''||
+		       '  AND  OWNER	  ='||''''||UPPER(P_USR_RMT)||'''
+		       AND COLUMN_ID IS NOT NULL '
+      INTO   V_DATE_TYPE     ,
+	     V_CHAR_LNGTH    ,
+	     V_LNGTH	     ,
+	     V_DATA_PRN      ,
+	     V_DATA_SCL      ,
+	     V_NULL	     ,
+	     V_DATE_DFLT;
+
+
+      V_CRT_COL:='ALTER TABLE '||P_USR_MV||'.'||P_MV_NM||' ADD '||P_COL_NM||' ';
+
+      IF V_DATE_TYPE IN ('NUMBER') THEN
+       IF V_DATA_PRN IS NOT NULL  THEN
+	    V_CRT_COL:=V_CRT_COL||'  '||V_DATE_TYPE||'('||V_DATA_PRN||','||V_DATA_SCL||')';
+       ELSE
+	     V_CRT_COL:=V_CRT_COL||'  '||V_DATE_TYPE||'  ';
+       END IF;
+      ELSE
+	  IF V_CHAR_LNGTH=0  THEN
+	     V_CRT_COL:=V_CRT_COL||'  '||V_DATE_TYPE||'('||V_LNGTH||')';
+	ELSE
+	   V_CRT_COL:=V_CRT_COL||'  '||V_DATE_TYPE||'('||V_CHAR_LNGTH||')';
+	END IF;
+      END IF;
+
+      IF V_NULL='N' THEN
+	  V_CRT_COL:=V_CRT_COL||' NOT NULL ';
+      END IF;
+
+      EXECUTE IMMEDIATE V_CRT_COL;
+  EXCEPTION
+    WHEN OTHERS THEN
+      NULL;
+  END ADD_MINUS_FLDS;
+--##-----------------------------------------------------------------------------------------------------------------------------------##--
+  PROCEDURE  MVIEW_EDIT     (P_USR_MV	VARCHAR2 ) IS
+       C_REF SYS_REFCURSOR;
+       CURSOR C_MV IS SELECT  NAME MV_NM,
+			      MASTER_OWNER USR_RMT,
+			      MASTER TBL_RMT,
+			      NVL(MASTER_LINK,'@ONYX.ONYX.COM') LNK_RMT
+		      FROM  ALL_SNAPSHOTS
+		      WHERE OWNER = P_USR_MV;
+       V_COL_NM  VARCHAR2(300);
+  BEGIN
+		FOR R_MV IN C_MV LOOP
+		  IF CHK_MATCH_FLDS  (P_TBL_NM =>R_MV.TBL_RMT,P_USR_RMT=>R_MV.USR_RMT,P_MV_NM=>R_MV.MV_NM,P_USR_MV=>P_USR_MV,P_LNK_NM=>R_MV.LNK_RMT)  THEN
+
+		    BEGIN
+		      OPEN C_REF FOR ' SELECT COLUMN_NAME   FROM  ALL_TAB_COLS'||UPPER(R_MV.LNK_RMT)||'  WHERE COLUMN_ID IS NOT NULL AND TABLE_NAME='||''''||UPPER(R_MV.TBL_RMT)||''''||'  AND OWNER='||''''||UPPER(R_MV.USR_RMT)||''''||
+				     ' MINUS
+				       SELECT COLUMN_NAME   FROM  ALL_TAB_COLS	WHERE COLUMN_ID IS NOT NULL AND TABLE_NAME='||''''||UPPER(R_MV.MV_NM)||''''||' AND OWNER='||''''||UPPER(P_USR_MV)||'''' ;
+
+		      LOOP
+			FETCH  C_REF  INTO V_COL_NM  ;
+			EXIT WHEN  C_REF%NOTFOUND;
+			ADD_MINUS_FLDS	(P_TAB_NM=>R_MV.TBL_RMT,P_COL_NM=>V_COL_NM,P_USR_RMT=>R_MV.USR_RMT,P_LNK_NM=>R_MV.LNK_RMT,P_USR_MV=>P_USR_MV,P_MV_NM=>R_MV.MV_NM) ;
+
+		      END LOOP;
+
+
+			 EXECUTE IMMEDIATE 'UPDATE SYS.SNAP$ SET  QUERY_TXT='||''''||'SELECT '||GET_FLDS_TBL(R_MV.TBL_RMT,R_MV.USR_RMT,R_MV.LNK_RMT)||
+										     ' FROM '||R_MV.USR_RMT||'.'||R_MV.TBL_RMT||R_MV.LNK_RMT||''''||
+					   ' WHERE VNAME='||''''||R_MV.MV_NM||''''||' AND SOWNER='||''''||P_USR_MV||'''';
+
+			 EXECUTE IMMEDIATE 'UPDATE SYS.SNAP$
+						SET  QUERY_LEN=LENGTH('||''''||'SELECT '||GET_FLDS_TBL(R_MV.TBL_RMT,R_MV.USR_RMT,R_MV.LNK_RMT)||
+								       ' FROM '||R_MV.USR_RMT||'.'||R_MV.TBL_RMT||R_MV.LNK_RMT||''''||')'||
+					     '	WHERE VNAME='||''''||R_MV.MV_NM||''''||' AND SOWNER='||''''||P_USR_MV||'''';
+
+
+			 EXECUTE IMMEDIATE 'COMMIT';
+
+			 EXECUTE IMMEDIATE 'ALTER SNAPSHOT  '||P_USR_MV||'.'||R_MV.MV_NM||' COMPILE ';
+			 EXECUTE IMMEDIATE 'BEGIN   DBMS_SNAPSHOT.REFRESH('||''''||P_USR_MV||'.'||R_MV.MV_NM||''''||','||''''||'C'||''''||'); END;';
+
+
+
+		    EXCEPTION
+		      WHEN OTHERS THEN
+		      NULL;
+		    END ;
+		  END IF;
+		END LOOP;
+     END MVIEW_EDIT;
+     --##-----------------------------------------------------------------------------------------------------------------------------------##--
+     PROCEDURE MVIEW_REFRESH(P_LIST IN VARCHAR2, P_METHOD IN VARCHAR2:= NULL)
+		  IS
+		  BEGIN
+		     DBMS_MVIEW.REFRESH(P_LIST,P_METHOD);
+		  EXCEPTION
+		     WHEN OTHERS THEN
+			RAISE_APPLICATION_ERROR (-20001,'ERROR IN MVIEW_REFRESH '||SQLERRM);
+		  END MVIEW_REFRESH;
+  --##-----------------------------------------------------------------------------------------------------------------------------------##--
+     END POS_SNPSHT_PKG;
+/

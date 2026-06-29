@@ -1,0 +1,2904 @@
+-- =============================================
+-- PACKAGE SPEC: YS_JSON_PKG  (status: INVALID)
+-- =============================================
+CREATE OR REPLACE
+PACKAGE YS_JSON_PKG IS
+    TYPE MST_RCRD IS RECORD
+    (
+	DOC_NO		     IAS_POS_BILL_MST.BILL_NO%TYPE,
+	DOC_SER 	     IAS_POS_BILL_MST.BILL_NO%TYPE,
+	DOC_DATE	     IAS_POS_BILL_MST.BILL_DATE%TYPE,
+	C_CODE		     IAS_POS_BILL_MST.C_CODE%TYPE,
+	C_NAME		     CUSTOMER.C_A_NAME%TYPE,
+	CUST_CODE	     IAS_POS_BILL_MST.CUST_CODE%TYPE,
+	CUST_CODE_NAME	     CUSTOMER.C_A_NAME%TYPE,
+	CUR_CODE	     IAS_POS_BILL_MST.A_CY%TYPE,
+	CUR_RATE	     IAS_POS_BILL_MST.BILL_RATE%TYPE,
+	BILL_DOC_TYPE	     IAS_POS_BILL_MST.BILL_TYPE%TYPE,
+	CASH_NO 	     IAS_POS_BILL_MST.CASH_NO%TYPE,
+	CC_CODE 	     IAS_POS_BILL_MST.CC_CODE%TYPE,
+	PJ_NO		     IAS_POS_BILL_MST.CC_CODE%TYPE,
+	ACTV_NO 	     IAS_POS_BILL_MST.CC_CODE%TYPE,
+	W_CODE		     IAS_POS_BILL_MST.W_CODE%TYPE,
+	REP_CODE	     IAS_POS_BILL_MST.REP_CODE%TYPE,
+	R_CODE		     IAS_POS_BILL_MST.REP_CODE%TYPE,
+	DISC_AMT_MST	     IAS_POS_BILL_MST.DISC_AMT_MST%TYPE,
+	DISC_AMT_MST_VAT     IAS_POS_BILL_MST.DISC_AMT_MST_VAT%TYPE,
+	ADD_DISC_AMT_MST     IAS_POS_BILL_MST.DISC_AMT_MST%TYPE,
+	DOC_AMT 	     IAS_POS_BILL_MST.BILL_AMT%TYPE,
+	INSTRUCTION_NOTE     IAS_POS_BILL_MST.BILL_NOTE%TYPE,
+	NOTE_TYP	     IAS_POS_BILL_MST.BILL_NOTE%TYPE,
+	OTHR_AMT	     IAS_POS_BILL_MST.OTHR_AMT%TYPE,
+	BRN_NO		     IAS_POS_BILL_MST.BRN_NO%TYPE,
+	CLC_TYP_NO_TAX	     IAS_POS_BILL_MST.CLC_TYP_NO_TAX%TYPE,
+	CLC_VAT_PRICE_TYP    NUMBER(3), --1- PRICE WITHOUT VAT 2-PRICE INCLUDE VAT
+	PYMNT_AC	     VARCHAR2(60),
+	AC_AMT		     IAS_POS_BILL_MST.BILL_AMT%TYPE,
+	ADVNC_PYMNT_CPN_AMT  IAS_POS_BILL_MST.ADVNC_PYMNT_CPN_AMT%TYPE,
+	AC_CODE 	     IAS_POS_BILL_MST.AC_CODE%TYPE,
+	AC_CODE_DTL	     IAS_POS_BILL_MST.AC_CODE_DTL%TYPE,
+	AC_DTL_TYP	     IAS_POS_BILL_MST.AC_DTL_TYP%TYPE,
+	TYP_NO		     IAS_POS_BILL_MST.SI_TYPE%TYPE,
+	A_DESC		     IAS_POS_BILL_MST.BILL_NOTE%TYPE,
+	AD_DATE 	     IAS_POS_BILL_MST.AD_DATE%TYPE,
+	SYS_DOC_ID	     IAS_POS_BILL_MST.SYS_DOC_ID%TYPE,
+	DISC_AMT	     IAS_POS_BILL_MST.DISC_AMT%TYPE,
+	TAX_ACTV_CODE	     IAS_SALES_TYPES.TAX_ACTV_CODE%TYPE,
+	TAX_CAT_TYP	     VARCHAR2(10),
+	TAX_BILL_TYP	     VARCHAR2(10),
+	EXTERNAL_POST	     NUMBER(6),
+	C_TEL		     IAS_POS_BILL_MST.MOBILE_NO%TYPE
+    );
+
+    TYPE DTL_RCRD IS RECORD
+    (
+	DOC_NO		  IAS_POS_BILL_MST.BILL_NO%TYPE,
+	DOC_SER 	  IAS_POS_BILL_MST.BILL_NO%TYPE,
+	DOC_SEQUENCE	  IAS_POS_BILL_MST.BILL_NO%TYPE,
+	RCRD_NO 	  IAS_POS_BILL_DTL.RCRD_NO%TYPE,
+	I_CODE		  IAS_ITM_MST.I_CODE%TYPE,
+	GTIN_CODE	  IAS_ITM_MST.GTIN_CODE%TYPE,
+	HSN_CODE	  IAS_ITM_MST.HSN_CODE%TYPE,
+	I_NAME		  IAS_ITM_MST.I_NAME%TYPE,
+	ITM_UNT 	  IAS_POS_BILL_DTL.ITM_UNT%TYPE,
+	I_PRICE 	  IAS_POS_BILL_DTL.I_PRICE%TYPE,
+	VAT_PER 	  IAS_POS_BILL_DTL.VAT_PER%TYPE,
+	TAX_AMT 	  IAS_POS_BILL_DTL.VAT_AMT%TYPE,
+	TAX_PRCNT	  IAS_POS_BILL_DTL.VAT_PER%TYPE,
+	TAX_TYP_CODE	  VARCHAR2(60), --TAX_TYP
+	VAT_CAT_CODE	  POS_TAX_ITM_MOVMNT.VAT_CAT_CODE%TYPE,
+	TAX_CODE	  VARCHAR2(30), --TAX_SUB_TYP
+	VAT_EXMPT_RSN_CODE  GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_CODE%TYPE,
+	VAT_EXMPT_RSN_TXT   GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_TXT%TYPE,
+	I_QTY		  IAS_POS_BILL_DTL.I_QTY%TYPE,
+	FREE_QTY	  IAS_POS_BILL_DTL.FREE_QTY%TYPE,
+	NET_PRICE	  IAS_POS_BILL_DTL.I_PRICE%TYPE,
+	NET_QTY 	  IAS_POS_BILL_DTL.I_QTY%TYPE,
+	ITM_AMT 	  IAS_POS_BILL_DTL.I_PRICE%TYPE,
+	FREE_QTY_ITM	  IAS_POS_BILL_DTL.FREE_QTY%TYPE,
+	BILL_AMT	  IAS_POS_BILL_DTL.I_PRICE%TYPE,
+	FREE_QTY_BILL	  IAS_POS_BILL_DTL.FREE_QTY%TYPE,
+	F_QTY_BASE_AMT	  IAS_POS_BILL_DTL.I_QTY%TYPE,
+	F_QTY_DIS_PER	  IAS_POS_BILL_DTL.DIS_PER%TYPE,
+	F_QTY_DIS_AMT	  IAS_POS_BILL_DTL.DIS_AMT%TYPE,
+	BASE_AMT_MST	  IAS_POS_BILL_DTL.DIS_AMT%TYPE,
+	DIS_PER_MST	  IAS_POS_BILL_DTL.DIS_PER%TYPE,
+	DIS_AMT_MST	  IAS_POS_BILL_DTL.DIS_AMT%TYPE,
+	BASE_AMT	  IAS_POS_BILL_DTL.DIS_AMT%TYPE,
+	DIS_PER 	  IAS_POS_BILL_DTL.DIS_PER%TYPE,
+	DIS_AMT_DTL	  IAS_POS_BILL_DTL.DIS_AMT%TYPE,
+	BASE_AMT2	  IAS_POS_BILL_DTL.DIS_AMT%TYPE,
+	DIS_PER2	  IAS_POS_BILL_DTL.DIS_PER%TYPE,
+	DIS_AMT_DTL2	  IAS_POS_BILL_DTL.DIS_AMT%TYPE,
+	BASE_AMT3	  IAS_POS_BILL_DTL.DIS_AMT%TYPE,
+	DIS_PER3	  IAS_POS_BILL_DTL.DIS_PER%TYPE,
+	DIS_AMT_DTL3	  IAS_POS_BILL_DTL.DIS_AMT%TYPE,
+	RSN_CODE	  VARCHAR2(10),
+	RSN_CODE2	  VARCHAR2(10),
+	RSN_CODE3	  VARCHAR2(10),
+	RSN_CODE_M	  VARCHAR2(10),
+	RSN_CODE_F	  VARCHAR2(10),
+	RSN_TXT 	  VARCHAR2(30),
+	RSN_TXT2	  VARCHAR2(30),
+	RSN_TXT3	  VARCHAR2(30),
+	RSN_TXT_M	  VARCHAR2(30),
+	RSN_TXT_F	  VARCHAR2(30),
+	ITM_NET_AMT	  NUMBER,
+	NET_TAX_AMT	  NUMBER,
+	ITM_ROW_NUM	  NUMBER,
+	ITM_ROW_CNT	  NUMBER,
+	G_CODE		  VARCHAR2(30),
+	ITEM_DESC	  VARCHAR2(100)
+    );
+
+    TYPE TAX_RCRD IS RECORD
+    (
+	TAX_TYPE	    GNR_TAX_CODE_MST.TAX_TYP_CODE%TYPE,
+	PERCENT 	    NUMBER,
+	TAX_AMT 	    NUMBER,
+	TAXABLE_AMT	    NUMBER,
+	CURRENCY_ID	    VARCHAR2(15),
+	CURRENCY_RATE	    NUMBER,
+	TAX_SUB_TYPE	    GNR_TAX_TYP_CLC_MST.TAX_CODE%TYPE,
+	TOTAL_TAX_AMT	    NUMBER,
+	VAT_EXMPT_RSN_CODE  GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_CODE%TYPE,
+	VAT_EXMPT_RSN_TXT   GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_TXT%TYPE
+    );
+
+    TYPE T_MST_TBL IS TABLE OF MST_RCRD
+	INDEX BY BINARY_INTEGER;
+
+    TYPE T_DTL_TBL IS TABLE OF DTL_RCRD
+	INDEX BY BINARY_INTEGER;
+
+    TYPE T_TAX_TBL IS TABLE OF TAX_RCRD
+	INDEX BY BINARY_INTEGER;
+
+    G_NO_OF_DECIMAL   NUMBER := 2;
+    G_EXPORT_ONLY     BOOLEAN := FALSE;
+
+    FUNCTION GET_CUR_CODE_STNDR(P_CUR_CODE EX_RATE.CUR_CODE_STNDR%TYPE)  RETURN VARCHAR2 ;
+    FUNCTION GET_CUR_EXRATE(P_CUR_CODE EX_RATE.CUR_CODE%TYPE)  RETURN NUMBER ;
+    FUNCTION GNRT_E_INVC_JSON(P_DOC_TYPE   IN NUMBER		     ,
+			      P_DOC_SER    IN VARCHAR2		     ,
+			      P_OUT_TYP    IN NUMBER   DEFAULT 0     ,
+			      P_UNISTR	   IN NUMBER   DEFAULT 0     ,
+			      P_LANG_NO    IN NUMBER   DEFAULT 1     ,
+			      P_CNTRY_CODE IN VARCHAR2 DEFAULT 'SAU' )---SAU - EGY - OMN - YEM - BHR - TUR
+	RETURN CLOB ;
+
+
+    FUNCTION UNISTR_CLOB(PCLOB CLOB CHARACTER SET ANY_CS)
+	RETURN CLOB;
+
+
+    PROCEDURE EXPORT_JSON(P_DOC_TYPE   IN     NUMBER,
+			  P_DOC_SER    IN     NUMBER,
+			  P_CNTRY_CODE IN     VARCHAR2,
+			  P_FILE_PATH  IN     VARCHAR2,
+			  P_LANG_NO    IN     NUMBER DEFAULT 1) ;
+
+   FUNCTION GET_USE_SYNC_E_INVC_FNC ( P_BRN_NO	IN  S_BRN.BRN_NO%TYPE ) RETURN NUMBER  ;
+   FUNCTION GET_E_INVC_SRVC_NO_FNC  ( P_BRN_NO	IN  S_BRN.BRN_NO%TYPE ) RETURN NUMBER  ;
+
+   PROCEDURE SYNC_E_INVC_PRC(P_DOC_TYPE       IN     NUMBER,
+			     P_BILL_TYPE      IN     NUMBER,
+			     P_BRN_NO	      IN     NUMBER,
+			     P_SYS_NO	      IN     NUMBER,
+			     P_DOC_SER	      IN     NUMBER,
+			     P_C_CODE	      IN     VARCHAR2,
+			     P_ERR_TXT		 OUT VARCHAR2,
+			     P_WRNNG_TXT	 OUT VARCHAR2,
+			     P_TAX_BILL_TYP   IN     NUMBER DEFAULT 1,
+			     P_OFFLINE_VLDT   IN     NUMBER DEFAULT 0);
+   PROCEDURE CHK_REQRD_DOC_CLMN_E_INVC ( P_BRN_NO		      IN  NUMBER   DEFAULT NULL ,
+				    					 P_CMP_NO		      IN  NUMBER   DEFAULT NULL ,
+									     P_C_CODE			  IN  VARCHAR2 DEFAULT NULL ,
+									     P_C_CODE_CSH		  IN  VARCHAR2 DEFAULT NULL ,
+									     P_C_TAX_CODE		  IN  VARCHAR2 DEFAULT NULL ,
+									     P_CNTRY_SHRT		  IN  VARCHAR2 DEFAULT NULL ,
+									     P_MSG_TXT_BRN		  OUT VARCHAR2		    ,
+									     P_MSG_TXT_CST		  OUT VARCHAR2		    ,
+									     P_CHK_RQRMNT_AUTH_CST	  OUT NUMBER		    ,
+									     P_LNG_NO			  IN  NUMBER   DEFAULT 1    )  ;
+  Function Get_Sale_outlet_Fnc ( P_Sys_No	   In Number
+			       , P_Sale_Outlet_Typ In Number
+			       , P_Inpt_Code	   In Varchar2 ) Return Number ;
+END YS_JSON_PKG;
+/
+
+-- ---------------------------------------------
+-- PACKAGE BODY: YS_JSON_PKG  (status: INVALID)
+-- ---------------------------------------------
+CREATE OR REPLACE
+PACKAGE BODY YS_JSON_PKG
+IS
+    FUNCTION GET_CUR_CODE_STNDR(P_CUR_CODE EX_RATE.CUR_CODE_STNDR%TYPE)
+	RETURN VARCHAR2
+    IS
+	V_CUR_CODE_STNDR   EX_RATE.CUR_CODE_STNDR%TYPE;
+    BEGIN
+
+	SELECT CUR_CODE_STNDR
+	  INTO V_CUR_CODE_STNDR
+	  FROM EX_RATE
+	 WHERE CUR_CODE = P_CUR_CODE;
+
+	RETURN (V_CUR_CODE_STNDR);
+    EXCEPTION
+	WHEN OTHERS THEN
+	    RETURN (NULL);
+    END GET_CUR_CODE_STNDR;
+
+    FUNCTION GET_CUR_EXRATE(P_CUR_CODE EX_RATE.CUR_CODE%TYPE)
+	RETURN NUMBER
+    IS
+	V_EX_RATE   EX_RATE.CUR_RATE%TYPE;
+    BEGIN
+
+	SELECT CUR_RATE
+	  INTO V_EX_RATE
+	  FROM EX_RATE
+	 WHERE (   CUR_CODE = P_CUR_CODE
+		OR CUR_CODE_STNDR = P_CUR_CODE)
+	   AND ROWNUM <= 1;
+
+	RETURN V_EX_RATE;
+    EXCEPTION
+	WHEN OTHERS THEN
+	    RETURN (NULL);
+    END GET_CUR_EXRATE;
+
+    FUNCTION GNRT_E_INVC_JSON(P_DOC_TYPE   IN NUMBER		    ,
+			      P_DOC_SER    IN VARCHAR2		    ,
+			      P_OUT_TYP    IN NUMBER   DEFAULT 0    ,
+			      P_UNISTR	   IN NUMBER DEFAULT 0	    ,
+			      P_LANG_NO    IN NUMBER   DEFAULT 1    ,
+			      P_CNTRY_CODE IN VARCHAR2 DEFAULT 'SAU')-- SAU - EGY - OMN - YEM - BHR - TUR - JOR - MYS
+	RETURN CLOB
+    IS
+	V_RSLT			CLOB;
+
+	L_XML			XMLTYPE;
+	V_TAX_EXISTS		BOOLEAN := false;
+
+	V_INVLD_INPT		NUMBER(1) := 0;
+	V_CNTRY_2_LTR_CODE	VARCHAR2(2);
+	V_INPT_CAT		NUMBER(1) := 0;
+	V_CST_BR_CODE		VARCHAR2(30);
+	V_FLD_VAL		VARCHAR2(200);
+	V_MSG_TXT		VARCHAR2(500);
+	V_CURR_ID_VAL		VARCHAR2(10);
+	V_TAX_CURR_ID_VAL	VARCHAR2(10);
+	V_LINEEXTENSIONAMOUNT	NUMBER;
+	V_TAXEXCLUSIVEAMOUNT	NUMBER;
+	V_INVC_ALLW_AMT 	NUMBER;
+	V_INVC_CHRG_AMT 	NUMBER;
+	V_TAXINCLUSIVEAMOUNT	NUMBER;
+	V_ALLOWANCEAMOUNT	NUMBER;
+	V_TAXAMOUNT		NUMBER := 0;
+	V_EX_RATE		NUMBER;
+	V_TAX_TYPE		VARCHAR2(10);
+	V_TAX_SUB_TYPE		VARCHAR2(10);
+	V_BILLING_REF		VARCHAR2(100);
+	V_LOOP_CNT		NUMBER := 0;
+	V_ITM_ID		NUMBER := 0;
+	L_INVOICE_TYPE_CODE	NUMBER := 388;
+	V_PREPAID_AMT		NUMBER := 0;
+	L_QRY_STR CLOB := NULL;
+	L_MST_RSLT_TBL T_MST_TBL;
+	L_MST_RCRD  MST_RCRD;
+	L_DTL_RSLT_TBL T_DTL_TBL;
+	L_DTL_RCRD  DTL_RCRD;
+	L_TAX_RSLT_TBL T_TAX_TBL;
+	L_TAX_RCRD TAX_RCRD;
+	L_CNTRY_CODE_TYP	    NUMBER := CASE WHEN P_CNTRY_CODE IN ('SAU','MYS','JOR','TUR') THEN 1 WHEN P_CNTRY_CODE = 'EGY' THEN 2 ELSE 3 END;
+
+	L_MST_TBL_NM		  VARCHAR2(60);
+	L_DTL_TBL_NM		  VARCHAR2(60);
+	L_SALES_TYP_TBL_NM	  VARCHAR2(60);
+	L_DOC_NO_FLD_NM 	  VARCHAR2(60);
+	L_QTY_FLD_NM		  VARCHAR2(60) := 'I_QTY';
+	L_PRICE_FLD_NM		  VARCHAR2(60) := 'I_PRICE';
+	L_DISC_AMT_FLD_NM	  VARCHAR2(60) := 'DISC_AMT';
+	L_OTHR_AMT_FLD_NM	  VARCHAR2(60) := 'OTHR_AMT';
+	L_DISC_AMT_MST_FLD_NM	  VARCHAR2(60) := 'DISC_AMT_MST';
+	L_DISC_AMT_MST_VAT_FLD_NM VARCHAR2(60) := 'DISC_AMT_MST_VAT';
+	L_DIS_AMT_MST		  VARCHAR2(60) := 'DIS_AMT_MST';
+	L_DOC_SER_FLD_NM	  VARCHAR2(60);
+	L_DOC_DATE_FLD_NM	  VARCHAR2(60);
+	L_DOC_SQNC_FLD_NM	  VARCHAR2(60);
+	L_CUR_RATE_FLD_NM	  VARCHAR2(60);
+	L_DOC_TYPE_FLD_NM	  VARCHAR2(60);
+	L_DOC_AMT_FLD_NM	  VARCHAR2(60);
+	L_TYP_NO_FLD_NM 	  VARCHAR2(60);
+	L_BILL_CURRENCY_FLD_NM	  VARCHAR2(60);
+	L_INSTRUCTION_NOTE_FLD_NM VARCHAR2(60);
+	L_VAT_PRCNT_FLD_NM	  VARCHAR2(60) := 'VAT_PER';--'VAT_PER';
+	L_TAX_ITM_MOVMNT_TBL_NM   VARCHAR2(60) := 'POS_TAX_ITM_MOVMNT';--'GNR_TAX_ITM_MOVMNT';
+	L_TAX_INPT_MOVMNT_TBL_NM  VARCHAR2(60) := 'POS_TAX_INPT_MOVMNT';--'GNR_TAX_INPT_MOVMNT';
+	L_ACTV_NO_FLD_NM	  VARCHAR2(60) := 'ACTV_NO';--'ACTV_NO';
+	L_PJ_NO_FLD_NM		  VARCHAR2(60) := 'PJ_NO';--'PJ_NO';
+	L_REP_CODE_FLD_NM	  VARCHAR2(60) := 'REP_CODE';--'REP_CODE';
+	L_BILL_NOTE_FLD_NM	  VARCHAR2(60) := 'BILL_NOTE';--'A_DESC';
+	L_ADD_DISC_AMT_MST_FLD_NM VARCHAR2(60) := 'NULL';--'ADD_DISC_AMT_MST';
+	L_PYMNT_AC_FLD_NM	  VARCHAR2(60) := 'PYMNT_AC';--'PYMNT_AC';
+	L_AC_AMT_FLD_NM 	  VARCHAR2(60) := 'AC_AMT';--'AC_AMT';
+	L_R_CODE_FLD_NM 	  VARCHAR2(60) := 'NULL';--'R_CODE';
+	L_DIS_AMT_DTL_FLD_NM	  VARCHAR2(60) := 'DIS_AMT_DTL';
+	L_DIS_AMT_DTL2_FLD_NM	  VARCHAR2(60) := '0';--'DIS_AMT_DTL2';
+	L_DIS_AMT_DTL3_FLD_NM	  VARCHAR2(60) := '0';--'DIS_AMT_DTL3';
+	L_DOC_SEQUENCE_FLD_NM	  VARCHAR2(60) := 'NULL'; --'DOC_SEQUENCE';
+	L_ADVNC_PYMNT_AMT_FLD_NM    VARCHAR2(60) := 'NULL';
+	L_DOC_SEQ_TMP_FLD_NM	  VARCHAR2(60) := 'NULL';
+	L_EXTERNAL_POST_FLD_NM	  VARCHAR2(60) := '80';  --'EXTERNAL_POST';
+	--L_TAX_BILL_TYP_FLD_NM     VARCHAR2(99) := 'YS_TAX_PKG.GET_TAX_BILL_TYP(P_BILL_TYPE => M.:L_DOC_TYPE_FLD_NM, P_C_CODE => M.C_CODE)'; --'TAX_BILL_TYP';
+	L_TAX_BILL_TYP_FLD_NM	  VARCHAR2(99) :='TAX_BILL_TYP';
+	L_NOTE_TYP_FLD_NM	  VARCHAR2(60) := 'NOTE_TYP'; --'TAX_BILL_TYP';
+	L_TAX_PKG_NM		  VARCHAR2(60) := 'YS_TAX_PKG'; --'YS_TAX_PKG';
+	L_C_TEL_FLD_NM		  VARCHAR2(32) := 'MOBILE_NO';
+	L_DOC_PST_SQ		  NUMBER;
+	--##DIS_TAX-------------------------------------------
+	L_DIS_TAX_TBL	    T_TAX_TBL;
+	L_DIS_TAX_RCRD	    TAX_RCRD;
+	L_DIS_TAX_TOTAL     NUMBER := 0;
+	L_FREE_QTY_DIS_AMT  NUMBER := 0;
+	V_CNT		    NUMBER := 0;
+	V_CNT2		    NUMBER := 0;
+	--##END_DIS_TAX-------------------------------------------
+    BEGIN
+	G_NO_OF_DECIMAL := 5;
+
+	L_MST_RSLT_TBL.DELETE;
+	L_DTL_RSLT_TBL.DELETE;
+	L_TAX_RSLT_TBL.DELETE;
+
+	IF P_CNTRY_CODE IN ('SAU','ETH') THEN
+	    G_NO_OF_DECIMAL := 2;
+	ELSE
+	    G_NO_OF_DECIMAL := 5;
+	END IF;
+
+	IF P_DOC_TYPE = 5 THEN	--RETURN SALES
+	    L_MST_TBL_NM	      := 'IAS_POS_RT_BILL_MST';--'IAS_POS_RT_BILL_MST';
+	    L_DTL_TBL_NM	      := 'IAS_POS_RT_BILL_DTL';--'IAS_RT_BILL_DTL';
+	    L_SALES_TYP_TBL_NM	      := 'IAS_RT_SALES_TYPES';
+	    L_DOC_NO_FLD_NM	      := 'RT_BILL_NO';
+	    L_DOC_SER_FLD_NM	      := 'RT_BILL_SRL';--'RT_BILL_SRL';
+	    L_DOC_SQNC_FLD_NM	      := 'DOC_MCHN_SQ';--'DOC_M_SQ';
+	    L_DOC_DATE_FLD_NM	      := 'RT_BILL_DATE';
+	    L_CUR_RATE_FLD_NM	      := 'RT_BILL_RATE';
+	    L_DOC_TYPE_FLD_NM	      := 'RT_BILL_TYPE';--'RT_BILL_DOC_TYPE';
+	    L_DOC_AMT_FLD_NM	      := 'RT_BILL_AMT';--'BILL_AMT';
+	    L_TYP_NO_FLD_NM	      := 'SR_TYPE';
+	    L_BILL_CURRENCY_FLD_NM    := 'A_CY';--'RT_BILL_CURRENCY';
+	    L_INSTRUCTION_NOTE_FLD_NM := 'NVL(M.RT_BILL_NOTE,''SALES RETURN'')';  --'NVL(M.RETURN_RES,M.A_DESC)'
+	    L_BILL_NOTE_FLD_NM	      := 'RT_BILL_NOTE';--'A_DESC';
+	    L_NOTE_TYP_FLD_NM	      := 'NULL';
+	ELSIF P_DOC_TYPE = 4 THEN   --SALES
+	    L_MST_TBL_NM	      := 'IAS_POS_BILL_MST';--'IAS_POS_BILL_MST';
+	    L_DTL_TBL_NM	      := 'IAS_POS_BILL_DTL';--'IAS_POS_BILL_DTL';
+	    L_SALES_TYP_TBL_NM	      := 'IAS_SALES_TYPES';
+	    L_DOC_NO_FLD_NM	      := 'BILL_NO';
+	    L_DOC_SER_FLD_NM	      := 'BILL_SRL';--'BILL_SRL';
+	    L_DOC_SQNC_FLD_NM	      := 'DOC_MCHN_SQ';--'DOC_M_SQ';
+	    L_DOC_DATE_FLD_NM	      := 'BILL_DATE';
+	    L_CUR_RATE_FLD_NM	      := 'BILL_RATE';
+	    L_DOC_TYPE_FLD_NM	      := 'BILL_TYPE';--'BILL_DOC_TYPE';
+	    L_DOC_AMT_FLD_NM	      := 'BILL_AMT';
+	    L_TYP_NO_FLD_NM	      := 'SI_TYPE';
+	    L_BILL_CURRENCY_FLD_NM    := 'A_CY';--'BILL_CURRENCY';
+	    L_INSTRUCTION_NOTE_FLD_NM := 'NULL';
+	    L_NOTE_TYP_FLD_NM	      := 'NULL';
+	    L_ADVNC_PYMNT_AMT_FLD_NM := 'ADVNC_PYMNT_CPN_AMT';
+	END IF;
+
+	L_TAX_BILL_TYP_FLD_NM := REPLACE(L_TAX_BILL_TYP_FLD_NM,':L_DOC_TYPE_FLD_NM',L_DOC_TYPE_FLD_NM);
+
+	L_QRY_STR := 'SELECT M.'||L_DOC_NO_FLD_NM||' DOC_NO,
+			     M.'||L_DOC_SER_FLD_NM||' DOC_SER,
+			     M.'||L_DOC_DATE_FLD_NM||' DOC_DATE,
+			     M.C_CODE,
+			     IAS_CST_PKG.GET_C_NAME(P_C_CODE => C_CODE, P_LNG_NO => :P_LANG_NO) C_NAME,
+			     M.CUST_CODE ,
+			     Pos_Point_Pkg.Get_Cust_Nm(P_Cust_Code => M.CUST_CODE, P_Lng_No => :P_LANG_NO) CUST_CODE_NAME,
+			     M.'||L_BILL_CURRENCY_FLD_NM||' CUR_CODE,
+			     M.'||L_CUR_RATE_FLD_NM||' CUR_RATE,
+			     M.'||L_DOC_TYPE_FLD_NM||' BILL_DOC_TYPE,
+			     M.CASH_NO,
+			     M.CC_CODE,
+			     '||L_PJ_NO_FLD_NM||' PJ_NO,
+			     '||L_ACTV_NO_FLD_NM||' ACTV_NO,
+			     W_CODE,
+			     '||L_REP_CODE_FLD_NM||' REP_CODE,
+			     '||L_R_CODE_FLD_NM||' R_CODE,
+			     ROUND(NVL('||L_DISC_AMT_MST_FLD_NM||',0),'||G_NO_OF_DECIMAL||') DISC_AMT_MST,
+			     ROUND(NVL('||L_DISC_AMT_MST_VAT_FLD_NM||',0),'||G_NO_OF_DECIMAL||') DISC_AMT_MST_VAT,
+			     ROUND(NVL('||L_ADD_DISC_AMT_MST_FLD_NM||',0),'||G_NO_OF_DECIMAL||') ADD_DISC_AMT_MST,
+			     D.DOC_AMT,
+			     '||L_INSTRUCTION_NOTE_FLD_NM||' INSTRUCTION_NOTE,
+			     '||L_NOTE_TYP_FLD_NM||' NOTE_TYP,
+			     ROUND(NVL('||L_OTHR_AMT_FLD_NM||',0),'||G_NO_OF_DECIMAL||') OTHR_AMT,
+			     M.BRN_NO,
+			     M.CLC_TYP_NO_TAX,
+			     (SELECT DECODE(NVL(USE_PRICE_INCLUDE_VAT, 0), 1, 2, 1) FROM IAS_PARA_GEN) CLC_VAT_PRICE_TYP,
+			     '||L_PYMNT_AC_FLD_NM||' PYMNT_AC,
+			     '||L_AC_AMT_FLD_NM||' AC_AMT,
+			     ' || L_ADVNC_PYMNT_AMT_FLD_NM || ' ADVNC_PYMNT_CPN_AMT,
+			     M.AC_CODE,
+			     M.AC_CODE_DTL,
+			     M.AC_DTL_TYP,
+			     M.'||L_TYP_NO_FLD_NM||' TYP_NO,
+			     '||L_BILL_NOTE_FLD_NM||' A_DESC,
+			     M.AD_DATE AD_DATE,
+			     M.SYS_DOC_ID,
+			     ROUND(NVL('||L_DISC_AMT_FLD_NM||',0),'||G_NO_OF_DECIMAL||') DISC_AMT,
+			     YS_GEN_PKG.GET_FLD_VALUE('''||L_SALES_TYP_TBL_NM||''', ''TAX_ACTV_CODE'', '' WHERE '||L_TYP_NO_FLD_NM||'='' || M.'||L_TYP_NO_FLD_NM||') TAX_ACTV_CODE,
+			     CASE '||L_TAX_PKG_NM||'.GET_TAX_TYP_NO(P_CLC_TYP_NO => CLC_TYP_NO_TAX) WHEN 0 THEN ''S'' WHEN 1 THEN ''Z'' WHEN 4 THEN ''Z'' WHEN 3 THEN ''E'' WHEN 2 THEN ''O'' ELSE NULL END TAX_CAT_TYP,
+			     '||L_TAX_BILL_TYP_FLD_NM||' TAX_BILL_TYP,
+			     '||L_EXTERNAL_POST_FLD_NM||' EXTERNAL_POST,
+			     ' || L_C_TEL_FLD_NM || ' C_TEL
+			FROM '||L_MST_TBL_NM||' M,(SELECT SUM(NVL('||L_PRICE_FLD_NM||',0) * ('||L_QTY_FLD_NM||')) DOC_AMT FROM '||L_DTL_TBL_NM||' WHERE '||L_DOC_SER_FLD_NM||' = :P_DOC_SER) D
+		       WHERE M.'||L_DOC_SER_FLD_NM||' = :P_DOC_SER';
+
+	EXECUTE IMMEDIATE L_QRY_STR BULK COLLECT INTO L_MST_RSLT_TBL USING P_LANG_NO,P_LANG_NO,P_DOC_SER,P_DOC_SER;
+
+	FOR L_MST_INDX IN 1..NVL(L_MST_RSLT_TBL.LAST,0)
+	LOOP
+
+	    L_MST_RCRD := L_MST_RSLT_TBL(L_MST_INDX);
+	    BEGIN
+		--Raise_application_error(-20001,'test test');
+		--=========================================================================================================--
+		APEX_JSON.INITIALIZE_CLOB_OUTPUT;
+		APEX_JSON.OPEN_OBJECT;
+
+		--------------------------------------------------
+		BEGIN
+
+		    IF P_DOC_TYPE = 5 THEN
+			L_INVOICE_TYPE_CODE := 381;
+		    ELSIF P_DOC_TYPE = 15 THEN
+			L_INVOICE_TYPE_CODE := CASE L_MST_RCRD.NOTE_TYP WHEN 1 THEN 381 ELSE 383 END;
+		    ELSE
+			L_INVOICE_TYPE_CODE := 388;
+		    END IF;
+
+		    APEX_JSON.WRITE('ProfileID', 'reporting 1.0');
+
+		    IF P_CNTRY_CODE = 'TUR' THEN
+			EXECUTE IMMEDIATE 'SELECT DOC_PST_SQ FROM '|| L_MST_TBL_NM||' WHERE '||L_DOC_SER_FLD_NM||' = :P_DOC_SER' INTO L_DOC_PST_SQ USING P_DOC_SER;
+			L_DOC_PST_SQ := TO_NUMBER(SUBSTR(L_DOC_PST_SQ,0,4)||SUBSTR(L_DOC_PST_SQ,6));
+			APEX_JSON.WRITE('ID', TO_CHAR(L_DOC_PST_SQ)); --  m.sys_doc_id
+		    ELSE
+			APEX_JSON.WRITE('ID', TO_CHAR(L_MST_RCRD.DOC_NO )); --	m.sys_doc_id
+		    END IF;
+
+		    APEX_JSON.WRITE('IssueDateTime', L_MST_RCRD.AD_DATE); --m.ad_date
+
+		    APEX_JSON.WRITE('InvoiceTypeCode', TO_CHAR(L_INVOICE_TYPE_CODE));
+		    V_FLD_VAL := CASE L_MST_RCRD.TAX_BILL_TYP WHEN 2 THEN '01' ELSE '02' END;
+		    V_FLD_VAL := V_FLD_VAL || CASE L_MST_RCRD.TAX_CAT_TYP WHEN 'O' THEN '1' ELSE '0' END;
+		    V_FLD_VAL := V_FLD_VAL || CASE L_MST_RCRD.TAX_CAT_TYP WHEN 'O' THEN '1' ELSE '0' END;  -- Nominal Invoice
+		    V_FLD_VAL := V_FLD_VAL || CASE L_MST_RCRD.TAX_CAT_TYP WHEN 'E' THEN '1' ELSE '0' END;
+		    V_FLD_VAL := V_FLD_VAL || '0'; -- CASE WHEN L_MST_RCRD.BILL_DOC_TYPE = 1 AND L_MST_RCRD.EXTERNAL_POST IN (80, 85, 86,87) THEN '0' ELSE '0' END;
+		    V_FLD_VAL := V_FLD_VAL || '0';
+
+		    APEX_JSON.WRITE('InvoiceTransactionCode', V_FLD_VAL);
+
+		    BEGIN
+			APEX_JSON.OPEN_ARRAY('Note');
+			APEX_JSON.WRITE(NVL(L_MST_RCRD.A_DESC,'')); --m.desc
+			APEX_JSON.CLOSE_ARRAY; --close array Note]
+		    END;
+
+		    V_CURR_ID_VAL := GET_CUR_CODE_STNDR(L_MST_RCRD.CUR_CODE);
+
+		    IF V_CURR_ID_VAL IS NULL THEN
+			V_MSG_TXT := 'error in invoice currancy';
+			GOTO RTN_RSLT;
+		    END IF;
+		    APEX_JSON.WRITE('DocumentCurrencyCode', V_CURR_ID_VAL); -- m.bill_currency
+
+		    V_EX_RATE := GET_CUR_EXRATE(P_CUR_CODE => V_CURR_ID_VAL);
+
+		    APEX_JSON.WRITE('DocumentCurrencyExRate', CASE V_CURR_ID_VAL WHEN 'EGP' THEN 0 ELSE L_MST_RCRD.CUR_RATE END);
+
+		    V_TAX_CURR_ID_VAL := IAS_CMP_PKG.GET_TAX_CUR(P_BRN_NO => L_MST_RCRD.BRN_NO);
+		    V_EX_RATE := GET_CUR_EXRATE(P_CUR_CODE => V_TAX_CURR_ID_VAL);
+
+		    APEX_JSON.WRITE('TaxCurrencyCode', V_TAX_CURR_ID_VAL); --  local currency
+		    APEX_JSON.WRITE('TaxCurrencyExRate', V_EX_RATE);
+
+		    BEGIN
+			EXECUTE IMMEDIATE 'SELECT COUNT(1)
+					     FROM '||L_DTL_TBL_NM||'
+					    WHERE '||L_DOC_SER_FLD_NM||' = :P_DOC_SRL'
+					     INTO V_FLD_VAL USING L_MST_RCRD.DOC_SER;
+		    EXCEPTION
+			WHEN OTHERS THEN
+			    RAISE_APPLICATION_ERROR(-20105,'Exception When Get Line Count Numeric '||SQLERRM);
+		    END;
+
+		    APEX_JSON.WRITE('LineCountNumeric', V_FLD_VAL); -- count d.i_code
+		    --##IBM
+		    /*
+		    IF P_DOC_TYPE = 4 THEN
+			DECLARE
+			V_PURCHASE_ORDER VARCHAR2(1000);
+			BEGIN
+			SELECT
+			    DECODE (
+			    BILL_TYPE,
+			    4, DECODE (
+				 YS_GEN_PKG.GET_FLD_VALUE (
+				     'ORDER_DETAIL',
+				     'DOC_TYPE_REF',
+				     ' WHERE ROWNUM<=1 AND ORDER_SER='
+				     || YS_GEN_PKG.GET_FLD_VALUE (
+					 'IAS_POS_BILL_DTL',
+					 'DOC_SER_REF',
+					 ' WHERE ROWNUM<=1 AND BILL_NO=' || BILL_NO)),
+				 42, YS_GEN_PKG.GET_FLD_VALUE (
+					 'ORDER_DETAIL',
+					 'DOC_NO_REF',
+					 ' WHERE ROWNUM<=1 AND ORDER_SER='
+					 || YS_GEN_PKG.GET_FLD_VALUE (
+					     'IAS_POS_BILL_DTL',
+					     'DOC_SER_REF',
+					     ' WHERE ROWNUM<=1 AND BILL_NO=' || BILL_NO)),
+				 NVL (
+				     YS_GEN_PKG.GET_FLD_VALUE (
+					 'SALES_ORDER',
+					 'REF_DOC_NO',
+					 ' WHERE ORDER_SER='
+					 || YS_GEN_PKG.GET_FLD_VALUE (
+					     'IAS_POS_BILL_DTL',
+					     'DOC_SER_REF',
+					     ' WHERE ROWNUM<=1 AND BILL_NO=' || BILL_NO)),
+				     REF_NO)), NULL) INTO V_PURCHASE_ORDER
+			    FROM IAS_POS_BILL_MST
+			    WHERE BILL_SRL=P_DOC_SER;
+			    APEX_JSON.WRITE('PurchaseOrderID', NVL(V_PURCHASE_ORDER,'')); --  po_no
+			    APEX_JSON.WRITE('PurchaseOrderDescription', NVL(IAS_WEB_DOC_PKG.GET_PURCHASE_DESC(4, P_DOC_SER, L_MST_RCRD.A_DESC),'')); --  po_no
+			END;
+		    END IF;
+		    */
+
+		     IF P_DOC_TYPE = 5 THEN
+			BEGIN
+			    --##Check if the return linked to only one invoice
+			   --EXECUTE IMMEDIATE 'SELECT COUNT(DISTINCT (BILL_NO))
+			    EXECUTE IMMEDIATE 'SELECT COUNT(DISTINCT ('||REPLACE(L_DOC_SER_FLD_NM,'RT_','')||'))
+						 FROM '||L_MST_TBL_NM||'
+						WHERE '||L_DOC_SER_FLD_NM||' = :P_DOC_SRL'
+						 INTO V_FLD_VAL USING L_MST_RCRD.DOC_SER;
+
+			    IF V_FLD_VAL = 0 AND P_CNTRY_CODE IN ('EGY') THEN
+				NULL;
+			    ELSIF V_FLD_VAL = 0 THEN
+			    --RAISE_APPLICATION_ERROR(-20001, 'The credit or debit note is not linked to a sales invoice');
+			      NULL ;
+			    ELSE
+				APEX_JSON.OPEN_ARRAY('BillingreferenceID');--[
+				FOR J IN (SELECT DISTINCT M.BILL_NO
+					  FROM IAS_POS_RT_BILL_DTL D, IAS_POS_RT_BILL_MST M
+					  WHERE D.RT_BILL_NO=M.RT_BILL_NO
+					  AND M.RT_BILL_SRL=P_DOC_SER)
+				LOOP
+				    APEX_JSON.WRITE(TO_CHAR(J.BILL_NO ));
+				END LOOP;
+				APEX_JSON.CLOSE_ARRAY; --close array BillingreferenceID];
+			    END IF;
+
+			EXCEPTION
+			    WHEN OTHERS THEN
+				RAISE_APPLICATION_ERROR(-20106,'Exception when Billing Refrence'||SQLERRM);
+			END;
+		    END IF;
+		    --APEX_JSON.WRITE('BillingreferenceID', (CASE P_DOC_TYPE WHEN 5 THEN V_BILLING_REF ELSE '' END)); --  d.doc_no_ref
+		    APEX_JSON.WRITE('ContractID', ''); --  m.Contract_no
+--##--------------------------------------## Begin AccountingSupplierParty--------------------------------------------------##--
+		    FOR BRN IN (	  SELECT	  *
+					  FROM		  S_BRN
+					  WHERE 	  BRN_NO = L_MST_RCRD.BRN_NO) LOOP
+			--AccountingSupplierParty
+			APEX_JSON.OPEN_OBJECT('AccountingSupplierParty'); --branch data
+--##--------------------------------------## Begin Outlet Sales------------------------------------------------------------##--
+			--OUTLET_SALE_TYP Values :
+			--1- Branch
+			--2- Warehouse
+			--3- Cost Center
+			--4- Sales Man
+
+			DECLARE
+				V_OUTLET_NO	       GNR_SALE_OUTLET.OUTLET_NO%TYPE	  := NULL ;
+				V_OUTLET_NM	       GNR_SALE_OUTLET.OUTLET_L_NM%TYPE   := NULL ;
+				V_OUTLET_EGS	       GNR_SALE_OUTLET.OUTLET_EGS%TYPE	  := NULL ;
+				V_TAX_DOC_TYP	       GNR_SALE_OUTLET.TAX_DOC_TYP%TYPE   := NULL ;
+				V_TAX_CODE	       GNR_SALE_OUTLET.TAX_CODE%TYPE	  := NULL ;
+				V_TAX_AUTH_CODE        GNR_SALE_OUTLET.TAX_AUTH_CODE%TYPE := NULL ;
+				V_STREET_NO	       GNR_SALE_OUTLET.STREET_NO%TYPE	  := NULL ;
+				V_SRVC_NO	       GNR_SALE_OUTLET.SRVC_NO%TYPE	  := NULL ;
+				V_RGN_NO	       GNR_SALE_OUTLET.RGN_NO%TYPE	  := NULL ;
+				V_PROV_NO	       GNR_SALE_OUTLET.PROV_NO%TYPE	  := NULL ;
+				V_PR_REP	       GNR_SALE_OUTLET.PR_REP%TYPE	  := NULL ;
+				V_POSTAL_CODE	       GNR_SALE_OUTLET.POSTAL_CODE%TYPE   := NULL ;
+				V_INP_TBL_NM	       GNR_SALE_OUTLET.INP_TBL_NM%TYPE	  := NULL ;
+				V_INP_FLD_NM	       GNR_SALE_OUTLET.INP_FLD_NM%TYPE	  := NULL ;
+				V_CNTRY_NO	       GNR_SALE_OUTLET.CNTRY_NO%TYPE	  := NULL ;
+				V_CITY_NO	       GNR_SALE_OUTLET.CITY_NO%TYPE	  := NULL ;
+				V_BUILDING_NO	       GNR_SALE_OUTLET.BUILDING_NO%TYPE   := NULL ;
+				V_ADD_NO	       GNR_SALE_OUTLET.ADD_NO%TYPE	  := NULL ;
+				V_OUTLET_SALE_TYP      NUMBER				  := NULL ;
+				V_CR_NO 	       GNR_SALE_OUTLET.CR_NO%TYPE	  := NULL ;
+				V_SHRT_ADD	       GNR_SALE_OUTLET.SHRT_ADD%TYPE	  := NULL ;
+				V_DSTRCT_NM	       GNR_SALE_OUTLET.DSTRCT_NM%TYPE	  := NULL ;
+				V_STR CLOB ;
+			BEGIN
+			    BEGIN
+				 SELECT OUTLET_SALE_TYP INTO V_OUTLET_SALE_TYP FROM  IAS_PARA_AR ;
+			    EXCEPTION
+			      WHEN OTHERS THEN
+				V_OUTLET_SALE_TYP := NULL  ;
+			    END ;
+			    IF	Nvl(V_OUTLET_SALE_TYP,0) <>  0 THEN
+				V_STR :=
+				FTCH_SALE_OUTLET_DATA_FNC(   P_SYS_NO	   => 80 ,
+							     P_INPT_TYP    => V_OUTLET_SALE_TYP ,
+							     P_INP_FLD_VAL => CASE WHEN V_OUTLET_SALE_TYP = 1 THEN BRN.BRN_NO
+										   WHEN V_OUTLET_SALE_TYP = 2 THEN L_MST_RCRD.CC_CODE
+										 --WHEN V_OUTLET_SALE_TYP = 3 THEN L_MST_RCRD.W_CODE
+										 --WHEN V_OUTLET_SALE_TYP = 4 THEN L_MST_RCRD.REP_CODE
+										   END	,
+							     P_TXT	   => 1,--1-QUERY  2-XML ,3-JSON
+							     P_OUTLET_NO	   => V_OUTLET_NO,
+							     P_OUTLET_NM	   => V_OUTLET_NM,
+							     P_OUTLET_EGS	   => V_OUTLET_EGS,
+							     P_TAX_DOC_TYP	   => V_TAX_DOC_TYP,
+							     P_TAX_CODE 	   => V_TAX_CODE,
+							     P_TAX_AUTH_CODE	   => V_TAX_AUTH_CODE,
+							     P_STREET_NO	   => V_STREET_NO,
+							     P_SRVC_NO		   => V_SRVC_NO,
+							     P_RGN_NO		   => V_RGN_NO,
+							     P_PROV_NO		   => V_PROV_NO,
+							     P_PR_REP		   => V_PR_REP,
+							     P_POSTAL_CODE	   => V_POSTAL_CODE,
+							     P_INP_TBL_NM	   => V_INP_TBL_NM,
+							     P_INP_FLD_NM	   => V_INP_FLD_NM,
+							     P_CNTRY_NO 	   => V_CNTRY_NO,
+							     P_CITY_NO		   => V_CITY_NO,
+							     P_BUILDING_NO	   => V_BUILDING_NO,
+							     P_ADD_NO		   => V_ADD_NO,
+							     P_CR_NO		   => V_CR_NO  ,
+							     P_SHRT_ADD 	   => V_SHRT_ADD   ,
+							     P_DSTRCT_NM	   => V_DSTRCT_NM   ,
+							     P_LNG_NO	  => 1
+							 ) ;
+				--DBMS_OUTPUT.PUT_LINE('Outlet Address :'||CHR(13)||'Outlet_No ='||V_OUTLET_NO||CHR(13)||'Outlet_Nm ='||V_OUTLET_NM||CHR(13)||V_STR ) ;
+			    END IF ;
+--##--------------------------------------## Begin Outlet Sales------------------------------------------------------------##--
+			    BEGIN
+				    APEX_JSON.OPEN_OBJECT('Party');
+
+				    APEX_JSON.OPEN_ARRAY('PartyIdentification');
+
+				    APEX_JSON.OPEN_OBJECT; --{
+				    APEX_JSON.OPEN_OBJECT('ID');
+				    APEX_JSON.WRITE('Value', CASE WHEN Nvl(V_OUTLET_SALE_TYP,0) <>  0 THEN V_CR_NO ELSE BRN.RC_CODE END ); --commercial_no
+				    APEX_JSON.WRITE('SchemeID', NVL(BRN.BRN_IDNTFR,'CRN')); --	commercial name
+				    APEX_JSON.CLOSE_OBJECT; --ID}
+				    APEX_JSON.CLOSE_OBJECT; --}
+
+				    APEX_JSON.CLOSE_ARRAY; --close array PartyIdentification ]
+
+				    APEX_JSON.OPEN_OBJECT('PostalAddress');
+				    APEX_JSON.WRITE('StreetName', CASE WHEN Nvl(V_OUTLET_SALE_TYP,0) <>  0 THEN V_STREET_NO ELSE BRN.STREET END );
+				    APEX_JSON.WRITE('BuildingNumber', CASE WHEN Nvl(V_OUTLET_SALE_TYP,0) <>  0 THEN V_BUILDING_NO ELSE BRN.BUILDING_NO END );
+				    APEX_JSON.WRITE('PlotIdentification', CASE WHEN Nvl(V_OUTLET_SALE_TYP,0) <>  0 THEN V_ADD_NO ELSE BRN.ADD_NO END ); -- additional no ( in datbase ad_no  from branch details )
+				    V_FLD_VAL		    := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'REGIONS', P_FLD_NM => CASE P_LANG_NO WHEN 1 THEN 'r_a_name' ELSE 'r_e_name' END, P_WHR => 'where r_code=' || CASE WHEN Nvl(V_OUTLET_SALE_TYP,0) <>  0 THEN V_RGN_NO ELSE BRN.R_CODE END );
+				    APEX_JSON.WRITE('CitySubdivisionName', V_FLD_VAL); -- regtion_name
+				    V_FLD_VAL		    := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'CITIES', P_FLD_NM => CASE P_LANG_NO WHEN 1 THEN 'city_a_name' ELSE 'city_e_name' END, P_WHR => 'where city_no=' || CASE WHEN Nvl(V_OUTLET_SALE_TYP,0) <>	0 THEN V_CITY_NO ELSE BRN.CITY_NO END );
+				    APEX_JSON.WRITE('CityName', V_FLD_VAL); --city_name
+				    APEX_JSON.WRITE('PostalZone', CASE WHEN Nvl(V_OUTLET_SALE_TYP,0) <>  0 THEN V_POSTAL_CODE ELSE BRN.POSTAL_CODE END ); --box_no
+				    V_FLD_VAL		    := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'IAS_PROVINCES', P_FLD_NM => CASE P_LANG_NO WHEN 1 THEN 'prov_a_name' ELSE 'prov_e_name' END, P_WHR => 'where prov_no=' || CASE WHEN Nvl(V_OUTLET_SALE_TYP,0) <>  0 THEN V_PROV_NO ELSE BRN.PROV_NO END );
+				    APEX_JSON.WRITE('CountrySubentity', V_FLD_VAL); -- eqlim
+				    V_FLD_VAL		    := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'CNTRY', P_FLD_NM => 'CNTRY_SHRT', P_WHR => 'where cntry_no=' || CASE WHEN Nvl(V_OUTLET_SALE_TYP,0) <>  0 THEN V_CNTRY_NO ELSE BRN.CNTRY_NO END );
+				    APEX_JSON.WRITE('Country', V_FLD_VAL); --cntry_code
+				    APEX_JSON.CLOSE_OBJECT; --	PostalAddress }
+
+
+				    APEX_JSON.OPEN_OBJECT('PartyTaxScheme');
+				    APEX_JSON.WRITE('CompanyID', CASE WHEN Nvl(V_OUTLET_SALE_TYP,0) <>	0 THEN V_TAX_CODE ELSE BRN.BRN_TAX_CODE END  ); -- tax_code for branch
+				    APEX_JSON.WRITE('TaxScheme', 'VAT'); --- type of tax_code for branch
+				    APEX_JSON.CLOSE_OBJECT; --	PartyTaxScheme }
+
+
+				    APEX_JSON.WRITE('PartyLegalEntity', CASE P_LANG_NO WHEN 1 THEN BRN.CMP_LNAME ELSE BRN.CMP_FNAME END); -- brn_name
+				    APEX_JSON.WRITE('BranchCode', CASE WHEN Nvl(V_OUTLET_SALE_TYP,0) <>  0 THEN V_TAX_AUTH_CODE ELSE BRN.TAX_AUTH_CODE END );
+				    APEX_JSON.WRITE('ActivityCode', L_MST_RCRD.TAX_ACTV_CODE);
+				    APEX_JSON.CLOSE_OBJECT; --close  Party }
+			    END;
+
+			    APEX_JSON.CLOSE_OBJECT; --close  AccountingSupplierParty }
+			  --AccountingSupplierParty
+			END ;
+		    END LOOP;
+
+--##--------------------------------------## End AccountingSupplierParty--------------------------------------------------##--
+
+		    IF L_MST_RCRD.C_CODE IS NOT NULL THEN
+			FOR CUST IN (SELECT *
+				       FROM CUSTOMER
+				      WHERE C_CODE = L_MST_RCRD.C_CODE)
+			LOOP
+			    BEGIN --AccountingCustomerParty
+				IF CUST.C_TAX_CODE IS NOT NULL	OR CUST.CSTMR_IDNTFR IS NOT NULL THEN
+						APEX_JSON.OPEN_OBJECT('AccountingCustomerParty');
+		
+						BEGIN
+						    APEX_JSON.OPEN_OBJECT('Party');
+		
+						    BEGIN
+							APEX_JSON.OPEN_ARRAY('PartyIdentification');
+
+					    IF CUST.CSTMR_IDNTFR IS NOT NULL  THEN
+							   APEX_JSON.OPEN_OBJECT; --{
+							   APEX_JSON.OPEN_OBJECT('ID');
+					       APEX_JSON.WRITE('Value', CUST.CSTMR_IDNTFR) ;
+					       APEX_JSON.WRITE('SchemeID', CUST.IDNTFR_TYP ) ; --CASE CUST.C_CLASS_VAT WHEN 1 THEN 'NAT' ELSE 'TIN' END
+					       APEX_JSON.CLOSE_OBJECT; --ID}
+							   APEX_JSON.CLOSE_OBJECT; --}
+					    END IF ;
+
+							APEX_JSON.CLOSE_ARRAY; --close array PartyIdentification ]
+						    END;
+		
+						    BEGIN
+							APEX_JSON.OPEN_OBJECT('PostalAddress');
+							APEX_JSON.WRITE('StreetName', CUST.STREET);
+							APEX_JSON.WRITE('BuildingNumber', CUST.BUILDING_NO);
+							APEX_JSON.WRITE('PlotIdentification', CUST.ADD_NO); -- additional no ( in datbase ad_no  from branch details )
+							V_FLD_VAL := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'REGIONS', P_FLD_NM => CASE P_LANG_NO WHEN 1 THEN 'r_a_name' ELSE 'r_e_name' END, P_WHR => 'where r_code=' || CUST.R_CODE);
+							APEX_JSON.WRITE('CitySubdivisionName', V_FLD_VAL); -- regtion_name
+							V_FLD_VAL := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'CITIES', P_FLD_NM => CASE P_LANG_NO WHEN 1 THEN 'city_a_name' ELSE 'city_e_name' END, P_WHR => 'where city_no=' || CUST.CITY_NO);
+							APEX_JSON.WRITE('CityName', V_FLD_VAL); --city_name
+							APEX_JSON.WRITE('PostalZone', CUST.C_BOX_CODE); --box_no
+							V_FLD_VAL := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'IAS_PROVINCES', P_FLD_NM => CASE P_LANG_NO WHEN 1 THEN 'prov_a_name' ELSE 'prov_e_name' END, P_WHR => 'where prov_no=' || CUST.PROV_NO);
+							APEX_JSON.WRITE('CountrySubentity', V_FLD_VAL); -- eqlim
+							V_FLD_VAL := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'CNTRY', P_FLD_NM => 'CNTRY_SHRT', P_WHR => 'where cntry_no=' || CUST.CNTRY_NO);
+							APEX_JSON.WRITE('Country', V_FLD_VAL); --cntry_code
+							APEX_JSON.CLOSE_OBJECT; --  PostalAddress }
+						    END;
+						     --******************----
+						    BEGIN
+							APEX_JSON.OPEN_OBJECT('Contact');
+							APEX_JSON.WRITE('Telephone', NVL(L_MST_RCRD.C_TEL, (NVL(CUST.C_MOBILE, CUST.C_PHONE)))); --Telephone for Customer
+							APEX_JSON.WRITE('ElectronicMail', CUST.C_E_MAIL); --- Email For customer
+							APEX_JSON.CLOSE_OBJECT; --  PartyTaxScheme }
+						    END;
+						    --******************----
+						    BEGIN
+							APEX_JSON.OPEN_OBJECT('PartyTaxScheme');
+							APEX_JSON.WRITE('CompanyID', CUST.C_TAX_CODE);
+							APEX_JSON.WRITE('TaxScheme', 'VAT');
+							APEX_JSON.CLOSE_OBJECT; --  PartyTaxScheme }
+						    END;
+		
+						    --******************----
+						    APEX_JSON.WRITE('PartyLegalEntity', CASE P_LANG_NO WHEN 1 THEN CUST.C_A_NAME ELSE CUST.C_E_NAME END);
+						    --******************----
+						    APEX_JSON.CLOSE_OBJECT; --close  Party }
+						END;
+		
+						APEX_JSON.CLOSE_OBJECT; --close  AccountingCustomerParty }
+				END IF ;
+			    END; --AccountingCustomerParty
+			END LOOP;
+		    ELSIF L_MST_RCRD.CUST_CODE IS NOT NULL THEN
+			BEGIN
+				SELECT COUNT(*) INTO V_CNT
+				   FROM IAS_CASH_CUSTMR
+				   WHERE CUST_CODE = L_MST_RCRD.CUST_CODE;
+			EXCEPTION WHEN OTHERS THEN
+			   V_CNT:=0;
+			END;
+			IF NVL(V_CNT,0)=0 THEN
+			   BEGIN
+				   SELECT COUNT(*) INTO V_CNT2
+				     FROM IAS_CASH_CUSTMR_BRN
+				       WHERE CUST_CODE = L_MST_RCRD.CUST_CODE;
+					EXCEPTION WHEN OTHERS THEN
+					   V_CNT2:=0;
+					END;
+			END IF;
+		    IF NVL(V_CNT,0)>0 THEN
+		       FOR CUST IN (SELECT *
+				       FROM IAS_CASH_CUSTMR
+				      WHERE CUST_CODE = L_MST_RCRD.CUST_CODE)
+			LOOP
+			    BEGIN --AccountingCustomerParty
+				IF CUST.C_TAX_CODE IS NOT NULL THEN
+						APEX_JSON.OPEN_OBJECT('AccountingCustomerParty');
+		
+					       BEGIN
+						    APEX_JSON.OPEN_OBJECT('Party');
+		
+						    BEGIN
+							APEX_JSON.OPEN_ARRAY('PartyIdentification');
+
+					    IF CUST.CSTMR_IDNTFR IS NOT NULL  THEN
+							   APEX_JSON.OPEN_OBJECT; --{
+							   APEX_JSON.OPEN_OBJECT('ID');
+					       APEX_JSON.WRITE('Value', CUST.CSTMR_IDNTFR) ;
+					       APEX_JSON.WRITE('SchemeID', CUST.IDNTFR_TYP ) ; --CASE CUST.C_CLASS_VAT WHEN 1 THEN 'NAT' ELSE 'TIN' END
+							   APEX_JSON.CLOSE_OBJECT; --ID}
+							   APEX_JSON.CLOSE_OBJECT; --}
+					    END IF ;
+
+							APEX_JSON.CLOSE_ARRAY; --close array PartyIdentification ]
+						    END;
+		
+						    BEGIN
+							APEX_JSON.OPEN_OBJECT('PostalAddress');
+							APEX_JSON.WRITE('StreetName', CUST.STREET);
+							APEX_JSON.WRITE('BuildingNumber', CUST.BUILDING_NO);
+							APEX_JSON.WRITE('PlotIdentification', CUST.ADD_NO); -- additional no ( in datbase ad_no  from branch details )
+							V_FLD_VAL := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'REGIONS', P_FLD_NM => CASE P_LANG_NO WHEN 1 THEN 'r_a_name' ELSE 'r_e_name' END, P_WHR => 'where r_code=' || CUST.R_CODE);
+							APEX_JSON.WRITE('CitySubdivisionName', V_FLD_VAL); -- regtion_name
+							V_FLD_VAL := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'CITIES', P_FLD_NM => CASE P_LANG_NO WHEN 1 THEN 'city_a_name' ELSE 'city_e_name' END, P_WHR => 'where city_no=' || CUST.CITY_NO);
+							APEX_JSON.WRITE('CityName', V_FLD_VAL); --city_name
+							APEX_JSON.WRITE('PostalZone', CUST.C_BOX_CODE); --box_no
+							V_FLD_VAL := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'IAS_PROVINCES', P_FLD_NM => CASE P_LANG_NO WHEN 1 THEN 'prov_a_name' ELSE 'prov_e_name' END, P_WHR => 'where prov_no=' || CUST.PROV_NO);
+							APEX_JSON.WRITE('CountrySubentity', V_FLD_VAL); -- eqlim
+							V_FLD_VAL := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'CNTRY', P_FLD_NM => 'CNTRY_SHRT', P_WHR => 'where cntry_no=' || CUST.CNTRY_NO);
+							APEX_JSON.WRITE('Country', V_FLD_VAL); --cntry_code
+							APEX_JSON.CLOSE_OBJECT; --  PostalAddress }
+						    END;
+						    --******************----
+						    BEGIN
+							APEX_JSON.OPEN_OBJECT('Contact');
+							APEX_JSON.WRITE('Telephone', NVL(L_MST_RCRD.C_TEL, (NVL(CUST.MOBILE_NO, CUST.TEL_NO)))); --Telephone for Customer
+							APEX_JSON.WRITE('ElectronicMail', CUST.E_MAIL); --- Email For customer
+							APEX_JSON.CLOSE_OBJECT; --  PartyTaxScheme }
+						    END;
+						    --******************----
+						    BEGIN
+							APEX_JSON.OPEN_OBJECT('PartyTaxScheme');
+							APEX_JSON.WRITE('CompanyID', CUST.C_TAX_CODE);
+							APEX_JSON.WRITE('TaxScheme', 'VAT');
+							APEX_JSON.CLOSE_OBJECT; --  PartyTaxScheme }
+						    END;
+		
+						    --******************----
+						    APEX_JSON.WRITE('PartyLegalEntity', CASE P_LANG_NO WHEN 1 THEN CUST.CUST_L_NM ELSE CUST.CUST_F_NM END);
+						    --******************----
+						    APEX_JSON.CLOSE_OBJECT; --close  Party }
+						END;
+		
+						APEX_JSON.CLOSE_OBJECT; --close  AccountingCustomerParty }
+				END IF ;
+			    END; --AccountingCustomerParty
+			  END LOOP;
+		       ELSIF NVL(V_CNT2,0)>0 THEN
+			   FOR CUST IN (SELECT *
+				       FROM IAS_CASH_CUSTMR_BRN
+				      WHERE CUST_CODE = L_MST_RCRD.CUST_CODE)
+			  LOOP
+			    BEGIN --AccountingCustomerParty
+				IF  CUST.C_TAX_CODE IS NOT NULL THEN
+						APEX_JSON.OPEN_OBJECT('AccountingCustomerParty');
+		
+					       BEGIN
+						    APEX_JSON.OPEN_OBJECT('Party');
+		
+						    BEGIN
+							APEX_JSON.OPEN_ARRAY('PartyIdentification');
+							APEX_JSON.CLOSE_ARRAY; --close array PartyIdentification ]
+						    END;
+		
+						    BEGIN
+							APEX_JSON.OPEN_OBJECT('PostalAddress');
+							APEX_JSON.WRITE('StreetName', CUST.STREET);
+							APEX_JSON.WRITE('BuildingNumber', CUST.BUILDING_NO);
+							APEX_JSON.WRITE('PlotIdentification', CUST.ADD_NO); -- additional no ( in datbase ad_no  from branch details )
+							V_FLD_VAL := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'REGIONS', P_FLD_NM => CASE P_LANG_NO WHEN 1 THEN 'r_a_name' ELSE 'r_e_name' END, P_WHR => 'where r_code=' || CUST.R_CODE);
+							APEX_JSON.WRITE('CitySubdivisionName', V_FLD_VAL); -- regtion_name
+							V_FLD_VAL := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'CITIES', P_FLD_NM => CASE P_LANG_NO WHEN 1 THEN 'city_a_name' ELSE 'city_e_name' END, P_WHR => 'where city_no=' || CUST.CITY_NO);
+							APEX_JSON.WRITE('CityName', V_FLD_VAL); --city_name
+							APEX_JSON.WRITE('PostalZone', CUST.C_BOX_CODE); --box_no
+							V_FLD_VAL := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'IAS_PROVINCES', P_FLD_NM => CASE P_LANG_NO WHEN 1 THEN 'prov_a_name' ELSE 'prov_e_name' END, P_WHR => 'where prov_no=' || CUST.PROV_NO);
+							APEX_JSON.WRITE('CountrySubentity', V_FLD_VAL); -- eqlim
+							V_FLD_VAL := IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'CNTRY', P_FLD_NM => 'CNTRY_SHRT', P_WHR => 'where cntry_no=' || CUST.CNTRY_NO);
+							APEX_JSON.WRITE('Country', V_FLD_VAL); --cntry_code
+							APEX_JSON.CLOSE_OBJECT; --  PostalAddress }
+						    END;
+						    --******************----
+						    BEGIN
+							APEX_JSON.OPEN_OBJECT('Contact');
+							APEX_JSON.WRITE('Telephone', NVL(L_MST_RCRD.C_TEL, (NVL(CUST.MOBILE_NO, CUST.TEL_NO)))); --Telephone for Customer
+							APEX_JSON.WRITE('ElectronicMail', CUST.E_MAIL); --- Email For customer
+							APEX_JSON.CLOSE_OBJECT; --  PartyTaxScheme }
+						    END;
+						    --******************----
+						    BEGIN
+							APEX_JSON.OPEN_OBJECT('PartyTaxScheme');
+							APEX_JSON.WRITE('CompanyID', CUST.C_TAX_CODE);
+							APEX_JSON.WRITE('TaxScheme', 'VAT');
+							APEX_JSON.CLOSE_OBJECT; --  PartyTaxScheme }
+						    END;
+		
+						    --******************----
+						    APEX_JSON.WRITE('PartyLegalEntity', CASE P_LANG_NO WHEN 1 THEN CUST.CUST_L_NM ELSE CUST.CUST_F_NM END);
+						    --******************----
+						    APEX_JSON.CLOSE_OBJECT; --close  Party }
+						END;
+		
+						APEX_JSON.CLOSE_OBJECT; --close  AccountingCustomerParty }
+				END IF ;
+			    END; --AccountingCustomerParty
+			  END LOOP;
+		       END IF;
+		       /*
+		    ELSE
+			APEX_JSON.OPEN_OBJECT('AccountingCustomerParty');
+
+			APEX_JSON.OPEN_OBJECT('Party');
+
+			BEGIN
+			    APEX_JSON.OPEN_ARRAY('PartyIdentification');
+			    APEX_JSON.OPEN_OBJECT; --{
+			    APEX_JSON.OPEN_OBJECT('ID');
+			    APEX_JSON.WRITE('Value', ''); --commercial_no
+			    APEX_JSON.WRITE('SchemeID', 'NAT'); --  commercial name
+			    APEX_JSON.CLOSE_OBJECT; --ID}
+			    APEX_JSON.CLOSE_OBJECT; --}
+			    APEX_JSON.CLOSE_ARRAY; --close array PartyIdentification ]
+			END;
+
+			BEGIN
+			    APEX_JSON.OPEN_OBJECT('PostalAddress');
+			    APEX_JSON.WRITE('StreetName', '');
+			    APEX_JSON.WRITE('BuildingNumber', '');
+			    APEX_JSON.WRITE('PlotIdentification', ''); -- additional no ( in datbase ad_no  from branch details )
+			    APEX_JSON.WRITE('CitySubdivisionName', ''); -- regtion_name
+			    APEX_JSON.WRITE('CityName', ''); --city_name
+			    APEX_JSON.WRITE('PostalZone', ''); --box_no
+			    APEX_JSON.WRITE('CountrySubentity', ''); -- eqlim
+			    APEX_JSON.WRITE('Country', ''); --cntry_code
+			    APEX_JSON.CLOSE_OBJECT; --	PostalAddress }
+			END;
+			--******************----
+			BEGIN
+			    APEX_JSON.OPEN_OBJECT('Contact');
+			    APEX_JSON.WRITE('Telephone', L_MST_RCRD.C_TEL); --Telephone for Customer
+			    APEX_JSON.WRITE('ElectronicMail', ''); --- Email For customer
+			    APEX_JSON.CLOSE_OBJECT; --	PartyTaxScheme }
+			END;
+			--******************----
+			BEGIN
+			    APEX_JSON.OPEN_OBJECT('PartyTaxScheme');
+			    APEX_JSON.WRITE('CompanyID', '');
+			    APEX_JSON.WRITE('TaxScheme', 'VAT');
+			    APEX_JSON.CLOSE_OBJECT; --	PartyTaxScheme }
+			END;
+
+			--******************----
+			APEX_JSON.WRITE('PartyLegalEntity', L_MST_RCRD.C_NAME);
+			--******************----
+			APEX_JSON.CLOSE_OBJECT; --close  Party }
+			APEX_JSON.CLOSE_OBJECT; --close  AccountingCustomerParty }
+			*/
+		    END IF;
+
+		    --------------------------------------------
+		    --IF L_MST_RCRD.DLVRY_DATE IS NOT NULL THEN
+		    BEGIN
+			APEX_JSON.OPEN_OBJECT('Delivery');
+			IF  L_MST_RCRD.TAX_BILL_TYP = 2 THEN
+			    APEX_JSON.WRITE('ActualDeliveryDate', L_MST_RCRD.DOC_DATE); --DELIVERY DATE
+			ELSE
+			    APEX_JSON.WRITE('ActualDeliveryDate', ''); --DELIVERY DATE
+			END IF;
+			APEX_JSON.CLOSE_OBJECT; --  Delivery }
+		    END;
+		    --END IF;
+		    --------------------------------------------
+		    BEGIN
+			APEX_JSON.OPEN_OBJECT('PaymentMeans');
+			/*if v_fld_val is null then
+			  V_MSG_TXT:='error in invoice PaymentMeans';
+			   goto rtn_rslt;
+			end if;*/
+			V_FLD_VAL		:= CASE L_MST_RCRD.BILL_DOC_TYPE WHEN 1 THEN '10' WHEN 6 THEN '42' WHEN 5 THEN '48' WHEN 3 THEN '42' ELSE '1' END;
+			APEX_JSON.WRITE('PaymentMeansCode', V_FLD_VAL); --Must contain one of the values: -10: In cash -30: Credit transfer -42: Payment to bank account -48: Bank card -1: Instrument not define
+			APEX_JSON.WRITE('PaymentNote', ''); --	any notes
+			APEX_JSON.OPEN_ARRAY('InstructionNote');
+			APEX_JSON.WRITE(CASE P_DOC_TYPE WHEN 5 THEN L_MST_RCRD.INSTRUCTION_NOTE WHEN 15 THEN L_MST_RCRD.INSTRUCTION_NOTE ELSE '' END); --  null
+			APEX_JSON.CLOSE_ARRAY; --close array NoInstructionNote ]
+			APEX_JSON.CLOSE_OBJECT; --  PaymentMeans }
+		    END;
+
+		    --------------------------------------------
+		    BEGIN
+			APEX_JSON.OPEN_ARRAY('AllowanceCharge');
+
+			FOR ALWNC_CHRG_CV
+			    IN (SELECT TAX_INPT_MOVMNT.INPT_TYP,
+				       TAX_INPT_MOVMNT.INPT_CODE,
+				       TAX_INPT_MOVMNT.INPT_AMT,
+				       TAX_INPT_MOVMNT.TAX_PRCNT,
+				       TAX_INPT_MOVMNT.TAX_AMT,
+				       GNR_TAX_INPT.TAX_TYP_CODE,
+				       GNR_TAX_INPT.VAT_CAT_CODE,
+				       SALES_CHARGES.RSN_CODE,
+				       SALES_CHARGES.RSN_TXT,
+				       GNR_TAX_INPT.VAT_EXMPT_RSN_CODE,
+				       GNR_TAX_INPT.VAT_EXMPT_RSN_TXT,
+				       SALES_CHARGES.AMT_TYPE,
+				       CASE SC_TYPE WHEN 2 THEN 'false' WHEN 1 THEN 'true' ELSE '' END CHARGEINDICATOR
+				  FROM POS_TAX_INPT_MOVMNT TAX_INPT_MOVMNT, SALES_CHARGES, GNR_TAX_INPT
+				 WHERE TAX_INPT_MOVMNT.DOC_SER = L_MST_RCRD.DOC_SER
+				   AND TAX_INPT_MOVMNT.DOC_TYPE = P_DOC_TYPE
+				   AND TAX_INPT_MOVMNT.DOC_TYPE IN (4, 5)
+				   AND TAX_INPT_MOVMNT.INPT_TYP = 1
+				   AND GNR_TAX_INPT.INPT_TYP = 1
+				   AND TAX_INPT_MOVMNT.INPT_CODE = TO_CHAR(SALES_CHARGES.SC_NO)
+				   AND GNR_TAX_INPT.INPT_CODE = TO_CHAR(SALES_CHARGES.SC_NO)
+				   AND GNR_TAX_INPT.INPT_TYP = TAX_INPT_MOVMNT.INPT_TYP
+				   AND GNR_TAX_INPT.INPT_CODE = TAX_INPT_MOVMNT.INPT_CODE
+				   AND GNR_TAX_INPT.TAX_NO = TAX_INPT_MOVMNT.TAX_NO
+				   AND GNR_TAX_INPT.AGNCY_NO = TAX_INPT_MOVMNT.AGNCY_NO
+				   --AND SALES_CHARGES.INV_ITEM 	= 0
+				   AND SALES_CHARGES.SC_TYPE = 1																																										-- Additiona  Charge
+				   AND GNR_TAX_INPT.TAX_TYP_CODE = 'VAT'
+				   AND ABS(NVL(TAX_INPT_MOVMNT.TAX_AMT, 0)) > 0
+				 UNION ALL
+			      SELECT 3 INPT_TYP,-- FOR FREE QTY DISCOUNT
+				       NULL INPT_CODE,
+				       SUM(NVL(MOV.FREE_QTY,0) * (NVL(I_PRICE,0) - NVL(DISC_AMT,0))) INPT_AMT,
+				       MOV.TAX_PRCNT,
+				       NULL TAX_AMT,
+				       MOV.TAX_TYP_CODE,
+				       'O' ITM_VAT_CAT_CODE,
+				       NULL RSN_CODE,
+				       NULL RSN_TXT,
+				       NULL VAT_EXMPT_RSN_CODE,
+				       NULL VAT_EXMPT_RSN_TXT,
+				       1 AMT_TYPE,
+				       'false' CHARGEINDICATOR
+				  FROM (SELECT DISTINCT DOC_SER,0 TAX_PRCNT,DISC_AMT,I_PRICE,FREE_QTY,ITM_UNT,RCRD_NO,I_QTY,DOC_TYPE,OTHR_AMT_ITM_DISC,ITM_VAT_CAT_CODE,TAX_TYP_CODE
+					  FROM POS_TAX_ITM_MOVMNT
+					 WHERE DOC_SER = L_MST_RCRD.DOC_SER AND DOC_TYPE = P_DOC_TYPE
+					   AND NVL(CLC_TAX_FREE_QTY_FLG,0) = 1
+					   AND NVL(FREE_QTY,0) > 0
+					   AND NVL(TAX_TYP_CODE,'0') = CASE L_CNTRY_CODE_TYP WHEN 1 THEN 'VAT' ELSE NVL(TAX_TYP_CODE,'0') END) MOV
+				 GROUP BY TAX_TYP_CODE,TAX_PRCNT)
+			LOOP
+
+			    IF ALWNC_CHRG_CV.INPT_TYP = 3 THEN
+				L_FREE_QTY_DIS_AMT := ALWNC_CHRG_CV.INPT_AMT;
+			    END IF;
+
+			    APEX_JSON.OPEN_OBJECT;																																														 --{
+			    APEX_JSON.WRITE('ChargeIndicator', ALWNC_CHRG_CV.CHARGEINDICATOR = 'true'); 																																				   --false disc  true charge
+			    --IF ALWNC_CHRG_CV.AMT_TYPE=1 THEN -- CHARGE TYPE AMOUNT
+			    --APEX_JSON.write ('MultiplierFactorNumeric', ALWNC_CHRG_CV.INPT_BS_PRCNT); --pre_disc on bill_mst
+			    --APEX_JSON.write ('MultiplierFactorNumeric', ROUND(ALWNC_CHRG_CV.INPT_AMT,G_NO_OF_DECIMAL)); --pre_disc on bill_mst
+			    APEX_JSON.WRITE('MultiplierFactorNumeric', 0);																																								      --pre_disc on bill_mst
+			    --END IF;
+
+			    APEX_JSON.WRITE('AllowanceChargeReason', ALWNC_CHRG_CV.RSN_TXT);																																						    -- Reason disc or charge
+			    APEX_JSON.WRITE('AllowanceChargeReasonCode', ALWNC_CHRG_CV.RSN_CODE);																																					   -- 95 commercial discount
+
+			    BEGIN
+				APEX_JSON.OPEN_OBJECT('Amount');
+				APEX_JSON.WRITE('Value', ROUND(ALWNC_CHRG_CV.INPT_AMT, G_NO_OF_DECIMAL));																																			   --- amount disc or charge on bill
+				V_INVC_CHRG_AMT := NVL(V_INVC_CHRG_AMT, 0) + CASE ALWNC_CHRG_CV.CHARGEINDICATOR WHEN 'true' THEN ALWNC_CHRG_CV.INPT_AMT ELSE 0 END;
+				V_INVC_ALLW_AMT := NVL(V_INVC_ALLW_AMT, 0) + CASE ALWNC_CHRG_CV.CHARGEINDICATOR WHEN 'false' THEN ALWNC_CHRG_CV.INPT_AMT ELSE 0 END;
+
+				APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+				APEX_JSON.CLOSE_OBJECT; --  Amount }
+			    END;
+
+			    BEGIN
+				APEX_JSON.OPEN_OBJECT('BaseAmount');
+				APEX_JSON.WRITE('Value',0);-- ROUND(L_MST_RCRD.DOC_AMT,G_NO_OF_DECIMAL));
+				APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+				APEX_JSON.CLOSE_OBJECT; --  BaseAmount }
+			    END;
+
+			    /*
+			    L_QRY_STR := 'SELECT TAX_TYPE, MAX(PERCENT) PERCENT,NULL,NULL,NULL,NULL,TAX_SUB_TYPE,NULL, VAT_EXMPT_RSN_CODE, VAT_EXMPT_RSN_TXT
+					    FROM (SELECT GNR_TAX_CODE_MST.TAX_TYP_CODE AS "TAX_TYPE", TAX_PRCNT AS "PERCENT",TAX_ITM_MOVMNT.ITM_VAT_CAT_CODE AS "TAX_SUB_TYPE",
+							 NVL(TAX_ITM_MOVMNT.ITM_VAT_EX_RSN_CODE,GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_CODE) VAT_EXMPT_RSN_CODE,
+							 NVL(TAX_ITM_MOVMNT.ITM_VAT_EX_RSN_TXT, GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_TXT) VAT_EXMPT_RSN_TXT
+						    FROM '||L_TAX_ITM_MOVMNT_TBL_NM||' TAX_ITM_MOVMNT, GNR_TAX_CODE_MST, GNR_TAX_TYP_CLC_DTL
+						   WHERE TAX_ITM_MOVMNT.TAX_NO = GNR_TAX_CODE_MST.TAX_NO
+						     AND TAX_ITM_MOVMNT.CLC_TYP_NO = GNR_TAX_TYP_CLC_DTL.CLC_TYP_NO
+						     AND TAX_ITM_MOVMNT.TAX_NO = GNR_TAX_TYP_CLC_DTL.TAX_NO
+						     AND TAX_ITM_MOVMNT.DOC_SER = :DOC_SER
+						     AND TAX_ITM_MOVMNT.DOC_TYPE = :P_DOC_TYPE
+						  UNION ALL
+						  SELECT GNR_TAX_CODE_MST.TAX_TYP_CODE AS "TAX_TYPE", TAX_PRCNT AS "PERCENT",GNR_TAX_TYP_CLC_DTL.VAT_CAT_CODE AS "TAX_SUB_TYPE",
+							 GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_CODE, GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_TXT
+						    FROM '||L_TAX_INPT_MOVMNT_TBL_NM||' TAX_INPT_MOVMNT, GNR_TAX_CODE_MST, GNR_TAX_TYP_CLC_DTL
+						   WHERE TAX_INPT_MOVMNT.TAX_NO = GNR_TAX_CODE_MST.TAX_NO
+						     AND TAX_INPT_MOVMNT.CLC_TYP_NO = GNR_TAX_TYP_CLC_DTL.CLC_TYP_NO
+						     AND TAX_INPT_MOVMNT.TAX_NO = GNR_TAX_TYP_CLC_DTL.TAX_NO
+						     AND TAX_INPT_MOVMNT.DOC_SER = TAX_INPT_MOVMNT.DOC_SER
+						     AND TAX_INPT_MOVMNT.DOC_SER = :DOC_SER
+						     AND TAX_INPT_MOVMNT.DOC_TYPE = :P_DOC_TYPE
+						     )
+					   GROUP BY TAX_TYPE,TAX_SUB_TYPE, VAT_EXMPT_RSN_CODE, VAT_EXMPT_RSN_TXT';
+
+			    EXECUTE IMMEDIATE L_QRY_STR BULK COLLECT INTO L_TAX_RSLT_TBL USING L_MST_RCRD.DOC_SER,P_DOC_TYPE;--,L_MST_RCRD.DOC_SER,P_DOC_TYPE;
+
+			    FOR L_TAX_INDX IN 1..NVL(L_TAX_RSLT_TBL.LAST,0)
+			    LOOP
+				L_TAX_RCRD := L_TAX_RSLT_TBL(L_TAX_INDX);
+				BEGIN
+				    APEX_JSON.OPEN_OBJECT('TaxCategory');
+				    APEX_JSON.WRITE('ID', CASE	WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN L_TAX_RCRD.TAX_SUB_TYPE
+								WHEN P_CNTRY_CODE = 'EGY' THEN L_TAX_RCRD.TAX_TYPE
+								ELSE '' END ) ;
+				    APEX_JSON.WRITE('Percent', L_TAX_RCRD.PERCENT);
+				    APEX_JSON.WRITE('TaxScheme', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN 'VAT'
+								       WHEN P_CNTRY_CODE = 'EGY' THEN L_TAX_RCRD.TAX_SUB_TYPE
+								       ELSE '' END ) ;
+				    APEX_JSON.WRITE('TaxExemptionReasonCode', L_TAX_RCRD.VAT_EXMPT_RSN_CODE);
+				    APEX_JSON.WRITE('TaxExemptionReason', L_TAX_RCRD.VAT_EXMPT_RSN_TXT);
+				    APEX_JSON.CLOSE_OBJECT; --	TaxCategory }
+				END;
+
+			    END LOOP;
+			   */
+
+			   BEGIN
+				APEX_JSON.OPEN_OBJECT('TaxCategory');
+				APEX_JSON.WRITE('ID', ALWNC_CHRG_CV.VAT_CAT_CODE);
+				APEX_JSON.WRITE('Percent', NVL(ALWNC_CHRG_CV.TAX_PRCNT, 15));
+				APEX_JSON.WRITE('TaxScheme', NVL(ALWNC_CHRG_CV.TAX_TYP_CODE, 'VAT'));
+				APEX_JSON.CLOSE_OBJECT; 																																											   --  TaxCategory }
+			   END;
+			APEX_JSON.CLOSE_OBJECT; --}
+
+			END LOOP;
+
+			APEX_JSON.CLOSE_ARRAY; --close array AllowanceCharge ]
+
+		    END;
+
+		    BEGIN
+			V_LOOP_CNT := 0;
+			L_TAX_RSLT_TBL.DELETE;
+			APEX_JSON.OPEN_OBJECT('TaxTotal');
+
+			L_QRY_STR := 'SELECT TAX_TYPE, PERCENT, ROUND(NVL(SUM(TAX_AMT),0),'||G_NO_OF_DECIMAL||') TAX_AMT,ROUND(NVL(SUM(TAXABLE_AMT),0),'||G_NO_OF_DECIMAL||') TAXABLE_AMT /*NEED CASE FOR CALC-VAT-DISC-AMT-TYPE IN SUB QUERY*/,A_CY CURRENCY_ID,NVL(AC_RATE,1) CURRENCY_RATE,TAX_SUB_TYPE,SUM(ROUND(NVL(SUM(TAX_AMT),0),'||G_NO_OF_DECIMAL||')) OVER() TOTAL_TAX_AMT,
+					VAT_EXMPT_RSN_CODE, VAT_EXMPT_RSN_TXT
+					FROM (SELECT GNR_TAX_CODE_MST.TAX_TYP_CODE AS "TAX_TYPE",
+						     TAX_PRCNT AS "PERCENT",
+						     ROUND(((NVL(I_QTY,0) + (NVL(FREE_QTY,0) * NVL(CLC_TAX_FREE_QTY_FLG,0))) * (NVL(I_PRICE,0) - NVL(DISC_AMT,0))),' || G_NO_OF_DECIMAL || ') * (NVL(TAX_PRCNT,0)/100) TAX_AMT,
+						     ROUND((NVL(I_QTY,0) + (NVL(FREE_QTY,0) * NVL(CLC_TAX_FREE_QTY_FLG,0))) * (NVL(I_PRICE,0) - NVL(DISC_AMT,0)),' || G_NO_OF_DECIMAL || ') TAXABLE_AMT,
+						     A_CY,AC_RATE,TAX_ITM_MOVMNT.ITM_VAT_CAT_CODE AS "TAX_SUB_TYPE",
+						     NVL(TAX_ITM_MOVMNT.ITM_VAT_EX_RSN_CODE,GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_CODE) VAT_EXMPT_RSN_CODE,
+						     NVL(TAX_ITM_MOVMNT.ITM_VAT_EX_RSN_TXT, GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_TXT) VAT_EXMPT_RSN_TXT
+						FROM '||L_TAX_ITM_MOVMNT_TBL_NM||' TAX_ITM_MOVMNT, GNR_TAX_CODE_MST, GNR_TAX_TYP_CLC_DTL
+					       WHERE TAX_ITM_MOVMNT.TAX_NO = GNR_TAX_CODE_MST.TAX_NO
+						 AND TAX_ITM_MOVMNT.CLC_TYP_NO = GNR_TAX_TYP_CLC_DTL.CLC_TYP_NO
+						 AND TAX_ITM_MOVMNT.TAX_NO = GNR_TAX_TYP_CLC_DTL.TAX_NO
+						 AND TAX_ITM_MOVMNT.DOC_SER = :P_DOC_SER
+						 AND TAX_ITM_MOVMNT.DOC_TYPE = :P_DOC_TYPE
+					      UNION ALL
+					      SELECT GNR_TAX_CODE_MST.TAX_TYP_CODE AS "TAX_TYPE", TAX_PRCNT AS "PERCENT", ROUND(TAX_AMT,'||G_NO_OF_DECIMAL||'),ROUND(TAX_AMT,'||G_NO_OF_DECIMAL||') TAXABLE_AMT,A_CY,AC_RATE,GNR_TAX_TYP_CLC_DTL.VAT_CAT_CODE AS "TAX_SUB_TYPE",
+						     GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_CODE, GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_TXT
+						FROM '||L_TAX_INPT_MOVMNT_TBL_NM||' TAX_INPT_MOVMNT, GNR_TAX_CODE_MST, GNR_TAX_TYP_CLC_DTL
+					       WHERE TAX_INPT_MOVMNT.TAX_NO = GNR_TAX_CODE_MST.TAX_NO
+						 AND TAX_INPT_MOVMNT.CLC_TYP_NO = GNR_TAX_TYP_CLC_DTL.CLC_TYP_NO
+						 AND TAX_INPT_MOVMNT.TAX_NO = GNR_TAX_TYP_CLC_DTL.TAX_NO
+						 AND TAX_INPT_MOVMNT.DOC_SER = TAX_INPT_MOVMNT.DOC_SER
+						 AND TAX_INPT_MOVMNT.DOC_SER = :P_DOC_SER
+						 AND TAX_INPT_MOVMNT.DOC_TYPE = :P_DOC_TYPE
+						 )
+				       GROUP BY TAX_TYPE,PERCENT,A_CY,AC_RATE,TAX_SUB_TYPE, VAT_EXMPT_RSN_CODE, VAT_EXMPT_RSN_TXT';
+
+			--dbms_output.put_line(l_qry_str);
+			EXECUTE IMMEDIATE L_QRY_STR BULK COLLECT INTO L_TAX_RSLT_TBL USING L_MST_RCRD.DOC_SER,P_DOC_TYPE;--,L_MST_RCRD.DOC_SER,P_DOC_TYPE;
+
+			IF L_TAX_RSLT_TBL.LAST IS NULL THEN
+			    --##DIS_TAX-------------------------------------------
+			  /*  IF P_CNTRY_CODE = 'EGY' THEN
+				EXECUTE IMMEDIATE 'SELECT ''T4'' TAX_TYPE,
+						       NULL PERCENT,
+						       sum((d.i_price * d.i_qty) / m.bill_amt * abs(oc.amt)) TAX_AMT,
+						       NULL,
+						       NULL,
+						       NULL,
+						       TAX_TYP_CODE TAX_SUB_TYPE,
+						       NULL
+						   FROM other_charges oc,
+						       sales_charges sc,
+						       IAS_POS_BILL_DTL d,
+						       IAS_POS_BILL_MST m
+						   WHERE oc.sc_no = sc.sc_no
+							 AND oc.BILL_NO = d.BILL_NO
+							 AND d.BILL_NO = m.BILL_NO
+							 AND sync_flg = 1
+							 AND oc.BILL_NO = :P_DOC_SER
+						   GROUP BY tax_typ_code' BULK COLLECT INTO L_DIS_TAX_TBL USING L_MST_RCRD.DOC_SER;
+				L_DIS_TAX_TOTAL := 0;
+				FOR I IN 1..NVL(L_DIS_TAX_TBL.LAST,0)
+				LOOP
+				    L_DIS_TAX_RCRD := L_DIS_TAX_TBL(I);
+				    L_DIS_TAX_TOTAL := L_DIS_TAX_TOTAL + L_DIS_TAX_RCRD.TAX_AMT;
+				END LOOP;
+			    END IF;*/
+			    --##END_DIS_TAX-------------------------------------------
+
+			    BEGIN
+				APEX_JSON.OPEN_OBJECT('TaxAmount');
+				--##DIS_TAX-------------------------------------------
+				APEX_JSON.WRITE('Value', ROUND(L_DIS_TAX_TOTAL,G_NO_OF_DECIMAL));
+				--##END_DIS_TAX-------------------------------------------
+				APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+				APEX_JSON.CLOSE_OBJECT; --  TaxAmount }
+			    END;
+
+			    BEGIN
+				APEX_JSON.OPEN_OBJECT('TaxAmountLocal');
+				APEX_JSON.WRITE('Value', ROUND((L_DIS_TAX_TOTAL * L_TAX_RCRD.CURRENCY_RATE),G_NO_OF_DECIMAL));
+				APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+				APEX_JSON.CLOSE_OBJECT; --  TaxAmount }
+			    END;
+
+			    APEX_JSON.OPEN_ARRAY('TaxSubtotal');
+			    FOR I IN 1..NVL(L_DIS_TAX_TBL.LAST,0)
+			    LOOP
+				L_DIS_TAX_RCRD := L_DIS_TAX_TBL(I);
+				L_DIS_TAX_TOTAL := L_DIS_TAX_TOTAL + L_DIS_TAX_RCRD.TAX_AMT;
+				APEX_JSON.OPEN_OBJECT;
+
+				BEGIN
+				    APEX_JSON.OPEN_OBJECT('TaxAmount');
+				    APEX_JSON.WRITE('Value', ROUND(L_DIS_TAX_RCRD.TAX_AMT,G_NO_OF_DECIMAL));
+				    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+				    APEX_JSON.CLOSE_OBJECT; --	TaxAmount }
+				END;
+
+				BEGIN
+				    APEX_JSON.OPEN_OBJECT('TaxCategory');
+				    APEX_JSON.WRITE('ID', L_DIS_TAX_RCRD.TAX_TYPE);
+				    APEX_JSON.WRITE('Percent', L_DIS_TAX_RCRD.PERCENT);
+				    APEX_JSON.WRITE('TaxScheme', L_DIS_TAX_RCRD.TAX_SUB_TYPE);
+				    APEX_JSON.WRITE('TaxExemptionReasonCode', L_TAX_RCRD.VAT_EXMPT_RSN_CODE);
+				    APEX_JSON.WRITE('TaxExemptionReason', L_TAX_RCRD.VAT_EXMPT_RSN_TXT);
+				    APEX_JSON.CLOSE_OBJECT; --	TaxCategory }
+				END;
+
+				APEX_JSON.CLOSE_OBJECT;
+			    END LOOP;
+			    APEX_JSON.CLOSE_ARRAY;
+			--##END_DIS_TAX-------------------------------------------
+
+			END IF;
+
+			FOR L_TAX_INDX IN 1..NVL(L_TAX_RSLT_TBL.LAST,0)
+			LOOP
+			    L_TAX_RCRD := L_TAX_RSLT_TBL(L_TAX_INDX);
+			    BEGIN
+				--APEX_JSON.OPEN_OBJECT; --{
+
+				/*v_LineExtensionAmount:=L_TAX_RCRD.invc_line_net_amt;
+				v_TaxExclusiveAmount:= L_TAX_RCRD.invc_line_net_amt-L_TAX_RCRD.invc_allw_amt+L_TAX_RCRD.invc_chrg_amt;
+				v_invc_allw_amt:=L_TAX_RCRD.invc_allw_amt;
+				v_TaxInclusiveAmount:=	v_TaxExclusiveAmount+ L_TAX_RCRD.tax_amt;*/
+				V_TAXAMOUNT := NVL(V_TAXAMOUNT,0) + NVL(L_TAX_RCRD.TAX_AMT,0);
+
+				V_LOOP_CNT := V_LOOP_CNT + 1;
+
+				IF V_LOOP_CNT = 1 THEN
+
+
+				    --##DIS_TAX-------------------------------------------
+				/*    IF P_CNTRY_CODE = 'EGY' THEN
+					EXECUTE IMMEDIATE 'SELECT ''T4'' TAX_TYPE,
+							       NULL PERCENT,
+							       sum((d.i_price * d.i_qty) / m.bill_amt * abs(oc.amt)) TAX_AMT,
+							       NULL,
+							       NULL,
+							       NULL,
+							       TAX_TYP_CODE TAX_SUB_TYPE,
+							       NULL
+							   FROM other_charges oc,
+							       sales_charges sc,
+							       IAS_POS_BILL_DTL d,
+							       IAS_POS_BILL_MST m
+							   WHERE oc.sc_no = sc.sc_no
+								 AND oc.BILL_NO = d.BILL_NO
+								 AND d.BILL_NO = m.BILL_NO
+								 AND sync_flg = 1
+								 AND oc.BILL_NO = :P_DOC_SER
+							   GROUP BY tax_typ_code' BULK COLLECT INTO L_DIS_TAX_TBL USING L_MST_RCRD.DOC_SER;
+					L_DIS_TAX_TOTAL := 0;
+					FOR I IN 1..NVL(L_DIS_TAX_TBL.LAST,0)
+					LOOP
+					    L_DIS_TAX_RCRD := L_DIS_TAX_TBL(I);
+					    L_DIS_TAX_TOTAL := L_DIS_TAX_TOTAL + L_DIS_TAX_RCRD.TAX_AMT;
+					END LOOP;
+				    END IF;*/
+				    --##END_DIS_TAX-------------------------------------------
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('TaxAmount');
+					--##DIS_TAX-------------------------------------------
+					APEX_JSON.WRITE('Value', ROUND(L_TAX_RCRD.TOTAL_TAX_AMT + L_DIS_TAX_TOTAL,G_NO_OF_DECIMAL));
+					--##END_DIS_TAX-------------------------------------------
+					APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+					APEX_JSON.CLOSE_OBJECT; --  TaxAmount }
+				    END;
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('TaxAmountLocal');
+					APEX_JSON.WRITE('Value', ROUND((L_TAX_RCRD.TOTAL_TAX_AMT * L_TAX_RCRD.CURRENCY_RATE) + (L_DIS_TAX_TOTAL * L_TAX_RCRD.CURRENCY_RATE),G_NO_OF_DECIMAL));
+					APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+					APEX_JSON.CLOSE_OBJECT; --  TaxAmount }
+				    END;
+
+				    APEX_JSON.OPEN_ARRAY('TaxSubtotal');--SUBTOTAL FOR INVOICE
+				    V_TAX_EXISTS := TRUE;
+
+				END IF;
+
+				BEGIN
+				    --##DIS_TAX-------------------------------------------
+				    IF V_LOOP_CNT = 1 THEN
+					FOR I IN 1..NVL(L_DIS_TAX_TBL.LAST,0)
+					LOOP
+					    L_DIS_TAX_RCRD := L_DIS_TAX_TBL(I);
+					    L_DIS_TAX_TOTAL := L_DIS_TAX_TOTAL + L_DIS_TAX_RCRD.TAX_AMT;
+					    APEX_JSON.OPEN_OBJECT;
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('TaxAmount');
+						APEX_JSON.WRITE('Value', L_DIS_TAX_RCRD.TAX_AMT);
+						APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+						APEX_JSON.CLOSE_OBJECT; --  TaxAmount }
+					    END;
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('TaxCategory');
+						APEX_JSON.WRITE('ID', L_DIS_TAX_RCRD.TAX_TYPE);
+						APEX_JSON.WRITE('Percent', L_DIS_TAX_RCRD.PERCENT);
+						APEX_JSON.WRITE('TaxScheme', L_DIS_TAX_RCRD.TAX_SUB_TYPE);
+						APEX_JSON.WRITE('TaxExemptionReasonCode', L_TAX_RCRD.VAT_EXMPT_RSN_CODE);
+						APEX_JSON.WRITE('TaxExemptionReason', L_TAX_RCRD.VAT_EXMPT_RSN_TXT);
+						APEX_JSON.CLOSE_OBJECT; --  TaxCategory }
+					    END;
+
+					    APEX_JSON.CLOSE_OBJECT;
+					END LOOP;
+				    END IF;
+				    --##END_DIS_TAX-------------------------------------------
+
+				    APEX_JSON.OPEN_OBJECT;
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('TaxableAmount');
+					--APEX_JSON.WRITE('Value', ROUND(L_MST_RCRD.DOC_AMT - L_MST_RCRD.DISC_AMT,G_NO_OF_DECIMAL));
+					APEX_JSON.WRITE('Value', ROUND(L_TAX_RCRD.TAXABLE_AMT,G_NO_OF_DECIMAL));
+					APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+					APEX_JSON.CLOSE_OBJECT; --  TaxableAmount }
+				    END;
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('TaxAmount');
+					APEX_JSON.WRITE('Value', L_TAX_RCRD.TAX_AMT);
+					APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+					APEX_JSON.CLOSE_OBJECT; --  TaxAmount }
+				    END;
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('TaxCategory');
+					APEX_JSON.WRITE('ID', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN L_TAX_RCRD.TAX_SUB_TYPE
+								    WHEN P_CNTRY_CODE = 'EGY' THEN L_TAX_RCRD.TAX_TYPE
+								    ELSE '' END );
+					APEX_JSON.WRITE('Percent', L_TAX_RCRD.PERCENT);
+					APEX_JSON.WRITE('TaxScheme', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN 'VAT'
+									   WHEN P_CNTRY_CODE = 'EGY' THEN L_TAX_RCRD.TAX_SUB_TYPE
+									   ELSE '' END ) ;
+					APEX_JSON.WRITE('TaxExemptionReasonCode', L_TAX_RCRD.VAT_EXMPT_RSN_CODE);
+					APEX_JSON.WRITE('TaxExemptionReason', L_TAX_RCRD.VAT_EXMPT_RSN_TXT);
+					APEX_JSON.CLOSE_OBJECT; --  TaxCategory }
+				    END;
+
+				    APEX_JSON.CLOSE_OBJECT;
+
+				    IF P_CNTRY_CODE = 'SAU' AND NVL(L_FREE_QTY_DIS_AMT,0) > 0 THEN
+					APEX_JSON.OPEN_OBJECT;
+
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT('TaxableAmount');
+					    --APEX_JSON.WRITE('Value', ROUND(L_MST_RCRD.DOC_AMT - L_MST_RCRD.DISC_AMT,G_NO_OF_DECIMAL));
+					    APEX_JSON.WRITE('Value', ROUND(L_FREE_QTY_DIS_AMT, G_NO_OF_DECIMAL) * -1);
+					    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+					    APEX_JSON.CLOSE_OBJECT; --	TaxableAmount }
+					END;
+
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT('TaxAmount');
+					    APEX_JSON.WRITE('Value', 0);
+					    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+					    APEX_JSON.CLOSE_OBJECT; --	TaxAmount }
+					END;
+
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT('TaxCategory');
+					    APEX_JSON.WRITE('ID', 'O');
+					    APEX_JSON.WRITE('Percent', 0);
+					    APEX_JSON.WRITE('TaxScheme', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN 'VAT'
+									       WHEN P_CNTRY_CODE = 'EGY' THEN L_TAX_RCRD.TAX_SUB_TYPE
+									       ELSE '' END );
+					    APEX_JSON.WRITE('TaxExemptionReasonCode', 'VATEX-SA-OOS');
+					    APEX_JSON.WRITE('TaxExemptionReason','Free Quantity Discount');
+					    APEX_JSON.CLOSE_OBJECT; --	TaxCategory }
+					END;
+
+					APEX_JSON.CLOSE_OBJECT;
+				    END IF;
+
+				END;
+			    END;
+			END LOOP;
+
+			IF V_TAX_EXISTS THEN
+			    APEX_JSON.CLOSE_ARRAY; --  TaxSubtotal }
+			END IF;
+
+			APEX_JSON.CLOSE_OBJECT; --close array TaxTotal ]
+		    END;
+		    BEGIN
+			V_LOOP_CNT := 0;
+
+			L_QRY_STR := 'SELECT DOC_NO,
+					     DOC_SER,
+					     DOC_SEQUENCE,
+					     RCRD_NO,
+					     I_CODE,
+					     GTIN_CODE,
+					     HSN_CODE,
+					     I_NAME,
+					     ITM_UNT,
+					     I_PRICE,
+					     VAT_PER,
+					     TAX_AMT,
+					     TAX_PRCNT,
+					     TAX_TYP_CODE, --TAX_TYP
+					     VAT_CAT_CODE,
+					     TAX_CODE, --TAX_SUB_TYP,
+					     VAT_EXMPT_RSN_CODE,
+					     VAT_EXMPT_RSN_TXT,
+					     I_QTY,
+					     FREE_QTY,
+					     NET_PRICE,
+					     NET_QTY,
+					     ITM_AMT,
+					     FREE_QTY_ITM,
+					     BILL_AMT,
+					     FREE_QTY_BILL,
+					     F_QTY_BASE_AMT,
+					     F_QTY_DIS_PER,
+					     F_QTY_DIS_AMT,
+					     BASE_AMT_MST,
+					     DIS_PER_MST,
+					     DIS_AMT_MST,
+					     BASE_AMT,
+					     DIS_PER,
+					     DIS_AMT_DTL,
+					     BASE_AMT2,
+					     DIS_PER2,
+					     DIS_AMT_DTL2,
+					     BASE_AMT3,
+					     DIS_PER3,
+					     DIS_AMT_DTL3,
+					     ''95'' RSN_CODE,
+					     ''95'' RSN_CODE2,
+					     ''95'' RSN_CODE3,
+					     ''95'' RSN_CODE_M,
+					     ''95'' RSN_CODE_F,
+					     ''Discount'' RSN_TXT,
+					     ''Discount'' RSN_TXT2,
+					     ''Discount'' RSN_TXT3,
+					     ''Discount'' RSN_TXT_M,
+					     ''Discount'' RSN_TXT_F,
+					     ITM_NET_AMT,
+					     NET_TAX_AMT,
+					     ITM_ROW_NUM,
+					     ITM_ROW_CNT,
+					     G_CODE,
+					     ITEM_DESC
+					FROM (WITH BILL AS
+							(SELECT B.I_CODE,
+								I.GTIN_CODE,
+								I.HSN_CODE,
+								I_NAME,
+								B.ITM_UNT,
+								NVL('||L_PRICE_FLD_NM||',0) I_PRICE,
+								M.'||L_DOC_NO_FLD_NM||' DOC_NO,
+								M.'||L_DOC_SER_FLD_NM||' DOC_SER,
+								'||L_DOC_SEQUENCE_FLD_NM||' DOC_SEQUENCE,
+								B.RCRD_NO,
+								NVL(B.'||L_VAT_PRCNT_FLD_NM||', 0) VAT_PER,
+								ROUND(NVL(TAX_AMT,0),'||G_NO_OF_DECIMAL||') TAX_AMT,
+								NVL(G.TAX_PRCNT, 0) TAX_PRCNT,
+								TAX_TYP_CODE,
+								G.VAT_CAT_CODE,
+								TAX_CODE,
+								G.VAT_EXMPT_RSN_CODE,
+								G.VAT_EXMPT_RSN_TXT,
+								NVL(B.'||L_QTY_FLD_NM||', 0) I_QTY,
+								NVL(B.FREE_QTY, 0) FREE_QTY,
+								(NVL(B.'||L_QTY_FLD_NM||', 0) + NVL(B.FREE_QTY, 0)) AS NET_QTY,
+								(NVL(B.'||L_QTY_FLD_NM||', 0) + NVL(B.FREE_QTY, 0)) * NVL('||L_PRICE_FLD_NM||',0) AS NET_PRICE,
+								NVL('||L_DIS_AMT_DTL_FLD_NM||',0) DIS_AMT_DTL,
+								NVL('||L_DIS_AMT_DTL2_FLD_NM||',0) DIS_AMT_DTL2,
+								NVL('||L_DIS_AMT_DTL3_FLD_NM||',0) DIS_AMT_DTL3,
+								NVL('||L_DIS_AMT_MST||', 0) DIS_AMT_MST,
+								CASE WHEN (AR_USE_FREE_QTY = 1 AND NVL(G.CLC_TAX_FREE_QTY_FLG, 0) = 0) THEN SUM(CASE WHEN NVL(B.'||L_QTY_FLD_NM||', 0) = 0 AND NVL(B.FREE_QTY, 0) > 0 THEN B.FREE_QTY * ROUND(NVL('||L_PRICE_FLD_NM||',0),'||G_NO_OF_DECIMAL||') ELSE 0 END) OVER (PARTITION BY M.'||L_DOC_SER_FLD_NM||') ELSE 0 END FREE_QTY_BILL,
+								SUM((B.'||L_QTY_FLD_NM||' + NVL(B.FREE_QTY, 0)) * ROUND(NVL('||L_PRICE_FLD_NM||',0),'||G_NO_OF_DECIMAL||')) OVER (PARTITION BY M.'||L_DOC_SER_FLD_NM||') BILL_AMT,
+								CASE WHEN (AR_USE_FREE_QTY = 1 AND NVL(G.CLC_TAX_FREE_QTY_FLG, 0) = 0) THEN SUM(CASE WHEN NVL(B.'||L_QTY_FLD_NM||', 0) > 0 AND NVL(B.FREE_QTY, 0) > 0 THEN B.FREE_QTY * ROUND(NVL('||L_PRICE_FLD_NM||',0),'||G_NO_OF_DECIMAL||') ELSE 0 END) OVER (PARTITION BY M.'||L_DOC_SER_FLD_NM||', B.I_CODE) ELSE 0 END FREE_QTY_ITM,
+								SUM((B.'||L_QTY_FLD_NM||' + NVL(B.FREE_QTY, 0)) * ROUND(NVL('||L_PRICE_FLD_NM||',0),'||G_NO_OF_DECIMAL||')) OVER (PARTITION BY M.'||L_DOC_SER_FLD_NM||', B.I_CODE) ITM_AMT,
+								AR.CALC_SI_DISC_WITHOUT_ITM_DISC,
+								AR.CALC_VAT_AMT_TYPE,
+								NVL(G.CLC_TAX_FREE_QTY_FLG, 0) CLC_TAX_FREE_QTY_FLG,
+								AR.AR_USE_FREE_QTY,
+								AR.CLC_TAX_DSCNT2,
+								AR.CLC_TAX_DSCNT3,
+								M.'||L_DOC_SQNC_FLD_NM||' DOC_M_SQ,
+								'||L_DOC_SEQ_TMP_FLD_NM||' DOC_SEQ_TMP,
+								ITM_NET_AMT,
+								NET_TAX_AMT,
+								ITM_ROW_NUM,
+								ITM_ROW_CNT,
+								G_CODE,
+								ITEM_DESC
+							   FROM '||L_DTL_TBL_NM||'  B,
+								'||L_MST_TBL_NM||'  M,
+								IAS_ITM_MST   I,
+								IAS_PARA_AR   AR,
+								(SELECT DOC_TYPE,
+									DOC_SER,
+									I_CODE,
+									RCRD_NO,
+									MOV.TAX_PRCNT,
+									MOV.TAX_AMT,
+									GNR_TAX_TYP_CLC_DTL.TAX_TYP_CODE,
+									GNR_TAX_TYP_CLC_DTL.VAT_CAT_CODE TAX_CODE,
+									GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_CODE VAT_EXMPT_RSN_CODE,
+									GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_TXT VAT_EXMPT_RSN_TXT,
+									MOV.ITM_VAT_CAT_CODE VAT_CAT_CODE,
+									CLC_TAX_FREE_QTY_FLG,
+									ROW_NUMBER() OVER(PARTITION BY DOC_TYPE, DOC_SER, I_CODE, RCRD_NO ORDER BY MOV.TAX_NO,MOV.AGNCY_NO) ITM_ROW_NUM,
+									COUNT(RCRD_NO) OVER(PARTITION BY DOC_TYPE, DOC_SER, I_CODE, RCRD_NO) ITM_ROW_CNT,
+									NULL ITM_NET_AMT,
+									NULL NET_TAX_AMT
+								   FROM '||L_TAX_ITM_MOVMNT_TBL_NM||' MOV, GNR_TAX_CODE_MST, GNR_TAX_TYP_CLC_DTL
+								  WHERE MOV.TAX_NO = GNR_TAX_CODE_MST.TAX_NO
+								    AND MOV.CLC_TYP_NO = GNR_TAX_TYP_CLC_DTL.CLC_TYP_NO
+								    AND MOV.TAX_NO = GNR_TAX_TYP_CLC_DTL.TAX_NO
+								    AND DOC_TYPE = :P_DOC_TYPE
+								    AND DOC_SER = :DOC_SER) G
+							  WHERE M.'||L_DOC_SER_FLD_NM||' = B.'||L_DOC_SER_FLD_NM||'
+							    AND B.'||L_DOC_SER_FLD_NM||' = G.DOC_SER(+)
+							    AND B.I_CODE = G.I_CODE(+)
+							    AND B.RCRD_NO = G.RCRD_NO(+)
+							    AND B.I_CODE = I.I_CODE
+							    AND M.'||L_DOC_SER_FLD_NM||' = :DOC_SER)
+						SELECT DOC_NO,
+						       DOC_SER,
+						       DOC_SEQUENCE,
+						       DOC_M_SQ,
+						       DOC_SEQ_TMP,
+						       RCRD_NO,
+						       I_CODE,
+						       GTIN_CODE,
+						       HSN_CODE,
+						       I_NAME,
+						       ITM_UNT,
+						       I_PRICE,
+						       VAT_PER,
+						       TAX_AMT,
+						       TAX_PRCNT,
+						       TAX_TYP_CODE,
+						       VAT_CAT_CODE,
+						       TAX_CODE,
+						       VAT_EXMPT_RSN_CODE,
+						       VAT_EXMPT_RSN_TXT,
+						       I_QTY,
+						       FREE_QTY,
+						       NET_PRICE,
+						       NET_QTY,
+						       ITM_AMT,
+						       FREE_QTY_ITM,
+						       BILL_AMT,
+						       FREE_QTY_BILL,
+						       CASE WHEN F_QTY_DIS_AMT = 0 THEN 0 ELSE NET_PRICE END AS F_QTY_BASE_AMT,
+						       CASE WHEN F_QTY_DIS_AMT = 0 THEN 0 ELSE F_QTY_DIS_AMT / NET_PRICE * 100 END AS F_QTY_DIS_PER,
+						       F_QTY_DIS_AMT,
+						       CASE WHEN DIS_AMT_MST = 0 THEN 0 ELSE CASE CALC_SI_DISC_WITHOUT_ITM_DISC WHEN 1 THEN (I_PRICE - (DIS_AMT_DTL + DIS_AMT_DTL2 + DIS_AMT_DTL3)) * I_QTY ELSE I_PRICE * I_QTY END END BASE_AMT_MST,
+						       CASE WHEN DIS_AMT_MST = 0 THEN 0 ELSE DIS_AMT_MST / (NET_PRICE - F_QTY_DIS_AMT) * 100 END DIS_PER_MST,
+						       DIS_AMT_MST,
+						       CASE WHEN DIS_AMT_DTL = 0 THEN 0 ELSE NET_PRICE - F_QTY_DIS_AMT END AS BASE_AMT,
+						       CASE WHEN DIS_AMT_DTL = 0 THEN 0 ELSE DIS_AMT_DTL / (NET_PRICE - F_QTY_DIS_AMT) * 100 END AS DIS_PER,
+						       DIS_AMT_DTL,
+						       CASE WHEN DIS_AMT_DTL2 = 0 THEN 0 ELSE ((NET_PRICE - F_QTY_DIS_AMT) - DIS_AMT_DTL) END AS BASE_AMT2,
+						       CASE WHEN DIS_AMT_DTL2 = 0 THEN 0 ELSE DIS_AMT_DTL2 / ((NET_PRICE - F_QTY_DIS_AMT) - DIS_AMT_DTL) * 100 END AS DIS_PER2,
+						       DIS_AMT_DTL2,
+						       CASE WHEN DIS_AMT_DTL3 = 0 THEN 0 ELSE ((NET_PRICE - F_QTY_DIS_AMT) - DIS_AMT_DTL - DIS_AMT_DTL2) END BASE_AMT3,
+						       CASE WHEN DIS_AMT_DTL3 = 0 THEN 0 ELSE DIS_AMT_DTL3 / ((NET_PRICE - F_QTY_DIS_AMT) - DIS_AMT_DTL - DIS_AMT_DTL2) * 100 END DIS_PER3,
+						       DIS_AMT_DTL3,
+						       CALC_VAT_AMT_TYPE,
+						       CLC_TAX_FREE_QTY_FLG,
+						       CLC_TAX_DSCNT2,
+						       CLC_TAX_DSCNT3,
+						       ITM_NET_AMT,
+						       NET_TAX_AMT,
+						       ITM_ROW_NUM,
+						       ITM_ROW_CNT,
+						       G_CODE,
+						       ITEM_DESC
+						  FROM (SELECT I_CODE,
+							       GTIN_CODE,
+							       HSN_CODE,
+							       I_NAME,
+							       ITM_UNT,
+							       I_PRICE,
+							       I_QTY,
+							       DOC_M_SQ,
+							       DOC_SEQ_TMP,
+							       CASE AR_USE_FREE_QTY WHEN 0 THEN 0 ELSE FREE_QTY END FREE_QTY,
+							       NET_PRICE,
+							       NET_QTY,
+							       ITM_AMT,
+							       FREE_QTY_ITM,
+							       BILL_AMT,
+							       FREE_QTY_BILL,
+							       CASE WHEN FREE_QTY > 0 AND CLC_TAX_FREE_QTY_FLG = 0 THEN ((NVL(I_PRICE,0) - NVL(DIS_AMT_MST,0) - NVL(DIS_AMT_DTL,0) - NVL(DIS_AMT_DTL2,0) - NVL(DIS_AMT_DTL3,0)) * FREE_QTY) ELSE 0 END AS F_QTY_DIS_AMT,
+							       /*CASE CALC_VAT_AMT_TYPE WHEN 2 THEN DIS_AMT_DTL * I_QTY ELSE 0 END AS DIS_AMT_DTL,
+							       CASE CLC_TAX_DSCNT2 WHEN 1 THEN DIS_AMT_DTL2 * I_QTY ELSE 0 END AS DIS_AMT_DTL2,
+							       CASE CLC_TAX_DSCNT3 WHEN 1 THEN DIS_AMT_DTL3 * I_QTY AS DIS_AMT_DTL3,*/
+							       DIS_AMT_DTL  * (NVL(I_QTY,0) + NVL(FREE_QTY,0)) DIS_AMT_DTL,
+							       DIS_AMT_DTL2 * (NVL(I_QTY,0) + NVL(FREE_QTY,0)) DIS_AMT_DTL2,
+							       DIS_AMT_DTL3 * (NVL(I_QTY,0) + NVL(FREE_QTY,0)) DIS_AMT_DTL3,
+							       DIS_AMT_MST  * (NVL(I_QTY,0) + NVL(FREE_QTY,0)) DIS_AMT_MST,
+							       CALC_SI_DISC_WITHOUT_ITM_DISC,
+							       DOC_NO,
+							       DOC_SER,
+							       DOC_SEQUENCE,
+							       RCRD_NO,
+							       VAT_PER CALC_VAT_AMT_TYPE,
+							       CLC_TAX_FREE_QTY_FLG,
+							       CLC_TAX_DSCNT2,
+							       CLC_TAX_DSCNT3,
+							       VAT_PER,
+							       TAX_AMT,
+							       TAX_PRCNT,
+							       TAX_CODE,
+							       VAT_EXMPT_RSN_CODE,
+							       VAT_EXMPT_RSN_TXT,
+							       NVL(TAX_TYP_CODE, ''T1'') TAX_TYP_CODE,
+							       CASE WHEN VAT_CAT_CODE IS NULL AND VAT_PER > 0 THEN ''S'' ELSE VAT_CAT_CODE END VAT_CAT_CODE,
+							       ITM_NET_AMT,
+							       NET_TAX_AMT,
+							       ITM_ROW_NUM,
+							       ITM_ROW_CNT,
+							       G_CODE,
+							       ITEM_DESC
+							  FROM BILL
+							 ORDER BY RCRD_NO,ITM_ROW_NUM))';
+			DBMS_OUTPUT.PUT_LINE(L_QRY_STR);
+			EXECUTE IMMEDIATE L_QRY_STR BULK COLLECT INTO L_DTL_RSLT_TBL USING P_DOC_TYPE,L_MST_RCRD.DOC_SER,L_MST_RCRD.DOC_SER;
+
+			APEX_JSON.OPEN_ARRAY('InvoiceLine'); ---bill item
+
+			--OPEN V_DTL_RFC FOR (V_DTL_QRY) USING P_DOC_SER;
+			FOR L_DTL_INDX IN 1..L_DTL_RSLT_TBL.LAST
+			LOOP
+			    L_DTL_RCRD := L_DTL_RSLT_TBL(L_DTL_INDX);
+
+			    BEGIN
+				--##DIS_TAX-------------------------------------------
+				L_DIS_TAX_TBL.DELETE;
+
+				--Calculate disc tax EGY only
+			      /*  IF P_CNTRY_CODE = 'EGY' THEN
+				    EXECUTE IMMEDIATE 'SELECT ''T4'' TAX_TYPE,
+							   NULL PERCENT,
+							   (d.i_price * d.i_qty) / m.bill_amt * abs(oc.amt) TAX_AMT,
+							   NULL,
+							   NULL,
+							   NULL,
+							   TAX_TYP_CODE TAX_SUB_TYPE,
+							   NULL
+						       FROM other_charges oc,
+							   sales_charges sc,
+							   IAS_POS_BILL_DTL d,
+							   IAS_POS_BILL_MST m
+						       WHERE oc.sc_no = sc.sc_no
+							     AND oc.BILL_NO = d.BILL_NO
+							     AND d.BILL_NO = m.BILL_NO
+							     AND sync_flg = 1
+							     AND oc.BILL_NO = :P_DOC_SER
+							     AND d.i_code = :P_I_CODE
+							     AND d.rcrd_no = :P_RCRD_NO' BULK COLLECT INTO L_DIS_TAX_TBL USING L_MST_RCRD.DOC_SER,
+															       L_DTL_RCRD.I_CODE,
+															       L_DTL_RCRD.RCRD_NO;
+				END IF;*/
+				--##END_DIS_TAX-------------------------------------------
+
+				V_LOOP_CNT := V_LOOP_CNT + 1;
+				 V_ITM_ID := L_DTL_RCRD.RCRD_NO;
+			       -- IF L_DTL_RCRD.ITM_ROW_NUM = 1 THEN
+
+				    APEX_JSON.OPEN_OBJECT; --{
+				    APEX_JSON.WRITE('ID', TO_CHAR(V_ITM_ID)); -- d.rcrd_no
+
+				    BEGIN
+
+					SELECT NVL(MEASURE_CODE_GB, MEASURE_CODE)
+					  INTO V_FLD_VAL
+					  FROM MEASUREMENT
+					 WHERE MEASURE_CODE = L_DTL_RCRD.ITM_UNT;
+
+					APEX_JSON.OPEN_OBJECT('InvoicedQuantity');
+					APEX_JSON.WRITE('Value', L_DTL_RCRD.NET_QTY); --i_qty
+					APEX_JSON.WRITE('UnitCode', V_FLD_VAL); -- itm_unt
+					APEX_JSON.CLOSE_OBJECT; --  InvoicedQuantity }
+				    END;
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('LineExtensionAmount'); -- ((i_price-dis_dtl)*i_qty)  whithout vat
+					APEX_JSON.WRITE('Value', ROUND(L_DTL_RCRD.NET_PRICE - (L_DTL_RCRD.DIS_AMT_MST + L_DTL_RCRD.DIS_AMT_DTL + L_DTL_RCRD.DIS_AMT_DTL2 + L_DTL_RCRD.DIS_AMT_DTL3 + L_DTL_RCRD.F_QTY_DIS_AMT), G_NO_OF_DECIMAL));
+					V_LINEEXTENSIONAMOUNT := NVL(V_LINEEXTENSIONAMOUNT, 0) + (ROUND(L_DTL_RCRD.NET_PRICE - (L_DTL_RCRD.DIS_AMT_MST + L_DTL_RCRD.DIS_AMT_DTL + L_DTL_RCRD.DIS_AMT_DTL2 + L_DTL_RCRD.DIS_AMT_DTL3 + L_DTL_RCRD.F_QTY_DIS_AMT), G_NO_OF_DECIMAL));
+					APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL);
+					APEX_JSON.CLOSE_OBJECT; --  LineExtensionAmount }
+				    END;
+
+				    --IF (L_DTL_RCRD.DIS_PER+L_DTL_RCRD.DIS_PER2+L_DTL_RCRD.DIS_PER3+L_DTL_RCRD.DIS_PER_MST+L_DTL_RCRD.F_QTY_DIS_PER)>0 THEN
+				    APEX_JSON.OPEN_ARRAY('AllowanceCharge'); --- same up
+				    IF NVL(L_DTL_RCRD.DIS_PER, 0) > 0 THEN
+
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT; --{
+					    APEX_JSON.WRITE('ChargeIndicator', false);
+					    APEX_JSON.WRITE('MultiplierFactorNumeric', 0);--L_DTL_RCRD.DIS_PER);
+					    APEX_JSON.WRITE('AllowanceChargeReason', L_DTL_RCRD.RSN_TXT);
+					    APEX_JSON.WRITE('AllowanceChargeReasonCode', L_DTL_RCRD.RSN_CODE);
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('Amount');
+						APEX_JSON.WRITE('Value', L_DTL_RCRD.DIS_AMT_DTL);
+						APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+						APEX_JSON.CLOSE_OBJECT; --  Amount }
+					    END;
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('BaseAmount');
+						APEX_JSON.WRITE('Value', 0);--L_DTL_RCRD.BASE_AMT);
+						APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+						APEX_JSON.CLOSE_OBJECT; --  BaseAmount }
+					    END;
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('TaxCategory');
+						APEX_JSON.WRITE('ID', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN L_MST_RCRD.TAX_CAT_TYP
+									    WHEN P_CNTRY_CODE= 'EGY' THEN L_TAX_RCRD.TAX_TYPE
+									    ELSE '' END); ---type tax
+						APEX_JSON.WRITE('Percent', L_DTL_RCRD.VAT_PER);
+						APEX_JSON.WRITE('TaxScheme', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN 'VAT'
+										   WHEN P_CNTRY_CODE = 'EGY' THEN L_DTL_RCRD.TAX_CODE
+										   ELSE '' END );
+						APEX_JSON.WRITE('TaxExemptionReasonCode', L_DTL_RCRD.VAT_EXMPT_RSN_CODE);
+						APEX_JSON.WRITE('TaxExemptionReason', L_DTL_RCRD.VAT_EXMPT_RSN_TXT);
+						APEX_JSON.CLOSE_OBJECT; --  TaxCategory }
+					    END;
+
+					    APEX_JSON.CLOSE_OBJECT; --}
+					END;
+
+				    END IF;
+				    IF NVL(L_DTL_RCRD.DIS_PER2, 0) > 0 THEN
+
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT; --{
+					    APEX_JSON.WRITE('ChargeIndicator', false);
+					    APEX_JSON.WRITE('MultiplierFactorNumeric', 0);--L_DTL_RCRD.DIS_PER2);
+					    APEX_JSON.WRITE('AllowanceChargeReason', L_DTL_RCRD.RSN_TXT2);
+					    APEX_JSON.WRITE('AllowanceChargeReasonCode', L_DTL_RCRD.RSN_CODE2);
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('Amount');
+						APEX_JSON.WRITE('Value', L_DTL_RCRD.DIS_AMT_DTL2);
+						APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+						APEX_JSON.CLOSE_OBJECT; --  Amount }
+					    END;
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('BaseAmount');
+						APEX_JSON.WRITE('Value', 0);--L_DTL_RCRD.BASE_AMT2);
+						APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+						APEX_JSON.CLOSE_OBJECT; --  BaseAmount }
+					    END;
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('TaxCategory');
+						APEX_JSON.WRITE('ID', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN L_MST_RCRD.TAX_CAT_TYP
+									    WHEN P_CNTRY_CODE = 'EGY' THEN L_TAX_RCRD.TAX_TYPE
+									    ELSE '' END ) ; ---type tax
+						APEX_JSON.WRITE('Percent', L_DTL_RCRD.VAT_PER);
+						APEX_JSON.WRITE('TaxScheme', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN 'VAT'
+										   WHEN P_CNTRY_CODE = 'EGY' THEN L_DTL_RCRD.TAX_CODE
+										   ELSE '' END ) ;
+						APEX_JSON.WRITE('TaxExemptionReasonCode', L_DTL_RCRD.VAT_EXMPT_RSN_CODE);
+						APEX_JSON.WRITE('TaxExemptionReason', L_DTL_RCRD.VAT_EXMPT_RSN_TXT);
+						APEX_JSON.CLOSE_OBJECT; --  TaxCategory }
+					    END;
+
+					    APEX_JSON.CLOSE_OBJECT; --}
+					END;
+
+				    END IF;
+
+				    IF NVL(L_DTL_RCRD.DIS_PER3, 0) > 0 THEN
+
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT; --{
+					    APEX_JSON.WRITE('ChargeIndicator', false);
+					    APEX_JSON.WRITE('MultiplierFactorNumeric', 0);--L_DTL_RCRD.DIS_PER3);
+					    APEX_JSON.WRITE('AllowanceChargeReason', L_DTL_RCRD.RSN_TXT3);
+					    APEX_JSON.WRITE('AllowanceChargeReasonCode', L_DTL_RCRD.RSN_CODE3);
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('Amount');
+						APEX_JSON.WRITE('Value', L_DTL_RCRD.DIS_AMT_DTL3);
+						APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+						APEX_JSON.CLOSE_OBJECT; --  Amount }
+					    END;
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('BaseAmount');
+						APEX_JSON.WRITE('Value', 0);--L_DTL_RCRD.BASE_AMT3);
+						APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+						APEX_JSON.CLOSE_OBJECT; --  BaseAmount }
+					    END;
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('TaxCategory');
+						APEX_JSON.WRITE('ID', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN L_MST_RCRD.TAX_CAT_TYP
+									    WHEN P_CNTRY_CODE = 'EGY' THEN L_TAX_RCRD.TAX_TYPE
+									    ELSE '' END ) ; ---type tax
+						APEX_JSON.WRITE('Percent', L_DTL_RCRD.VAT_PER);
+						APEX_JSON.WRITE('TaxScheme', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN 'VAT'
+										   WHEN P_CNTRY_CODE = 'EGY' THEN L_DTL_RCRD.TAX_CODE
+										   ELSE '' END ) ;
+						APEX_JSON.WRITE('TaxExemptionReasonCode', L_DTL_RCRD.VAT_EXMPT_RSN_CODE);
+						APEX_JSON.WRITE('TaxExemptionReason', L_DTL_RCRD.VAT_EXMPT_RSN_TXT);
+						APEX_JSON.CLOSE_OBJECT; --  TaxCategory }
+					    END;
+
+					    APEX_JSON.CLOSE_OBJECT; --}
+					END;
+
+				    END IF;
+
+				    IF NVL(L_DTL_RCRD.DIS_PER_MST, 0) > 0 THEN
+
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT; --{
+					    APEX_JSON.WRITE('ChargeIndicator', false);
+					    APEX_JSON.WRITE('MultiplierFactorNumeric', 0);--L_DTL_RCRD.DIS_PER_MST);
+					    APEX_JSON.WRITE('AllowanceChargeReason', L_DTL_RCRD.RSN_TXT_M);
+					    APEX_JSON.WRITE('AllowanceChargeReasonCode', L_DTL_RCRD.RSN_CODE_M);
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('Amount');
+						APEX_JSON.WRITE('Value', L_DTL_RCRD.DIS_AMT_MST);
+						APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+						APEX_JSON.CLOSE_OBJECT; --  Amount }
+					    END;
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('BaseAmount');
+						APEX_JSON.WRITE('Value', 0);--L_DTL_RCRD.BASE_AMT_MST);
+						APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+						APEX_JSON.CLOSE_OBJECT; --  BaseAmount }
+					    END;
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('TaxCategory');
+						APEX_JSON.WRITE('ID', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN L_DTL_RCRD.TAX_TYP_CODE
+									    WHEN P_CNTRY_CODE = 'EGY' THEN L_DTL_RCRD.TAX_TYP_CODE
+									    ELSE '' END ) ; ---type tax
+						APEX_JSON.WRITE('Percent', L_DTL_RCRD.VAT_PER);
+						APEX_JSON.WRITE('TaxScheme', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN 'VAT'
+										   WHEN P_CNTRY_CODE = 'EGY' THEN L_DTL_RCRD.TAX_CODE
+										   ELSE '' END);
+						APEX_JSON.WRITE('TaxExemptionReasonCode', L_DTL_RCRD.VAT_EXMPT_RSN_CODE);
+						APEX_JSON.WRITE('TaxExemptionReason', L_DTL_RCRD.VAT_EXMPT_RSN_TXT);
+						APEX_JSON.CLOSE_OBJECT; --  TaxCategory }
+					    END;
+
+					    APEX_JSON.CLOSE_OBJECT; --}
+					END;
+
+				    END IF;
+
+				    IF NVL(L_DTL_RCRD.F_QTY_DIS_AMT, 0) > 0 THEN
+
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT; --{
+					    APEX_JSON.WRITE('ChargeIndicator', false);
+					    APEX_JSON.WRITE('MultiplierFactorNumeric', 0);--L_DTL_RCRD.F_QTY_DIS_PER);
+					    APEX_JSON.WRITE('AllowanceChargeReason', L_DTL_RCRD.RSN_TXT_F);
+					    APEX_JSON.WRITE('AllowanceChargeReasonCode', L_DTL_RCRD.RSN_CODE_F);
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('Amount');
+						APEX_JSON.WRITE('Value', L_DTL_RCRD.F_QTY_DIS_AMT);
+						APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+						APEX_JSON.CLOSE_OBJECT; --  Amount }
+					    END;
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('BaseAmount');
+						APEX_JSON.WRITE('Value', 0);--L_DTL_RCRD.F_QTY_BASE_AMT);
+						APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+						APEX_JSON.CLOSE_OBJECT; --  BaseAmount }
+					    END;
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT('TaxCategory');
+						APEX_JSON.WRITE('ID', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN L_MST_RCRD.TAX_CAT_TYP
+									    WHEN P_CNTRY_CODE = 'EGY' THEN L_TAX_RCRD.TAX_TYPE
+									    ELSE '' END ) ; ---type tax
+						APEX_JSON.WRITE('Percent', L_DTL_RCRD.VAT_PER);
+						APEX_JSON.WRITE('TaxScheme', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN 'VAT'
+										   WHEN P_CNTRY_CODE = 'EGY' THEN L_DTL_RCRD.TAX_CODE
+										   ELSE '' END ) ;
+						APEX_JSON.WRITE('TaxExemptionReasonCode', L_DTL_RCRD.VAT_EXMPT_RSN_CODE);
+						APEX_JSON.WRITE('TaxExemptionReason', L_DTL_RCRD.VAT_EXMPT_RSN_TXT);
+						APEX_JSON.CLOSE_OBJECT; --  TaxCategory }
+					    END;
+
+					    APEX_JSON.CLOSE_OBJECT; --}
+					END;
+
+				    END IF;
+				    APEX_JSON.CLOSE_ARRAY; --close array AllowanceCharge ]
+
+				    --	end if;
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('TaxTotal');
+
+					--DIS_TAX
+					L_DIS_TAX_TOTAL := 0;
+					FOR I IN 1..NVL(L_DIS_TAX_TBL.LAST,0)
+					LOOP
+					    L_DIS_TAX_RCRD := L_DIS_TAX_TBL(I);
+					    L_DIS_TAX_TOTAL := L_DIS_TAX_TOTAL + L_DIS_TAX_RCRD.TAX_AMT;
+					END LOOP;
+
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT('TaxAmount');
+					    --##DIS_TAX-------------------------------------------
+					    APEX_JSON.WRITE('Value', ROUND((ROUND((L_DTL_RCRD.I_PRICE * L_DTL_RCRD.NET_QTY) - (NVL(L_DTL_RCRD.DIS_AMT_DTL, 0) + NVL(L_DTL_RCRD.DIS_AMT_MST, 0) + NVL(L_DTL_RCRD.DIS_AMT_DTL2, 0) + NVL(L_DTL_RCRD.DIS_AMT_DTL3, 0) + L_DTL_RCRD.F_QTY_DIS_AMT),G_NO_OF_DECIMAL) * NVL(L_DTL_RCRD.VAT_PER, 0) / 100)+L_DIS_TAX_TOTAL,G_NO_OF_DECIMAL));
+					    --##END_DIS_TAX-------------------------------------------
+					    --V_TAXAMOUNT := NVL(V_TAXAMOUNT, 0) + ROUND(ROUND((L_DTL_RCRD.I_PRICE * L_DTL_RCRD.NET_QTY) - (NVL(L_DTL_RCRD.DIS_AMT_DTL, 0) + NVL(L_DTL_RCRD.DIS_AMT_MST, 0) + NVL(L_DTL_RCRD.DIS_AMT_DTL2, 0) + NVL(L_DTL_RCRD.DIS_AMT_DTL3, 0)),G_NO_OF_DECIMAL) * NVL(L_DTL_RCRD.VAT_PER, 0) / 100,G_NO_OF_DECIMAL);
+					    --APEX_JSON.write ('Value', L_DTL_RCRD.dis_amt_dtl);
+					    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+					    APEX_JSON.CLOSE_OBJECT; --	TaxAmount }
+					END;
+
+					APEX_JSON.OPEN_ARRAY('TaxSubtotal');
+				    END;
+
+			    --	  END IF;
+
+				BEGIN
+				    APEX_JSON.OPEN_OBJECT;
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('TaxableAmount');
+					APEX_JSON.WRITE('Value', ROUND(ROUND((L_DTL_RCRD.I_PRICE * L_DTL_RCRD.NET_QTY) - (NVL(L_DTL_RCRD.DIS_AMT_DTL, 0) + NVL(L_DTL_RCRD.DIS_AMT_MST, 0) + NVL(L_DTL_RCRD.DIS_AMT_DTL2, 0) + NVL(L_DTL_RCRD.DIS_AMT_DTL3, 0) + L_DTL_RCRD.F_QTY_DIS_AMT),G_NO_OF_DECIMAL),G_NO_OF_DECIMAL));
+					APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+					APEX_JSON.CLOSE_OBJECT; --  TaxableAmount }
+				    END;
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('TaxAmount');
+					APEX_JSON.WRITE('Value', ROUND(L_DTL_RCRD.TAX_AMT,G_NO_OF_DECIMAL));
+					APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+					APEX_JSON.CLOSE_OBJECT; --  TaxAmount }
+				    END;
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('TaxCategory');
+					APEX_JSON.WRITE('ID', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN L_DTL_RCRD.TAX_TYP_CODE
+								    WHEN P_CNTRY_CODE = 'EGY' THEN L_DTL_RCRD.TAX_TYP_CODE
+								    ELSE '' END ) ; ---type tax
+					APEX_JSON.WRITE('Percent', L_DTL_RCRD.VAT_PER);
+					APEX_JSON.WRITE('TaxScheme', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN 'VAT'
+									   WHEN P_CNTRY_CODE = 'EGY' THEN L_DTL_RCRD.TAX_CODE
+									   ELSE '' END ) ;
+					APEX_JSON.WRITE('TaxExemptionReasonCode', L_DTL_RCRD.VAT_EXMPT_RSN_CODE);
+					APEX_JSON.WRITE('TaxExemptionReason', L_DTL_RCRD.VAT_EXMPT_RSN_TXT);
+					APEX_JSON.CLOSE_OBJECT; --  TaxCategory }
+				    END;
+
+				    APEX_JSON.CLOSE_OBJECT;
+
+
+				    --##DIS_TAX-------------------------------------------
+				    FOR I IN 1..NVL(L_DIS_TAX_TBL.LAST,0)
+				    LOOP
+					APEX_JSON.OPEN_OBJECT;
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT('TaxAmount');
+					    APEX_JSON.WRITE('Value', ROUND(L_DIS_TAX_RCRD.TAX_AMT / L_DTL_RCRD.NET_QTY ,G_NO_OF_DECIMAL));
+					    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+					    APEX_JSON.CLOSE_OBJECT; --	TaxAmount }
+					END;
+
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT('TaxCategory');
+					    APEX_JSON.WRITE('ID', L_DIS_TAX_RCRD.TAX_TYPE); ---type tax
+					    --APEX_JSON.WRITE('Percent', NULL);
+					    APEX_JSON.WRITE('TaxScheme', L_DIS_TAX_RCRD.TAX_SUB_TYPE);
+					    APEX_JSON.WRITE('TaxExemptionReasonCode', L_DTL_RCRD.VAT_EXMPT_RSN_CODE);
+					    APEX_JSON.WRITE('TaxExemptionReason', L_DTL_RCRD.VAT_EXMPT_RSN_TXT);
+					    APEX_JSON.CLOSE_OBJECT; --	TaxCategory }
+					END;
+
+					APEX_JSON.CLOSE_OBJECT;
+				    END LOOP;
+				    --#END_#DIS_TAX-------------------------------------------
+				END;
+
+			       -- IF L_DTL_RCRD.ITM_ROW_CNT = V_LOOP_CNT THEN
+				    V_LOOP_CNT := 0;
+
+				    APEX_JSON.CLOSE_ARRAY; --  TaxSubtotal }
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('RoundingAmount');
+					APEX_JSON.WRITE('Value', ROUND(ROUND((L_DTL_RCRD.I_PRICE * L_DTL_RCRD.NET_QTY) - (NVL(L_DTL_RCRD.DIS_AMT_DTL, 0) + NVL(L_DTL_RCRD.DIS_AMT_MST, 0) + NVL(L_DTL_RCRD.DIS_AMT_DTL2, 0) + NVL(L_DTL_RCRD.DIS_AMT_DTL3, 0) + L_DTL_RCRD.F_QTY_DIS_AMT),G_NO_OF_DECIMAL),G_NO_OF_DECIMAL) + ROUND(ROUND((L_DTL_RCRD.I_PRICE * L_DTL_RCRD.NET_QTY) - (NVL(L_DTL_RCRD.DIS_AMT_DTL, 0) + NVL(L_DTL_RCRD.DIS_AMT_MST, 0) + NVL(L_DTL_RCRD.DIS_AMT_DTL2, 0) + NVL(L_DTL_RCRD.DIS_AMT_DTL3, 0) + L_DTL_RCRD.F_QTY_DIS_AMT),G_NO_OF_DECIMAL) * L_DTL_RCRD.VAT_PER / 100,G_NO_OF_DECIMAL));
+					APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+					APEX_JSON.CLOSE_OBJECT; --  RoundingAmount }
+				    END;
+
+				    APEX_JSON.CLOSE_OBJECT; --	TaxTotal }
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('Item');
+					APEX_JSON.WRITE('Name', L_DTL_RCRD.I_NAME);
+					APEX_JSON.WRITE('BuyersItemIdentification', '');
+					APEX_JSON.WRITE('SellersItemIdentification', NVL(L_DTL_RCRD.HSN_CODE, L_DTL_RCRD.I_CODE) );
+					APEX_JSON.WRITE('StandardItemIdentification', L_DTL_RCRD.GTIN_CODE);
+					APEX_JSON.WRITE('Category', IAS_GEN_PKG.GET_FLD_VALUE(P_TAB_NM => 'GROUP_DETAILS', P_FLD_NM => CASE P_LANG_NO WHEN 1 THEN 'G_A_NAME' ELSE 'G_E_NAME' END, P_WHR => 'where G_CODE='''||L_DTL_RCRD.G_CODE||''''));
+					APEX_JSON.WRITE('Description', L_DTL_RCRD.ITEM_DESC);
+					APEX_JSON.OPEN_OBJECT('ClassifiedTaxCategory');
+					APEX_JSON.WRITE('ID', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN L_DTL_RCRD.VAT_CAT_CODE
+								    WHEN P_CNTRY_CODE = 'EGY' THEN L_TAX_RCRD.TAX_TYPE
+								    ELSE '' END ) ; ---type tax
+					APEX_JSON.WRITE('Percent', L_DTL_RCRD.VAT_PER);
+					APEX_JSON.WRITE('TaxScheme', CASE  WHEN P_CNTRY_CODE IN  ( 'SAU' ,'JOR','MYS','ETH' ) THEN 'VAT'
+									   WHEN P_CNTRY_CODE = 'EGY' THEN L_DTL_RCRD.TAX_TYP_CODE
+									   ELSE '' END ) ;
+					APEX_JSON.WRITE('TaxExemptionReasonCode', L_DTL_RCRD.VAT_EXMPT_RSN_CODE);
+					APEX_JSON.WRITE('TaxExemptionReason', L_DTL_RCRD.VAT_EXMPT_RSN_TXT);
+					APEX_JSON.CLOSE_OBJECT; --  ClassifiedTaxCategory }
+					APEX_JSON.CLOSE_OBJECT; --  Item }
+				    END;
+
+				    -----------Price-----------------
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('Price');
+
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT('PriceAmount'); -- Price whithout vat
+					    APEX_JSON.WRITE('Value', L_DTL_RCRD.I_PRICE);
+					    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+					    APEX_JSON.CLOSE_OBJECT; --	PriceAmount }
+					END;
+
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT('BaseQuantity');
+					    APEX_JSON.WRITE('Value', '1'); --  =1
+					    APEX_JSON.WRITE('UnitCode', L_DTL_RCRD.ITM_UNT);
+					    APEX_JSON.CLOSE_OBJECT; --	BaseQuantity }
+					END;
+
+					APEX_JSON.CLOSE_OBJECT; --  Price }
+				    END;
+
+				    APEX_JSON.CLOSE_OBJECT; --}
+				    -----------END Price-----------------
+
+
+			       -- END IF;
+
+
+			    /*EXCEPTION
+				WHEN NO_DATA_FOUND THEN
+				    NULL;
+				WHEN OTHERS THEN
+				    RAISE_APPLICATION_ERROR(-20006, 'Err When GET DOC_DTL DATA	' || SQLERRM);*/
+			    END;
+
+			END LOOP;
+
+			<<ADVANCED_PAYMENT>>
+			DECLARE
+			    L_LOOP_CNT NUMBER := 0;
+			BEGIN
+			    IF P_DOC_TYPE = 4 AND NVL(L_MST_RCRD.ADVNC_PYMNT_CPN_AMT,0) > 0 THEN
+			       FOR ADVNC_PYMNT_CRSR IN (SELECT GLS_BILL_ADVNC.DOC_NO,GLS_BILL_ADVNC.WEB_SRVC_UUID, NVL(GLS_BILL_ADVNC.AD_DATE,GLS_BILL_ADVNC.AD_DATE_CLK) AD_DATE,
+				     (NVL(POS_BILL_CPN.CPN_AMT, 0) / ((NVL(POS_BILL_CPN.TAX_PRCNT, 0) / 100) + 1)) TAXABLE_AMT,
+				     NVL(POS_BILL_CPN.CPN_AMT, 0) - (NVL(POS_BILL_CPN.CPN_AMT, 0) / ((NVL(POS_BILL_CPN.TAX_PRCNT, 0) / 100) + 1)) TAX_AMT,
+				      NVL(POS_BILL_CPN.TAX_PRCNT, 0) TAX_PRCNT, GNR_TAX_CODE_MST.TAX_TYP_CODE, GNR_TAX_TYP_CLC_DTL.VAT_CAT_CODE,
+				       GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_CODE, GNR_TAX_TYP_CLC_DTL.VAT_EXMPT_RSN_TXT
+							   FROM GLS_BILL_ADVNC,IAS_POS_BILL_MST,POS_BILL_CPN,GNR_TAX_CODE_MST, GNR_TAX_TYP_CLC_DTL,IAS_SAL_CPN_MST
+							  WHERE IAS_POS_BILL_MST.BILL_SRL = P_DOC_SER
+							    AND IAS_POS_BILL_MST.BILL_NO = POS_BILL_CPN.BILL_NO
+							    AND GLS_BILL_ADVNC.DOC_SRL = POS_BILL_CPN.DOC_SRL_ADVNC
+							    AND GLS_BILL_ADVNC.DOC_TYP_REF = 123
+							    AND IAS_SAL_CPN_MST.DOC_SER = GLS_BILL_ADVNC.DOC_SRL_REF
+							    AND GNR_TAX_CODE_MST.TAX_NO = GNR_TAX_TYP_CLC_DTL.TAX_NO
+							    AND IAS_SAL_CPN_MST.TAX_NO = GNR_TAX_CODE_MST.TAX_NO
+							    AND GLS_BILL_ADVNC.CLC_TYP_NO_TAX = GNR_TAX_TYP_CLC_DTL.CLC_TYP_NO
+							    AND NVL(POS_BILL_CPN.TAX_PRCNT, 0) > 0
+							    AND IAS_SAL_CPN_MST.TAX_NO = GNR_TAX_CODE_MST.TAX_NO
+							    AND GLS_BILL_ADVNC.WEB_SRVC_UUID IS NOT NULL) LOOP
+				    APEX_JSON.OPEN_OBJECT;
+				    L_LOOP_CNT := L_LOOP_CNT + 1;
+				    V_ITM_ID := V_ITM_ID + 1;
+				      /*Begin
+												    Execute Immediate ' SELECT	WEB_SRVC_UUID from GLS_BILL_ADVNC
+													     WHERE DOC_SRL='||ADVNC_PYMNT_CRSR.DOC_SRL_ADVNC||'
+													       and rownum<=1  ' into L_WEB_SRVC_UUID_ADVNC;
+												  Exception
+												     When Others Then
+												       null;
+												  End;*/
+
+				    BEGIN
+					APEX_JSON.WRITE('ID', TO_CHAR(V_ITM_ID)); -- d.rcrd_no
+					APEX_JSON.OPEN_OBJECT('InvoicedQuantity');
+					APEX_JSON.WRITE('Value', '0.0'); --i_qty
+					APEX_JSON.WRITE('UnitCode', ''); -- itm_unt
+					APEX_JSON.CLOSE_OBJECT; --  InvoicedQuantity }
+				    END;
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('LineExtensionAmount'); -- ((i_price-dis_dtl)*i_qty)  without vat
+					APEX_JSON.WRITE('Value', '0.0');
+					APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL);
+					APEX_JSON.CLOSE_OBJECT; --  LineExtensionAmount }
+				    END;
+
+				    BEGIN
+					APEX_JSON.OPEN_ARRAY('DocumentReference');
+					APEX_JSON.OPEN_OBJECT;
+					APEX_JSON.WRITE('Id', TO_CHAR(ADVNC_PYMNT_CRSR.DOC_NO));
+					APEX_JSON.WRITE('UUID', ADVNC_PYMNT_CRSR.WEB_SRVC_UUID);
+					-- APEX_JSON.WRITE('UUID', L_WEB_SRVC_UUID_ADVNC);
+					APEX_JSON.WRITE('DateTime', ADVNC_PYMNT_CRSR.AD_DATE);
+					APEX_JSON.WRITE('DocumentTypeCode', '386');
+					APEX_JSON.CLOSE_OBJECT;
+					APEX_JSON.CLOSE_ARRAY;
+				    END;
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('TaxTotal');
+
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT('TaxAmount');
+					    APEX_JSON.WRITE('Value', 0);
+					    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+					    APEX_JSON.CLOSE_OBJECT; --	TaxAmount }
+					    APEX_JSON.OPEN_OBJECT('RoundingAmount');
+					    APEX_JSON.WRITE('Value', 0);
+					    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+					    APEX_JSON.CLOSE_OBJECT; --	RoundingAmount }
+					    APEX_JSON.OPEN_ARRAY('TaxSubtotal');
+
+					    BEGIN
+						APEX_JSON.OPEN_OBJECT;
+
+						BEGIN
+						    APEX_JSON.OPEN_OBJECT('TaxableAmount');
+						    V_PREPAID_AMT		:= NVL(V_PREPAID_AMT, 0) + ROUND(ADVNC_PYMNT_CRSR.TAXABLE_AMT, G_NO_OF_DECIMAL);
+						    APEX_JSON.WRITE('Value', ROUND(ADVNC_PYMNT_CRSR.TAXABLE_AMT, G_NO_OF_DECIMAL)); --Advanced payment taxable amount
+						    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+						    APEX_JSON.CLOSE_OBJECT; --	TaxableAmount }
+						END;
+
+						BEGIN
+						    APEX_JSON.OPEN_OBJECT('TaxAmount');
+						    V_PREPAID_AMT		:= NVL(V_PREPAID_AMT, 0) + ROUND(ADVNC_PYMNT_CRSR.TAX_AMT, G_NO_OF_DECIMAL);
+						    APEX_JSON.WRITE('Value', ROUND(ADVNC_PYMNT_CRSR.TAX_AMT, G_NO_OF_DECIMAL)); --Advanced payment taxable amount
+						    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+						    APEX_JSON.CLOSE_OBJECT; --	TaxAmount }
+						END;
+
+						BEGIN
+						    APEX_JSON.OPEN_OBJECT('TaxCategory');
+						    APEX_JSON.WRITE('ID', ADVNC_PYMNT_CRSR.VAT_CAT_CODE); ---type tax
+						    APEX_JSON.WRITE('Percent', ADVNC_PYMNT_CRSR.TAX_PRCNT);
+						    APEX_JSON.WRITE('TaxScheme', ADVNC_PYMNT_CRSR.TAX_TYP_CODE);
+						    APEX_JSON.WRITE('TaxExemptionReasonCode', ADVNC_PYMNT_CRSR.VAT_EXMPT_RSN_CODE);
+						    APEX_JSON.WRITE('TaxExemptionReason', ADVNC_PYMNT_CRSR.VAT_EXMPT_RSN_TXT);
+						    APEX_JSON.CLOSE_OBJECT; --	TaxCategory }
+						END;
+
+						APEX_JSON.CLOSE_OBJECT;
+					    END;
+
+					    APEX_JSON.CLOSE_ARRAY;
+					END;
+
+					APEX_JSON.CLOSE_OBJECT;
+				    END;
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('Item');
+					APEX_JSON.WRITE('Name', 'Prepayment adjustment');
+					APEX_JSON.OPEN_OBJECT('ClassifiedTaxCategory');
+					APEX_JSON.WRITE('ID', ADVNC_PYMNT_CRSR.VAT_CAT_CODE); ---type tax
+					APEX_JSON.WRITE('Percent', ADVNC_PYMNT_CRSR.TAX_PRCNT);
+					APEX_JSON.WRITE('TaxScheme', ADVNC_PYMNT_CRSR.TAX_TYP_CODE);
+					APEX_JSON.WRITE('TaxExemptionReasonCode', ADVNC_PYMNT_CRSR.VAT_EXMPT_RSN_CODE);
+					APEX_JSON.WRITE('TaxExemptionReason', ADVNC_PYMNT_CRSR.VAT_EXMPT_RSN_TXT);
+					APEX_JSON.CLOSE_OBJECT; --  ClassifiedTaxCategory }
+					APEX_JSON.CLOSE_OBJECT; --  Item }
+				    END;
+
+				    BEGIN
+					APEX_JSON.OPEN_OBJECT('Price');
+
+					BEGIN
+					    APEX_JSON.OPEN_OBJECT('PriceAmount'); -- Price whithout vat
+					    APEX_JSON.WRITE('Value', 0);
+					    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --USD
+					    APEX_JSON.CLOSE_OBJECT; --	PriceAmount }
+					END;
+
+					APEX_JSON.CLOSE_OBJECT; --  Price }
+				    END;
+
+				    APEX_JSON.CLOSE_OBJECT; --}
+				END LOOP;
+
+			    END IF;
+			END ADVANCED_PAYMENT;
+
+			APEX_JSON.CLOSE_ARRAY; --close array InvoiceLine ]
+		    END;
+
+		    BEGIN
+			APEX_JSON.OPEN_OBJECT('LegalMonetaryTotal');
+
+			BEGIN
+			    APEX_JSON.OPEN_OBJECT('LineExtensionAmount'); ---  sum((i_price-dis_dtl)*i_qty)   whithout vat
+			    APEX_JSON.WRITE('Value', V_LINEEXTENSIONAMOUNT);
+			    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+			    APEX_JSON.CLOSE_OBJECT; --	LineExtensionAmount }
+			END;
+
+			BEGIN
+			    --V_INVC_ALLW_AMT := 0;--NVL(L_MST_RCRD.DISC_AMT_MST,0);
+
+			    V_TAXEXCLUSIVEAMOUNT := NVL(V_LINEEXTENSIONAMOUNT,0) - NVL(V_INVC_ALLW_AMT,0);
+			    APEX_JSON.OPEN_OBJECT('TaxExclusiveAmount'); --total amout	with disc and whithout vat
+			    APEX_JSON.WRITE('Value', V_TAXEXCLUSIVEAMOUNT);
+			    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+			    APEX_JSON.CLOSE_OBJECT; --	TaxExclusiveAmount }
+			END;
+
+			BEGIN
+			    V_TAXINCLUSIVEAMOUNT := NVL(V_TAXEXCLUSIVEAMOUNT,0) + NVL(V_TAXAMOUNT,0);
+			    APEX_JSON.OPEN_OBJECT('TaxInclusiveAmount'); --total amout	with disc and whith vat
+			    APEX_JSON.WRITE('Value', V_TAXINCLUSIVEAMOUNT);
+			    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+			    APEX_JSON.CLOSE_OBJECT; --	TaxInclusiveAmount }
+			END;
+
+			BEGIN
+			    APEX_JSON.OPEN_OBJECT('AllowanceTotalAmount'); --total disc_mst+ disc_dtl whith vat
+			    APEX_JSON.WRITE('Value', V_INVC_ALLW_AMT);
+			    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+			    APEX_JSON.CLOSE_OBJECT; --	AllowanceTotalAmount }
+			END;
+
+			BEGIN
+			    APEX_JSON.OPEN_OBJECT('PrepaidAmount'); -- privuse pay amuont
+			    APEX_JSON.WRITE('Value',V_PREPAID_AMT);
+			    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+			    APEX_JSON.CLOSE_OBJECT; --	PrepaidAmount }
+			END;
+
+			BEGIN
+			    V_TAXINCLUSIVEAMOUNT   := NVL(V_TAXINCLUSIVEAMOUNT, 0) - NVL(V_PREPAID_AMT, 0);
+			    APEX_JSON.OPEN_OBJECT('PayableAmount'); -- net_amt -priveus_amt
+			    APEX_JSON.WRITE('Value', V_TAXINCLUSIVEAMOUNT);
+			    APEX_JSON.WRITE('CurrencyID', V_CURR_ID_VAL); --usd
+			    APEX_JSON.CLOSE_OBJECT; --	PayableAmount }
+			END;
+
+			APEX_JSON.CLOSE_OBJECT; --  LegalMonetaryTotal }
+		    END;
+
+		--##--Custom Egypt properities--------------
+		/*BEGIN
+		   APEX_JSON.open_array('CurrencyExchangeRates');
+		   if v_CURR_ID_val = 'EGP' then
+		       APEX_JSON.open_object;
+		       APEX_JSON.write('CurrencyCode','EGP');
+		       APEX_JSON.WRITE('ExchangeRate',1);
+		       APEX_JSON.close_object;
+		   else
+		       APEX_JSON.open_object;
+		       APEX_JSON.write('CurrencyCode','EGP');
+		       APEX_JSON.WRITE('ExchangeRate',1);
+		       APEX_JSON.close_object;
+
+		       select cur_rate into v_ex_rate from ex_rate where cur_code = v_curr_id_val or cur_code_stndr = v_curr_id_val;
+		       APEX_JSON.open_object;
+		       APEX_JSON.write('CurrencyCode',v_curr_id_val);
+		       APEX_JSON.WRITE('ExchangeRate',v_ex_rate);
+		       APEX_JSON.close_object;
+		   end if;
+		   APEX_JSON.close_array;
+		END;*/
+		--##----------------------------------------
+		--------------------------------------------
+		--------------------------------------------
+		END;
+
+		APEX_JSON.CLOSE_OBJECT;
+
+		V_RSLT := APEX_JSON.GET_CLOB_OUTPUT;
+		APEX_JSON.FREE_OUTPUT;
+	    --=========================================================================================================--
+	    EXCEPTION
+		WHEN NO_DATA_FOUND THEN
+		    NULL;
+		/*WHEN OTHERS THEN
+		    --RAISE_APPLICATION_ERROR(-20008, 'Err When FETCH DOC_MST DATA  ' || SQLERRM);
+		    RAISE_APPLICATION_ERROR(-20008, 'Err When FETCH DOC_MST DATA  ' || DBMS_UTILITY.FORMAT_ERROR_BACKTRACE);*/
+	    END;
+
+	END LOOP;
+
+	IF  NVL(P_UNISTR,0) = 1 THEN
+	    V_RSLT := REGEXP_REPLACE(V_RSLT, '(\\)[\/]', '/');
+	    V_RSLT := REGEXP_REPLACE(V_RSLT, '\\', '\\\\');
+	    V_RSLT := REPLACE(V_RSLT, '\\u', '\');
+	    V_RSLT := UNISTR_CLOB(V_RSLT);
+	END IF ;
+
+	IF NVL(P_OUT_TYP, 0) = 0 THEN
+	    RETURN V_RSLT;
+	ELSE
+	    L_XML := APEX_JSON.TO_XMLTYPE(V_RSLT);
+	    RETURN L_XML.GETCLOBVAL();
+	END IF;
+
+       <<RTN_RSLT>>
+
+	IF V_MSG_TXT IS NOT NULL THEN
+	    --P_MSG_TXT :=  V_MSG_TXT;
+	    --P_PKG_LINE := V_ERR_LINE;
+	    --P_PKG_nm := 'GNR_API_PKG.CHK_SUB_LDGR LINE ';
+	    RAISE_APPLICATION_ERROR(-20006, V_MSG_TXT);
+	-- RETURN;
+	END IF;
+    END GNRT_E_INVC_JSON;
+    --##---------------------------------------------------------------------------------##--
+    FUNCTION UNISTR_CLOB(PCLOB CLOB CHARACTER SET ANY_CS)
+	RETURN CLOB
+    IS
+	UENC_LEN      CONSTANT INTEGER := 5; -- Unicode encoding length is 5 e.g. \AC18
+	BUFFER_SIZE   CONSTANT INTEGER := 8191;
+	VPOS		       INTEGER;
+	VOFFSET 	       INTEGER := 1;
+	VAMOUNT 	       INTEGER;
+	VBUFFER 	       VARCHAR2(8191 CHAR);
+	VRESULT 	       CLOB;
+    BEGIN
+	IF PCLOB IS NOT NULL AND PCLOB <> EMPTY_CLOB() THEN
+	    LOOP
+
+		BEGIN
+		    VAMOUNT := BUFFER_SIZE;
+		    DBMS_LOB.READ(PCLOB,
+				  VAMOUNT,
+				  VOFFSET,
+				  VBUFFER);
+		    VPOS := INSTR(VBUFFER, '\', -1);
+		    IF VPOS > BUFFER_SIZE - UENC_LEN + 1 AND MOD(VPOS - NVL(LENGTH(RTRIM(SUBSTR(VBUFFER, 1, VPOS), '\')), 0), 2) = 1 THEN -- if partial representation of unicode char and not escaped backslash
+			VBUFFER := SUBSTR(VBUFFER, 1, VPOS - 1); -- remove up to that
+			VAMOUNT := VPOS - 1;
+		    END IF;
+		    VRESULT := VRESULT || UNISTR(VBUFFER);
+		    VOFFSET := VOFFSET + VAMOUNT;
+		EXCEPTION
+		    WHEN NO_DATA_FOUND THEN
+			EXIT;
+		END;
+
+	    END LOOP;
+	END IF;
+	RETURN VRESULT;
+    END UNISTR_CLOB ;
+ --##-------------------------------------------------------------------------------------##--
+PROCEDURE EXPORT_JSON(P_DOC_TYPE   IN	  NUMBER,
+		      P_DOC_SER    IN	  NUMBER,
+		      P_CNTRY_CODE IN	  VARCHAR2,
+		      P_FILE_PATH  IN	  VARCHAR2,
+		      P_LANG_NO    IN	  NUMBER DEFAULT 1)
+IS
+V_CNT	NUMBER;
+V_CLOB	CLOB;
+V_FILE	UTL_FILE.FILE_TYPE;
+BEGIN
+    --Create or replace directory
+    EXECUTE IMMEDIATE 'CREATE OR REPLACE DIRECTORY EINVOICES_JSON_FILES AS '''||P_FILE_PATH||'''';
+    G_EXPORT_ONLY := TRUE;
+    --Generate Json
+    V_CLOB := GNRT_E_INVC_JSON(P_DOC_TYPE   => P_DOC_TYPE   ,
+			       P_DOC_SER    => P_DOC_SER    ,
+			       P_OUT_TYP    => 0	    ,
+			       P_UNISTR     => 1	    ,
+			       P_LANG_NO    => P_LANG_NO    ,
+			       P_CNTRY_CODE => P_CNTRY_CODE );-- -SAU - EGY - OMN - YEM - BHR - TUR - JOR - MYS
+
+    --Open the file for writing
+    V_FILE := UTL_FILE.FOPEN('EINVOICES_JSON_FILES', P_DOC_SER||'.json', 'wb');
+
+    --Writing the json
+    UTL_FILE.PUT_RAW(V_FILE, UTL_RAW.CAST_TO_RAW(V_CLOB));
+
+    --Close the file
+    UTL_FILE.FCLOSE(V_FILE);
+    G_EXPORT_ONLY := FALSE;
+
+EXCEPTION
+    WHEN OTHERS THEN
+	G_EXPORT_ONLY := FALSE;
+	RAISE;
+END EXPORT_JSON ;
+--##-------------------------------------------------------------------------------------##--
+ FUNCTION GET_USE_SYNC_E_INVC_FNC ( P_BRN_NO  IN  S_BRN.BRN_NO%TYPE ) RETURN NUMBER IS
+	    V_ETS_SRVC_FLG   NUMBER(1) := 0;
+	    V_POS_REF_CODE   S_BRN.POS_REF_CODE%TYPE;
+	BEGIN
+	    SELECT NVL(POS_REF_CODE, '0')
+	      INTO V_POS_REF_CODE
+	      FROM S_BRN
+	     WHERE BRN_NO = P_BRN_NO;
+
+	    BEGIN
+		SELECT 1
+		  INTO V_ETS_SRVC_FLG
+		  FROM GNR_WEB_SRVC_MST
+		 WHERE NVL(ETS_SRVC_FLG, 0) = 1 AND SRVC_NO = V_POS_REF_CODE AND ROWNUM <= 1;
+	    EXCEPTION
+		WHEN OTHERS THEN
+		  V_ETS_SRVC_FLG := 0;
+	    END;
+
+	    RETURN(NVL(V_ETS_SRVC_FLG,0)) ;
+
+	EXCEPTION
+	    WHEN OTHERS THEN
+	      RETURN (0) ;
+	END GET_USE_SYNC_E_INVC_FNC;
+--##-------------------------------------------------------------------------------------##--
+	FUNCTION GET_E_INVC_SRVC_NO_FNC ( P_BRN_NO  IN	S_BRN.BRN_NO%TYPE ) RETURN NUMBER IS
+	    V_SRVC_NO	     NUMBER ;
+	    V_POS_REF_CODE   S_BRN.POS_REF_CODE%TYPE;
+
+	BEGIN
+
+	    SELECT NVL(POS_REF_CODE, '0')
+	      INTO V_POS_REF_CODE
+	      FROM S_BRN
+	     WHERE BRN_NO = P_BRN_NO;
+
+	    IF	V_POS_REF_CODE IS NOT NULL THEN
+		BEGIN
+
+		    SELECT SRVC_NO
+		      INTO  V_SRVC_NO
+		      FROM GNR_WEB_SRVC_MST
+		     WHERE NVL(ETS_SRVC_FLG, 0) = 1 AND SRVC_NO = V_POS_REF_CODE AND ROWNUM <= 1;
+		EXCEPTION
+		    WHEN OTHERS THEN
+			V_SRVC_NO := NULL ;
+		END;
+	    END IF ;
+
+	    RETURN(V_SRVC_NO) ;
+
+	EXCEPTION
+	    WHEN OTHERS THEN
+	      RETURN (NULL) ;
+	END GET_E_INVC_SRVC_NO_FNC;
+
+    PROCEDURE SYNC_E_INVC_PRC(P_DOC_TYPE       IN     NUMBER,
+			      P_BILL_TYPE      IN     NUMBER,
+			      P_BRN_NO	       IN     NUMBER,
+			      P_SYS_NO	       IN     NUMBER,
+			      P_DOC_SER        IN     NUMBER,
+			      P_C_CODE	       IN     VARCHAR2,
+			      P_ERR_TXT 	  OUT VARCHAR2,
+			      P_WRNNG_TXT	  OUT VARCHAR2,
+			      P_TAX_BILL_TYP   IN     NUMBER DEFAULT 1,
+			      P_OFFLINE_VLDT   IN     NUMBER DEFAULT 0)
+    IS
+	V_START_DATE	   DATE;
+	V_END_DATE	   DATE;
+	V_USR		   VARCHAR2(30);
+	V_ERROR 	   VARCHAR2(32000);
+	V_STATUS	   NUMBER;
+	V_SRVC_NO	   NUMBER;
+	V_ETS_SRVC_FLG	   NUMBER(1) := 0;
+	V_POS_REF_CODE	   S_BRN.POS_REF_CODE%TYPE;
+	V_CNTRY_CODE	   VARCHAR2(30);
+
+
+	V_USE_ASYNC_MODE   NUMBER := CASE P_SYS_NO WHEN 61 THEN P_TAX_BILL_TYP WHEN 80 THEN P_TAX_BILL_TYP ELSE (CASE YS_TAX_PKG.GET_TAX_BILL_TYP(P_BILL_TYPE => P_BILL_TYPE, P_C_CODE => P_C_CODE) WHEN 2 THEN 0 ELSE 1 END) END;
+
+	--PRAGMA AUTONOMOUS_TRANSACTION;
+    BEGIN
+
+	IF NVL(IAS_BRN_PKG.IS_BRN_USE_E_INVC(P_BRN_NO => P_BRN_NO), 0) = 0 THEN
+	    RETURN;
+	END IF;
+
+	SELECT NVL(POS_REF_CODE, '0')
+	  INTO V_POS_REF_CODE
+	  FROM S_BRN
+	 WHERE BRN_NO = P_BRN_NO;
+
+	BEGIN
+	    SELECT ETS_SRVC_FLG, SRVC_NO
+	      INTO V_ETS_SRVC_FLG, V_SRVC_NO
+	      FROM GNR_WEB_SRVC_MST
+	     WHERE NVL(ETS_SRVC_FLG, 0) = 1 AND SRVC_NO = V_POS_REF_CODE AND ROWNUM <= 1;
+	EXCEPTION
+	    WHEN OTHERS THEN
+		V_ETS_SRVC_FLG := 0;
+	END;
+
+	BEGIN
+	    V_CNTRY_CODE := IAS_BRN_PKG.GET_BRN_CNTRY_CODE(P_BRN_NO);
+	EXCEPTION
+	    WHEN OTHERS THEN
+		V_CNTRY_CODE := NULL;
+	END;
+
+	IF NVL(V_ETS_SRVC_FLG, 0) = 1 AND UPPER(V_CNTRY_CODE) IN ('SAU','JOR','MYS','ETH') THEN
+
+	    IF NVL(P_OFFLINE_VLDT, 0) = 0 THEN
+
+		EXECUTE IMMEDIATE 'BEGIN
+					GNR_TECH_SOLUTION_PKG.SUBMITDOCUMENT( P_DOC_TYPE	 => ' || P_DOC_TYPE || ' ,
+									      P_DOC_SER 	 => ' || P_DOC_SER || ' ,
+									      P_BRN_NO		 => ' || P_BRN_NO || ' ,
+									      P_SYS_NO		 => ' || (CASE WHEN P_SYS_NO IS NULL THEN 'NULL' ELSE P_SYS_NO || '' END) || ' ,
+									      P_SRVC_NO 	 => ' || (CASE WHEN V_SRVC_NO IS NULL THEN 'NULL' ELSE V_SRVC_NO || '' END) ||' ,
+									      P_TAX_CONFIG_NO	 => NULL,
+									      P_MACHINE_NO	 => NULL,
+									      P_USE_ASYNC_MODE	 => ' || V_USE_ASYNC_MODE || ',
+									      P_ERROR		 => :V_ERROR ,
+									      P_STATUS		 => :V_STATUS );
+				   END ; '
+		    USING OUT V_ERROR, OUT V_STATUS;
+
+		IF V_STATUS IN (1, 2) THEN																																									      --Bill posted successfully
+
+		    IF V_ERROR IS NOT NULL THEN
+		       P_WRNNG_TXT := 'Invoice Status Online Validation : ' || V_STATUS || CHR(13) || 'WARNING : ' || V_ERROR;
+		    END IF;
+
+		ELSE
+		    --Bill posted unsuccessfully,parameter v_status will show the state in which the invoice is, parameter 'V_ERROR' will contain error detail
+
+		    P_ERR_TXT := 'Invoice Status Online Validation: ' || V_STATUS || CHR(13) || 'ERROR : ' || V_ERROR;
+
+		END IF;
+
+		COMMIT;
+
+	    ELSE
+
+		EXECUTE IMMEDIATE 'BEGIN
+					GNR_TECH_SOLUTION_PKG.VALIDATEDOCUMENT( P_DOC_TYPE	   => ' || P_DOC_TYPE || ' ,
+										P_DOC_SER	   => ' || P_DOC_SER || ' ,
+										P_BRN_NO	   => ' || P_BRN_NO || ' ,
+										P_SYS_NO	   => ' || (CASE WHEN P_SYS_NO IS NULL THEN 'NULL' ELSE P_SYS_NO || '' END) || ' ,
+										P_SRVC_NO	   => ' || (CASE WHEN V_SRVC_NO IS NULL THEN 'NULL' ELSE V_SRVC_NO || '' END) ||' ,
+										P_TAX_CONFIG_NO    => NULL,
+										P_MACHINE_NO	   => NULL,
+										P_USE_ASYNC_MODE   => ' || V_USE_ASYNC_MODE || ',
+										P_ERROR 	   => :V_ERROR ,
+										P_STATUS	   => :V_STATUS );
+				   END ; '
+		    USING OUT V_ERROR, OUT V_STATUS;
+
+		IF V_ERROR IS NOT NULL THEN
+		    --Bill posted unsuccessfully,parameter v_status will show the state in which the invoice is, parameter 'V_ERROR' will contain error detail
+		    P_ERR_TXT := 'ERROR Offline Validation : ' || V_ERROR;
+		END IF;
+
+	    END IF;
+	END IF;
+    EXCEPTION
+	WHEN OTHERS THEN
+
+	    IF NVL(P_OFFLINE_VLDT, 0) = 0 THEN
+	       ROLLBACK;
+	    END IF ;
+
+	    RAISE_APPLICATION_ERROR(-20005, 'Err In Sync_E_Invc_Prc  ' ||(CASE NVL(P_OFFLINE_VLDT, 0) WHEN 0 THEN 'Online Validation' ELSE ' Offline Validation ' END)|| CHR(10) || SQLERRM);
+    END SYNC_E_INVC_PRC;
+--##-------------------------------------------------------------------------------------##--
+PROCEDURE CHK_REQRD_DOC_CLMN_E_INVC ( P_BRN_NO			   IN  NUMBER	DEFAULT NULL ,
+    					  P_CMP_NO		       IN  NUMBER   DEFAULT NULL ,
+					      P_C_CODE			   IN  VARCHAR2 DEFAULT NULL ,
+					      P_C_CODE_CSH		   IN  VARCHAR2 DEFAULT NULL ,
+					      P_C_TAX_CODE		   IN  VARCHAR2 DEFAULT NULL ,
+					      P_CNTRY_SHRT		   IN  VARCHAR2 DEFAULT NULL ,
+					      P_MSG_TXT_BRN		   OUT VARCHAR2 	     ,
+					      P_MSG_TXT_CST		   OUT VARCHAR2 	     ,
+					      P_CHK_RQRMNT_AUTH_CST	   OUT NUMBER		     ,
+					      P_LNG_NO			   IN  NUMBER	DEFAULT 1    )
+IS
+    CURSOR C_Col_BRN IS
+	SELECT substr(Col_Nm,1,50),Col_Nm,substr(Lbl_Nm,1,50) Lbl_Nm
+	  FROM (SELECT 'CNTRY_NO'				  Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 525)	  Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'CITY_NO'				  Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 333)	  Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'DSTRCT_NM'				    Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 18313)     Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'BUILDING_NO'				   Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 6694)	   Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'STREET' 				    Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 10432)     Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'ADD_NO' 				    Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 13054)     Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'POSTAL_CODE'				  Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 524)	  Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'BRN_TAX_CODE'				   Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 1372)	   Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'RC_CODE'				   Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 4270)	   Lbl_Nm
+		  FROM DUAL
+	       UNION
+		SELECT 'R_CODE' 				  Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 393)	  Lbl_Nm
+		  FROM DUAL
+	       UNION
+		SELECT 'SHRT_ADD'				    Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 19619)     Lbl_Nm
+		  FROM DUAL
+		  );
+
+    CURSOR C_Col_CST IS
+	SELECT Col_Nm, Lbl_Nm
+	  FROM (SELECT 'CNTRY_NO'				  Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 525)	  Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'CITY_NO'				  Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 333)	  Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'DSTRCT_NM'				    Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 18313)     Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'BUILDING_NO'				   Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 6694)	   Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'STREET' 				    Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 10432)     Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'ADD_NO' 				    Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 13054)     Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'C_BOX_CODE'				  Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 524)	  Lbl_Nm
+		  FROM DUAL
+		UNION
+		SELECT 'SHRT_ADD'				    Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 19619)     Lbl_Nm
+		  FROM DUAL
+		  /*
+		UNION
+		SELECT 'CSTMR_IDNTFR'				    Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 19618)     Lbl_Nm
+		  FROM DUAL
+		  */
+		UNION
+		SELECT 'R_CODE' 				  Col_Nm,
+		       Ias_Gen_Pkg.Get_Prompt (P_LNG_NO, 393)	  Lbl_Nm
+		  FROM DUAL
+		  );
+
+    V_SQL	      VARCHAR2 (200);
+    V_RSLT	      VARCHAR2 (100);
+    V_COL	      VARCHAR2 (5000);
+    V_CNT	      NUMBER;
+    V_CNT2	      NUMBER;
+BEGIN
+
+    IF P_CMP_NO IS NULL THEN
+    RETURN ;
+    END IF;
+
+    P_CHK_RQRMNT_AUTH_CST:=NVL(IAS_GEN_PKG.GET_FLD_VALUE ('S_CMPNY', 'CHK_RQRMNT_AUTH_CST','WHERE CMP_NO = '||P_CMP_NO||' AND ROWNUM <=1'),1);
+
+    IF NVL(P_CHK_RQRMNT_AUTH_CST,1)=2  THEN
+    RETURN ;
+    END IF;
+
+    IF P_CNTRY_SHRT = 'SAU'
+    THEN
+	IF IAS_GEN_PKG.GET_FLD_VALUE ('IAS_PARA_GEN', 'USE_E_INVOICE') = 1
+	THEN
+	    IF P_Brn_No IS NULL
+	    THEN
+	       P_MSG_TXT_BRN :=IAS_GEN_PKG.Get_Msg (P_LNG_NO, 449)  ;
+	       RETURN ;
+	    END IF;
+
+	    IF P_C_Tax_Code IS NULL  And ( P_C_CODE IS NOT NULL OR P_C_Code_Csh IS NOT NULL)
+	    AND NVL (Ias_Brn_Pkg.Is_Brn_USE_E_Invc (P_Brn_No => P_Brn_No), 0) =1    THEN
+	       P_MSG_TXT_BRN:=IAS_GEN_PKG.Get_Msg (P_LNG_NO, 6750) ;
+	       RETURN ;
+	    END IF;
+
+
+	    IF NVL (Ias_Brn_Pkg.Is_Brn_USE_E_Invc (P_Brn_No => P_Brn_No), 0) =1
+	    THEN
+		FOR CB IN C_Col_BRN
+		LOOP
+		    V_SQL :=
+			   'SELECT '
+			|| CB.Col_Nm
+			|| ' FROM S_BRN WHERE BRN_NO = '
+			|| P_Brn_NO;
+
+		    EXECUTE IMMEDIATE V_SQL
+			INTO V_RSLT;
+
+		    IF V_RSLT IS NULL
+		    THEN
+		    V_COL:= V_COL || SUBSTR(CB.LBL_NM,1,20)  ||CHR(13) ;
+		    END IF;
+		END LOOP;
+
+		IF  V_COL IS NOT NULL THEN
+		P_MSG_TXT_BRN:=
+				   IAS_GEN_PKG.GET_PROMPT(P_LNG_NO ,3672) ||' '||
+				   IAS_GEN_PKG.Get_Frm_Nm(106,P_LNG_NO)   ||' '||
+				   IAS_GEN_PKG.Get_Msg(P_LNG_NO,1601 )	  ||' '  ;
+
+		P_MSG_TXT_BRN:=P_MSG_TXT_BRN || CHR(13) ||V_COL;
+		RETURN;
+		END IF;
+    END IF;					      -- USE E_INV BRN
+
+    IF P_C_Code_Csh IS NOT NULL THEN
+	BEGIN
+	  SELECT COUNT(*) INTO V_CNT
+	   FROM IAS_CASH_CUSTMR
+	   WHERE CUST_CODE = P_C_Code_Csh;
+	EXCEPTION WHEN OTHERS THEN
+	   V_CNT:=0;
+	END;
+	IF NVL(V_CNT,0)=0 THEN
+	    BEGIN
+	       SELECT COUNT(*) INTO V_CNT2
+	     FROM IAS_CASH_CUSTMR_BRN
+	       WHERE CUST_CODE = P_C_Code_Csh;
+	    EXCEPTION WHEN OTHERS THEN
+	       V_CNT2:=0;
+	       V_CNT :=0;
+	    END;
+	END IF;
+    END IF;
+
+     IF P_C_CODE IS NOT NULL OR (P_C_Code_Csh IS NOT NULL AND NVL(V_CNT,0)+NVL(V_CNT2,0)>0 )
+		THEN
+
+		    FOR CC IN C_Col_CST
+		    LOOP
+			IF P_C_CODE IS NOT NULL
+			THEN
+			    V_SQL :=
+				   'SELECT '
+				|| CC.Col_Nm
+				|| ' FROM CUSTOMER WHERE C_CODE = '''
+				|| P_C_CODE
+				|| '''';
+			ELSIF P_C_Code_Csh IS NOT NULL
+			   THEN
+			   IF NVL(V_CNT,0)>0 THEN
+				V_SQL :=
+				       'SELECT '
+				    || CC.Col_Nm
+				    || ' FROM IAS_CASH_CUSTMR WHERE CUST_CODE = '''
+				    || P_C_Code_Csh
+				    || '''';
+			    ELSIF NVL(V_CNT2,0)>0 THEN
+					    V_SQL :=
+						   'SELECT '
+						|| CC.Col_Nm
+						|| ' FROM IAS_CASH_CUSTMR_BRN WHERE CUST_CODE = '''
+						|| P_C_Code_Csh
+						|| '''';
+			    END IF;
+			END IF;
+
+			EXECUTE IMMEDIATE V_SQL
+			    INTO V_RSLT;
+
+			IF V_RSLT IS NULL
+			THEN
+			V_COL:= V_COL||SUBSTR(CC.LBL_NM,1,20)||CHR(13)	;
+			END IF;
+		    END LOOP;
+
+
+		IF  V_COL IS NOT NULL THEN
+		 P_MSG_TXT_CST :=IAS_GEN_PKG.GET_PROMPT(P_LNG_NO ,3672) ||' '||
+			 IAS_GEN_PKG.Get_Frm_Nm(143,P_LNG_NO)	||' '||
+			 IAS_GEN_PKG.Get_Msg(P_LNG_NO,1601 )	||' ' ;
+		P_MSG_TXT_CST:=P_MSG_TXT_CST || CHR(13) ||V_COL;
+		RETURN;
+		END IF;
+
+		END IF;
+	END IF; 					      -- USE E_INV
+    END IF;						      -- CNTRY
+EXCEPTION
+    WHEN OTHERS
+    THEN NULL;
+END CHK_REQRD_DOC_CLMN_E_INVC;
+Function Get_Sale_outlet_Fnc ( P_Sys_No 	 In Number
+			     , P_Sale_Outlet_Typ In Number
+			     , P_Inpt_Code	 In Varchar2 ) Return Number  Is
+    V_Cnt Number := 0 ;
+Begin
+     Begin
+				  Select 1 Into V_Cnt
+				  From Gnr_Sale_Outlet
+				   Where Sys_No        = P_Sys_No
+				   And	 Inpt_Typ      = P_Sale_Outlet_Typ
+				   And	 Inp_Fld_Val   = P_Inpt_Code
+				   And	  RowNum      <= 1 ;
+     Exception
+     	  When Others Then
+     	    V_Cnt  := 0 ;
+     End ;
+
+      Return(Nvl(V_Cnt,0));
+Exception
+	  When Others Then
+	    Return(0) ;
+END Get_Sale_outlet_Fnc ;
+END YS_JSON_PKG;
+/

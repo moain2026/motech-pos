@@ -1,0 +1,18 @@
+-- FUNCTION: YS_FIND_IN_SET_FNC (status: VALID)
+CREATE OR REPLACE
+FUNCTION YS_FIND_IN_SET_FNC ( P_STR_LST IN VARCHAR2,-- Input String List
+							  P_STR     IN VARCHAR2,-- Input String To Find
+							  P_STR_SEP IN VARCHAR2 DEFAULT ',' -- Separator Character
+							  ) RETURN NUMBER  -- 1=YES OR 0=NO
+IS
+  V_STR   VARCHAR2 (32767);
+BEGIN
+  V_STR := REPLACE(P_STR_LST,P_STR_SEP,''||P_STR_SEP||'');
+  IF INSTR(V_STR,''||P_STR||'')>0 THEN
+    RETURN(1);
+  ELSE
+    RETURN(0);
+  END IF;
+END YS_FIND_IN_SET_FNC
+    ;
+/

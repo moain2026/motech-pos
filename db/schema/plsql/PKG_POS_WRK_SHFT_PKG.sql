@@ -1,0 +1,1488 @@
+-- =============================================
+-- PACKAGE SPEC: POS_WRK_SHFT_PKG  (status: INVALID)
+-- =============================================
+CREATE OR REPLACE
+PACKAGE POS_WRK_SHFT_PKG
+AS
+    G_LNG_NO			 NUMBER := 1;
+    G_LBL_NO			 NUMBER;
+    G_MSG_NO			 NUMBER;
+    G_MSG_TXT			 VARCHAR2(1000) := NULL;
+
+    G_SHFT_NO		POS_WRK_SHFT_CSHR.SHFT_NO%TYPE;
+    G_SHFT_SRL		POS_WRK_SHFT_CSHR.SHFT_SRL%TYPE;
+    G_BRN_NO		POS_WRK_SHFT_CSHR.BRN_NO%TYPE;
+    G_USR_NO		POS_WRK_SHFT_CSHR.AD_U_ID%TYPE;
+    G_CMP_NO		POS_WRK_SHFT_CSHR.CMP_NO%TYPE;
+    G_BRN_YEAR		POS_WRK_SHFT_CSHR.BRN_YEAR%TYPE;
+    G_BRN_USR		POS_WRK_SHFT_CSHR.BRN_USR%TYPE;
+    G_TRMNL_NO		IAS_POS_MACHINE.MACHINE_NO%TYPE;
+    G_SRVR_NO		NUMBER;
+    G_AD_DATE		POS_WRK_SHFT_CSHR.AD_DATE%TYPE;
+    G_CUR_CODE		POS_FNCL_ADVNC_CSHR.CUR_CODE%TYPE;
+    G_EX_RATE		POS_FNCL_ADVNC_CSHR.CUR_RATE%TYPE;
+    G_USE_WRK_SHFT	IAS_PARA_POS.USE_WRK_SHFT%TYPE;
+    G_WRK_SHFT_TYP	IAS_PARA_POS.WRK_SHFT_TYP%TYPE;
+    G_OPN_SHFT_TYP	IAS_PARA_POS.OPN_SHFT_TYP%TYPE;
+
+    PROCEDURE LOAD_PRMTRS;
+
+    FUNCTION GET_USR_SHFT(P_LANG_NO	    NUMBER DEFAULT 1,
+			  P_CSHR_NO	    POS_WRK_SHFT_CSHR.CSHR_NO%TYPE,
+			  P_BRN_NO	    S_BRN.BRN_NO%TYPE ) RETURN NUMBER;
+
+    PROCEDURE GET_AVL_USR_SHFT( P_LANG_NO	IN   NUMBER DEFAULT 1,
+				P_BRN_NO	IN   S_BRN.BRN_NO%TYPE,
+				P_SHFT_CODE	OUT  POS_WRK_SHFT.SHFT_CODE%TYPE,
+				P_F_TIME	OUT  POS_WRK_SHFT.F_TIME%TYPE,
+				P_T_TIME	OUT  POS_WRK_SHFT.T_TIME%TYPE,
+				P_ALLW_PRD_BFR	OUT  POS_WRK_SHFT.ALLW_PRD_BFR%TYPE,
+				P_ALLW_PRD_AFTR OUT  POS_WRK_SHFT.ALLW_PRD_AFTR%TYPE,
+				P_INTRFRNC_FLG	OUT  POS_WRK_SHFT.INTRFRNC_FLG%TYPE );
+
+    FUNCTION CHK_SHFT_INTRFRNC (P_BRN_NO       S_BRN.BRN_NO%TYPE,
+				P_F_TIME       POS_WRK_SHFT.F_TIME%TYPE,
+				P_T_TIME       POS_WRK_SHFT.T_TIME%TYPE,
+				P_SHFT_CODE    POS_WRK_SHFT.SHFT_CODE%TYPE)RETURN NUMBER;
+
+    FUNCTION GET_PNG_BLNC (P_SHFT_SRL IN NUMBER) RETURN NUMBER;
+    FUNCTION GET_USD_WRK_SHFT_FNC(P_MCHN_NO IN NUMBER) Return Number;
+    FUNCTION CHK_WRK_SHFT_CSHR_FNC(P_CSHR_NO IN NUMBER) Return Number;
+    FUNCTION GET_WRK_SHFT_OPN_FNC(P_CSHR_NO IN NUMBER) Return Number;
+    PROCEDURE GET_WRK_SHFT_DATE_INFO(P_F_SHFT_SRL    IN   NUMBER,
+				     P_T_SHFT_SRL    IN   NUMBER,
+				     P_F_DATE	     OUT  DATE,
+				     P_T_DATE	     OUT  DATE,
+				     P_F_TIME	     OUT  IAS_POS_FNL_DATA_ALL.BILL_TIME%TYPE,
+				     P_T_TIME	     OUT  IAS_POS_FNL_DATA_ALL.BILL_TIME%TYPE,
+				     P_LANG_NO	     IN   NUMBER DEFAULT 1);
+   PROCEDURE GET_USR_SHFT_SRL(P_LANG_NO       IN     NUMBER,
+			       P_USR_NO        IN     POS_WRK_SHFT_CSHR.CSHR_NO%TYPE,
+			       P_BRN_NO        IN     S_BRN.BRN_NO%TYPE,
+			       P_SHFT_SRL      IN OUT POS_WRK_SHFT_CSHR.SHFT_SRL%TYPE,
+			       P_MSG_TXT	  OUT VARCHAR2,
+			       P_OPN_SHT_FLG	  OUT NUMBER); --##1-OPEN NEW SHIFT  BY USER 2-OPEN NEW SHIFT BY SUPERVISOR
+   PROCEDURE GET_SHFT_RM_TIME(P_SHFT_SRL	 IN   NUMBER,
+			       P_CSHR_NO	  POS_WRK_SHFT_CSHR.CSHR_NO%TYPE,
+			       P_LANG_NO	  NUMBER DEFAULT 1,
+			       P_MNT_BFR_END_SHFT OUT NUMBER,
+			       P_MNT_RM_END_SHFT  OUT NUMBER,
+			       P_MSG_TXT	  OUT VARCHAR2
+			      );
+--#------------------------------------FUNCTION AND PROCEDURE OF API------------------------------------------------------#--
+    FUNCTION GET_XML_QRY (P_QRY_STR IN VARCHAR2,P_ROW_TAG_NM VARCHAR2)
+	RETURN CLOB;
+
+    FUNCTION PST_COMMIT_PRC RETURN VARCHAR2;
+
+    FUNCTION GET_PRMTRS RETURN VARCHAR2;
+
+    FUNCTION GET_CSHRS( P_LANG_NO  IN IAS_LABELS.LANG_NO%TYPE,
+			P_BRN_NO   IN S_BRN.BRN_NO%TYPE,
+			P_USR_NO   IN USER_R.U_ID%TYPE)  RETURN CLOB;
+
+    FUNCTION GET_WRK_SHFTS_LST( P_LANG_NO  IN IAS_LABELS.LANG_NO%TYPE,
+				P_BRN_NO   IN S_BRN.BRN_NO%TYPE,
+				P_USR_NO   IN USER_R.U_ID%TYPE)  RETURN CLOB;
+
+    FUNCTION GET_CURR_DFLT (P_TRMNL_NO	IN IAS_POS_MACHINE.MACHINE_NO%TYPE,
+			    P_CSHR_NO	IN POS_WRK_SHFT_CSHR.CSHR_NO%TYPE) RETURN CLOB;
+
+    FUNCTION GET_CASH_CTGRIES (P_CUR_CODE  IN IAS_CURRENCY_VALUE.A_CY%TYPE) RETURN CLOB;
+
+    PROCEDURE GET_SHFT_INFO(P_LANG_NO	      IN     NUMBER DEFAULT 1,
+			    P_BRN_NO	      IN     S_BRN.BRN_NO%TYPE,
+			    P_SHFT_CODE       IN OUT POS_WRK_SHFT.SHFT_CODE%TYPE,
+			    P_F_TIME		 OUT POS_WRK_SHFT.F_TIME%TYPE,
+			    P_T_TIME		 OUT POS_WRK_SHFT.T_TIME%TYPE,
+			    P_F_DATE		 OUT POS_WRK_SHFT_CSHR.F_DATE%TYPE,
+			    P_T_DATE		 OUT POS_WRK_SHFT_CSHR.T_DATE%TYPE,
+			    P_INTRFRNC_FLG	 OUT POS_WRK_SHFT.INTRFRNC_FLG%TYPE);
+
+    FUNCTION GET_AVL_SHFT_INFO( P_LANG_NO    IN IAS_LABELS.LANG_NO%TYPE,
+				P_BRN_NO     IN S_BRN.BRN_NO%TYPE,
+				P_CSHR_NO    IN POS_WRK_SHFT_CSHR.CSHR_NO%TYPE,
+				P_SHFT_CODE  IN POS_WRK_SHFT.SHFT_CODE%TYPE DEFAULT NULL)  RETURN CLOB;
+
+    FUNCTION CHK_WRK_SHFT(P_CSHR_NO IN POS_WRK_SHFT_CSHR.CSHR_NO%TYPE,
+				 	   	  P_BRN_NO  IN S_BRN.BRN_NO%TYPE)RETURN VARCHAR2;
+				 	   	
+    FUNCTION GET_USR_SHFT_SRL(P_LANG_NO       IN     NUMBER,
+			      P_USR_NO	      IN     POS_WRK_SHFT_CSHR.CSHR_NO%TYPE,
+			      P_BRN_NO	      IN     S_BRN.BRN_NO%TYPE)RETURN CLOB;	
+
+    FUNCTION GET_SHFT_INFO_BY_SRL(P_SHFT_SRL  IN POS_WRK_SHFT_CSHR.SHFT_SRL%TYPE,
+    						      P_LANG_NO   IN NUMBER DEFAULT 1) RETURN CLOB;
+    						
+    FUNCTION GET_OPN_WRK_SHFT_LST(P_LANG_NO  IN IAS_LABELS.LANG_NO%TYPE,
+				  P_BRN_NO   IN S_BRN.BRN_NO%TYPE,
+				  P_USR_NO   IN USER_R.U_ID%TYPE,
+				  P_SHFT_SRL IN POS_WRK_SHFT_CSHR.SHFT_SRL%TYPE DEFAULT NULL)  RETURN CLOB;
+
+    FUNCTION INSRT_WRK_SHFTS(P_XML_INPT IN CLOB)RETURN VARCHAR2;														
+
+END POS_WRK_SHFT_PKG
+;
+/
+
+-- ---------------------------------------------
+-- PACKAGE BODY: POS_WRK_SHFT_PKG  (status: INVALID)
+-- ---------------------------------------------
+CREATE OR REPLACE
+PACKAGE BODY POS_WRK_SHFT_PKG
+AS
+    PROCEDURE LOAD_PRMTRS
+    IS
+    BEGIN
+	SELECT NVL (USE_WRK_SHFT, 0)
+	      ,NVL (WRK_SHFT_TYP, 0)
+	      ,NVL (OPN_SHFT_TYP, 0)
+	  INTO G_USE_WRK_SHFT
+	      ,G_WRK_SHFT_TYP
+	      ,G_OPN_SHFT_TYP
+	  FROM IAS_PARA_POS
+	 WHERE ROWNUM <= 1;
+    EXCEPTION
+	WHEN OTHERS THEN
+	    G_USE_WRK_SHFT := NULL;
+	    G_WRK_SHFT_TYP := NULL;
+	    G_OPN_SHFT_TYP := NULL;
+
+    END LOAD_PRMTRS;
+
+    FUNCTION GET_USR_SHFT( P_LANG_NO	     NUMBER DEFAULT 1,
+			   P_CSHR_NO	    POS_WRK_SHFT_CSHR.CSHR_NO%TYPE,
+			   P_BRN_NO	    S_BRN.BRN_NO%TYPE
+			   ) RETURN NUMBER
+    IS
+
+    V_CNT	     NUMBER;
+    V_DATE	     DATE :=TO_DATE(TO_CHAR(YS_GEN_PKG.GET_CURDATE,'DD/MM/YYYY'),'DD/MM/YYYY') -1 ;
+    V_F_DATE	     POS_WRK_SHFT_CSHR.F_DATE%TYPE;
+    V_T_DATE	     POS_WRK_SHFT_CSHR.T_DATE%TYPE;
+    V_F_TIME	     POS_WRK_SHFT_CSHR.F_TIME%TYPE;
+    V_T_TIME	     POS_WRK_SHFT_CSHR.T_TIME%TYPE;
+    V_SHFT_CODE      POS_WRK_SHFT_CSHR.SHFT_CODE%TYPE;
+    V_SHFT_SRL	     POS_WRK_SHFT_CSHR.SHFT_SRL%TYPE;
+    V_INTRFRNC_FLG   POS_WRK_SHFT_CSHR.INTRFRNC_FLG%TYPE;
+
+    BEGIN
+	IF  NVL(G_USE_WRK_SHFT,0) = 1 THEN
+	--//----------------------------------------------------------------------------------//
+	    IF	NVL(G_WRK_SHFT_TYP,0) = 1  THEN
+		BEGIN
+		    SELECT SHFT_SRL,
+			   SHFT_CODE,
+			   F_DATE,
+			   T_DATE,
+			   NVL(F_TIME,0),
+			   NVL(T_TIME,0),
+			   NVL(INTRFRNC_FLG,0)
+		      INTO V_SHFT_SRL ,
+			   V_SHFT_CODE,
+			   V_F_DATE,
+			   V_T_DATE,
+			   V_F_TIME,
+			   V_T_TIME,
+			   V_INTRFRNC_FLG
+		      FROM POS_WRK_SHFT_CSHR
+		     WHERE CSHR_NO = P_CSHR_NO
+		       AND CLS_FLG = 0
+		       AND BRN_NO  = P_BRN_NO
+		       AND OPN_DATE >= V_DATE
+		       AND SYSDATE BETWEEN TO_DATE(TO_CHAR(F_DATE,'DD/MM/YYYY'),'DD/MM/YYYY') + (NVL(F_TIME, 0)/ 86400)
+				       AND TO_DATE(TO_CHAR(T_DATE,'DD/MM/YYYY'),'DD/MM/YYYY') + ((NVL(T_TIME,0)+NVL(INTRFRNC_FLG,0))/ 86400);
+		EXCEPTION
+		     WHEN TOO_MANY_ROWS THEN
+			   RETURN -6846;
+		     WHEN OTHERS THEN
+			   V_SHFT_SRL  :=NULL;
+			   V_SHFT_CODE :=NULL;
+			   RETURN 1;	
+		END;
+		--RETURN V_SHFT_SRL;
+	    ELSIF  NVL(G_WRK_SHFT_TYP,0) = 2  THEN
+		BEGIN
+		    SELECT SHFT_SRL,SHFT_CODE
+		      INTO V_SHFT_SRL ,V_SHFT_CODE
+		      FROM POS_WRK_SHFT_CSHR
+		     WHERE CSHR_NO = P_CSHR_NO
+		       AND CLS_FLG = 0 AND BRN_NO = P_BRN_NO ;
+		EXCEPTION
+		    WHEN TOO_MANY_ROWS THEN
+			RETURN -6846;
+		    WHEN OTHERS THEN
+			V_SHFT_SRL  :=NULL;
+			V_SHFT_CODE :=NULL;
+			RETURN 1;	
+		END;
+		--RETURN V_SHFT_SRL;
+	    END IF;
+	--//----------------------------------------------------------------------------------//
+	    IF V_SHFT_SRL IS NOT NULL THEN
+	       BEGIN
+		SELECT COUNT(1) INTO V_CNT FROM IAS_DEPOSIT_CURRENCY_MST WHERE SHFT_SRL=V_SHFT_SRL And Rownum<=1;
+	       EXCEPTION  WHEN OTHERS THEN
+		 V_CNT:=0;
+	       END;
+	       IF NVL(V_CNT,0)>0 THEN
+		  V_SHFT_SRL:=0;
+		  RETURN -7045;
+	       ELSE
+		  RETURN V_SHFT_SRL;
+	       END IF;
+	    END IF;
+	END IF;
+	RETURN NULL;
+END GET_USR_SHFT;
+--##--------------------------------------------------------------------------------------------##--
+PROCEDURE GET_AVL_USR_SHFT(P_LANG_NO	   IN	NUMBER DEFAULT 1,
+			   P_BRN_NO	   IN	S_BRN.BRN_NO%TYPE,
+			   P_SHFT_CODE	   OUT	POS_WRK_SHFT.SHFT_CODE%TYPE,
+			   P_F_TIME	   OUT	POS_WRK_SHFT.F_TIME%TYPE,
+			   P_T_TIME	   OUT	POS_WRK_SHFT.T_TIME%TYPE,
+			   P_ALLW_PRD_BFR  OUT	POS_WRK_SHFT.ALLW_PRD_BFR%TYPE,
+			   P_ALLW_PRD_AFTR OUT	POS_WRK_SHFT.ALLW_PRD_AFTR%TYPE,
+			   P_INTRFRNC_FLG  OUT	POS_WRK_SHFT.INTRFRNC_FLG%TYPE )
+IS
+BEGIN
+    SELECT SHFT_CODE,NVL(F_TIME,0),NVL(T_TIME,0),NVL(ALLW_PRD_BFR,0),NVL(ALLW_PRD_AFTR,0),NVL(INTRFRNC_FLG,0)
+      INTO P_SHFT_CODE,P_F_TIME,P_T_TIME,P_ALLW_PRD_BFR,P_ALLW_PRD_AFTR,P_INTRFRNC_FLG
+      FROM (  SELECT *
+		FROM POS_WRK_SHFT S
+	       WHERE NVL(BRN_NO,P_BRN_NO) = P_BRN_NO
+		 AND SYSDATE BETWEEN TO_DATE(TO_CHAR(SYSDATE,'DD/MM/YYYY'),'DD/MM/YYYY') + ((NVL(S.F_TIME, 0) - NVL(S.ALLW_PRD_BFR, 0)) / 86400)
+		     AND TO_DATE(TO_CHAR(SYSDATE,'DD/MM/YYYY'),'DD/MM/YYYY') + ((NVL(S.T_TIME, 0) + NVL(INTRFRNC_FLG,0)
+			 + NVL(S.ALLW_PRD_AFTR, 0)) / 86400)
+	    ORDER BY NVL(S.F_TIME, 0) - NVL(S.ALLW_PRD_BFR, 0) DESC)
+     WHERE ROWNUM <= 1;
+
+EXCEPTION
+    WHEN OTHERS THEN
+	  NULL;
+END GET_AVL_USR_SHFT;
+--##--------------------------------------------------------------------------------------------##--
+FUNCTION CHK_SHFT_INTRFRNC (P_BRN_NO	   S_BRN.BRN_NO%TYPE,
+			    P_F_TIME	   POS_WRK_SHFT.F_TIME%TYPE,
+			    P_T_TIME	   POS_WRK_SHFT.T_TIME%TYPE,
+			    P_SHFT_CODE    POS_WRK_SHFT.SHFT_CODE%TYPE)RETURN NUMBER
+IS
+V_CNT NUMBER :=0 ;
+BEGIN
+  	    SELECT 1
+	  INTO V_CNT
+	  FROM POS_WRK_SHFT
+	 WHERE NVL(BRN_NO,0)	= NVL(P_BRN_NO,0)
+	   AND (
+		(P_F_TIME  BETWEEN F_TIME AND CASE  WHEN F_TIME<T_TIME THEN T_TIME ELSE 86400  END)
+		 OR
+		(P_F_TIME  BETWEEN CASE  WHEN F_TIME<T_TIME THEN F_TIME ELSE 0	END AND T_TIME)
+		 OR
+		(P_T_TIME  BETWEEN F_TIME AND CASE  WHEN F_TIME<T_TIME THEN T_TIME ELSE 86400  END)
+		 OR
+		(P_T_TIME  BETWEEN CASE  WHEN F_TIME<T_TIME THEN F_TIME ELSE 0	END AND T_TIME)
+		 OR
+		(F_TIME  BETWEEN P_F_TIME AND CASE  WHEN P_F_TIME<P_T_TIME THEN P_T_TIME ELSE 86400  END)
+		 OR
+		(F_TIME  BETWEEN CASE  WHEN P_F_TIME<P_T_TIME THEN P_F_TIME ELSE 0  END AND P_T_TIME)
+		 OR
+		(T_TIME  BETWEEN P_F_TIME AND CASE  WHEN P_F_TIME<P_T_TIME THEN P_T_TIME ELSE 86400  END)
+		 OR
+		(T_TIME  BETWEEN CASE  WHEN P_F_TIME<P_T_TIME THEN P_F_TIME ELSE 0  END AND P_T_TIME)
+		)
+	   AND SHFT_CODE <> P_SHFT_CODE
+	   AND ROWNUM<=1 ;
+
+	RETURN V_CNT;
+EXCEPTION
+    WHEN OTHERS THEN
+	  RETURN 0;
+END CHK_SHFT_INTRFRNC;
+--##--------------------------------------------------------------------------------------------##--
+Function GET_USD_WRK_SHFT_FNC(P_MCHN_NO IN NUMBER) Return Number IS
+ V_USE_WRK_SHFT NUMBER;
+Begin
+    BEGIN
+       SELECT  USE_WRK_SHFT INTO V_USE_WRK_SHFT FROM IAS_PARA_POS;
+    Exception When Others Then
+	 V_USE_WRK_SHFT:=1;
+    End;
+   If Nvl(V_USE_WRK_SHFT,1)=1 Then
+	Begin --## PARAMETR FOR use work shift
+	    Select Stng_mchn_val into V_USE_WRK_SHFT
+	     From POS_DFLT_STNG_DTL
+	      Where STNG_NO=8 And Machine_no=P_MCHN_NO And Rownum<=1;
+	Exception When Others Then
+	  Begin
+	     Select Stng_val into V_USE_WRK_SHFT
+	     From POS_DFLT_STNG_MST
+	      Where STNG_NO=8 And Rownum<=1;
+	  Exception When Others Then
+	       V_USE_WRK_SHFT:=1;
+	  End;
+	 End;
+    End If;
+    RETURN(V_USE_WRK_SHFT);
+ Exception When Others Then
+    RETURN(1);
+End GET_USD_WRK_SHFT_FNC;
+--##-----------------------------------------------------------------------------------------------------------##--
+Function CHK_WRK_SHFT_CSHR_FNC(P_CSHR_NO IN NUMBER) Return Number IS
+  V_HV_WRK_SHFT NUMBER;
+  V_CNT 	NUMBER;
+  V_SHFT_SRL POS_WRK_SHFT_CSHR.SHFT_SRL%TYPE;
+BEGIN
+     BEGIN
+       SELECT  COUNT(1), MIN(SHFT_SRL) INTO V_HV_WRK_SHFT,V_SHFT_SRL FROM POS_WRK_SHFT_CSHR WHERE CSHR_NO=P_CSHR_NO AND CLS_DATE IS NULL ;
+    EXCEPTION  WHEN OTHERS THEN
+	V_HV_WRK_SHFT:=0;
+    END;
+    IF V_SHFT_SRL IS NOT NULL THEN
+       BEGIN
+	SELECT COUNT(1) INTO V_CNT FROM IAS_DEPOSIT_CURRENCY_MST WHERE SHFT_SRL=V_SHFT_SRL And Rownum<=1;
+       EXCEPTION  WHEN OTHERS THEN
+	V_CNT:=0;
+       END;
+       IF NVL(V_CNT,0)>0 THEN
+	  V_HV_WRK_SHFT:=0;
+       END IF;
+    END IF;
+  RETURN(V_HV_WRK_SHFT);
+EXCEPTION WHEN OTHERS THEN
+    RETURN(0);
+END CHK_WRK_SHFT_CSHR_FNC;
+--##-----------------------------------------------------------------------------------------------------------##--
+Function GET_WRK_SHFT_OPN_FNC(P_CSHR_NO IN NUMBER) Return Number Is
+ V_SHFT_SRL POS_WRK_SHFT_CSHR.SHFT_SRL%TYPE;
+ V_CNT	    NUMBER;
+
+ V_F_DATE  POS_WRK_SHFT_CSHR.F_DATE%TYPE;
+ V_T_DATE  POS_WRK_SHFT_CSHR.T_DATE%TYPE;
+ V_F_TIME  POS_WRK_SHFT_CSHR.F_TIME%TYPE;
+ V_T_TIME  POS_WRK_SHFT_CSHR.T_TIME%TYPE;
+ V_INTRFRNC_FLG  NUMBER;
+BEGIN
+  SELECT  MIN(SHFT_SRL) INTO V_SHFT_SRL FROM POS_WRK_SHFT_CSHR WHERE CSHR_NO=P_CSHR_NO AND CLS_DATE IS NULL;
+  IF V_SHFT_SRL IS NOT NULL THEN
+       BEGIN
+	SELECT COUNT(1) INTO V_CNT FROM IAS_DEPOSIT_CURRENCY_MST WHERE SHFT_SRL=V_SHFT_SRL And Rownum<=1;
+       EXCEPTION  WHEN OTHERS THEN
+	V_CNT:=0;
+       END;
+       IF NVL(V_CNT,0)>0 THEN
+	  V_SHFT_SRL:='';
+       END IF;
+      IF V_SHFT_SRL IS NOT NULL AND NVL(G_WRK_SHFT_TYP,0)=1 THEN
+	   BEGIN
+	    SELECT F_DATE,
+		   T_DATE,
+		   NVL(F_TIME,0),
+		   NVL(T_TIME,0),
+		   INTRFRNC_FLG
+	      INTO V_F_DATE,
+		   V_T_DATE,
+		   V_F_TIME,
+		   V_T_TIME,
+		   V_INTRFRNC_FLG
+	      FROM POS_WRK_SHFT_CSHR
+	     WHERE CSHR_NO	  = P_CSHR_NO
+	       AND SHFT_SRL	  = V_SHFT_SRL
+	       AND NVL(CLS_FLG,0) = 0
+	       AND ROWNUM<=1 ;
+	EXCEPTION
+	    WHEN TOO_MANY_ROWS THEN
+		  V_SHFT_SRL:='';
+	    WHEN OTHERS THEN
+		 V_SHFT_SRL:='';
+	END ;
+	IF V_SHFT_SRL IS NOT NULL THEN
+	    IF	SYSDATE <  TO_DATE(TO_CHAR(V_F_DATE,'DD/MM/YYYY'),'DD/MM/YYYY') + (NVL(V_F_TIME, 0)/ 86400) THEN
+		  V_SHFT_SRL:='';
+	    ELSIF  SYSDATE >  TO_DATE(TO_CHAR(V_T_DATE,'DD/MM/YYYY'),'DD/MM/YYYY') + ((NVL(V_T_TIME,0))/ 86400) THEN
+		  V_SHFT_SRL:='';
+	    END IF;
+	END IF;
+      END IF;
+   END IF;
+   RETURN (V_SHFT_SRL);
+EXCEPTION  WHEN OTHERS THEN
+  RETURN (NULL);
+End GET_WRK_SHFT_OPN_FNC;
+--##-----------------------------------------------------------------------------------------------------------##--
+FUNCTION GET_PNG_BLNC (P_SHFT_SRL IN NUMBER) RETURN NUMBER
+IS
+V_OPN_BLNC NUMBER;
+BEGIN
+    SELECT SUM (CSH_AMT * NVL (CUR_RATE, 1))
+			  INTO V_OPN_BLNC
+			  FROM POS_FNCL_ADVNC_CSHR
+			 WHERE SHFT_SRL = P_SHFT_SRL ;
+	RETURN V_OPN_BLNC;	
+EXCEPTION
+WHEN OTHERS THEN
+   RETURN 0;				
+END GET_PNG_BLNC;
+--##-----------------------------------------------------------------------------------------------------------##--
+PROCEDURE GET_WRK_SHFT_DATE_INFO(P_F_SHFT_SRL	 IN NUMBER,
+				 P_T_SHFT_SRL	 IN NUMBER,
+				 P_F_DATE	 OUT  DATE,
+				 P_T_DATE	 OUT  DATE,
+				 P_F_TIME	 OUT  IAS_POS_FNL_DATA_ALL.BILL_TIME%TYPE,
+				 P_T_TIME	 OUT  IAS_POS_FNL_DATA_ALL.BILL_TIME%TYPE,
+				 P_LANG_NO	 IN   NUMBER DEFAULT 1) IS
+BEGIN
+   IF P_F_SHFT_SRL IS NOT NULL THEN
+	SELECT MIN(BILL_DATE),MIN(BILL_TIME)  INTO P_F_DATE,P_F_TIME  FROM   IAS_POS_FNL_DATA_ALL WHERE SHFT_SRL=P_F_SHFT_SRL;
+   END IF;
+   IF P_T_SHFT_SRL IS NOT NULL THEN
+      SELECT MAX(BILL_DATE),MAX(BILL_TIME) INTO P_T_DATE,P_T_TIME  FROM   IAS_POS_FNL_DATA_ALL WHERE SHFT_SRL=P_T_SHFT_SRL;
+   END IF;
+EXCEPTION WHEN OTHERS THEN
+   NULL;
+END GET_WRK_SHFT_DATE_INFO;
+-- FOR API
+--##-----------------------------------------------------------------------------------------------------------##--
+PROCEDURE GET_USR_SHFT_SRL(P_LANG_NO	   IN	  NUMBER,
+			       P_USR_NO        IN     POS_WRK_SHFT_CSHR.CSHR_NO%TYPE,
+			       P_BRN_NO        IN     S_BRN.BRN_NO%TYPE,
+			       P_SHFT_SRL      IN OUT POS_WRK_SHFT_CSHR.SHFT_SRL%TYPE,
+			       P_MSG_TXT	  OUT VARCHAR2,
+			       P_OPN_SHT_FLG	  OUT NUMBER) --##1-OPEN NEW SHIFT  BY USER 2-OPEN NEW SHIFT BY SUPERVISOR
+    IS
+    BEGIN
+	P_OPN_SHT_FLG := 0;
+	LOAD_PRMTRS;
+
+	P_SHFT_SRL := GET_USR_SHFT(P_CSHR_NO => P_USR_NO,
+				   P_BRN_NO  => P_BRN_NO);
+
+	IF NVL(G_WRK_SHFT_TYP,0) = 1  THEN
+	   P_MSG_TXT :=CHK_WRK_SHFT(P_CSHR_NO => P_USR_NO,
+				    P_BRN_NO  => P_BRN_NO);
+	END IF;
+	IF NVL(P_SHFT_SRL,0) <= 1 AND P_MSG_TXT IS NULL THEN
+	    IF P_SHFT_SRL IN (1,-2) THEN
+		P_OPN_SHT_FLG := ABS(P_SHFT_SRL);
+		P_MSG_TXT := YS_GEN_PKG.GET_MSG(P_LNG_NO => P_LANG_NO, P_MSG_NO => 6791);
+	    ELSE
+		P_MSG_TXT := YS_GEN_PKG.GET_MSG(P_LNG_NO => P_LANG_NO, P_MSG_NO => ABS(P_SHFT_SRL));
+	    END IF;
+	END IF;
+
+    EXCEPTION
+	WHEN OTHERS THEN
+	    P_MSG_TXT := 'Exception When GET_USR_SHFT_SRL'||SQLERRM;
+	    P_SHFT_SRL := NULL;
+    END GET_USR_SHFT_SRL;
+--##-----------------------------------------------------------------------------------------------------------##--
+		PROCEDURE GET_SHFT_RM_TIME(P_SHFT_SRL	      IN   NUMBER,
+					   P_CSHR_NO	      POS_WRK_SHFT_CSHR.CSHR_NO%TYPE,
+					   P_LANG_NO	      NUMBER DEFAULT 1,
+					   P_MNT_BFR_END_SHFT OUT NUMBER,
+					   P_MNT_RM_END_SHFT  OUT NUMBER,
+					   P_MSG_TXT	      OUT VARCHAR2
+					      ) IS
+		   V_Alrt_Bfr_End_Shft Number;
+		   V_Mnt_Rm	       Number;
+		Begin
+		 Begin
+		  V_Alrt_Bfr_End_Shft:= Ias_Gen_Pkg.Get_Cnt('Select Shw_Alrt_Bfr_End_Shft
+				      From Pos_Wrk_Shft M,Pos_Wrk_Shft_Cshr D
+							       Where M.Shft_Code=D.Shft_Code
+					And D.Shft_Srl = '''||P_SHFT_SRL||'''
+					And D.T_Date Is Not Null
+								 And NVL(CLS_FLG,0)=0
+					');
+     EXCEPTION WHEN OTHERS THEN
+		     V_Alrt_Bfr_End_Shft:=0;
+		 End;
+		   Begin
+				Select --Shw_Alrt_Bfr_End_Shft,
+				       Round((To_Date(To_Char(D.T_Date,'DD/MM/YYYY'),'DD/MM/YYYY') + ((Nvl(D.T_Time,0)+Nvl(D.Intrfrnc_Flg,0))/ 86400) -Sysdate)*24*60)
+				  Into --V_Alrt_Bfr_End_Shft,
+				       V_Mnt_Rm
+				 From Pos_Wrk_Shft M,Pos_Wrk_Shft_Cshr D
+				   Where M.Shft_Code=D.Shft_Code
+				     And D.Shft_Srl =P_SHFT_SRL
+				     And D.T_Date Is Not Null
+				     And NVL(CLS_FLG,0)=0;
+				EXCEPTION WHEN OTHERS THEN
+				   V_MNT_RM:=0;
+				End;
+				  P_MNT_BFR_END_SHFT:=V_Alrt_Bfr_End_Shft;
+				  P_MNT_RM_END_SHFT:=V_Mnt_Rm;
+				 If V_MNT_RM>0 Then
+				 	 If NVL(V_ALRT_BFR_END_SHFT,0)>0 And  V_ALRT_BFR_END_SHFT> V_MNT_RM Then
+				 	    P_MSG_TXT:=Ias_Gen_Pkg.Get_msg(P_LANG_NO,7526)||' '|| V_MNT_RM||' '||Ias_Gen_Pkg.Get_prompt(P_LANG_NO,16615);
+				 	 End If;
+				 ElsIF	V_MNT_RM<0 Then
+				 	 P_MSG_TXT:=Ias_Gen_Pkg.Get_msg(P_LANG_NO,7527)||' '|| Abs(V_MNT_RM)||' '||Ias_Gen_Pkg.Get_prompt(P_LANG_NO,16615);
+				 End If;
+		EXCEPTION WHEN OTHERS THEN
+		    Null;
+		End GET_SHFT_RM_TIME;
+--#------------------------------------FUNCTION AND PROCEDURE OF API------------------------------------------------------#--
+    FUNCTION GET_XML_QRY (P_QRY_STR IN VARCHAR2,P_ROW_TAG_NM VARCHAR2)
+	RETURN CLOB
+    IS
+	QRY_RSLT   CLOB;
+	QRY_CTX    DBMS_XMLGEN.CTXHANDLE;
+    BEGIN
+	QRY_CTX := DBMS_XMLGEN.NEWCONTEXT (P_QRY_STR);
+
+	DBMS_XMLGEN.SETROWTAG (QRY_CTX,P_ROW_TAG_NM);
+	DBMS_XMLGEN.SETNULLHANDLING (QRY_CTX, DBMS_XMLGEN.EMPTY_TAG);
+	QRY_RSLT := DBMS_XMLGEN.GETXML (QRY_CTX);
+
+	RETURN QRY_RSLT;
+    END GET_XML_QRY;
+--#----------------------------------------------------------------------------------------------------------#--
+    FUNCTION GET_SQLERRM
+	RETURN VARCHAR2
+    IS
+	L_GET_SQLERRM VARCHAR2(2000) := SQLERRM;
+    BEGIN
+	RETURN REPLACE(L_GET_SQLERRM,'"','');
+    END GET_SQLERRM;
+--#----------------------------------------------------------------------------------------------------------#--
+    FUNCTION PST_COMMIT_PRC
+	RETURN VARCHAR2
+    IS
+    BEGIN
+	RETURN NULL;
+    EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+	    RETURN GET_SQLERRM;
+    END PST_COMMIT_PRC;
+--#----------------------------------------------------------------------------------------------------------#--
+    FUNCTION GET_PRMTRS RETURN VARCHAR2
+    IS
+	V_CNT NUMBER :=0;
+    BEGIN
+	BEGIN
+	    SELECT NVL(USE_WRK_SHFT, 0),
+		   NVL(WRK_SHFT_TYP, 0),
+		   NVL(OPN_SHFT_TYP, 0)
+	      INTO G_USE_WRK_SHFT,
+		   G_WRK_SHFT_TYP,
+		   G_OPN_SHFT_TYP
+	      FROM IAS_PARA_POS
+	     WHERE ROWNUM <= 1;
+
+	    IF G_WRK_SHFT_TYP = 1 THEN
+		BEGIN
+		    SELECT 1
+		      INTO V_CNT
+		      FROM POS_WRK_SHFT
+		     WHERE ROWNUM <= 1;
+		EXCEPTION
+		    WHEN OTHERS THEN
+			V_CNT := 0;
+		END;
+
+		IF V_CNT = 0 THEN
+		      RETURN YS_GEN_PKG.GET_MSG(G_LNG_NO,6878) ;
+		END IF;
+	    END IF;
+	    RETURN NULL;
+	EXCEPTION
+	    WHEN OTHERS THEN
+		RETURN 'ERROR WHEN GET PARAMETERS ' || GET_SQLERRM;
+	END;
+
+    EXCEPTION
+	WHEN OTHERS THEN
+	    RETURN 'ERROR IN GET PARAMETERS';
+    END GET_PRMTRS;
+--#----------------------------------------------------------------------------------------------------------#--
+    FUNCTION GET_CSHRS( P_LANG_NO  IN IAS_LABELS.LANG_NO%TYPE,
+			P_BRN_NO   IN S_BRN.BRN_NO%TYPE,
+			P_USR_NO   IN USER_R.U_ID%TYPE) RETURN CLOB
+    IS
+    BEGIN
+	RETURN	GET_XML_QRY(P_QRY_STR => 'SELECT U_ID
+					       ,DECODE	('||P_LANG_NO||', 1, NVL (U_A_NAME, U_E_NAME), NVL (U_E_NAME, U_A_NAME)) U_NAME
+					   FROM USER_R
+					  WHERE CONN_BRN_NO = '||P_BRN_NO||'
+					    AND NVL(INACTIVE,0) = 0
+					    AND U_ID IN (SELECT U_ID
+							   FROM USER_R
+							  WHERE U_ID = USER_R.U_ID
+					       CONNECT BY PRIOR U_ID = U_MNG
+						     START WITH U_ID = '||P_USR_NO||')
+				       ORDER BY U_ID ',
+			   P_ROW_TAG_NM => 'CASHERS');
+
+    EXCEPTION
+	WHEN OTHERS
+	THEN
+	    RETURN '{"_Result": {"_ErrMsg":"ERROR IN GET_CSHRS ' || GET_SQLERRM || '","_ErrNo":-1 } }';
+    END GET_CSHRS;
+--#----------------------------------------------------------------------------------------------------------#--
+    FUNCTION  GET_WRK_SHFTS_LST(P_LANG_NO  IN IAS_LABELS.LANG_NO%TYPE,
+				P_BRN_NO   IN S_BRN.BRN_NO%TYPE,
+				P_USR_NO   IN USER_R.U_ID%TYPE)  RETURN CLOB
+    IS
+    BEGIN
+	RETURN GET_XML_QRY( P_QRY_STR => 'SELECT SHFT_CODE
+					       ,DECODE ( '||P_LANG_NO||', 1, NVL (SHFT_DSC, SHFT_DSC_F), NVL (SHFT_DSC_F, SHFT_DSC)) SHFT_DSC
+					       ,TO_CHAR(TO_DATE(TO_NUMBER(F_TIME), ''SSSSS''), ''HH:MI AM'') F_TIME
+					       ,TO_CHAR(TO_DATE(TO_NUMBER(T_TIME), ''SSSSS''), ''HH:MI AM'') T_TIME
+					       ,BRN_NO||'' - ''||IAS_BRN_PKG.GET_BR_NM(BRN_NO,'||P_LANG_NO||') BRN_NM
+					   FROM POS_WRK_SHFT
+					  WHERE NVL(BRN_NO,'||P_BRN_NO||') = '||P_BRN_NO||'
+					    AND NVL(INACTIVE,0) = 0
+					    AND 1 = '||NVL(G_WRK_SHFT_TYP,0) ||'
+					    AND 1= IAS_BRN_PKG.CHK_USR_BRN_PRV('||P_USR_NO||',
+									       '||P_BRN_NO||',
+									       ''ADD'') ',
+			    P_ROW_TAG_NM => 'WORK_SHIFTS_LIST');
+
+    EXCEPTION
+	WHEN OTHERS
+	THEN
+	    RETURN '{"_Result": {"_ErrMsg":"ERROR IN GET GET_WRK_SHFTS_LST ' || GET_SQLERRM || '","_ErrNo":-2 } }';
+    END GET_WRK_SHFTS_LST;
+--#----------------------------------------------------------------------------------------------------------#--
+    FUNCTION GET_CURR_DFLT (P_TRMNL_NO	IN IAS_POS_MACHINE.MACHINE_NO%TYPE,
+			    P_CSHR_NO	IN POS_WRK_SHFT_CSHR.CSHR_NO%TYPE) RETURN CLOB
+    IS
+    BEGIN
+
+	RETURN GET_XML_QRY(P_QRY_STR =>'SELECT CURR_DFLT ,
+					       IAS_USR_PKG.GET_CUR_RATE(P_ACY	 =>CURR_DFLT,P_USR_NO =>'||P_CSHR_NO||') EX_RATE
+					  FROM IAS_POS_MACHINE
+					 WHERE MACHINE_NO = '||P_TRMNL_NO ||'
+					   AND ROWNUM<=1',
+			   P_ROW_TAG_NM => 'CURR_DFLT');
+
+    EXCEPTION
+	WHEN OTHERS
+	THEN
+	    RETURN '{"_Result": {"_ErrMsg":"ERROR IN GET_CURR_DFLT ' || GET_SQLERRM || '","_ErrNo":-3 } }';
+    END GET_CURR_DFLT;
+
+--#----------------------------------------------------------------------------------------------------------#--
+    FUNCTION GET_CASH_CTGRIES (P_CUR_CODE  IN IAS_CURRENCY_VALUE.A_CY%TYPE) RETURN CLOB
+    IS
+    BEGIN
+
+	RETURN GET_XML_QRY(P_QRY_STR =>'SELECT TO_NUMBER (CUR_VALUE) CUR_VALUE
+					  FROM IAS_CURRENCY_VALUE
+					 WHERE A_CY = '''||P_CUR_CODE||'''
+				      ORDER BY CUR_VALUE',
+			   P_ROW_TAG_NM => 'CASH_CTGRIES');
+
+    EXCEPTION
+	WHEN OTHERS
+	THEN
+	    RETURN '{"_Result": {"_ErrMsg":"ERROR IN GET_CASH_CTGRIES ' || GET_SQLERRM || '","_ErrNo":-4 } }';
+    END GET_CASH_CTGRIES;
+--#----------------------------------------------------------------------------------------------------------#--
+    PROCEDURE GET_SHFT_INFO(P_LANG_NO	      IN     NUMBER DEFAULT 1,
+			    P_BRN_NO	      IN     S_BRN.BRN_NO%TYPE,
+			    P_SHFT_CODE       IN OUT POS_WRK_SHFT.SHFT_CODE%TYPE,
+			    P_F_TIME		 OUT POS_WRK_SHFT.F_TIME%TYPE,
+			    P_T_TIME		 OUT POS_WRK_SHFT.T_TIME%TYPE,
+			    P_F_DATE		 OUT POS_WRK_SHFT_CSHR.F_DATE%TYPE,
+			    P_T_DATE		 OUT POS_WRK_SHFT_CSHR.T_DATE%TYPE,
+			    P_INTRFRNC_FLG	 OUT POS_WRK_SHFT.INTRFRNC_FLG%TYPE)
+    IS
+	V_F_TIME	  POS_WRK_SHFT.F_TIME%TYPE;
+	V_T_TIME	  POS_WRK_SHFT.T_TIME%TYPE;
+	V_ALLW_PRD_BFR	  POS_WRK_SHFT.ALLW_PRD_BFR%TYPE;
+	V_ALLW_PRD_AFTR   POS_WRK_SHFT.ALLW_PRD_AFTR%TYPE;
+	L_ERR_MSG	  VARCHAR2(1000);
+    BEGIN
+	IF NVL ( G_USE_WRK_SHFT, 0) = 1 AND NVL(G_WRK_SHFT_TYP,0) = 1
+	THEN
+	    IF P_SHFT_CODE IS NULL THEN
+		GET_AVL_USR_SHFT ( P_LANG_NO	    => P_LANG_NO
+				  ,P_BRN_NO	    => P_BRN_NO
+				  ,P_SHFT_CODE	    => P_SHFT_CODE
+				  ,P_F_TIME	    => V_F_TIME
+				  ,P_T_TIME	    => V_T_TIME
+				  ,P_ALLW_PRD_BFR   => V_ALLW_PRD_BFR
+				  ,P_ALLW_PRD_AFTR  => V_ALLW_PRD_AFTR
+				  ,P_INTRFRNC_FLG   => P_INTRFRNC_FLG);
+	    ELSE
+		BEGIN
+		    SELECT F_TIME,
+			   T_TIME,
+			   ALLW_PRD_BFR,
+			   ALLW_PRD_AFTR,
+			   INTRFRNC_FLG
+		      INTO V_F_TIME,
+			   V_T_TIME,
+			   V_ALLW_PRD_BFR,
+			   V_ALLW_PRD_AFTR,
+			   P_INTRFRNC_FLG
+		      FROM POS_WRK_SHFT WHERE SHFT_CODE = P_SHFT_CODE AND NVL(BRN_NO,P_BRN_NO) = P_BRN_NO AND ROWNUM <=1;
+		EXCEPTION
+		    WHEN OTHERS THEN
+			P_SHFT_CODE	:=NULL;
+			V_F_TIME	:=NULL;
+			V_T_TIME	:=NULL;
+			V_ALLW_PRD_BFR	:=NULL;
+			V_ALLW_PRD_AFTR :=NULL;
+			P_INTRFRNC_FLG	:=NULL;
+		END;
+	    END IF;
+	    BEGIN
+		IF P_SHFT_CODE IS NOT NULL THEN
+		    IF NVL (P_INTRFRNC_FLG, 0) = 0
+		    THEN
+			IF (V_F_TIME - V_ALLW_PRD_BFR) >= 0
+			THEN
+			    P_F_DATE := TO_DATE (IAS_GEN_PKG.GET_CURDATE, 'DD/MM/YYYY');
+			    P_T_DATE := TO_DATE (IAS_GEN_PKG.GET_CURDATE, 'DD/MM/YYYY');
+			    P_F_TIME := V_F_TIME - V_ALLW_PRD_BFR;
+			    P_T_TIME := V_T_TIME + V_ALLW_PRD_AFTR;
+			ELSE
+			    P_F_DATE := TO_DATE (IAS_GEN_PKG.GET_CURDATE, 'DD/MM/YYYY') - 1;
+			    P_T_DATE := TO_DATE (IAS_GEN_PKG.GET_CURDATE, 'DD/MM/YYYY');
+			    P_F_TIME := (V_F_TIME - V_ALLW_PRD_BFR) + 86400;
+			    P_T_TIME := V_T_TIME + V_ALLW_PRD_AFTR;
+			END IF;
+		    ELSIF NVL (P_INTRFRNC_FLG, 0) = 86400
+		    THEN
+			IF (V_F_TIME - V_ALLW_PRD_BFR) >= 0
+			THEN
+			    P_F_DATE := TO_DATE (IAS_GEN_PKG.GET_CURDATE, 'DD/MM/YYYY');
+			    P_T_DATE := TO_DATE (IAS_GEN_PKG.GET_CURDATE, 'DD/MM/YYYY') + 1;
+			    P_F_TIME := (V_F_TIME - V_ALLW_PRD_BFR);
+			    P_T_TIME := MOD ((V_T_TIME + V_ALLW_PRD_AFTR), 86400);
+			ELSE
+			    P_F_DATE := TO_DATE (IAS_GEN_PKG.GET_CURDATE, 'DD/MM/YYYY') - 1;
+			    P_T_DATE := TO_DATE (IAS_GEN_PKG.GET_CURDATE, 'DD/MM/YYYY');
+			    P_F_TIME := (V_F_TIME - V_ALLW_PRD_BFR) + 86400;
+			    P_T_TIME := MOD ((V_T_TIME + V_ALLW_PRD_AFTR), 86400);
+			END IF;
+		    END IF;
+		END IF;
+	    END;
+	ELSE
+	    P_F_DATE  := TO_DATE (IAS_GEN_PKG.GET_CURDATE, 'DD/MM/YYYY');
+	    P_F_TIME  := TO_NUMBER(TO_CHAR(IAS_GEN_PKG.GET_CURDATE,'SSSSS'));
+	    P_T_DATE  := NULL;
+	    P_T_TIME  := NULL;
+	END IF;
+    EXCEPTION
+	WHEN OTHERS THEN
+	    P_SHFT_CODE   :=NULL;
+	    P_F_TIME	  :=NULL;
+	    P_T_TIME	  :=NULL;
+	    P_F_DATE	  :=NULL;
+	    P_T_DATE	  :=NULL;
+	    P_INTRFRNC_FLG:=NULL;
+    END GET_SHFT_INFO;
+--#----------------------------------------------------------------------------------------------------------#--
+    FUNCTION GET_AVL_SHFT_INFO( P_LANG_NO    IN IAS_LABELS.LANG_NO%TYPE,
+				P_BRN_NO     IN S_BRN.BRN_NO%TYPE,
+				P_CSHR_NO    IN POS_WRK_SHFT_CSHR.CSHR_NO%TYPE,
+				P_SHFT_CODE  IN POS_WRK_SHFT.SHFT_CODE%TYPE DEFAULT NULL)  RETURN CLOB
+    IS
+	V_SHFT_CODE	  POS_WRK_SHFT.SHFT_CODE%TYPE :=P_SHFT_CODE;
+	V_F_TIME	  POS_WRK_SHFT.F_TIME%TYPE;
+	V_T_TIME	  POS_WRK_SHFT.T_TIME%TYPE;
+	V_F_DATE	  POS_WRK_SHFT_CSHR.F_DATE%TYPE;
+	V_T_DATE	  POS_WRK_SHFT_CSHR.T_DATE%TYPE;
+	V_INTRFRNC_FLG	  POS_WRK_SHFT.INTRFRNC_FLG%TYPE;
+	L_ERR_MSG    VARCHAR2(2000);
+    BEGIN
+	L_ERR_MSG := GET_PRMTRS;
+	IF L_ERR_MSG IS NOT NULL THEN
+	    RETURN '{"_Result": {"_ErrMsg":"ERROR IN GET_GET_AVL_SHFT_INFO ' || YS_GEN_PKG.GET_MSG(G_LNG_NO,6878) || '","_ErrNo":-12 } }';
+	END IF;
+
+	L_ERR_MSG := CHK_WRK_SHFT(P_CSHR_NO => P_CSHR_NO,P_BRN_NO => P_BRN_NO );
+	IF L_ERR_MSG IS NOT NULL THEN
+	    RETURN '{"_Result": {"_ErrMsg":"ERROR IN GET_GET_AVL_SHFT_INFO ' || L_ERR_MSG || '","_ErrNo":-13 } }';
+	END IF;
+
+	GET_SHFT_INFO(	P_LANG_NO	=>P_LANG_NO,
+			P_BRN_NO	=>P_BRN_NO,
+			P_SHFT_CODE	=>V_SHFT_CODE,
+			P_F_TIME	=>V_F_TIME,
+			P_T_TIME	=>V_T_TIME,
+			P_F_DATE	=>V_F_DATE,
+			P_T_DATE	=>V_T_DATE,
+			P_INTRFRNC_FLG	=>V_INTRFRNC_FLG);
+
+	RETURN GET_XML_QRY(P_QRY_STR => 'SELECT '''||V_SHFT_CODE||'''	   SHFT_CODE,
+					    '''||TO_CHAR(TO_DATE(TO_NUMBER(V_F_TIME), 'SSSSS'), 'HH:MI AM')||'''	 F_TIME,
+					    '''||TO_CHAR(TO_DATE(TO_NUMBER(V_T_TIME), 'SSSSS'), 'HH:MI AM')||'''	 T_TIME,
+					    '''||V_F_DATE||'''	       F_DATE,
+					    '''||V_T_DATE||'''	       T_DATE,
+					    '''||V_INTRFRNC_FLG||'''   INTRFRNC_FLG FROM DUAL ',
+			P_ROW_TAG_NM => 'AVL_SHFT_INFO');
+
+    EXCEPTION
+	WHEN OTHERS
+	THEN
+	    RETURN '{"_Result": {"_ErrMsg":"ERROR IN GET_AVL_SHFT_INFO ' || GET_SQLERRM || '","_ErrNo":-5 } }';
+    END GET_AVL_SHFT_INFO;
+--#----------------------------------------------------------------------------------------------------------#--
+    FUNCTION CHK_WRK_SHFT(P_CSHR_NO IN POS_WRK_SHFT_CSHR.CSHR_NO%TYPE,
+				 	   	  P_BRN_NO  IN S_BRN.BRN_NO%TYPE)RETURN VARCHAR2
+	IS
+	V_CNT	  NUMBER := 0;
+	V_F_DATE  POS_WRK_SHFT_CSHR.F_DATE%TYPE;
+	V_T_DATE  POS_WRK_SHFT_CSHR.T_DATE%TYPE;
+	V_F_TIME  POS_WRK_SHFT_CSHR.F_TIME%TYPE;
+	V_T_TIME  POS_WRK_SHFT_CSHR.T_TIME%TYPE;
+	V_INTRFRNC_FLG NUMBER;
+	BEGIN
+	  IF  NVL(G_WRK_SHFT_TYP,0) = 1  THEN
+	BEGIN 	   	
+	    SELECT F_DATE,
+		   T_DATE,
+		   NVL(F_TIME,0),
+		   NVL(T_TIME,0),
+		   INTRFRNC_FLG
+	      INTO V_F_DATE,
+		   V_T_DATE,
+		   V_F_TIME,
+		   V_T_TIME,
+		   V_INTRFRNC_FLG
+	      FROM POS_WRK_SHFT_CSHR
+	     WHERE CSHR_NO	  = P_CSHR_NO
+	       AND BRN_NO	  = P_BRN_NO
+	       AND NVL(CLS_FLG,0) = 0
+	       AND ROWNUM<=1 ;
+	EXCEPTION
+	    WHEN TOO_MANY_ROWS THEN
+		RETURN YS_GEN_PKG.GET_MSG(G_LNG_NO,6846);
+	    WHEN OTHERS THEN
+	      V_CNT := 1;
+	END ;
+
+	IF NVL(V_CNT,0) = 0 THEN
+	    IF	SYSDATE <  TO_DATE(TO_CHAR(V_F_DATE,'DD/MM/YYYY'),'DD/MM/YYYY') + (NVL(V_F_TIME, 0)/ 86400) THEN
+		RETURN YS_GEN_PKG.GET_MSG(G_LNG_NO,6873)||'..'||YS_GEN_PKG.GET_MSG(G_LNG_NO,6852);
+	    ELSIF  SYSDATE >  TO_DATE(TO_CHAR(V_T_DATE,'DD/MM/YYYY'),'DD/MM/YYYY') + ((NVL(V_T_TIME, 0))/ 86400) THEN
+		RETURN YS_GEN_PKG.GET_MSG(G_LNG_NO,6873)||'..'||YS_GEN_PKG.GET_MSG(G_LNG_NO,6847);
+	   -- ELSE
+	   --	  RETURN YS_GEN_PKG.GET_MSG(G_LNG_NO,1746)||'..'||YS_GEN_PKG.GET_PROMPT(G_LNG_NO,338);					  	 	
+	    END IF;	
+	END IF;
+     END IF;
+	RETURN NULL;
+
+    END CHK_WRK_SHFT;
+--#----------------------------------------------------------------------------------------------------------#--
+    FUNCTION GET_USR_SHFT_SRL(P_LANG_NO       IN     NUMBER,
+			      P_USR_NO	      IN     POS_WRK_SHFT_CSHR.CSHR_NO%TYPE,
+			      P_BRN_NO	      IN     S_BRN.BRN_NO%TYPE) RETURN CLOB
+    IS
+	V_SHFT_SRL     POS_WRK_SHFT_CSHR.SHFT_SRL%TYPE;
+	V_MSG_TXT      VARCHAR2(1000);
+	V_OPN_SHT_FLG  NUMBER;
+    BEGIN
+	GET_USR_SHFT_SRL( P_LANG_NO	  => P_LANG_NO,
+			  P_USR_NO	  => P_USR_NO,
+			  P_BRN_NO	  => P_BRN_NO,
+			  P_SHFT_SRL	  => V_SHFT_SRL,
+			  P_MSG_TXT	  => V_MSG_TXT,
+			  P_OPN_SHT_FLG   => V_OPN_SHT_FLG);
+
+	IF NVL(V_SHFT_SRL,0) >= 0 THEN
+	    RETURN '{"_Result": {"_ErrMsg":"SUCCESSFUL","_ErrNo":"0","_SHFT_SRL":"'||V_SHFT_SRL||'","_OPN_SHT_FLG":"0" } }';
+	ELSE
+	    RETURN '{"_Result": {"_ErrMsg":"'||V_MSG_TXT||'","_ErrNo":"-19","_SHFT_SRL":"'||V_SHFT_SRL||'","_OPN_SHT_FLG":"'||V_OPN_SHT_FLG||'" } }';
+	END IF;
+
+    EXCEPTION
+	WHEN OTHERS
+	THEN
+	    RETURN '{"_Result": {"_ErrMsg":"ERROR IN GET_USR_SHFT_SRL ' || GET_SQLERRM || '","_ErrNo":-18 } }';
+    END GET_USR_SHFT_SRL;
+--#----------------------------------------------------------------------------------------------------------#--
+    FUNCTION GET_SHFT_INFO_BY_SRL(P_SHFT_SRL  IN POS_WRK_SHFT_CSHR.SHFT_SRL%TYPE,
+    						      P_LANG_NO   IN NUMBER DEFAULT 1) RETURN CLOB
+    IS
+
+    BEGIN
+	RETURN GET_XML_QRY( P_QRY_STR => 'SELECT SHFT_SRL
+					       ,SHFT_CODE
+					       ,F_DATE
+					       ,T_DATE
+					       ,TO_CHAR(TO_DATE(TO_NUMBER(F_TIME), ''SSSSS''), ''HH:MI AM'') F_TIME
+					       ,TO_CHAR(TO_DATE(TO_NUMBER(T_TIME), ''SSSSS''), ''HH:MI AM'') T_TIME
+					       ,NVL (INTRFRNC_FLG, 0)	  INTRFRNC_FLG
+					       ,BRN_NO
+					       ,IAS_BRN_PKG.GET_BR_NM(G_BRN_NO=>BRN_NO,P_LNG_NO=>'||P_LANG_NO||') BRN_NM
+					       ,CSHR_NO
+					       ,IAS_USR_PKG.GET_USR_NM(P_USR_NO=>CSHR_NO) CSHR_NM
+					   FROM POS_WRK_SHFT_CSHR
+					  WHERE SHFT_SRL = '||P_SHFT_SRL||' AND ROWNUM <= 1',
+			    P_ROW_TAG_NM => 'WORK_SHFT_INFO');
+
+    EXCEPTION
+	WHEN OTHERS
+	THEN
+	    RETURN '{"_Result": {"_ErrMsg":"ERROR IN GET SHFT INFO BY SRL ' || GET_SQLERRM || '","_ErrNo":-19 } }';
+    END GET_SHFT_INFO_BY_SRL;
+--#----------------------------------------------------------------------------------------------------------#--
+    FUNCTION GET_OPN_WRK_SHFT_LST(P_LANG_NO  IN IAS_LABELS.LANG_NO%TYPE,
+				  P_BRN_NO   IN S_BRN.BRN_NO%TYPE,
+				  P_USR_NO   IN USER_R.U_ID%TYPE,
+				  P_SHFT_SRL IN POS_WRK_SHFT_CSHR.SHFT_SRL%TYPE DEFAULT NULL)  RETURN CLOB
+    IS
+	QRY_RSLT   CLOB;
+	QRY_CTX    DBMS_XMLGEN.CTXHANDLE;
+    BEGIN
+	IF P_SHFT_SRL IS NOT NULL THEN
+	    QRY_CTX := DBMS_XMLGEN.NEWCONTEXT ( 'SELECT SHFT_SRL,
+							SHFT_NO,
+							SHFT_CODE,
+							SHFT_DATE,
+							SHFT_DSC,
+							SHFT_DSC_F,
+							CSHR_NO,
+							OPN_DATE,
+							CLS_DATE,
+							OPN_TIME,
+							CLS_TIME,
+							F_TIME,
+							T_TIME,
+							F_DATE,
+							T_DATE,
+							INTRFRNC_FLG,
+							CLS_FLG,
+							CLS_NOTE,
+							CLS_U_ID,
+							CMP_NO,
+							BRN_NO||''-''||IAS_BRN_PKG.GET_BR_NM(G_BRN_NO =>BRN_NO, P_LNG_NO=>'||P_LANG_NO||' ) BRN_NM,
+							AD_U_ID,
+							AD_DATE,
+							AD_TRMNL_NM,
+							CURSOR(SELECT SHFT_SRL,
+								      CSHR_NO,
+								      CSH_AMT,
+								      CUR_CODE,
+								      CUR_RATE,
+								      CUR_VALUE,
+								      CUR_NMBR,
+								      RCRD_NO,
+								      AD_U_ID,
+								      AD_DATE,
+								      AD_TRMNL_NM,
+								      CMP_NO,
+								      BRN_NO
+								 FROM POS_FNCL_ADVNC_CSHR
+								WHERE SHFT_SRL =POS_WRK_SHFT_CSHR.SHFT_SRL)  POS_FNCL_ADVNC_CSHR
+						   FROM POS_WRK_SHFT_CSHR
+						  WHERE CLS_FLG  = 0
+						    AND BRN_NO	 = '||P_BRN_NO||'
+						    AND SHFT_SRL = '||P_SHFT_SRL||'
+						    AND CSHR_NO IN (SELECT U_ID
+								      FROM USER_R
+								     WHERE U_ID = USER_R.U_ID
+							  CONNECT BY PRIOR U_ID = U_MNG
+								START WITH U_ID = '||P_USR_NO||')
+						   ORDER BY SHFT_DATE,SHFT_NO ASC');
+	ELSE
+	    QRY_CTX := DBMS_XMLGEN.NEWCONTEXT ('SELECT	SHFT_SRL,
+							SHFT_NO,
+							SHFT_CODE,
+							SHFT_DATE,
+							SHFT_DSC,
+							SHFT_DSC_F,
+							CSHR_NO,
+							OPN_DATE,
+							CLS_DATE,
+							OPN_TIME,
+							CLS_TIME,
+							F_TIME,
+							T_TIME,
+							F_DATE,
+							T_DATE,
+							INTRFRNC_FLG,
+							CLS_FLG,
+							CLS_NOTE,
+							CLS_U_ID,
+							CMP_NO,
+							BRN_NO||''-''||IAS_BRN_PKG.GET_BR_NM(G_BRN_NO =>BRN_NO, P_LNG_NO=>'||P_LANG_NO||' ) BRN_NM,
+							AD_U_ID,
+							AD_DATE,
+							AD_TRMNL_NM,
+							CURSOR(  SELECT SHFT_SRL,
+									CSHR_NO,
+									CSH_AMT,
+									CUR_CODE,
+									CUR_RATE,
+									CUR_VALUE,
+									CUR_NMBR,
+									RCRD_NO,
+									AD_U_ID,
+									AD_DATE,
+									AD_TRMNL_NM,
+									CMP_NO,
+									BRN_NO
+								   FROM POS_FNCL_ADVNC_CSHR
+								  WHERE SHFT_SRL =POS_WRK_SHFT_CSHR.SHFT_SRL)  POS_FNCL_ADVNC_CSHR
+						   FROM POS_WRK_SHFT_CSHR
+						  WHERE CLS_FLG = 0
+						    AND BRN_NO	= '||P_BRN_NO||'
+						    AND CSHR_NO IN (SELECT U_ID
+								      FROM USER_R
+								     WHERE U_ID = USER_R.U_ID
+							  CONNECT BY PRIOR U_ID = U_MNG
+								START WITH U_ID = '||P_USR_NO||')
+						  ORDER BY SHFT_DATE,SHFT_NO ASC');
+	END IF;
+	DBMS_XMLGEN.SETROWTAG(QRY_CTX, 'OPN_WRK_SHFT_LST');
+	DBMS_XMLGEN.SETNULLHANDLING(QRY_CTX, DBMS_XMLGEN.EMPTY_TAG);
+	QRY_RSLT := DBMS_XMLGEN.GETXML(QRY_CTX);
+
+	RETURN QRY_RSLT;
+
+    EXCEPTION
+	WHEN OTHERS
+	THEN
+	    RETURN '{"_Result": {"_ErrMsg":"ERROR IN GET_OPN_WRK_SHFT_LST ' || GET_SQLERRM || '","_ErrNo":-20 } }';
+    END GET_OPN_WRK_SHFT_LST;
+--#----------------------------------------------------------------------------------------------------------#--
+    FUNCTION INSRT_WRK_SHFTS(P_XML_INPT IN CLOB) RETURN VARCHAR2
+    IS
+	L_XML_INPT   XMLTYPE := XMLTYPE.CREATEXML(P_XML_INPT);
+	L_ERR_MSG    VARCHAR2(2000);
+	L_JSON_RSLT  VARCHAR2(2000);
+	L_DTL_ROW_INSRTD BOOLEAN := FALSE;
+	V_CNT NUMBER := 0;
+
+	L_DOC_DATE POS_WRK_SHFT_CSHR.SHFT_DATE%TYPE;
+
+	FUNCTION GET_ERR_FNC(P_LBL_NO NUMBER DEFAULT NULL,P_MSG_NO NUMBER  DEFAULT NULL,P_MSG_TXT VARCHAR2  DEFAULT NULL)
+	    RETURN VARCHAR2
+	IS
+	    L_ERR_TXT VARCHAR2(2000) := NULL;
+	BEGIN
+	    IF P_MSG_NO IS NOT NULL AND P_LBL_NO IS NOT NULL THEN
+		L_ERR_TXT := 'MSG_NO:' || P_MSG_NO || ' - ' || IAS_GEN_PKG.GET_MSG(P_LNG_NO => G_LNG_NO, P_MSG_NO => P_MSG_NO) || ' - ' || IAS_GEN_PKG.GET_PROMPT(P_LNG_NO => G_LNG_NO, P_LBL_NO => P_LBL_NO) || ' ' || P_MSG_TXT;
+	    ELSIF P_MSG_NO IS NOT NULL THEN
+		L_ERR_TXT :=  'MSG_NO:' || P_MSG_NO || ' - ' || IAS_GEN_PKG.GET_MSG(P_LNG_NO => G_LNG_NO, P_MSG_NO => P_MSG_NO) || ' ' || P_MSG_TXT;
+	    ELSE
+		L_ERR_TXT :=  'MSG_NO:0 - ' || P_MSG_TXT;
+	    END IF;
+
+	    ROLLBACK;
+	    RETURN '{"_Result": { "_DOC_NO":"' || G_SHFT_NO || '","_DOC_SRL":"' || G_SHFT_SRL || '","_ErrMsg":"' || REPLACE(L_ERR_TXT,'"','') || '","_ErrNo":-6 } }';
+
+	END GET_ERR_FNC;
+
+    BEGIN
+
+	FOR MST_CRSR IN (SELECT EXTRACTVALUE (VALUE (XMLMSTDMY), '*/SHFT_NO') AS SHFT_NO,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/SHFT_SRL') AS SHFT_SRL,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/SHFT_CODE') AS SHFT_CODE,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/SHFT_DATE') AS SHFT_DATE,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/SHFT_DSC') AS SHFT_DSC,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/SHFT_DSC_F') AS SHFT_DSC_F,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/CSHR_NO') AS CSHR_NO,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/SRVR_NO') AS SRVR_NO,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/F_TIME') AS F_TIME,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/T_TIME') AS T_TIME,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/F_DATE') AS F_DATE,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/T_DATE') AS T_DATE,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/INTRFRNC_FLG') AS INTRFRNC_FLG,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/CLS_FLG') AS CLS_FLG,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/CLS_NOTE') AS CLS_NOTE,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/CLS_U_ID') AS CLS_U_ID,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/EXTRNL_PST') AS EXTRNL_PST,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/CMP_NO') AS CMP_NO,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/BRN_NO') AS BRN_NO,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/BRN_YEAR') AS BRN_YEAR,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/BRN_USR') AS BRN_USR,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/AD_U_ID') AS AD_U_ID,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/AD_DATE') AS AD_DATE,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/AD_TRMNL_NM') AS AD_TRMNL_NM,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/TRMNL_NO') AS TRMNL_NO,
+				EXTRACTVALUE (VALUE (XMLMSTDMY), '*/LNG_NO') AS LNG_NO
+			   FROM TABLE(XMLSEQUENCE(EXTRACT(L_XML_INPT, '/POS_WRK_SHFT/POS_WRK_SHFT_CSHR'))) XMLMSTDMY)
+	LOOP
+	    G_SHFT_NO  := MST_CRSR.SHFT_NO;
+	    G_SHFT_SRL := MST_CRSR.SHFT_SRL;
+	    G_LNG_NO   := NVL(MST_CRSR.LNG_NO,1);
+	    G_CMP_NO   := MST_CRSR.CMP_NO;
+	    G_BRN_NO   := MST_CRSR.BRN_NO;
+	    G_BRN_YEAR := TO_CHAR(YS_GEN_PKG.GET_CURDATE, 'YYYY');
+	    G_BRN_USR  := MST_CRSR.BRN_USR;
+	    G_TRMNL_NO := MST_CRSR.TRMNL_NO;
+	    G_USR_NO   := MST_CRSR.AD_U_ID;
+	    G_AD_DATE  := YS_GEN_PKG.GET_CURDATE;
+
+	    G_LBL_NO   := NULL;
+	    G_MSG_NO   := NULL;
+	    G_MSG_TXT  := NULL;
+
+	    L_ERR_MSG := GET_PRMTRS;
+
+	    IF L_ERR_MSG IS NOT NULL THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => NULL,P_MSG_NO => 4303,P_MSG_TXT => L_ERR_MSG);
+	    END IF;
+
+	    IF G_BRN_NO IS NULL THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => 50,P_MSG_NO => 644,P_MSG_TXT => 'BRN_NO');
+	    END IF;
+
+	    IF MST_CRSR.CSHR_NO IS NULL THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => 6005,P_MSG_NO => 644,P_MSG_TXT => 'CSHR_NO');
+	    END IF;
+	   --#-----------------------------------------------------------------------------------------#--
+	    --#CHECK WORK SHFT TIMES
+	    IF MST_CRSR.SHFT_CODE IS NULL THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => 11601,P_MSG_NO => 644,P_MSG_TXT => 'SHFT_CODE');
+	    END IF;
+
+	    IF G_USE_WRK_SHFT = 1 AND G_WRK_SHFT_TYP = 1 THEN
+		BEGIN
+		    SELECT 1
+		      INTO V_CNT
+		      FROM POS_WRK_SHFT
+		     WHERE SHFT_CODE	   = MST_CRSR.SHFT_CODE
+		       AND NVL(BRN_NO,G_BRN_NO) = G_BRN_NO
+		       AND NVL(INACTIVE,0) = 0
+		       AND ROWNUM	  <= 1;
+		EXCEPTION
+		    WHEN OTHERS THEN
+			V_CNT := 0;
+		END;
+
+		IF V_CNT = 0 THEN
+		      RETURN GET_ERR_FNC(P_LBL_NO => 11601,P_MSG_NO => 6626,P_MSG_TXT => MST_CRSR.SHFT_CODE);
+		END IF;
+	    END IF;
+
+	    POS_WRK_SHFT_PKG.GET_SHFT_INFO(P_LANG_NO	   => G_LNG_NO,
+					   P_BRN_NO	   => G_BRN_NO,
+					   P_SHFT_CODE	   => MST_CRSR.SHFT_CODE,
+					   P_F_TIME	   => MST_CRSR.F_TIME,
+					   P_T_TIME	   => MST_CRSR.T_TIME,
+					   P_F_DATE	   => MST_CRSR.F_DATE,
+					   P_T_DATE	   => MST_CRSR.T_DATE,
+					   P_INTRFRNC_FLG  => MST_CRSR.INTRFRNC_FLG);
+
+	    IF MST_CRSR.F_TIME IS NULL THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => 1722,P_MSG_NO => 644,P_MSG_TXT => 'F_TIME');
+	    END IF;
+
+	    IF MST_CRSR.F_DATE IS NULL THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => 280,P_MSG_NO => 644,P_MSG_TXT => 'F_DATE');
+	    END IF;
+
+	    IF G_USE_WRK_SHFT = 1 AND G_WRK_SHFT_TYP = 1 THEN
+		IF MST_CRSR.T_TIME IS NULL THEN
+		    RETURN GET_ERR_FNC(P_LBL_NO => 4436,P_MSG_NO => 644,P_MSG_TXT => 'T_TIME');
+		END IF;
+
+		IF MST_CRSR.T_DATE IS NULL THEN
+		    RETURN GET_ERR_FNC(P_LBL_NO => 253,P_MSG_NO => 644,P_MSG_TXT => 'T_DATE');
+		END IF;
+
+		IF MST_CRSR.INTRFRNC_FLG IS NULL THEN
+		    RETURN GET_ERR_FNC(P_LBL_NO => 11015,P_MSG_NO => 644,P_MSG_TXT => 'INTRFRNC_FLG');
+		END IF;
+	    END IF;
+	    --#-----------------------------------------------------------------------------------------#--
+
+	    IF G_BRN_NO IS NULL THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => 50,P_MSG_NO => 644,P_MSG_TXT => 'BRN_NO');
+	    END IF;
+
+	    IF G_CMP_NO IS NULL THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => 1583,P_MSG_NO => 644,P_MSG_TXT => 'CMP_NO');
+	    END IF;
+
+	    IF G_BRN_USR IS NULL THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => 3300,P_MSG_NO => 644,P_MSG_TXT => 'BRN_USR');
+	    END IF;
+
+	    IF G_BRN_YEAR IS NULL THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => 5151,P_MSG_NO => 644,P_MSG_TXT => 'BRN_YEAR');
+	    END IF;
+
+	    IF G_TRMNL_NO IS NULL THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => 4540,P_MSG_NO => 644,P_MSG_TXT => 'TRMNL_NO');
+	    END IF;
+
+	    IF G_USR_NO IS NULL THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => 2773,P_MSG_NO => 644,P_MSG_TXT => 'AD_U_ID');
+	    END IF;
+
+	    IF MST_CRSR.EXTRNL_PST IS NULL THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => 4711,P_MSG_NO => 644,P_MSG_TXT => 'EXTRNL_PST');
+	    END IF;
+
+	    IF MST_CRSR.SHFT_DATE IS NULL THEN
+		MST_CRSR.SHFT_DATE := YS_GEN_PKG.GET_CURDATE;
+	    ELSIF MST_CRSR.SHFT_DATE > YS_GEN_PKG.GET_CURDATE THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => NULL, P_MSG_NO => 4390, P_MSG_TXT => NULL);
+	    END IF;
+
+	    IF G_SRVR_NO IS NULL THEN
+		BEGIN
+		    G_SRVR_NO := POS_GNR_PKG.GET_SRVR_NO_FNC;
+		EXCEPTION
+		    WHEN OTHERS THEN
+			G_SRVR_NO := NULL;
+		END;
+
+		IF G_SRVR_NO IS NULL THEN
+		    RETURN GET_ERR_FNC(P_LBL_NO => 3785,P_MSG_NO => 644,P_MSG_TXT => 'SRVR_NO');
+		END IF;
+
+	    END IF;
+
+	    IF MST_CRSR.AD_TRMNL_NM IS NULL THEN
+		RETURN GET_ERR_FNC(P_LBL_NO => 1726,P_MSG_NO => 644,P_MSG_TXT => 'AD_TRMNL_NM');
+	    END IF;
+
+	    --##CHECK CONN_BRN_NO OF CSHR_NO
+	    BEGIN
+		BEGIN
+		    SELECT 1
+		      INTO V_CNT
+		      FROM USER_R
+		     WHERE CONN_BRN_NO = G_BRN_NO
+			   AND U_ID IN (    SELECT U_ID
+					      FROM USER_R
+					     WHERE U_ID = USER_R.U_ID
+					CONNECT BY PRIOR U_ID = U_MNG
+					START WITH U_ID = G_USR_NO)
+			   AND U_ID = MST_CRSR.CSHR_NO
+			   AND ROWNUM <= 1;
+		EXCEPTION
+		    WHEN OTHERS
+		    THEN
+			V_CNT := 0;
+		END;
+
+		IF V_CNT = 0 THEN
+		   RETURN YS_GEN_PKG.GET_PROMPT(G_LNG_NO,14653)||' <> '||G_BRN_NO ;
+		END IF;
+	    END;
+
+	    --##CHECK IS THERE SHFT CODE OPEND
+	    L_ERR_MSG := CHK_WRK_SHFT(P_CSHR_NO => MST_CRSR.CSHR_NO,P_BRN_NO => G_BRN_NO );
+	    IF L_ERR_MSG IS NOT NULL THEN
+		RETURN '{"_Result": {"_ErrMsg":"ERROR IN GET_GET_AVL_SHFT_INFO ' || L_ERR_MSG || '","_ErrNo":-14 } }';
+	    END IF;
+
+	    --#Check If The Same Shift Opened For User On The Same Day More Than Once
+	    BEGIN
+		BEGIN
+		    SELECT 1
+		      INTO V_CNT
+		      FROM POS_WRK_SHFT_CSHR
+		     WHERE SHFT_CODE = MST_CRSR.SHFT_CODE
+		       AND CSHR_NO   = MST_CRSR.CSHR_NO
+		       AND F_DATE    = TO_DATE (MST_CRSR.F_DATE, 'DD/MM/YYYY')
+		       AND ROWNUM    <= 1;
+		EXCEPTION
+		    WHEN OTHERS
+		    THEN
+			V_CNT := 0;
+		END;
+
+		IF V_CNT = 1 THEN
+		   RETURN GET_ERR_FNC(P_LBL_NO => NULL,P_MSG_NO => 6833,P_MSG_TXT => '');
+		END IF;
+	    END;
+
+	    --##GENERATE DOC_NO AND DOC_SRL
+	    BEGIN
+		SELECT NVL (MAX (TO_NUMBER (SHFT_NO)), 0) + 1
+		  INTO G_SHFT_NO
+		  FROM POS_WRK_SHFT_CSHR;
+	    EXCEPTION
+		WHEN OTHERS THEN
+		    RETURN GET_ERR_FNC(P_LBL_NO => NULL,P_MSG_NO => 297,P_MSG_TXT => 'DOC_NO');
+	    END;
+	    G_SHFT_SRL := SUBSTR(G_BRN_YEAR,3,2)||LPAD(NVL(G_SRVR_NO,1),3,0)||LPAD(G_TRMNL_NO,5,0)||LPAD(NVL(MST_CRSR.CSHR_NO,1),5,0)||G_SHFT_NO;			
+	    --##INSERT MST DATA
+	    BEGIN
+		INSERT INTO POS_WRK_SHFT_CSHR( SHFT_SRL
+					      ,SHFT_NO
+					      ,SHFT_CODE
+					      ,SHFT_DATE
+					      ,SHFT_DSC
+					      ,SHFT_DSC_F
+					      ,CSHR_NO
+					      ,SRVR_NO
+					      ,OPN_DATE
+					      ,OPN_TIME
+					      ,F_TIME
+					      ,T_TIME
+					      ,F_DATE
+					      ,T_DATE
+					      ,INTRFRNC_FLG
+					      ,CMP_NO
+					      ,BRN_NO
+					      ,BRN_YEAR
+					      ,BRN_USR
+					      ,AD_U_ID
+					      ,AD_DATE
+					      ,AD_TRMNL_NM)
+				       VALUES( G_SHFT_SRL
+					      ,G_SHFT_NO
+					      ,MST_CRSR.SHFT_CODE
+					      ,MST_CRSR.SHFT_DATE
+					      ,MST_CRSR.SHFT_DSC
+					      ,MST_CRSR.SHFT_DSC_F
+					      ,MST_CRSR.CSHR_NO
+					      ,G_SRVR_NO
+					      ,TO_DATE (G_AD_DATE, 'DD/MM/YYYY')
+					      ,TO_NUMBER(TO_CHAR(G_AD_DATE,'SSSSS'))
+					      ,MST_CRSR.F_TIME
+					      ,MST_CRSR.T_TIME
+					      ,MST_CRSR.F_DATE
+					      ,MST_CRSR.T_DATE
+					      ,MST_CRSR.INTRFRNC_FLG
+					      ,G_CMP_NO
+					      ,G_BRN_NO
+					      ,G_BRN_YEAR
+					      ,G_BRN_USR
+					      ,G_USR_NO
+					      ,G_AD_DATE
+					      ,MST_CRSR.AD_TRMNL_NM);
+	    EXCEPTION
+		WHEN OTHERS THEN
+		    ROLLBACK;
+		    RETURN '{"_Result": { "_DOC_NO":"' || G_SHFT_NO || '","_DOC_SRL":"' || G_SHFT_SRL || '","_ErrMsg":"ERROR WHEN INSERT INTO POS_WRK_SHFT_CSHR ' || GET_SQLERRM || '","_ErrNo":-7 } }';
+	    END;
+
+	    FOR DTL_CRSR IN (SELECT EXTRACTVALUE (VALUE (XMLMSTDMY), '*/CUR_CODE') AS CUR_CODE,
+				    EXTRACTVALUE (VALUE (XMLMSTDMY), '*/CUR_RATE') AS CUR_RATE,
+				    EXTRACTVALUE (VALUE (XMLMSTDMY), '*/CUR_VALUE') AS CUR_VALUE,
+				    EXTRACTVALUE (VALUE (XMLMSTDMY), '*/CUR_NMBR') AS CUR_NMBR,
+				    EXTRACTVALUE (VALUE (XMLMSTDMY), '*/CSH_AMT') AS CSH_AMT,
+				    EXTRACTVALUE (VALUE (XMLMSTDMY), '*/RCRD_NO') AS RCRD_NO
+			       FROM TABLE(XMLSEQUENCE(EXTRACT(L_XML_INPT, '/POS_WRK_SHFT/POS_WRK_SHFT_CSHR/POS_FNCL_ADVNC_CSHR'))) XMLMSTDMY)
+	    LOOP
+		IF DTL_CRSR.CUR_CODE IS NULL THEN
+		    RETURN GET_ERR_FNC(P_LBL_NO => NULL,P_MSG_NO => 644,P_MSG_TXT => 'POS_FNCL_ADVNC_CSHR.CUR_CODE');
+		END IF;
+
+		IF DTL_CRSR.CUR_VALUE IS NULL THEN
+		    RETURN GET_ERR_FNC(P_LBL_NO => NULL,P_MSG_NO => 644,P_MSG_TXT => 'POS_FNCL_ADVNC_CSHR.CUR_VALUE');
+		END IF;
+
+		IF DTL_CRSR.CUR_NMBR IS NULL THEN
+		    RETURN GET_ERR_FNC(P_LBL_NO => NULL,P_MSG_NO => 644,P_MSG_TXT => 'POS_FNCL_ADVNC_CSHR.CUR_NMBR');
+		END IF;
+
+		IF DTL_CRSR.CSH_AMT IS NULL THEN
+		    RETURN GET_ERR_FNC(P_LBL_NO => NULL,P_MSG_NO => 644,P_MSG_TXT => 'POS_FNCL_ADVNC_CSHR.CSH_AMT');
+		END IF;
+
+		IF DTL_CRSR.RCRD_NO IS NULL THEN
+		    RETURN GET_ERR_FNC(P_LBL_NO => NULL,P_MSG_NO => 644,P_MSG_TXT => 'POS_FNCL_ADVNC_CSHR.RCRD_NO');
+		END IF;
+
+		BEGIN
+		    DTL_CRSR.CUR_RATE := IAS_USR_PKG.GET_CUR_RATE(P_ACY =>DTL_CRSR.CUR_CODE,P_USR_NO =>MST_CRSR.CSHR_NO);
+		EXCEPTION
+		    WHEN OTHERS THEN
+			DTL_CRSR.CUR_RATE :=NULL;
+		END;
+
+		IF DTL_CRSR.CUR_RATE IS NULL THEN
+		    RETURN GET_ERR_FNC(P_LBL_NO => NULL,P_MSG_NO => 712,P_MSG_TXT => 'CUR_RATE');
+		END IF;
+
+		--##CHECK CUR_VALUE IS FOUND
+		BEGIN
+		    BEGIN
+			SELECT 1
+			  INTO V_CNT
+			  FROM IAS_CURRENCY_VALUE
+			 WHERE A_CY = DTL_CRSR.CUR_CODE AND CUR_VALUE = DTL_CRSR.CUR_VALUE AND ROWNUM <=1;
+		    EXCEPTION
+			WHEN OTHERS THEN
+			    V_CNT := 0;
+		    END;
+
+		    IF NVL (V_CNT, 0) = 0 THEN
+			RETURN GET_ERR_FNC(P_LBL_NO => NULL,P_MSG_NO => 1593,P_MSG_TXT => 'CUR_VALUE = '||DTL_CRSR.CUR_VALUE||',CUR_CODE = '||DTL_CRSR.CUR_CODE);
+		    END IF;
+		END;
+
+		--##INSERT DTL DATA
+		BEGIN
+		    INSERT INTO POS_FNCL_ADVNC_CSHR( SHFT_SRL
+						    ,CSHR_NO
+						    ,CSH_AMT
+						    ,CUR_CODE
+						    ,CUR_RATE
+						    ,CUR_VALUE
+						    ,CUR_NMBR
+						    ,RCRD_NO
+						    ,AD_U_ID
+						    ,AD_DATE
+						    ,AD_TRMNL_NM
+						    ,CMP_NO
+						    ,BRN_NO
+						    ,BRN_YEAR
+						    ,BRN_USR)
+					     VALUES (G_SHFT_SRL
+						    ,MST_CRSR.CSHR_NO
+						    ,DTL_CRSR.CSH_AMT
+						    ,DTL_CRSR.CUR_CODE
+						    ,DTL_CRSR.CUR_RATE
+						    ,DTL_CRSR.CUR_VALUE
+						    ,DTL_CRSR.CUR_NMBR
+						    ,DTL_CRSR.RCRD_NO
+						    ,G_USR_NO
+						    ,G_AD_DATE
+						    ,MST_CRSR.AD_TRMNL_NM
+						    ,G_CMP_NO
+						    ,G_BRN_NO
+						    ,G_BRN_YEAR
+						    ,G_BRN_USR);
+		    L_DTL_ROW_INSRTD := TRUE;
+		EXCEPTION
+		    WHEN OTHERS THEN
+			ROLLBACK;
+			RETURN '{"_Result": { "_DOC_NO":"' || G_SHFT_NO || '","_DOC_SRL":"' || G_SHFT_SRL || '","_ErrMsg":"ERROR WHEN INSERT INTO POS_FNCL_ADVNC_CSHR ' || GET_SQLERRM || '","_ErrNo":-8 } }';
+		END;
+
+	    END LOOP;
+	END LOOP;
+
+	IF G_SHFT_NO IS NOT NULL AND G_SHFT_SRL IS NOT NULL THEN
+
+	    IF L_DTL_ROW_INSRTD THEN
+		L_ERR_MSG := PST_COMMIT_PRC;
+
+		IF L_ERR_MSG IS NOT NULL THEN
+		    L_JSON_RSLT := '{"_Result": { "_DOC_NO":"' || G_SHFT_NO || '","_DOC_SRL":"' || G_SHFT_SRL || '","_ErrMsg":"' || REPLACE(L_ERR_MSG,'"','') || '","_ErrNo":-9 } }';
+		END IF;
+	    ELSE
+		L_JSON_RSLT := '{"_Result": { "_DOC_No":"' || G_SHFT_NO || '","_DOC_SRL":"' || G_SHFT_SRL || '","_ErrMsg":"NO DTL ROW INSERTED","_ErrNo":-10 } }';
+	    END IF;
+	ELSE
+	    L_JSON_RSLT := '{"_Result": { "_DOC_NO":"' || G_SHFT_NO || '","_DOC_SRL":"' || G_SHFT_SRL || '","_ErrMsg":"NO DATA INSERTED","_ErrNo":-11 } }';
+	END IF;
+
+	IF L_JSON_RSLT IS NULL THEN
+	    COMMIT;
+	    L_JSON_RSLT := '{"_Result": { "_DOC_NO":"' || G_SHFT_NO || '","_DOC_SRL":"' || G_SHFT_SRL || '","_ErrMsg":"SUCCESSFUL","_ErrNo":0 } }';
+	ELSE
+	    ROLLBACK;
+	END IF;
+
+	RETURN L_JSON_RSLT;
+
+    EXCEPTION
+	WHEN OTHERS THEN
+	    ROLLBACK;
+	    RETURN '{"_Result": { "_DOC_NO":"' || G_SHFT_NO || '","_DOC_SRL":"' || G_SHFT_SRL || '","_ErrMsg":"ERROR IN INSRT_WRK_SHFTS ' || GET_SQLERRM || '","_ErrNo":-70 } }';
+    END INSRT_WRK_SHFTS;
+--##-----------------------------------------------------------------------------------------------------------##--
+BEGIN
+    EXECUTE IMMEDIATE 'ALTER SESSION SET NLS_DATE_FORMAT=''DD/MM/YYYY''';
+    LOAD_PRMTRS;
+END POS_WRK_SHFT_PKG;
+/

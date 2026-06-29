@@ -1,0 +1,323 @@
+-- =============================================
+-- PACKAGE SPEC: GNR_ECOPON_PKG  (status: VALID)
+-- =============================================
+CREATE OR REPLACE
+PACKAGE GNR_ECOPON_PKG
+IS
+--##Global variables declaration------------------------------------------------
+G_BASE_URL		varchar2(250) := 'https://www.e-copon.com/uatapi';
+G_PROXY_URL		VARCHAR2(250);
+G_API_KEY		VARCHAR2(100);
+G_SRVC_KEY		VARCHAR2(100);
+G_RETAIL_OUTLET_ID	NUMBER;
+G_PASSWORD		VARCHAR2(100);
+G_LANG_NO		NUMBER;
+
+PROCEDURE SUBMIT(P_BRN_NO	     IN     NUMBER,
+		 P_DOC_TYPE	     IN     NUMBER	DEFAULT 4,
+		 P_BILL_SER	     IN     NUMBER,
+		 P_BILL_NO	     IN     NUMBER	DEFAULT NULL,
+		 P_CNTRY_CODE	     IN     VARCHAR2	DEFAULT 'SA',
+		 P_RETAIL_OUTLET_ID  IN     NUMBER,
+		 P_C_EMAIL	     IN     VARCHAR2,
+		 P_C_MOBILE	     IN     VARCHAR2,
+		 P_C_NAME	     IN     VARCHAR2,
+		 P_C_GENDER	     IN     VARCHAR2	DEFAULT NULL,
+		 P_C_DOB	     IN     DATE	DEFAULT NULL,
+		 P_LANG_NO	     IN     NUMBER	DEFAULT 1,
+		 P_NO_OF_COPONS      IN     NUMBER	DEFAULT 1,
+		 P_BILL_AMT	     IN     NUMBER	DEFAULT 0,
+		 P_GIFT 	     IN     VARCHAR2	DEFAULT NULL,
+		 P_IS_SUCCESS	    OUT     BOOLEAN,
+		 P_MESSAGE	    OUT     VARCHAR2);
+
+PROCEDURE GET_SUBMIT_RESULT(P_BRN_NO		IN	NUMBER,
+			    P_DOC_TYPE		IN	NUMBER	    DEFAULT 4,
+			    P_BILL_SER		IN	NUMBER,
+			    P_IS_SUCCESS	OUT	BOOLEAN,
+			    P_MESSAGE		OUT	VARCHAR2);
+
+
+PROCEDURE SET_WEB_SRVC_PRMTR(P_BRN_NO	  IN	  NUMBER);
+
+END GNR_ECOPON_PKG;
+/
+
+-- ---------------------------------------------
+-- PACKAGE BODY: GNR_ECOPON_PKG  (status: INVALID)
+-- ---------------------------------------------
+CREATE OR REPLACE
+PACKAGE BODY GNR_ECOPON_PKG
+IS
+PROCEDURE SUBMIT(P_BRN_NO	    IN	    NUMBER,
+		 P_DOC_TYPE	    IN	    NUMBER DEFAULT 4,
+		 P_BILL_SER	    IN	    NUMBER,
+		 P_BILL_NO	    IN	    NUMBER	DEFAULT NULL,
+		 P_CNTRY_CODE	    IN	    VARCHAR2	DEFAULT 'SA',
+		 P_RETAIL_OUTLET_ID IN	    NUMBER,
+		 P_C_EMAIL	    IN	    VARCHAR2,
+		 P_C_MOBILE	    IN	    VARCHAR2,
+		 P_C_NAME	    IN	    VARCHAR2,
+		 P_C_GENDER	    IN	    VARCHAR2	DEFAULT NULL,
+		 P_C_DOB	    IN	    DATE	DEFAULT NULL,
+		 P_LANG_NO	    IN	    NUMBER	DEFAULT 1,
+		 P_NO_OF_COPONS     IN	    NUMBER	DEFAULT 1,
+		 P_BILL_AMT	    IN	    NUMBER	DEFAULT 0,
+		 P_GIFT 	    IN	    VARCHAR2	DEFAULT NULL,
+		 P_IS_SUCCESS	    OUT     BOOLEAN,
+		 P_MESSAGE	    OUT     VARCHAR2)
+IS
+V_URL		    VARCHAR2(250)   := '/api/value/JsonRequest';
+V_CONTENT	    VARCHAR2(4000);
+V_CONTENT_TMP	    VARCHAR2(4000);
+V_RETAIL_OUTLET_ID  NUMBER;
+V_PROXY_BODY	    VARCHAR2(4000);
+V_RSPNS_BLOB	    BLOB;
+V_FILE_NAME	    VARCHAR2(256);
+V_STATUS_CODE	    NUMBER;
+V_RESPONSE	    VARCHAR2(4000);
+V_RESPONSE_STATUS   NUMBER;
+V_CNT		    NUMBER;
+PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+    IF P_BRN_NO IS NULL THEN
+	RAISE_APPLICATION_ERROR(-20101, 'P_BRN_NO IS NULL');
+    END IF;
+
+    IF P_BILL_SER IS NULL THEN
+	RAISE_APPLICATION_ERROR(-20101, 'P_BILL_SER IS NULL');
+    END IF;
+
+    IF P_DOC_TYPE IS NULL THEN
+	RAISE_APPLICATION_ERROR(-20101, 'P_DOC_TYPE IS NULL');
+    END IF;
+
+    SELECT NVL(COUNT(*),0) INTO V_CNT FROM POS_EXTRNL_DOC_SYNC
+    WHERE DOC_TYPE = P_DOC_TYPE
+      AND DOC_SER = P_BILL_SER;
+
+    IF V_CNT > 0 THEN
+	GET_SUBMIT_RESULT(P_BRN_NO		=> P_BRN_NO,
+			  P_DOC_TYPE		=> P_DOC_TYPE,
+			  P_BILL_SER		=> P_BILL_SER,
+			  P_IS_SUCCESS		=> P_IS_SUCCESS,
+			  P_MESSAGE		=> P_MESSAGE);
+	IF P_IS_SUCCESS THEN
+	    RETURN;
+	ELSE
+	    P_MESSAGE := NULL;
+	END IF;
+    END IF;
+
+    SET_WEB_SRVC_PRMTR(P_BRN_NO     => P_BRN_NO);
+
+    V_RETAIL_OUTLET_ID := NVL(P_RETAIL_OUTLET_ID, G_RETAIL_OUTLET_ID);
+
+    IF V_RETAIL_OUTLET_ID IS NULL THEN
+	RAISE_APPLICATION_ERROR(-20101, 'V_RETAIL_OUTLET_ID IS NULL');
+    END IF;
+
+    V_CONTENT :=
+'{
+    "RequestHeader":
+    {
+	"APIKey": "'||G_API_KEY||'",
+	"Password": "'||G_PASSWORD||'",
+	"ServiceKey": "'||G_SRVC_KEY||'",
+	"RequestType": 103,
+	"ReferenceNo": "'||'ULT'||trunc(DBMS_RANDOM.value(100000000000,999999999999))||'"
+    },
+    "RequestBody":
+    {
+	"Email": "'||P_C_EMAIL||'",
+	"CountryCode": "'||P_CNTRY_CODE||'",
+	"Mobile": "'||P_C_MOBILE||'",
+	"FullName": "'||P_C_NAME||'",
+	"Gender": "'||P_C_GENDER||'",
+	"DOB": "'||P_C_DOB||'",
+	"NumberOfCopons": "'||P_NO_OF_COPONS||'",
+	"RetailOutletID": '||V_RETAIL_OUTLET_ID||',
+	"InvoiceNumber" : "'||P_BILL_NO||'",
+	"InvoiceAmount" : "'||P_BILL_AMT||'",
+	"LanguageID": "'||CASE P_LANG_NO WHEN 1 THEN '2' ELSE '1' END||'",
+	"Gift": "'||P_GIFT||'"
+    }
+}';
+    V_CONTENT_TMP := V_CONTENT;
+    V_CONTENT := REPLACE(PLJSON(V_CONTENT).TO_CHAR(FALSE),'"','\"');
+
+    V_PROXY_BODY:= '{
+		    "request":{
+			"url":"'||G_BASE_URL||V_URL||'",
+			"method":"POST",
+			"username":"",
+			"password":"",
+			"contentType":"application/json",
+			"body":"'||V_CONTENT||'",
+			"header":[],
+			"parameters":[]
+		    }
+		 }';
+
+    IAS_WEB_SRVC_PKG.CALL_WEB_SERVICE_BLOB(P_URL   => G_PROXY_URL,
+			       P_METHOD  =>'POST',
+			       P_CONTENT_TYPE => 'application/json',
+			       P_CONTENT => V_PROXY_BODY,
+			       P_RESPONSE_BLOB => V_RSPNS_BLOB,
+			       P_HTTP_RSPONS_CODE => V_STATUS_CODE,
+			       P_FILE_NAME	  => V_FILE_NAME,
+			       P_WALLET_PATH => NULL,
+			       P_WALLET_PWD => NULL,
+			       P_USERNAME => NULL,
+			       P_PASSWORD  => NULL,
+			       P_TOKEN => NULL);
+
+
+    V_RESPONSE := IAS_WEB_SRVC_PKG.BLOB_TO_CLOB(V_RSPNS_BLOB);
+
+    SELECT Response_Status, MESSAGE
+    INTO V_RESPONSE_STATUS, P_MESSAGE
+    FROM JSON_TABLE(V_RESPONSE,'$'  Columns(
+    Response_Status	NUMBER		  PATH '$.Result.ResponseHeader.ResponseStatus',
+    MESSAGE		VARCHAR2(100)	  PATH '$.Result.ResponseHeader.Message'));
+
+
+    --insert into the
+    INSERT INTO POS_EXTRNL_DOC_SYNC (
+       PLATFORM_NO,
+       PLATFORM_L_DSC,
+       PLATFORM_F_DSC,
+       DOC_TYPE,
+       DOC_NO,
+       DOC_SER,
+       SYNC_FLG,
+       SYNC_RQST,
+       SYNC_RSLT,
+       SYNC_DATE,
+       DOC_SER_EXTRNL)
+    VALUES (2,
+	    'eCOPON',
+	    'eCOPON',
+	    P_DOC_TYPE,
+	    P_BILL_NO,
+	    P_BILL_SER,
+	    CASE V_RESPONSE_STATUS
+	      WHEN 0 THEN 1
+	      ELSE 2
+	    END,
+	    V_CONTENT_TMP,
+	    V_RESPONSE,
+	    SYSDATE,
+	    NULL);
+
+    COMMIT;
+
+    GET_SUBMIT_RESULT(P_BRN_NO		    => P_BRN_NO,
+		      P_DOC_TYPE	    => P_DOC_TYPE,
+		      P_BILL_SER	    => P_BILL_SER,
+		      P_IS_SUCCESS	    => P_IS_SUCCESS,
+		      P_MESSAGE 	    => P_MESSAGE);
+END;
+
+PROCEDURE GET_SUBMIT_RESULT(P_BRN_NO		IN	NUMBER,
+			    P_DOC_TYPE		IN	NUMBER	    DEFAULT 4,
+			    P_BILL_SER		IN	NUMBER,
+			    P_IS_SUCCESS	OUT	BOOLEAN,
+			    P_MESSAGE		OUT	VARCHAR2)
+IS
+V_RESPONSE	    VARCHAR2(4000);
+V_RESPONSE_STATUS   NUMBER;
+V_BARCODE	    VARCHAR2(200);
+BEGIN
+    IF P_BRN_NO IS NULL THEN
+	RAISE_APPLICATION_ERROR(-20101, 'P_BRN_NO IS NULL');
+    END IF;
+
+    IF P_BILL_SER IS NULL THEN
+	RAISE_APPLICATION_ERROR(-20101, 'P_BILL_SER IS NULL');
+    END IF;
+
+    IF P_DOC_TYPE IS NULL THEN
+	RAISE_APPLICATION_ERROR(-20101, 'P_DOC_TYPE IS NULL');
+    END IF;
+
+    SELECT SYNC_RSLT
+    INTO   V_RESPONSE
+    FROM   (
+      SELECT SYNC_RSLT
+      FROM   POS_EXTRNL_DOC_SYNC
+      WHERE  DOC_TYPE = P_DOC_TYPE
+	AND  DOC_SER  = P_BILL_SER
+      ORDER BY SYNC_DATE DESC
+    )
+    FETCH FIRST 1 ROWS ONLY;
+
+    SELECT Response_Status, MESSAGE
+    INTO V_RESPONSE_STATUS, P_MESSAGE
+    FROM JSON_TABLE(V_RESPONSE,'$'  Columns(
+    Response_Status			  NUMBER	    PATH '$.Result.ResponseHeader.ResponseStatus',
+    MESSAGE				  varchar2(100)     PATH '$.Result.ResponseHeader.Message'));
+
+    IF V_RESPONSE_STATUS <> 0 THEN
+	RETURN;
+    END IF;
+
+    P_IS_SUCCESS := TRUE;
+
+     Declare
+      Cursor C_BARCODES IS
+	SELECT BARCODE FROM JSON_TABLE(V_RESPONSE, '$.Result.ResponseBody[*]'
+	    COLUMNS(BARCODE   VARCHAR2(100)   PATH '$.Barcode'));
+       BEGIN
+       For j in C_BARCODES Loop
+	   V_BARCODE:=J.BARCODE;
+	   --INSERT TO TABLE......
+       End Loop;
+      END;
+
+   /* OPEN P_BARCODES_REF_CUR FOR
+	SELECT BARCODE FROM JSON_TABLE(V_RESPONSE, '$.Result.ResponseBody[*]'
+	    COLUMNS(BARCODE	VARCHAR2(100)	PATH '$.Barcode'));*/
+END GET_SUBMIT_RESULT;
+
+PROCEDURE SET_WEB_SRVC_PRMTR(P_BRN_NO	  IN	  NUMBER)
+IS
+TYPE T_STR_TAB IS TABLE OF VARCHAR2(100) INDEX BY PLS_INTEGER;
+V_ARR	T_STR_TAB;
+V_LIST	VARCHAR2(4000);
+V_COUNT PLS_INTEGER;
+BEGIN
+    BEGIN
+	SELECT
+	    SRVC_URL,
+	    USER_NAME,
+	    PASSWORD,
+	    NVL(IAS_PRMTR_PKG.GETPVAL(P_PRMTR=>'LANG_NO'), 1)
+	INTO
+	    G_PROXY_URL,
+	    V_LIST,
+	    G_PASSWORD,
+	    G_LANG_NO
+	FROM GNR_WEB_SRVC_MST
+	WHERE (UPPER(SRVC_L_DSC) = 'ECOPON' OR UPPER(SRVC_F_DSC) = 'ECOPON')
+	AND BRN_NO=P_BRN_NO
+	AND ROWNUM<=1;
+
+	V_COUNT := REGEXP_COUNT(V_LIST, '[^;]+');
+
+	FOR I IN 1 .. V_COUNT LOOP
+	    V_ARR(I) := REGEXP_SUBSTR(V_LIST, '[^;]+', 1, I);
+	END LOOP;
+
+	G_API_KEY := V_ARR(1);
+	G_SRVC_KEY := V_ARR(2);
+	IF V_COUNT > 2 THEN
+	    G_RETAIL_OUTLET_ID := V_ARR(3);
+	END IF;
+    END;
+EXCEPTION WHEN
+    NO_DATA_FOUND THEN
+	RAISE_APPLICATION_ERROR(-20001, 'Error when getting web service parameters - No Data Found');
+END SET_WEB_SRVC_PRMTR;
+END GNR_ECOPON_PKG;
+/

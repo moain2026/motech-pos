@@ -1,0 +1,190 @@
+-- FUNCTION: FTCH_SALE_OUTLET_DATA_FNC (status: INVALID)
+CREATE OR REPLACE
+FUNCTION FTCH_SALE_OUTLET_DATA_FNC( P_SYS_NO		  IN NUMBER  DEFAULT  NULL			       ,
+						      P_INPT_TYP	    IN NUMBER  DEFAULT	NULL				 ,
+						      P_INP_FLD_VAL	    IN NUMBER  DEFAULT	NULL				 ,
+						      P_TXT		    IN NUMBER  DEFAULT 1		     ,--1-QUERY  2-XML ,3-JSON
+						      P_OUTLET_NO	    OUT GNR_SALE_OUTLET.OUTLET_NO%TYPE	     ,
+						      P_OUTLET_NM	    OUT GNR_SALE_OUTLET.OUTLET_L_NM%TYPE     ,
+						      P_OUTLET_EGS	    OUT GNR_SALE_OUTLET.OUTLET_EGS%TYPE      ,
+						      P_TAX_DOC_TYP	    OUT GNR_SALE_OUTLET.TAX_DOC_TYP%TYPE     ,
+						      P_TAX_CODE	    OUT GNR_SALE_OUTLET.TAX_CODE%TYPE	     ,
+						      P_TAX_AUTH_CODE	    OUT GNR_SALE_OUTLET.TAX_AUTH_CODE%TYPE   ,
+						      P_STREET_NO	    OUT GNR_SALE_OUTLET.STREET_NO%TYPE	     ,
+						      P_SRVC_NO 	    OUT GNR_SALE_OUTLET.SRVC_NO%TYPE	     ,
+						      P_RGN_NO		    OUT GNR_SALE_OUTLET.RGN_NO%TYPE	     ,
+						      P_PROV_NO 	    OUT GNR_SALE_OUTLET.PROV_NO%TYPE	     ,
+						      P_PR_REP		    OUT GNR_SALE_OUTLET.PR_REP%TYPE	     ,
+						      P_POSTAL_CODE	    OUT GNR_SALE_OUTLET.POSTAL_CODE%TYPE     ,
+						      P_INP_TBL_NM	    OUT GNR_SALE_OUTLET.INP_TBL_NM%TYPE      ,
+						      P_INP_FLD_NM	    OUT GNR_SALE_OUTLET.INP_FLD_NM%TYPE      ,
+						      P_CNTRY_NO	    OUT GNR_SALE_OUTLET.CNTRY_NO%TYPE	     ,
+						      P_CITY_NO 	    OUT GNR_SALE_OUTLET.CITY_NO%TYPE	     ,
+						      P_BUILDING_NO	    OUT GNR_SALE_OUTLET.BUILDING_NO%TYPE     ,
+						      P_ADD_NO		    OUT GNR_SALE_OUTLET.ADD_NO%TYPE	     ,
+						      P_CR_NO		    OUT GNR_SALE_OUTLET.CR_NO%TYPE	     ,
+						      P_SHRT_ADD	    OUT GNR_SALE_OUTLET.SHRT_ADD%TYPE	     ,
+						      P_DSTRCT_NM	    OUT GNR_SALE_OUTLET.DSTRCT_NM%TYPE	     ,
+						      P_LNG_NO		    IN NUMBER DEFAULT 1
+					  )
+			  RETURN CLOB	IS
+   V_SQL_QRY	 CLOB;
+   V_WHR	 VARCHAR2(32000);
+   V_XML_TYP	 XMLTYPE;
+   V_JSON_RSLT	 VARCHAR2(4000);
+   V_QRY_CTX	 DBMS_XMLGEN.CTXHANDLE;
+   V_QRY_RSLT	 CLOB;
+   V_LNG_NO	 NUMBER;
+ BEGIN
+    /*
+    --SELECT OUTLET_SALE_TYP FROM  IAS_PARA_AR
+    --OUTLET_SALE_TYP Values :
+    --1- Branch
+    --2- Warehouse
+    --3- Cost Center
+    --4- Sales Man
+
+    DECLARE
+	    V_OUTLET_NO 	   GNR_SALE_OUTLET.OUTLET_NO%TYPE	;
+	    V_OUTLET_NM 	   GNR_SALE_OUTLET.OUTLET_L_NM%TYPE	;
+	    V_OUTLET_EGS	   GNR_SALE_OUTLET.OUTLET_EGS%TYPE	;
+	    V_TAX_DOC_TYP	   GNR_SALE_OUTLET.TAX_DOC_TYP%TYPE	;
+	    V_TAX_CODE		   GNR_SALE_OUTLET.TAX_CODE%TYPE	;
+	    V_TAX_AUTH_CODE	   GNR_SALE_OUTLET.TAX_AUTH_CODE%TYPE	;
+	    V_STREET_NO 	   GNR_SALE_OUTLET.STREET_NO%TYPE	;
+	    V_SRVC_NO		   GNR_SALE_OUTLET.SRVC_NO%TYPE 	;
+	    V_RGN_NO		   GNR_SALE_OUTLET.RGN_NO%TYPE		;
+	    V_PROV_NO		   GNR_SALE_OUTLET.PROV_NO%TYPE 	;
+	    V_PR_REP		   GNR_SALE_OUTLET.PR_REP%TYPE		;
+	    V_POSTAL_CODE	   GNR_SALE_OUTLET.POSTAL_CODE%TYPE	;
+	    V_INP_TBL_NM	   GNR_SALE_OUTLET.INP_TBL_NM%TYPE	;
+	    V_INP_FLD_NM	   GNR_SALE_OUTLET.INP_FLD_NM%TYPE	;
+	    V_CNTRY_NO		   GNR_SALE_OUTLET.CNTRY_NO%TYPE	;
+	    V_CITY_NO		   GNR_SALE_OUTLET.CITY_NO%TYPE 	;
+	    V_BUILDING_NO	   GNR_SALE_OUTLET.BUILDING_NO%TYPE	;
+	    V_ADD_NO		   GNR_SALE_OUTLET.ADD_NO%TYPE		;
+	    V_OUTLET_SALE_TYP	   NUMBER				;
+	    V_STR CLOB ;
+    BEGIN
+	BEGIN
+	     SELECT OUTLET_SALE_TYP INTO V_OUTLET_SALE_TYP FROM  IAS_PARA_AR ;
+	EXCEPTION
+	  WHEN OTHERS THEN
+	    V_OUTLET_SALE_TYP := NULL  ;
+	END ;
+	V_STR :=
+	FTCH_SALE_OUTLET_DATA_FNC(   P_SYS_NO	   => 80 ,
+				     P_INPT_TYP    => V_OUTLET_SALE_TYP ,
+				     P_INP_FLD_VAL => 5 ,
+				     P_TXT	   => 1,--1-QUERY  2-XML ,3-JSON
+				     P_OUTLET_NO	   => V_OUTLET_NO,
+				     P_OUTLET_NM	   => V_OUTLET_NM,
+				     P_OUTLET_EGS	   => V_OUTLET_EGS,
+				     P_TAX_DOC_TYP	   => V_TAX_DOC_TYP,
+				     P_TAX_CODE 	   => V_TAX_CODE,
+				     P_TAX_AUTH_CODE	   => V_TAX_AUTH_CODE,
+				     P_STREET_NO	   => V_STREET_NO,
+				     P_SRVC_NO		   => V_SRVC_NO,
+				     P_RGN_NO		   => V_RGN_NO,
+				     P_PROV_NO		   => V_PROV_NO,
+				     P_PR_REP		   => V_PR_REP,
+				     P_POSTAL_CODE	   => V_POSTAL_CODE,
+				     P_INP_TBL_NM	   => V_INP_TBL_NM,
+				     P_INP_FLD_NM	   => V_INP_FLD_NM,
+				     P_CNTRY_NO 	   => V_CNTRY_NO,
+				     P_CITY_NO		   => V_CITY_NO,
+				     P_BUILDING_NO	   => V_BUILDING_NO,
+				     P_ADD_NO		   => V_ADD_NO,
+				     P_LNG_NO	  => 1
+				 ) ;
+	DBMS_OUTPUT.PUT_LINE('Outlet Address :'||CHR(13)||'Outlet_No ='||V_OUTLET_NO||CHR(13)||'Outlet_Nm ='||V_OUTLET_NM||CHR(13)||V_STR ) ;
+    END ;
+    */
+    V_LNG_NO:=NVL(P_LNG_NO,1);
+   IF P_SYS_NO IS NULL THEN
+      RAISE_APPLICATION_ERROR(-20050, 'ENTER P_SYS_NO ');
+   END IF;
+     IF P_INPT_TYP IS NULL THEN
+      RAISE_APPLICATION_ERROR(-20051, 'ENTER P_INPT_TYP ');
+   END IF;
+     IF P_INP_FLD_VAL IS NULL THEN
+      RAISE_APPLICATION_ERROR(-20052, 'ENTER P_INP_FLD_VAL ');
+   END IF;
+   ---------------------------------------------------------------------------------------------
+  V_SQL_QRY := ' SELECT    OUTLET_NO,
+			   DECODE('||V_LNG_NO||',1,OUTLET_L_NM, OUTLET_F_NM)OUTLET_NM,
+			   OUTLET_EGS,
+			   TAX_DOC_TYP,
+			   TAX_CODE,
+			   TAX_AUTH_CODE,
+			   STREET_NO,
+			   SRVC_NO,
+			   RGN_NO,
+			   PROV_NO,
+			   PR_REP,
+			   POSTAL_CODE,
+			   INP_TBL_NM,
+			   INP_FLD_NM,
+			   CNTRY_NO,
+			   CITY_NO,
+			   BUILDING_NO,
+			   ADD_NO,
+			   CR_NO,
+			   SHRT_ADD,
+			   DSTRCT_NM
+			   FROM GNR_SALE_OUTLET
+		      WHERE SYS_NO ='||P_SYS_NO||'
+		      AND   INPT_TYP ='||P_INPT_TYP||'
+		      AND   INP_FLD_VAL ='||P_INP_FLD_VAL||'
+		      AND  NVL(INACTIVE,0)=0 ';
+
+ IF  NVL(P_TXT,1) = 1 THEN   -- QUERY
+     BEGIN
+	EXECUTE IMMEDIATE V_SQL_QRY
+	    INTO
+	    P_OUTLET_NO 	      ,
+	    P_OUTLET_NM 	      ,
+	    P_OUTLET_EGS	      ,
+	    P_TAX_DOC_TYP	      ,
+	    P_TAX_CODE		      ,
+	    P_TAX_AUTH_CODE	      ,
+	    P_STREET_NO 	      ,
+	    P_SRVC_NO		      ,
+	    P_RGN_NO		      ,
+	    P_PROV_NO		      ,
+	    P_PR_REP		      ,
+	    P_POSTAL_CODE	      ,
+	    P_INP_TBL_NM	      ,
+	    P_INP_FLD_NM	      ,
+	    P_CNTRY_NO		      ,
+	    P_CITY_NO		      ,
+	    P_BUILDING_NO	      ,
+	    P_ADD_NO		      ,
+	    P_CR_NO			,
+	    P_SHRT_ADD			,
+	    P_DSTRCT_NM 		 ;
+
+    EXCEPTION WHEN OTHERS THEN
+     --RAISE_APPLICATION_ERROR(-20053, 'ENTER  '||SQLERRM);
+       RETURN(NULL);
+    END;
+ END IF;
+
+
+  IF  NVL(P_TXT,1) = 2 THEN    -- XML
+      V_QRY_CTX :=  DBMS_XMLGEN.NEWCONTEXT(V_SQL_QRY);
+      DBMS_XMLGEN.SETNULLHANDLING(V_QRY_CTX, DBMS_XMLGEN.EMPTY_TAG);
+      V_QRY_RSLT := DBMS_XMLGEN.GETXML(V_QRY_CTX);
+
+  ELSIF  NVL(P_TXT,1) = 3 THEN -- JSON
+      V_QRY_RSLT:= GNR_XML_JSON_PKG.GNRT_XML_JSON_QUERY_OUTPUT_FNC ( V_SQL_QRY ,2  )  ;
+  END IF;
+
+   RETURN V_QRY_RSLT;
+
+ EXCEPTION
+   WHEN OTHERS THEN
+     -- RAISE_APPLICATION_ERROR(-20054, ' ERROR IN FTCH_SALE_OUTLET_DATA. ' || CHR(10) || SQLERRM);
+	RETURN(NULL);
+ END FTCH_SALE_OUTLET_DATA_FNC ;
+/
