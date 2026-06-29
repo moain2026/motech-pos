@@ -1,0 +1,32 @@
+Additional Keypad 
+ > 
+ POS System > System Inputs > 
+ Additional Keypad 
+ Use: This screen is 
+used for coding the additional keypads, and it is used in the Sales Invoices 
+screen. For example, a keypad for the items that do not have a barcode is added 
+here and is linked to its items from the Keypad Items 
+screen. 
+ How to Use the Screen 
+ After clicking on the Add button, the screen is used as 
+follows: 
+ - 
+ Additional 
+Keypad Number: This field is 
+used to register the additional keypad number, noting that each POS can be 
+linked to the additional keypad in the POS Devices and Machines 
+screen. 
+ - 
+ Additional 
+Keypad Name/ Foreign Name: The keypad name 
+is added here in the system default language, as well as, the foreign language. 
+Note that the keypad’s foreign name will appear upon searching for an item that 
+is linked to it in the Sales Invoices screen in order to distinguish between the 
+different keypads that will be added. 
+ - 
+ Save: Users press 
+this button after completing data 
+entry. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

@@ -1,0 +1,65 @@
+Prepaid Cards and Coupons 
+ > 
+ POS System > System Inputs > 
+ Prepaid Cards and Coupons 
+ Use: This screen is 
+used for coding the prepaid cards, as well as, the coupons to be dealt with in 
+the multi-payment screen in the sales invoices, and linked to the customer by 
+using the customer number. 
+ How to Use the Screen 
+ After clicking on the Add button, the screen is used as 
+follows: 
+ - 
+ Card 
+Number: This field is 
+used to add the card number that will be dealt with in the Payment screen as 
+(Visa Card) or as Coupon Number. Note that this field does not allow duplicating 
+the number. 
+ - 
+ Currency: This field is 
+used to determine the currency of the card or the coupon that will be used in 
+the invoice payment. 
+ - 
+ Amount: This field is 
+used to determine the amount of the card or the 
+coupon. 
+ - 
+ Remaining 
+Amount: This field is 
+used to display the remaining amount after the 
+payment. 
+ - 
+ From 
+Date/To Date: In these two 
+fields, the Prepaid Card Expiry Date is entered. These fields are optional 
+unless the (Entering Prepaid Card Activation Period is Mandatory) parameter is 
+activated. 
+ - 
+ Free: This parameter 
+is activated if the customer’s prepaid card that has been coded is 
+free. 
+ - 
+ Customer 
+Number/Name: This field is 
+used to enter the customer number and link it to the coupon, noting that this is 
+an optional field. 
+ - 
+ Description: An explanatory 
+description is written at the level of each coded payment 
+card. 
+ - 
+ Reference 
+Number: A reference 
+number is written at the level of each coded payment 
+card. 
+ - 
+ Password: A password is 
+written at the level of each added payment card. This password is requested from 
+the customer during the payment process. 
+ - 
+ Save: Users press 
+this button after completing data 
+entry. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

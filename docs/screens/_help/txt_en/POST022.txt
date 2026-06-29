@@ -1,0 +1,88 @@
+Stocktaking of Sales Returns Items 
+ > 
+ POS System > System Transactions > 
+ Stocktaking of Sales Returns Items 
+ Use: This screen is 
+used in the stocktaking of the returned items at the user level; in order to 
+match the actual returned quantity with the returned quantity in the system. The 
+returned items stocktaking is the same as the inventory stocktaking, only with a 
+slight change in comparing the quantities; since the returns stocktaking 
+quantity is compared with the returned quantity not with the available quantity. 
+Therefore, the user can display reports on the quantity’s overage and 
+shortage. 
+ How to Use Screen 
+ First: Master Data 
+ - 
+ Branch 
+Number: It is the 
+branch number to which the user entered, and it is the branch on which the 
+returned items stocktaking will be done. This field allows the authorized user 
+to select another branch. 
+ - 
+ Document 
+Number: It shows the 
+serial number of the transaction. 
+ - 
+ Stocktaking 
+Date: In this field, 
+the document date appears automatically with the ability to change 
+it. 
+ - 
+ Time: In this field, 
+the system displays the time of the transaction (Entry Time) and it cannot be 
+changed. 
+ - 
+ Machine 
+Number: Here, the user 
+selects the POS (Machine) for which the sales returns stocktaking will be done. 
+Noting that an alert message saying (There is a previous stocktaking on the same 
+day) appears if a stocktaking has been added to the same machine on the same 
+date. 
+ - 
+ User: Here, users 
+select the (Cashier), through which, the sales returns stocktaking will be done. 
+Note that an alert message appears saying (This user has no returns for this 
+day) if the user has no sales returns in the data that is entered in the master 
+data. 
+ - 
+ Reference 
+Number: The user writes 
+here the reference number of the transaction. 
+ - 
+ Warehouse 
+Number: The user 
+selects here the warehouse on which the sales returns stocktaking has been 
+made. 
+ - 
+ Description: Here, the user 
+writes an explanatory description for the 
+transaction. 
+ - 
+ First: 
+Detailed Data 
+ - 
+ Item 
+Number/Name/Unit: Here, the user 
+enters the items for which the stocktaking has been manually done or entered 
+using the item’s barcode. 
+ - 
+ Expiry 
+Date / Batch Number: The system 
+displays the data of these fields automatically if the item uses an expiry date 
+and a batch number. 
+ - 
+ Stocktaking 
+Quantity: In this field, 
+the user enters the actual stocktaking quantity of the 
+item. 
+ - 
+ Description: Here, the user 
+writes an explanatory description at the item 
+level. 
+ - 
+ Barcode: The system 
+automatically displays the barcode number after entering the item 
+number. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

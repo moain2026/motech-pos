@@ -1,0 +1,113 @@
+POS Customers Data 
+ > 
+ POS System > System Inputs > 
+ POS Customers Data 
+ Use: It is used to 
+enter the master data and the detailed data of the cash customer. These data 
+include: name, address, branch, available contact methods, governorate, region, 
+representative person and personal data. The cash customers’ data are coded in 
+order to deal with them as customers who are members of the Loyalty Program or 
+Discount Cards. Moreover, the customers data are coded so that the customer’s 
+name can be used in the cash sales invoice in the Sales 
+System. 
+ How to Use Screen 
+ After clicking on the Add button, the screen is used as 
+follows: 
+ First: Master Data 
+ - 
+ Mobile 
+Number: In this field, 
+the user enters the customer mobile number so that it can be used in the 
+multi-payment screen. 
+ - 
+ Branch 
+Number: In this field, 
+the user selects the branch that the customer deals with from the 
+list. 
+ - 
+ Customer 
+Name: In this field, 
+the user enters the cash customer name in the user’s default 
+language. 
+ - 
+ Foreign 
+Name: In this field, 
+the user enters the cash customer name in the foreign 
+language. 
+ - 
+ Email: In this field, 
+the user enters the email address of the cash customer. 
+ - 
+ Group: In this field, 
+the user selects the group to which the customer will be linked. The user 
+selects the group from the groups that have been defined in the (Cash Customers 
+Groups) screen. 
+ - 
+ Loyalty 
+Program Type: If the cash 
+customer is a member in loyalty program, the user determines in this field the 
+type of the loyalty program from among the programs list. It is important to 
+mention that the program must be valid in order to link it to a customer. 
+ - 
+ Activation 
+Date: The system 
+automatically displays the activation date of the loyalty program once it is 
+selected in the Loyalty Program field. 
+ Second: Master Data 
+ - 
+ Discount 
+Card Number: If the customer 
+is a member of the discount cards, the user determines in this field the 
+discount card number from the Sales Cards screen in the Customers System Inputs. 
+It is important to mention that the discount card must be valid, not expired, in 
+order to link it to the customer. 
+ - 
+ Address, 
+Telephone Number, Fax Number, P.O. Box Number, Postal Code, Web Site, Country, 
+Governorate, City, Region, Representative Person Number, Birth Date, and 
+Transaction Date: The data of 
+these fields are optional and are entered manually. 
+ Third: Personal Information: 
+ - 
+ ID 
+Type/Name: The user 
+selects the ID type from the IDs list. Therefore, the system displays the number 
+and the name of the selected ID. 
+ - 
+ ID 
+Number: The user enters 
+the ID number of the ID type that has been selected in the previous 
+field. 
+ - 
+ Issuance 
+Date AD/H: The user enters 
+the issuance AD date of the ID manually. Therefore, the Hijri date is 
+automatically displayed. 
+ - 
+ Expiry 
+Date AD/H: The user enters the expiry AD date of 
+the ID manually. Therefore, the Hijri date is automatically 
+displayed. 
+ - 
+ Issuance 
+Place: The user enters 
+the ID issuance place manually. 
+ Fourth: Other Data 
+ This tab includes creating new fields that the user may need for 
+displaying additional data or information about the customer, these fields may 
+also be used in the various reports of the system. The names of the additional 
+fields can be modified using the Labels Translation screen in the System General 
+Configuration in which the Customers Data screen appears and the user clicks on 
+the Modify button to modify the fields using any needed labels. 
+ Fifth: Modification Information 
+ This tab includes displaying the modifications that are made on the 
+loyalty program cards. Therefore, any modifications are documented immediately 
+in this tab and are automatically displayed upon accessing the 
+tab. 
+ - 
+ Save: 
+ Users press this 
+button after completing data entry. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

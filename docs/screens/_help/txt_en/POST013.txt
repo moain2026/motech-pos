@@ -1,0 +1,100 @@
+Cashiers Sales Clearance 
+ > 
+ POS System > System Transactions > 
+ Cashiers Sales Clearance 
+ Use: This screen is 
+used to clear the cashiers’ sales after the selling transaction. The clearance 
+is done by entering the amounts received from the cashier according to the 
+categories that have been coded in the Currencies Configuration screen in the 
+General Configuration of Onyx ERP. Note that using this screen becomes mandatory 
+if the (Not Allow Sales If Previous Sales Are Not Cleared) parameter is 
+activated in the POS Parameters and Settings screen. The sales clearance is used 
+in the Cashiers Shortage and Overage screen, as the user matches the amounts 
+entered in this screen with the actual sales, and displays the overage and 
+shortage of each POS by the (Cashier) user. 
+ How to Use Screen 
+ After clicking on the Add button, the screen is used as 
+follows: 
+ First: Master Data 
+ - 
+ Branch 
+Number: It 
+is used to select the branch in which the (Cashiers Sales Clearance) will be 
+done. 
+ - 
+ User: Here, the user 
+for whom the sales will be cleared is selected. 
+ - 
+ Document 
+Number/ Document Date : Here, the 
+clearance document number and date appear automatically and cannot be 
+modified. 
+ - 
+ Description: Here, the user 
+writes an explanatory description to the cashiers’ sales clearance. 
+ - 
+ (From 
+Date / To Date) / (From Time / To Time): The cashier 
+sales are usually cleared on a daily basis, yet these fields allow clearing the 
+cashiers’ sales for a specific period by selecting it (From Date / To Date) and 
+(From Time / To Time). These fields appear if the user selects the (Multiple) 
+option in Sales Clearance Entering Method field in the POS Parameters and 
+Settings screen. 
+ Second: Detailed Data 
+ It 
+contains several tabs that will be explained as 
+follows: 
+ - 
+ Total 
+Amounts in Local Currency: This tab is 
+used to clear the cashiers’ sales amounts in local currency. After adding the 
+cashiers’ sales, the system displays all the categories in local currency, and 
+then the system user who is responsible for the matching process enters each 
+category separately according to what was received from the 
+cashier. 
+ Hint: 
+ The 
+net sales are compared to the cash deposits received from the (Cashier) user if 
+the ( Don’t 
+Show Net Sales Comparison with Cash Deposits) parameter is not activated in the 
+POS Parameters and Settings screen. 
+ - 
+ Total 
+Amounts in Foreign Currencies: This tab is 
+used to clear the cashiers’ sales amounts in foreign currencies. After adding 
+the cashiers’ sales, the system user who is responsible for the matching process 
+selects each currency, selects its categories, and records the number of each 
+currency and category. 
+ - 
+ Online 
+Payment Total Amounts: This tab is 
+used to record the total amounts of the online payment methods (Visa Card - 
+Master Card..) based on the vouchers that were printed during the online 
+payment. Note that after each online payment transaction, a voucher, including 
+the transaction amount, is presented; in order to be matched with the final 
+records at the end of each selling transaction. 
+ - 
+ Total 
+of Other Amounts: This Tab is 
+used if there are amounts other than the previously mentioned 
+amounts. 
+ - 
+ Save: Users press 
+this button after completing data entry. 
+ - 
+ Used: It means that 
+the clearance document has been fetched (Used) in another screen. This flag 
+appears as activated if the clearance has been fetched in the Cashiers Sales 
+Overage and Shortage screen. 
+ - 
+ Print: A report can be 
+printed to match the actual sales of cashiers, noting that this report can be 
+exported to an Excel file. 
+ Remark : 
+In the sales invoice, an alert message appears if the cashier sales have not 
+been cleared. This only happens if the (Not Allow Selling If Previous Sales Are 
+Not Cleared) parameter is activated in the POS Parameters and 
+Settings. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

@@ -1,0 +1,3723 @@
+Jun 29, 2026 2:35:46 PM info.phosco.forms.translate.OracleHacker usableImageIOReaders
+INFO: JPG
+jpg
+bmp
+BMP
+gif
+GIF
+WBMP
+png
+PNG
+wbmp
+jpeg
+JPEG
+
+Jun 29, 2026 2:35:46 PM info.phosco.forms.translate.OracleHacker main
+INFO: 
+Name of file: /home/work/motech-pos/db/forms_raw/POST020.fmx
+Jun 29, 2026 2:35:46 PM info.phosco.forms.translate.loader.FormsLoader readContentIntoByteArray
+INFO: 
+Length of file: 6232c
+
+Jun 29, 2026 2:35:46 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+WARNING: Header starts at : 0
+Jun 29, 2026 2:35:46 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+WARNING: Text starts at : 30
+Jun 29, 2026 2:35:46 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+WARNING: Element starts at : 43ce4
+Jun 29, 2026 2:35:46 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+WARNING: Footer starts at : 5d9d8
+Jun 29, 2026 2:35:46 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+INFO: 
+
+Type                                       : MODULE
+Offset                                     : 2
+Characterset                               : AMERICAN_AMERICA.AR8MSWIN1256
+Name                                       : POST020
+Titel                                      : 
+Menüquelle                                 : FILE
+Menümodule                                 : POSMNU.MMX
+Defer Required-Durchsetzung                : YES
+Mausnavigation                             : FORM
+Visuelle Attributgruppe Aktueller Datensatz: 0
+Validierungseinheit                        : STANDARD
+Interaktionsmodus                          : BLOCK
+Maximale Abfragezeit                       : 0
+Maximal abgerufene Datensätze              : 0
+Isolationsmodus                            : SAVE_ON_READ
+Koordinatensystem                          : UNIT
+Koordinatensystem-Einheit                  : POINT
+3D-Steuerelemente verwenden                : true
+Zeicheneinheit Breite                      : 8
+Zeicheneinheit Höhe                        : 16
+Richtung                                   : STANDARD
+Laufzeit-Kompatibilitätsmodus              : 5.0
+
+Type                                       : TRIGGER
+Offset                                     : 9f002
+Name                                       : DISPLAY_RTNBILL_TOTAL
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 9c002
+Name                                       : DISPLAY_BILL_TOTAL
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 4b002
+Name                                       : LOV_TRG
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 42002
+Name                                       : KEY_INCTVSCR
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 3f002
+Name                                       : KEY_ARCHVSCR
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 3c002
+Name                                       : KEY_AUDITSCR
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 39002
+Name                                       : KEY_APRRVSCR
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 36002
+Name                                       : KEY_JRNLSCR
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 33002
+Name                                       : KEY_LNKSCR
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 30002
+Name                                       : KEY_RPRTSCR
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 2d002
+Name                                       : KEY_SAMSCR
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 2a002
+Name                                       : KEY_TREESCR
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 27002
+Name                                       : KEY_LCKSCR
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 24002
+Name                                       : KEY_LSTREC
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 21002
+Name                                       : KEY_NXTREC
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 1e002
+Name                                       : KEY_PRVSREC
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 1b002
+Name                                       : KEY_FRSTREC
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 18002
+Name                                       : KEY_MODREC
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 15002
+Name                                       : KEY_ADD2
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 7e002
+Name                                       : KEY-COMMIT
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : true
+'Keyboard Help' Text                       : Accept - ÍÝÙ
+
+Type                                       : TRIGGER
+Offset                                     : 78002
+Name                                       : KEY-CREREC
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : true
+'Keyboard Help' Text                       : Create - ÅÖÇÝÉ
+
+Type                                       : TRIGGER
+Offset                                     : 7b002
+Name                                       : KEY-DELREC
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : true
+'Keyboard Help' Text                       : Delete - ÍÐÝ
+
+Type                                       : TRIGGER
+Offset                                     : 75002
+Name                                       : KEY-DOWN
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 60002
+Name                                       : KEY-ENTER
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 84002
+Name                                       : KEY-ENTQRY
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : true
+'Keyboard Help' Text                       : Search_ ÈÍË
+
+Type                                       : TRIGGER
+Offset                                     : 87002
+Name                                       : KEY-EXEQRY
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : true
+'Keyboard Help' Text                       : Exceute - ÅÓÊÑÌÇÚ
+
+Type                                       : TRIGGER
+Offset                                     : 6c002
+Name                                       : KEY-EXIT
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 4e002
+Name                                       : KEY-HELP
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : true
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 69002
+Name                                       : KEY-LISTVAL
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 81002
+Name                                       : KEY-MENU
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : true
+'Keyboard Help' Text                       : List - ÚÑÖ
+
+Type                                       : TRIGGER
+Offset                                     : 63002
+Name                                       : KEY-NEXT-ITEM
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 6f002
+Name                                       : KEY-OTHERS
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 66002
+Name                                       : KEY-PREV-ITEM
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 8a002
+Name                                       : KEY-PRINT
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : true
+'Keyboard Help' Text                       : Print - ØÈÇÚÉ
+
+Type                                       : TRIGGER
+Offset                                     : 48002
+Name                                       : KEY-SCRDOWN
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 45002
+Name                                       : KEY-SCRUP
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 72002
+Name                                       : KEY-UP
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : a2002
+Name                                       : ON-CLEAR-DETAILS
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 5a002
+Name                                       : ON-ERROR
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 99002
+Name                                       : ON-LOCK
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 5d002
+Name                                       : ON-MESSAGE
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 57002
+Name                                       : POST-FORMS-COMMIT
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 51002
+Name                                       : PRE-FORM
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 54002
+Name                                       : WHEN-NEW-FORM-INSTANCE
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 8d002
+Name                                       : WHEN-TIMER-EXPIRED
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 90002
+Name                                       : WHEN-WINDOW-CLOSED
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 93002
+Name                                       : WHEN-WINDOW-ACTIVATED
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 96002
+Name                                       : WHEN-TAB-PAGE-CHANGED
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : ALERT
+Offset                                     : 4d2c02
+Name                                       : B4_SAVE
+Titel                                      : ÊÑÇÌÚ
+Meldung                                    : åá ÊÑíÏ ÚãáíÉ ÇáÍÝÙ ¿
+Warnstil                                   : WARNING
+Beschriftung Schaltfläche 1                : äÚã 
+Beschriftung Schaltfläche 2                : áÇ
+Beschriftung Schaltfläche 3                : 
+Standard-Warnschaltfläche                  : SECOND
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+Richtung                                   : STANDARD
+
+Type                                       : ALERT
+Offset                                     : 4e3c02
+Name                                       : ADD_F_DOC
+Titel                                      : ÅÖÇÝÉ ãä
+Meldung                                    : ÓíÊã ÅÖÇÝÉ ãÓÊäÏ ÌÏíÏ ãä ãÓÊäÏ ÓÇÈÞ ¡åá ÊÑíÏ ÇáÅÓÊãÑÇÑ¿
+Warnstil                                   : NOTE
+Beschriftung Schaltfläche 1                : äÚã
+Beschriftung Schaltfläche 2                : áÇ
+Beschriftung Schaltfläche 3                : 
+Standard-Warnschaltfläche                  : SECOND
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+Richtung                                   : STANDARD
+
+Type                                       : ALERT
+Offset                                     : 4f4c02
+Name                                       : MSGBOX
+Titel                                      : ÇáäÙÇã ÇáãÇáí
+Meldung                                    : 
+Warnstil                                   : NOTE
+Beschriftung Schaltfläche 1                : äÚã
+Beschriftung Schaltfläche 2                : 
+Beschriftung Schaltfläche 3                : 
+Standard-Warnschaltfläche                  : FIRST
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+Richtung                                   : STANDARD
+
+Type                                       : ALERT
+Offset                                     : 505c02
+Name                                       : DEL
+Titel                                      : ÊÃßíÏ ÇáÍÐÝ
+Meldung                                    :    åá ÊÑíÏ ÍÐÝ ÇáÓÌá ?
+Warnstil                                   : STOP
+Beschriftung Schaltfläche 1                : äÚã
+Beschriftung Schaltfläche 2                : áÇ
+Beschriftung Schaltfläche 3                : 
+Standard-Warnschaltfläche                  : FIRST
+Visuelle Attributgruppe                    : 516c02
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : RED
+Hintergrundfarbe                           : WHITE
+Füllmuster                                 : TRANSPARENT
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : BOLD
+Schriftstil                                : null
+Zeichenabstand                             : null
+Richtung                                   : STANDARD
+
+Type                                       : ALERT
+Offset                                     : 51bc02
+Name                                       : AL_UNDO
+Titel                                      : ÊÑÇÌÚ
+Meldung                                    : åá ÊÑíÏ ÇáÊÑÇÌÚ Úä ÇáÚãáíÉ ¿
+Warnstil                                   : WARNING
+Beschriftung Schaltfläche 1                : äÚã 
+Beschriftung Schaltfläche 2                : áÇ
+Beschriftung Schaltfläche 3                : 
+Standard-Warnschaltfläche                  : SECOND
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+Richtung                                   : STANDARD
+
+Type                                       : LIBRARY
+Offset                                     : 67cc02
+Name                                       : POSLIB
+Source                                     : FILE
+Location                                   : POSLIB
+
+Type                                       : LIBRARY
+Offset                                     : 67dc02
+Name                                       : YSERPDBALIB
+Source                                     : FILE
+Location                                   : yserpdbalib
+
+Type                                       : LIBRARY
+Offset                                     : 67ec02
+Name                                       : D2KWUTIL
+Source                                     : FILE
+Location                                   : D2kwutil
+
+Type                                       : LIBRARY
+Offset                                     : 67fc02
+Name                                       : D2KCOMN
+Source                                     : FILE
+Location                                   : D2kcomn
+
+Type                                       : DATA_BLOCK
+Offset                                     : 7d9802
+Name                                       : HDR
+Navigation Style                           : CHANGE_DATA_BLOCK
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : null
+ORDER BY Clause                            : null
+Query Array Size                           : 2
+Number of Records Buffered                 : 1
+Number of Records Displayed                : 1
+Query All Records                          : false
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : false
+Query Allowed                              : false
+Insert Allowed                             : true
+Update Allowed                             : true
+Locking Mode                               : IMMEDIATE
+Delete Allowed                             : true
+Key Mode                                   : UNKNOWN
+Maximum Query Time                         : 8432642
+Maximum Records Fetched                    : 8503298
+Listed In Data Block Menu                  : true
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : DATA_BLOCK
+Offset                                     : 83e802
+Name                                       : BAR
+Navigation Style                           : CHANGE_DATA_BLOCK
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : null
+ORDER BY Clause                            : null
+Query Array Size                           : 2
+Number of Records Buffered                 : 1
+Number of Records Displayed                : 1
+Query All Records                          : false
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : false
+Query Allowed                              : false
+Insert Allowed                             : true
+Update Allowed                             : true
+Locking Mode                               : AUTOMATIC
+Delete Allowed                             : true
+Key Mode                                   : AUTOMATIC
+Maximum Query Time                         : 0
+Maximum Records Fetched                    : 0
+Listed In Data Block Menu                  : true
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : DATA_BLOCK
+Offset                                     : 9ce002
+Name                                       : IAS_POS_BILL_MST
+Navigation Style                           : SAME_RECORD
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : null
+ORDER BY Clause                            : null
+Query Array Size                           : 2
+Number of Records Buffered                 : 1
+Number of Records Displayed                : 1
+Query All Records                          : false
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : true
+Query Allowed                              : true
+Insert Allowed                             : true
+Update Allowed                             : true
+Locking Mode                               : AUTOMATIC
+Delete Allowed                             : true
+Key Mode                                   : AUTOMATIC
+Maximum Query Time                         : 0
+Maximum Records Fetched                    : 0
+Listed In Data Block Menu                  : true
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : DATA_BLOCK
+Offset                                     : ff7402
+Name                                       : IAS_POS_BILL_DTL
+Navigation Style                           : CHANGE_RECORD
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : null
+ORDER BY Clause                            : null
+Query Array Size                           : 17
+Number of Records Buffered                 : 16
+Number of Records Displayed                : 16
+Query All Records                          : true
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : true
+Query Allowed                              : true
+Insert Allowed                             : true
+Update Allowed                             : true
+Locking Mode                               : DELAYED
+Delete Allowed                             : true
+Key Mode                                   : AUTOMATIC
+Maximum Query Time                         : 0
+Maximum Records Fetched                    : 0
+Listed In Data Block Menu                  : true
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : DATA_BLOCK
+Offset                                     : 145b802
+Name                                       : PRNT
+Navigation Style                           : SAME_RECORD
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : null
+ORDER BY Clause                            : null
+Query Array Size                           : 2
+Number of Records Buffered                 : 1
+Number of Records Displayed                : 1
+Query All Records                          : false
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : false
+Query Allowed                              : true
+Insert Allowed                             : true
+Update Allowed                             : true
+Locking Mode                               : AUTOMATIC
+Delete Allowed                             : true
+Key Mode                                   : AUTOMATIC
+Maximum Query Time                         : 0
+Maximum Records Fetched                    : 0
+Listed In Data Block Menu                  : true
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : DATA_BLOCK
+Offset                                     : 1508402
+Name                                       : CLNDR
+Navigation Style                           : CHANGE_DATA_BLOCK
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : null
+ORDER BY Clause                            : null
+Query Array Size                           : 2
+Number of Records Buffered                 : 1
+Number of Records Displayed                : 1
+Query All Records                          : false
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : false
+Query Allowed                              : true
+Insert Allowed                             : true
+Update Allowed                             : true
+Locking Mode                               : DELAYED
+Delete Allowed                             : true
+Key Mode                                   : AUTOMATIC
+Maximum Query Time                         : 0
+Maximum Records Fetched                    : 0
+Listed In Data Block Menu                  : false
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : DATA_BLOCK
+Offset                                     : 15b4002
+Name                                       : DMY_LOCK
+Navigation Style                           : SAME_RECORD
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : null
+ORDER BY Clause                            : null
+Query Array Size                           : 2
+Number of Records Buffered                 : 1
+Number of Records Displayed                : 1
+Query All Records                          : false
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : false
+Query Allowed                              : true
+Insert Allowed                             : true
+Update Allowed                             : true
+Locking Mode                               : AUTOMATIC
+Delete Allowed                             : true
+Key Mode                                   : AUTOMATIC
+Maximum Query Time                         : 0
+Maximum Records Fetched                    : 0
+Listed In Data Block Menu                  : true
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : DATA_BLOCK
+Offset                                     : 165e002
+Name                                       : BTN_DOC
+Navigation Style                           : SAME_RECORD
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : null
+ORDER BY Clause                            : null
+Query Array Size                           : 2
+Number of Records Buffered                 : 1
+Number of Records Displayed                : 1
+Query All Records                          : false
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : false
+Query Allowed                              : false
+Insert Allowed                             : true
+Update Allowed                             : true
+Locking Mode                               : AUTOMATIC
+Delete Allowed                             : true
+Key Mode                                   : AUTOMATIC
+Maximum Query Time                         : 0
+Maximum Records Fetched                    : 0
+Listed In Data Block Menu                  : true
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : DATA_BLOCK
+Offset                                     : 1728002
+Name                                       : CALL_SCR_LNK
+Navigation Style                           : SAME_RECORD
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : FORM_NO=:1 AND U_ID=:2
+ORDER BY Clause                            : ORDR_NO
+Query Array Size                           : 11
+Number of Records Buffered                 : 10
+Number of Records Displayed                : 10
+Query All Records                          : false
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : true
+Query Allowed                              : true
+Insert Allowed                             : false
+Update Allowed                             : false
+Locking Mode                               : AUTOMATIC
+Delete Allowed                             : true
+Key Mode                                   : AUTOMATIC
+Maximum Query Time                         : 0
+Maximum Records Fetched                    : 0
+Listed In Data Block Menu                  : true
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : DATA_BLOCK
+Offset                                     : 17a0002
+Name                                       : FTR
+Navigation Style                           : CHANGE_RECORD
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : null
+ORDER BY Clause                            : null
+Query Array Size                           : 2
+Number of Records Buffered                 : 1
+Number of Records Displayed                : 1
+Query All Records                          : false
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : false
+Query Allowed                              : true
+Insert Allowed                             : true
+Update Allowed                             : true
+Locking Mode                               : AUTOMATIC
+Delete Allowed                             : true
+Key Mode                                   : AUTOMATIC
+Maximum Query Time                         : 0
+Maximum Records Fetched                    : 0
+Listed In Data Block Menu                  : true
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : CANVAS
+Offset                                     : 215402
+Name                                       : BAR
+Leinwandtyp                                : H_TOOLBAR
+Thema im Hilfebuch                         : 
+Automatisch anzeigen                       : false
+Sichtbar                                   : true
+Fenster                                    : 1e5402
+Höhe                                       : 44
+Umriss                                     : SHADE_BELOW
+Visuelle Attributgruppe                    : 19e002
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Richtung                                   : STANDARD
+
+Type                                       : GROUP
+Offset                                     : 2ed802
+Parent Node                                : 0
+Child List at                              : 2f2002
+Child List Length                          : 1
+
+Type                                       : IMAGE
+Offset                                     : 2f2402
+Parent Node                                : 2ed802
+Name                                       : IMAGE759
+X-Position                                 : 101945
+Y-Position                                 : 1934
+Breite                                     : 11947
+Höhe                                       : 2503
+Display Quality                            : HIGH
+Dither                                     : false
+Clip X Position                            : 0
+Clip Y Position                            : 0
+Clip Width                                 : 11947
+Clip Height                                : 2503
+
+Type                                       : CANVAS
+Offset                                     : 2fa002
+Name                                       : MAIN
+Leinwandtyp                                : CONTENT
+Thema im Hilfebuch                         : 
+Automatisch anzeigen                       : false
+Sichtbar                                   : true
+Fenster                                    : 1e5402
+Ausschnitt X-Position auf Leinwand         : 0
+Ausschnitt Y-Position auf Leinwand         : 0
+Breite                                     : 1024
+Höhe                                       : 517
+Umriss                                     : SHADE_ABOVE
+Visuelle Attributgruppe                    : 126002
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Richtung                                   : STANDARD
+
+Type                                       : GROUP
+Offset                                     : 302402
+Parent Node                                : 0
+Child List at                              : 306c02
+Child List Length                          : 4
+
+Type                                       : RECTANGLE
+Offset                                     : 307c02
+Parent Node                                : 302402
+Name                                       : FRM_MAIN
+X-Position                                 : 228
+Y-Position                                 : 114
+Breite                                     : 116053
+Höhe                                       : 46649
+Line Width                                 : 0.01
+Dash Style                                 : SOLID
+Cap Style                                  : BUTT
+Join Style                                 : BEVEL
+Rotation Angle                             : 0
+Bevel                                      : OUTSET
+Visual Attribute Group                     : not included
+Foreground Color                           : GRAY4
+Background Color                           : R88G100B100
+Fill Pattern                               : NONE
+Edge Foreground Color                      : BLACK
+Edge Background Color                      : BLACK
+Edge Pattern                               : TRANSPARENT
+
+Type                                       : RECTANGLE
+Offset                                     : 311002
+Parent Node                                : 302402
+Name                                       : GRAPHIC1091
+X-Position                                 : 569
+Y-Position                                 : 569
+Breite                                     : 115598
+Höhe                                       : 8420
+Line Width                                 : 2.0
+Dash Style                                 : SOLID
+Cap Style                                  : BUTT
+Join Style                                 : MITRE
+Rotation Angle                             : 0
+Bevel                                      : OUTSET
+Visual Attribute Group                     : not included
+Foreground Color                           : BLACK
+Background Color                           : R75G88B100
+Fill Pattern                               : NONE
+Edge Foreground Color                      : BLACK
+Edge Background Color                      : BLACK
+Edge Pattern                               : SOLID
+
+Type                                       : RECTANGLE
+Offset                                     : 31a402
+Parent Node                                : 302402
+Name                                       : RECT570
+X-Position                                 : 569
+Y-Position                                 : 40391
+Breite                                     : 115484
+Höhe                                       : 6030
+Line Width                                 : 2.0
+Dash Style                                 : SOLID
+Cap Style                                  : BUTT
+Join Style                                 : MITRE
+Rotation Angle                             : 0
+Bevel                                      : OUTSET
+Visual Attribute Group                     : not included
+Foreground Color                           : BLACK
+Background Color                           : R75G88B100
+Fill Pattern                               : NONE
+Edge Foreground Color                      : BLACK
+Edge Background Color                      : BLACK
+Edge Pattern                               : SOLID
+
+Type                                       : RECTANGLE
+Offset                                     : 323402
+Parent Node                                : 302402
+Name                                       : RECT569
+X-Position                                 : 569
+Y-Position                                 : 9216
+Breite                                     : 115484
+Höhe                                       : 30948
+Line Width                                 : 2.0
+Dash Style                                 : SOLID
+Cap Style                                  : BUTT
+Join Style                                 : MITRE
+Rotation Angle                             : 0
+Bevel                                      : OUTSET
+Visual Attribute Group                     : not included
+Foreground Color                           : BLACK
+Background Color                           : R75G88B100
+Fill Pattern                               : NONE
+Edge Foreground Color                      : BLACK
+Edge Background Color                      : BLACK
+Edge Pattern                               : SOLID
+
+Type                                       : CANVAS
+Offset                                     : 32c402
+Name                                       : CNV_PRNT
+Leinwandtyp                                : CONTENT
+Thema im Hilfebuch                         : 
+Automatisch anzeigen                       : false
+Sichtbar                                   : true
+Fenster                                    : 1f1802
+Ausschnitt X-Position auf Leinwand         : 0
+Ausschnitt Y-Position auf Leinwand         : 0
+Breite                                     : 242
+Höhe                                       : 122
+Umriss                                     : SHADE_BELOW
+Visuelle Attributgruppe                    : 334802
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : TRANSPARENT
+Richtung                                   : STANDARD
+
+Type                                       : GROUP
+Offset                                     : 47f402
+Parent Node                                : 0
+Child List at                              : 483c02
+Child List Length                          : 2
+
+Type                                       : RECTANGLE
+Offset                                     : 484402
+Parent Node                                : 47f402
+Name                                       : FRM_PRNT
+X-Position                                 : 228
+Y-Position                                 : 114
+Breite                                     : 26965
+Höhe                                       : 13312
+Line Width                                 : 0.01
+Dash Style                                 : SOLID
+Cap Style                                  : BUTT
+Join Style                                 : BEVEL
+Rotation Angle                             : 0
+Bevel                                      : OUTSET
+Visual Attribute Group                     : not included
+Foreground Color                           : BLACK
+Background Color                           : R75G88B100
+Fill Pattern                               : NONE
+Edge Foreground Color                      : BLACK
+Edge Background Color                      : BLACK
+Edge Pattern                               : TRANSPARENT
+
+Type                                       : IMAGE
+Offset                                     : 48d802
+Parent Node                                : 47f402
+Name                                       : IMG_PRNT
+X-Position                                 : 10126
+Y-Position                                 : 455
+Breite                                     : 16839
+Höhe                                       : 8761
+Display Quality                            : HIGH
+Dither                                     : false
+Clip X Position                            : 0
+Clip Y Position                            : 0
+Clip Width                                 : 16839
+Clip Height                                : 8761
+
+Type                                       : CANVAS
+Offset                                     : 495402
+Name                                       : CNV_LOCK
+Leinwandtyp                                : CONTENT
+Thema im Hilfebuch                         : 
+Automatisch anzeigen                       : false
+Sichtbar                                   : true
+Fenster                                    : 205002
+Ausschnitt X-Position auf Leinwand         : 1
+Ausschnitt Y-Position auf Leinwand         : 0
+Breite                                     : 320
+Höhe                                       : 126
+Umriss                                     : SHADE_ABOVE
+Visuelle Attributgruppe                    : 126002
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Richtung                                   : STANDARD
+
+Type                                       : GROUP
+Offset                                     : 49d802
+Parent Node                                : 0
+Child List at                              : 0
+Child List Length                          : 0
+
+Type                                       : CANVAS
+Offset                                     : 4a2002
+Name                                       : CALL_SCR_LNK
+Leinwandtyp                                : CONTENT
+Thema im Hilfebuch                         : 
+Automatisch anzeigen                       : false
+Sichtbar                                   : true
+Fenster                                    : 20c402
+Ausschnitt X-Position auf Leinwand         : 1
+Ausschnitt Y-Position auf Leinwand         : 0
+Breite                                     : 245
+Höhe                                       : 155
+Umriss                                     : SHADE_ABOVE
+Visuelle Attributgruppe                    : 126002
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Richtung                                   : STANDARD
+
+Type                                       : GROUP
+Offset                                     : 4aa402
+Parent Node                                : 0
+Child List at                              : 4aec02
+Child List Length                          : 1
+
+Type                                       : RECTANGLE
+Offset                                     : 4af002
+Parent Node                                : 4aa402
+Name                                       : RECT532
+X-Position                                 : 114
+Y-Position                                 : 114
+Breite                                     : 27648
+Höhe                                       : 17294
+Line Width                                 : 0.01
+Dash Style                                 : SOLID
+Cap Style                                  : BUTT
+Join Style                                 : BEVEL
+Rotation Angle                             : 0
+Bevel                                      : OUTSET
+Visual Attribute Group                     : not included
+Foreground Color                           : BLACK
+Background Color                           : GRAY4
+Fill Pattern                               : NONE
+Edge Foreground Color                      : BLACK
+Edge Background Color                      : BLACK
+Edge Pattern                               : TRANSPARENT
+
+Type                                       : CANVAS
+Offset                                     : 4b8002
+Name                                       : CNV_CLNDR
+Leinwandtyp                                : CONTENT
+Thema im Hilfebuch                         : 
+Automatisch anzeigen                       : false
+Sichtbar                                   : true
+Fenster                                    : 1fdc02
+Ausschnitt X-Position auf Leinwand         : 0
+Ausschnitt Y-Position auf Leinwand         : 0
+Breite                                     : 260
+Höhe                                       : 80
+Umriss                                     : SHADE_ABOVE
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Richtung                                   : STANDARD
+
+Type                                       : GROUP
+Offset                                     : 4c0402
+Parent Node                                : 0
+Child List at                              : 0
+Child List Length                          : 0
+
+Type                                       : CANVAS
+Offset                                     : 4c4c02
+Name                                       : FTR
+Leinwandtyp                                : STACKED
+Thema im Hilfebuch                         : 
+Automatisch anzeigen                       : false
+Ausschnitt X-Position                      : 1
+Ausschnitt Y-Position                      : 412
+Ausschnittbreite                           : 1022
+Ausschnitthöhe                             : 63
+Sichtbar                                   : true
+Fenster                                    : 1e5402
+Ausschnitt X-Position auf Leinwand         : 0
+Ausschnitt Y-Position auf Leinwand         : 0
+Breite                                     : 1022
+Höhe                                       : 65
+Umriss                                     : NONE
+Horizontale Bildlaufleiste anzeigen        : false
+Vertikale Bildlaufleiste anzeigen          : false
+Visuelle Attributgruppe                    : 185002
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : R50G88B100
+Füllmuster                                 : null
+Richtung                                   : STANDARD
+
+Type                                       : GROUP
+Offset                                     : 4cd002
+Parent Node                                : 0
+Child List at                              : 0
+Child List Length                          : 0
+
+Type                                       : EDITOR
+Offset                                     : 52d002
+Name                                       : EDTR
+Titel                                      : null
+Funktionaler Kommentar                     : null
+Umbruchstil                                : WORD
+X-Position                                 : 200
+Y-Position                                 : 300
+Breite                                     : 300
+Höhe                                       : 158
+Vertikale Bildlaufleiste anzeigen          : false
+Visuelle Attributgruppe                    : 10d002
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : WHITE
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : PARAMETER
+Offset                                     : 551802
+Name                                       : DOC_DATE_NM
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 553c02
+Name                                       : CORR_CLNDR
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 556002
+Name                                       : SYS_CLNDR
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 558402
+Name                                       : P_SYS_SESSION_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 55a802
+Name                                       : P_SYS_TYP_EDTN
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 55cc02
+Name                                       : P_SYS_VRSN
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 10
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 55f002
+Name                                       : PREV_ADD2
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 561402
+Name                                       : P_CLS_YR
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 563802
+Name                                       : USR_SHW_MSG_B4SAVE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 565c02
+Name                                       : USE_UNICODE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 568002
+Name                                       : P_GNR_PRMTR
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 3000
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 56a402
+Name                                       : P_RSLTN_SIZE
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : 1366*768
+
+Type                                       : PARAMETER
+Offset                                     : 56c802
+Name                                       : SCR_ORGNL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 5
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 56ec02
+Name                                       : CRNT_ITM
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 100
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 571002
+Name                                       : LANG_DFLT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 573402
+Name                                       : FLD_SRCH
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 100
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 575802
+Name                                       : LANG_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 577c02
+Name                                       : LANG_DIR
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 57a002
+Name                                       : USER_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 5
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 57c402
+Name                                       : BRN_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 6
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 57e802
+Name                                       : BRN_YEAR
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 4
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 580c02
+Name                                       : CMP_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 3
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 583002
+Name                                       : BRN_USR
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 3
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 585402
+Name                                       : SYS_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 5
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 587802
+Name                                       : FORM_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 5
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 589c02
+Name                                       : FORM_NAME
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 500
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 58c002
+Name                                       : BLK
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 50
+Parameter-Ausgangswert                     : BAR
+
+Type                                       : PARAMETER
+Offset                                     : 58e402
+Name                                       : FLD_PK
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 50
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 590802
+Name                                       : SCR_TYP
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 38
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 592c02
+Name                                       : DOC_TYP
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 38
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 595002
+Name                                       : SCR_THEME_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 38
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 597402
+Name                                       : DOC_GEN
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 599802
+Name                                       : DATE_GEN
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 59bc02
+Name                                       : DATE_SET
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 59e002
+Name                                       : DATE_SETTING
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5a0402
+Name                                       : D_SET
+Parameter-Datentyp                         : DATE
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5a2802
+Name                                       : CUST_D_TYPE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5a4c02
+Name                                       : ARALT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5a7002
+Name                                       : APALT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5a9402
+Name                                       : STK_CUR
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : $
+
+Type                                       : PARAMETER
+Offset                                     : 5ab802
+Name                                       : LOCAL_CUR
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 7
+Parameter-Ausgangswert                     : YR
+
+Type                                       : PARAMETER
+Offset                                     : 5adc02
+Name                                       : ALLOW_DOC_DEL_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5b0002
+Name                                       : USER_VIEW_DOC_ENTR
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5b2402
+Name                                       : P_ORD_LOV
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5b4802
+Name                                       : CC_AVAIL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5b6c02
+Name                                       : DONTSAVE
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : N
+
+Type                                       : PARAMETER
+Offset                                     : 5b9002
+Name                                       : FRM_ST
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : Q
+
+Type                                       : PARAMETER
+Offset                                     : 5bb402
+Name                                       : LOV_TYP
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 38
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5bd802
+Name                                       : NO_OF_DECIMAL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5bfc02
+Name                                       : PREV_ADD
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5c2002
+Name                                       : PREV_VIEW
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5c4402
+Name                                       : PREV_MODIFY
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5c6802
+Name                                       : PREV_DELETE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5c8c02
+Name                                       : PREV_PRINT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5cb002
+Name                                       : PREV_RPRT_VIEW
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5cd402
+Name                                       : P_REP_SMPLE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 3
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5cf802
+Name                                       : TRMNL_NM
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 500
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5d1c02
+Name                                       : ALLOW_SHOW_JRNL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5d4002
+Name                                       : HUNG_BILL_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 38
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5d6402
+Name                                       : STOCK_RATE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5d8802
+Name                                       : W_PREFIX_L
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5dac02
+Name                                       : L_PREFIX_L
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5dd002
+Name                                       : DEF_WCODE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 10
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5df402
+Name                                       : SUPERMARKET_NAME
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 100
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5e1802
+Name                                       : EKBLOCK
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 50
+Parameter-Ausgangswert                     : IAS_POS_BILL_DTL
+
+Type                                       : PARAMETER
+Offset                                     : 5e3c02
+Name                                       : PRICE_LEVEL
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 20
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5e6002
+Name                                       : PREV_BILL_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5e8402
+Name                                       : CURR_DFLT
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 10
+Parameter-Ausgangswert                     : YER
+
+Type                                       : PARAMETER
+Offset                                     : 5ea802
+Name                                       : TERMINAL
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 50
+Parameter-Ausgangswert                     : ibrahim
+
+Type                                       : PARAMETER
+Offset                                     : 5ecc02
+Name                                       : MACHINE_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5ef002
+Name                                       : BNO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5f1402
+Name                                       : POS_BILL_SERIAL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5f3802
+Name                                       : RTN_BILL_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5f5c02
+Name                                       : MACHINE_DIGIT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5f8002
+Name                                       : USER_DIGIT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5fa402
+Name                                       : SERIAL_DIGIT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5fc802
+Name                                       : P_SERVER_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 5
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 5fec02
+Name                                       : WEIGHTED_PERFIX
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : 02
+
+Type                                       : PARAMETER
+Offset                                     : 601002
+Name                                       : WEIGHTED_LENGTH
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 3
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 603402
+Name                                       : WEIGHTED_ITEM_LENGTH
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 605802
+Name                                       : WEIGHTED_BASIC
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 4
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 607c02
+Name                                       : WEIGHTED
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 60a002
+Name                                       : LENGTHED_PERFIX
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 3
+Parameter-Ausgangswert                     : x
+
+Type                                       : PARAMETER
+Offset                                     : 60c402
+Name                                       : LENGTHED_LENGTH
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 60e802
+Name                                       : LENGTHED_ITEM_LENGTH
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 610c02
+Name                                       : LENGTHED_BASIC
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 4
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 613002
+Name                                       : LENGTHED
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 615402
+Name                                       : PRINT_BILL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 617802
+Name                                       : LCD_PORT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 619c02
+Name                                       : KD
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 61c002
+Name                                       : RK
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 61e402
+Name                                       : KP
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 3
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 620802
+Name                                       : EXTRA_KEYPAD
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 622c02
+Name                                       : MAXHUNGS
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 625002
+Name                                       : DRAWER_PORT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 627402
+Name                                       : OPEN_DRAWER
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 629802
+Name                                       : F_SYS_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 5
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 62bc02
+Name                                       : SUB_ACC
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 5
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 62e002
+Name                                       : USE_VAT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 630402
+Name                                       : ACTIVE_VAT_DATE
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 25
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 632802
+Name                                       : POS_PRICING_TYPE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 634c02
+Name                                       : PRICE_CUR
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 7
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 637002
+Name                                       : PRICE_RATE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 639402
+Name                                       : MAX_DISC
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 63b802
+Name                                       : PRINT_PREV_BILL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 63dc02
+Name                                       : USE_VAT_MCH
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 640002
+Name                                       : SHOW_PAYED_AMT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 642402
+Name                                       : RET_HUNG_BILL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 644802
+Name                                       : PMANUAL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 646c02
+Name                                       : USE_HUNG_BILLS
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 649002
+Name                                       : POST_ITM_FRST_EXPDATE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 64b402
+Name                                       : ALLOW_CHANGE_BILL_CURR
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 64d802
+Name                                       : REMOVE_WEIGHT_DIGIT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 64fc02
+Name                                       : REP_CODE
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 15
+Parameter-Ausgangswert                     : 1
+
+Type                                       : PARAMETER
+Offset                                     : 652002
+Name                                       : PRICE_TYPE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 654402
+Name                                       : USE_UNDO_CTRLU
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 656802
+Name                                       : MOD_ITM_DISC
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 658c02
+Name                                       : REP_FORM
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 65b002
+Name                                       : ALLOW_PRINT_HUNG_BILL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 65d402
+Name                                       : AUDIT_HUNG_BILL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 65f802
+Name                                       : DEF_BRN_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 6
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 661c02
+Name                                       : USE_PAID
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 664002
+Name                                       : AUDIT_DEL_ITM
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 666402
+Name                                       : ALLOW_HUNG_BILLS
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 668802
+Name                                       : COLLCT_RPT_ITM_PRNT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 66ac02
+Name                                       : FTR_BILL
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 300
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 66d002
+Name                                       : SHOW_AVLQTY_IN_BILL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 66f402
+Name                                       : USE_POS_POINT_SYS
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 671802
+Name                                       : CONNECTION_TYPE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 673c02
+Name                                       : POINT_CALC_TYP
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 676002
+Name                                       : POINT_APRVD_BY_DAY
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 3
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 678402
+Name                                       : POINT_AGE_EXPIRED_TYP
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 67a802
+Name                                       : POINT_AGE_EXPIRED_PRD
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 10
+Parameter-Ausgangswert                     : null
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : b1002
+Name                                       : ADD_PROC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : b3002
+Name                                       : ADD_PROC2
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : b5002
+Name                                       : B4SAVE_PRC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : b7002
+Name                                       : CALL_BTN_SCR
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : b9002
+Name                                       : CALL_SCR_PRINT
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : bb002
+Name                                       : CHECK_DUPLICATE
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : bd002
+Name                                       : CHK_B4SAVE_DTL_PRC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : bf002
+Name                                       : CHK_B4SAVE_MST_PRC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : c1002
+Name                                       : DELETE_PROC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : c3002
+Name                                       : DEL_DET_REC_PRC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : c5002
+Name                                       : ENA_DIS_ITM_PRC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : c7002
+Name                                       : EXIT_PROC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : c9002
+Name                                       : FILL_ALL_LIST_PRC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : cb002
+Name                                       : KEY_ENTQRY
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : cd002
+Name                                       : KEY_EXEQRY
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : cf002
+Name                                       : KEY_LISTVAL_PRC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : d1002
+Name                                       : LIST_PROC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : d3002
+Name                                       : LOAD_PARAMETERS
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : d5002
+Name                                       : POST_FORMS_COMMIT_PRC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : d7002
+Name                                       : PRE_FORM_PRC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : d9002
+Name                                       : PRINT_PROC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : db002
+Name                                       : SAVE_PROC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : dd002
+Name                                       : SET_POS_PRC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : df002
+Name                                       : UPDATE_PROC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : e1002
+Name                                       : WHEN_NEW_FORM_INSTANCE_PRC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : e3002
+Name                                       : WHEN_TAB_PAGE_CHANGED_PRC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : e5002
+Name                                       : WHEN_TIMER_EXPIRED_PRC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : e7002
+Name                                       : AUD_ITM
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : e9002
+Name                                       : CHANGE_CURR_PC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : eb002
+Name                                       : CHECK_BILL_DOC_TYPE
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : ed002
+Name                                       : CHECK_PRICING_LEVEL
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : ef002
+Name                                       : SET_MENUS
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : f1002
+Name                                       : FIELD_POSITION
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : f3002
+Name                                       : SHOW_DATA
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : f5002
+Name                                       : CHECK_PACKAGE_FAILURE
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : f7002
+Name                                       : QUERY_MASTER_DETAILS
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : f9002
+Name                                       : CLEAR_ALL_MASTER_DETAILS
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : fb002
+Name                                       : CHECK_DB_BRANCH
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : fd002
+Name                                       : CALL_SCR_LNK_PRC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : ff002
+Name                                       : POINT_PKG
+Unit Type                                  : PACKAGE_SPEC
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : 101002
+Name                                       : POINT_PKG
+Unit Type                                  : PACKAGE_BODY
+
+Type                                       : RECORD_GROUP
+Offset                                     : 680c02
+Name                                       : RG_C_CODE
+Datensatzgruppentyp                        : QUERY
+Datensatzgruppenabfrage                    : Select customer.c_code,
+       Decode (:Parameter.Lang_No,1, Nvl (c_a_name, c_e_name),
+                Nvl (c_e_name, c_a_name)) c_name,
+       Decode (:Parameter.Lang_No,1, Nvl (c_group_a_name, c_group_e_name),
+                Nvl (c_group_e_name, c_group_a_name)) group_name,
+       customer.c_a_code a_code
+  From customer,Customer_Group
+ Where 
+     customer.c_Group_Code = Customer_Group.c_Group_Code(+) 
+ And ((:Parameter.User_No = 1)
+        Or (((:Parameter.Aralt = 1)
+          And Exists (
+                   Select 1
+                     From Priv_Acc
+                    Where U_Id = :Parameter.User_No
+                      And A_Code = customer.c_a_code
+                      And Nvl(Add_Flag,0) = 1 
+                      And RowNum <=1 ))
+ Or ((:Parameter.Aralt = 2)
+            And Exists (
+                   Select 1
+                     From Ias_Priv_customer
+                    Where U_Id = :Parameter.User_No
+                      And c_code = customer.c_code
+                      And Nvl(Add_Flag,0) = 1
+                      And RowNum <=1 ))))
+And  customer.c_code Like  Decode(:ias_pos_bill_mst.c_code,Null,'%',:ias_pos_bill_mst.c_code||'%') 
+Order By c_code
+Datensatzgruppe Abrufgröße                 : 50
+Anzahl Spalten                             : 4
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 688802
+Name                                       : C_CODE
+Datentyp                                   : CHAR
+Länge                                      : 15
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 68a002
+Name                                       : C_NAME
+Datentyp                                   : CHAR
+Länge                                      : 60
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 68b802
+Name                                       : GROUP_NAME
+Datentyp                                   : CHAR
+Länge                                      : 60
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 68d002
+Name                                       : A_CODE
+Datentyp                                   : CHAR
+Länge                                      : 30
+
+Type                                       : RECORD_GROUP
+Offset                                     : 68e802
+Name                                       : RG_A_CY
+Datensatzgruppentyp                        : QUERY
+Datensatzgruppenabfrage                    : Select Distinct Cur_Code,
+       Decode(:Parameter.Lang_No ,1,Nvl(Cur_Name,Cur_E_Name),Nvl(Cur_E_Name,Cur_Name)) Cur_Name ,
+       Cur_Rate
+ From Ex_Rate ,Ias_Cash_In_Hand_Dtl
+  Where Ias_Cash_In_Hand_Dtl.A_Cy = Ex_Rate.Cur_Code
+   And Nvl(Inactive,0) = 0 
+   And Exists( Select 1 From User_R
+                 Where U_Id = :Parameter.User_No
+                  And User_R.A_Code Is Not Null   
+                  And User_R.A_Code =Ias_Cash_In_Hand_Dtl.A_Code 
+                  And User_R.Cash_No =Ias_Cash_In_Hand_Dtl.Cash_No
+                  And Rownum  <=1  )
+Datensatzgruppe Abrufgröße                 : 20
+Anzahl Spalten                             : 3
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 696402
+Name                                       : CUR_CODE
+Datentyp                                   : CHAR
+Länge                                      : 7
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 697c02
+Name                                       : CUR_NAME
+Datentyp                                   : CHAR
+Länge                                      : 60
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 699402
+Name                                       : CUR_RATE
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP
+Offset                                     : 69ac02
+Name                                       : RG_HUNG_BILLS
+Datensatzgruppentyp                        : QUERY
+Datensatzgruppenabfrage                    : Select bill_no,
+       bill_date,
+       bill_time,
+       Decode(Nvl(hung,0),1,Ias_Gen_Pkg.Get_Prompt(:Parameter.Lang_No,723),
+       Ias_Gen_Pkg.Get_Prompt(:Parameter.Lang_No,724)) bill_hung,
+       Decode(Nvl(Paid_Bill,0),1,Ias_Gen_Pkg.Get_Prompt(:Parameter.Lang_No,723),
+       Ias_Gen_Pkg.Get_Prompt(:Parameter.Lang_No,724)) BILL_PAID,
+       AD_U_ID,
+       MACHINE_NO
+ From ias_pos_bill_mst 
+    Where Machine_No = :Parameter.Machine_No
+AND ( :Parameter.User_No=1 or ias_pos_bill_mst.ad_u_id = :Parameter.user_no or :Parameter.user_no=(SELECT U_MNG FROM USER_R WHERE U_ID=ias_pos_bill_mst.ad_u_id ))
+     And Nvl(hung,0) = 1
+     or Nvl(Paid_Bill,0)=Decode(:Parameter.Use_Paid,1,0,-1)
+    Order By bill_date,To_Date(bill_time ,'HH24:MI:SS') Desc
+Datensatzgruppe Abrufgröße                 : 20
+Anzahl Spalten                             : 7
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6a2802
+Name                                       : BILL_NO
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6a4002
+Name                                       : BILL_DATE
+Datentyp                                   : DATE
+Länge                                      : 7
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6a5802
+Name                                       : BILL_TIME
+Datentyp                                   : CHAR
+Länge                                      : 10
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6a7002
+Name                                       : BILL_HUNG
+Datentyp                                   : CHAR
+Länge                                      : 200
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6a8802
+Name                                       : BILL_PAID
+Datentyp                                   : CHAR
+Länge                                      : 200
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6aa002
+Name                                       : AD_U_ID
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6ab802
+Name                                       : MACHINE_NO
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP
+Offset                                     : 6ad002
+Name                                       : RG_BANK
+Datensatzgruppentyp                        : QUERY
+Datensatzgruppenabfrage                    : Select bank_no ,
+       bank_name 
+  From cash_at_bank 
+   Where Exists ( Select 1     From priv_cash 
+      Where cash_at_bank.bank_no = priv_cash.cash_no
+       And cash_type=2
+       And u_id=:Parameter.User_no 
+       And Nvl(add_flag,0)=1 
+       And RowNum <= 1 )
+       And bank_no Like 
+Decode(:ias_pos_bill_mst.cash_no,Null,'%',:ias_pos_bill_mst.cash_no||'%') 
+ Order By bank_no
+Datensatzgruppe Abrufgröße                 : 50
+Anzahl Spalten                             : 2
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6b4c02
+Name                                       : BANK_NO
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6b6402
+Name                                       : BANK_NAME
+Datentyp                                   : CHAR
+Länge                                      : 60
+
+Type                                       : RECORD_GROUP
+Offset                                     : 6b7c02
+Name                                       : RG_CR_CARD
+Datensatzgruppentyp                        : QUERY
+Datensatzgruppenabfrage                    : Select cr_card_No,Decode(:Parameter.Lang_no,1
+                       ,Nvl(cr_card_name,cr_card_e_name),Nvl(cr_card_e_name,cr_card_name)) cr_card_name
+ From credit_card_types
+   Where cr_card_no Like Decode(:ias_pos_bill_mst.cr_card_no,Null,'%',:ias_pos_bill_mst.cr_card_no||'%')   Order By cr_card_no
+Datensatzgruppe Abrufgröße                 : 50
+Anzahl Spalten                             : 2
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6bf802
+Name                                       : CR_CARD_NO
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6c1002
+Name                                       : CR_CARD_NAME
+Datentyp                                   : CHAR
+Länge                                      : 60
+
+Type                                       : RECORD_GROUP
+Offset                                     : 6c2802
+Name                                       : RG_OLDBILLS
+Datensatzgruppentyp                        : QUERY
+Datensatzgruppenabfrage                    : Select bill_no    ,
+       bill_date  ,
+       bill_time  ,
+       bill_amt   ,
+       AD_U_ID,
+       MACHINE_NO
+From ias_pos_bill_mst 
+Where machine_no = :Parameter.machine_no
+  And ad_u_id    = :Parameter.user_no
+  And Nvl(hung,0)= 0
+  And Bill_Date=To_Date(To_Char(Ias_Gen_Pkg.Get_Sysdate,'DD/MM/YYYY'))
+ Order By  bill_no desc
+Datensatzgruppe Abrufgröße                 : 20
+Anzahl Spalten                             : 6
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6ca402
+Name                                       : BILL_NO
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6cbc02
+Name                                       : BILL_DATE
+Datentyp                                   : DATE
+Länge                                      : 7
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6cd402
+Name                                       : BILL_TIME
+Datentyp                                   : CHAR
+Länge                                      : 10
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6cec02
+Name                                       : BILL_AMT
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6d0402
+Name                                       : AD_U_ID
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6d1c02
+Name                                       : MACHINE_NO
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP
+Offset                                     : 6d3402
+Name                                       : RG_BILL_NO_CUST
+Datensatzgruppentyp                        : QUERY
+Datensatzgruppenabfrage                    : Select bill_no    ,
+       bill_date  ,
+       bill_time  ,
+       bill_amt   ,
+       AD_U_ID,
+       MACHINE_NO
+From ias_pos_bill_mst 
+Where 
+  Nvl(hung,0)= 0
+  And Nvl(posted,0)=0
+  AND Bill_Type<>2
+  And cust_code is null
+ Order By  bill_no desc
+Datensatzgruppe Abrufgröße                 : 20
+Anzahl Spalten                             : 6
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6db002
+Name                                       : BILL_NO
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6dc802
+Name                                       : BILL_DATE
+Datentyp                                   : DATE
+Länge                                      : 7
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6de002
+Name                                       : BILL_TIME
+Datentyp                                   : CHAR
+Länge                                      : 10
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6df802
+Name                                       : BILL_AMT
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6e1002
+Name                                       : AD_U_ID
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6e2802
+Name                                       : MACHINE_NO
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP
+Offset                                     : 6e4002
+Name                                       : RG_OLDRTBILLS
+Datensatzgruppentyp                        : QUERY
+Datensatzgruppenabfrage                    : Select rt_bill_no    ,
+       rt_bill_date  ,
+       rt_bill_time  ,
+       rt_bill_amt   ,
+       Ad_Date
+From
+(
+Select rt_bill_no    ,
+       rt_bill_date  ,
+       rt_bill_time  ,
+       rt_bill_amt   ,
+       Ad_Date
+From ias_pos_rt_bill_mst 
+Where machine_no = :Parameter.machine_no
+  And ad_u_id    = :Parameter.user_no
+  And Nvl(hung,0)= 0
+Union All
+Select rt_bill_no    ,
+       rt_bill_date  ,
+       rt_bill_time  ,
+       rt_bill_amt   ,
+       Ad_Date
+From ias_pos_rt_bill_mst 
+Where machine_no = :Parameter.machine_no
+  And ad_u_id    = :Parameter.user_no
+  And Nvl(hung,0)= 0
+ Order By Ad_Date desc
+)
+ Order By Ad_Date desc
+Datensatzgruppe Abrufgröße                 : 20
+Anzahl Spalten                             : 5
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6ebc02
+Name                                       : RT_BILL_NO
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6ed402
+Name                                       : RT_BILL_DATE
+Datentyp                                   : DATE
+Länge                                      : 7
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6eec02
+Name                                       : RT_BILL_TIME
+Datentyp                                   : CHAR
+Länge                                      : 10
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6f0402
+Name                                       : RT_BILL_AMT
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6f1c02
+Name                                       : AD_DATE
+Datentyp                                   : DATE
+Länge                                      : 7
+
+Type                                       : RECORD_GROUP
+Offset                                     : 6f3402
+Name                                       : RG_ITM_UNT
+Datensatzgruppentyp                        : QUERY
+Datensatzgruppenabfrage                    : Select   D.Itm_Unt,
+         Lvl_Unit,
+         P_Size
+    From Ias_Itm_Mst M,Ias_Itm_Dtl D 
+   Where M.I_Code=D.I_Code
+     And D.I_Code = :IAS_POS_BILL_DTL.I_Code
+Order By Lvl_Unit
+Datensatzgruppe Abrufgröße                 : 50
+Anzahl Spalten                             : 3
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6fb002
+Name                                       : ITM_UNT
+Datentyp                                   : CHAR
+Länge                                      : 10
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6fc802
+Name                                       : LVL_UNIT
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 6fe002
+Name                                       : P_SIZE
+Datentyp                                   : NUMBER
+Länge                                      : 23
+
+Type                                       : RECORD_GROUP
+Offset                                     : 6ff802
+Name                                       : RG_I_CODE
+Datensatzgruppentyp                        : QUERY
+Datensatzgruppenabfrage                    : select m.i_code,decode(:Parameter.Lang_No,1,nvl(i_name,i_e_name),nvl(i_e_name,i_name)) i_name,d.itm_unt unit,m.i_desc
+ From Ias_Itm_Mst M,Ias_Itm_Dtl D 
+ Where M.I_Code=D.I_Code
+And Nvl(D.Main_Unit,0)=1 
+And Nvl(service_itm,0)=0
+and Exists (select 1 from privilege_gc where u_id=:Parameter.User_no and g_code=m.g_code and add_flag=1 and RowNum<=1)
+And Get_Items_ACtivity(m.Activity_No,
+                       :Parameter.User_No       ,
+                       :Parameter.Conn_Itm_Act_By_Usr_Priv) = 1
+and m.i_code Like decode(:ias_pos_bill_dtl.i_code,Null,'%','%'||:ias_pos_bill_dtl.i_code||'%')
+order by Decode(:Parameter.Lang_No,1,i_name,i_e_name),m.i_code
+Datensatzgruppe Abrufgröße                 : 32
+Anzahl Spalten                             : 4
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 707402
+Name                                       : I_CODE
+Datentyp                                   : CHAR
+Länge                                      : 30
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 708c02
+Name                                       : I_NAME
+Datentyp                                   : CHAR
+Länge                                      : 60
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 70a402
+Name                                       : UNIT
+Datentyp                                   : CHAR
+Länge                                      : 10
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 70bc02
+Name                                       : I_DESC
+Datentyp                                   : CHAR
+Länge                                      : 2000
+
+Type                                       : RECORD_GROUP
+Offset                                     : 70d402
+Name                                       : RG_I_NAME
+Datensatzgruppentyp                        : QUERY
+Datensatzgruppenabfrage                    : select decode(:Parameter.Lang_No,1,nvl(i_name,i_e_name),nvl(i_e_name,i_name)) i_name,m.i_code,d.itm_unt unit,m.i_desc
+From Ias_Itm_Mst M,Ias_Itm_Dtl D 
+ Where M.I_Code=D.I_Code
+And Nvl(D.Main_Unit,0)=1 
+And Nvl(service_itm,0)=0
+and Exists (select 1 from privilege_gc where u_id=:Parameter.User_no and g_code=m.g_code and add_flag=1 and RowNum<=1)
+And Get_Items_ACtivity(m.Activity_No,
+                       :Parameter.User_No       ,
+                       :Parameter.Conn_Itm_Act_By_Usr_Priv) = 1
+and decode(:Parameter.Lang_No,1,I_name,i_e_name) Like decode(:ias_pos_bill_dtl.i_code,Null,'%','%'||:ias_pos_bill_dtl.i_code||'%')
+order by Decode(:Parameter.Lang_No,1,i_name,i_e_name),m.i_code
+Datensatzgruppe Abrufgröße                 : 32
+Anzahl Spalten                             : 4
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 715002
+Name                                       : I_NAME
+Datentyp                                   : CHAR
+Länge                                      : 60
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 716802
+Name                                       : I_CODE
+Datentyp                                   : CHAR
+Länge                                      : 30
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 718002
+Name                                       : UNIT
+Datentyp                                   : CHAR
+Länge                                      : 10
+
+Type                                       : RECORD_GROUP_COLUMN
+Offset                                     : 719802
+Name                                       : I_DESC
+Datentyp                                   : CHAR
+Länge                                      : 2000
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 103002
+Name                                       : VA_ITM_MOVE
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : R100G88B88
+Füllmuster                                 : TRANSPARENT
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 108002
+Name                                       : VA_BTN
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 10d002
+Name                                       : VA_FLD
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : WHITE
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 112002
+Name                                       : VA_MNDTRY_FLD
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : R100G100B88
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 117002
+Name                                       : VA_CHK
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Schriftartname                             : tahoma
+Schriftgrad                                : 8
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 11c002
+Name                                       : VA_LOV
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : GRAY8
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 121002
+Name                                       : VA_CURREC
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : R0G0B100
+Hintergrundfarbe                           : R88G100B100
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 126002
+Name                                       : VA_MAIN
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 12b002
+Name                                       : VA_SUM
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : R100G88B100
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : BOLD
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 130002
+Name                                       : VA_EXP_DATE
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : R88G100B100
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : BOLD
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 135002
+Name                                       : VA_BTCH_NO
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : R100G88B100
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : BOLD
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 13a002
+Name                                       : VA_WEIGH
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : R88G100B100
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : BOLD
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 13f002
+Name                                       : VA_FREE_QTY
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : R88G100B100
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : BOLD
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 144002
+Name                                       : VA_DISC
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : R88G100B88
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : BOLD
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 149002
+Name                                       : VA_VAT
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : R88G100B100
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : BOLD
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 14e002
+Name                                       : VA_MOV
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : R75G0B50
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Schriftartname                             : Wingdings 2
+Schriftgrad                                : 8
+Schriftstärke                              : BOLD
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 153002
+Name                                       : VA_RADIO
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 158002
+Name                                       : VA_PRMPT
+Default                                    : false
+Visueller Attributtyp                      : PROMPT
+Prompt-Vordergrundfarbe                    : BLACK
+Prompt-Schriftartname                      : tahoma
+Prompt-Schriftgrad                         : 8
+Prompt-Schriftstärke                       : MIDDLE
+Prompt-Schriftstil                         : NORMAL
+Prompt-Zeichenabstand                      : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 15d002
+Name                                       : VA_HNTTXT
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : R100G100B88
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 162002
+Name                                       : VA_HDR
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 167002
+Name                                       : VA_TREE
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : WHITE
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 16c002
+Name                                       : VA_ERR
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : RED
+Hintergrundfarbe                           : R100G100B100
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 171002
+Name                                       : VA_MSG
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : DARKBLUE
+Hintergrundfarbe                           : R100G100B100
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 176002
+Name                                       : VA_VER
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : DARKRED
+Hintergrundfarbe                           : R100G100B100
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 17b002
+Name                                       : VA_PRG
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : R0G25B0
+Hintergrundfarbe                           : R100G100B100
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 180002
+Name                                       : VA_HNT
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : DARKCYAN
+Hintergrundfarbe                           : R100G100B100
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 185002
+Name                                       : VA_FTR
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : R50G88B100
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 18a002
+Name                                       : VA_FLD_USR
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 18f002
+Name                                       : VA_PRNT
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : R75G88B88
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 194002
+Name                                       : VA_DSPLY
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLACK
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 199002
+Name                                       : VA_TOOLTIP
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : R88G100B100
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 19e002
+Name                                       : VA_BAR
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 9
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 1a3002
+Name                                       : VA_RCRD_MOV
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : R100G100B75
+Füllmuster                                 : null
+Schriftartname                             : tahoma
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 1a8002
+Name                                       : VA_FRM_PRNT
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : R75G88B88
+Füllmuster                                 : null
+Schriftartname                             : tahoma
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 1ad002
+Name                                       : VA_FRM_NL_CLR
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : NONE
+Schriftartname                             : tahoma
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 1b2002
+Name                                       : VA_NO_COLOR
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : NONE
+Schriftartname                             : tahoma
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 1b7002
+Name                                       : VA_FRM_CLR
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Schriftartname                             : tahoma
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 1bc002
+Name                                       : VA_DNT_MODFY
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : R100G88B88
+Füllmuster                                 : null
+Schriftartname                             : tahoma
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 1c1002
+Name                                       : RW
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : R100G100B88
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 1c6002
+Name                                       : RL
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : R88G100B88
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 1cb002
+Name                                       : RK
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : R75G88B100
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 1d0002
+Name                                       : KGROUPS
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : DARKBLUE
+Hintergrundfarbe                           : R88G88B88
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 8
+Schriftstärke                              : EXTRA_LEAN
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 1d5002
+Name                                       : WEIGTHED
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : R100G0B0
+Hintergrundfarbe                           : R100G100B88
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 8
+Schriftstärke                              : EXTRA_BOLD
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 1da002
+Name                                       : LENGTHED
+Default                                    : false
+Visueller Attributtyp                      : COMMON
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : BLUE
+Hintergrundfarbe                           : R88G100B88
+Füllmuster                                 : null
+Schriftartname                             : MS Sans Serif
+Schriftgrad                                : 8
+Schriftstärke                              : EXTRA_BOLD
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 1df002
+Name                                       : #POPUPHINT#
+Default                                    : true
+Visueller Attributtyp                      : DEFAULT
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : DEFAULT
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : WINDOW
+Offset                                     : 1e5402
+Name                                       : MAIN
+Thema im Hilfebuch                         : 
+Titel                                      : 
+Primäre Leinwand                           : 2fa002
+Fensterstil                                : DOCUMENT
+Modal                                      : false
+Beim Beenden verbergen                     : false
+Schließen zulässig                         : false
+Verschieben zulässig                       : false
+Maximieren zulässig                        : false
+Minimieren erlaubt                         : false
+Minimierter Titel                          : 
+Menü vererben                              : true
+X-Position                                 : 0
+Y-Position                                 : 0
+Width                                      : 1024
+Height                                     : 517
+Umriss                                     : SHADE_ABOVE
+Horizontale Bildlaufleiste anzeigen        : false
+Vertikale Bildlaufleiste anzeigen          : false
+Visuelle Attributgruppe                    : 1ec802
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : GRAY4
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Schriftartname                             : tahoma
+Schriftgrad                                : 8
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+Richtung                                   : STANDARD
+
+Type                                       : WINDOW
+Offset                                     : 1f1802
+Name                                       : WIN_PRNT
+Thema im Hilfebuch                         : 
+Titel                                      : Print Options
+Primäre Leinwand                           : 0
+Fensterstil                                : DIALOG
+Modal                                      : false
+Beim Beenden verbergen                     : false
+Schließen zulässig                         : true
+Verschieben zulässig                       : true
+Maximieren zulässig                        : false
+Minimieren erlaubt                         : false
+Minimierter Titel                          : 
+Menü vererben                              : true
+X-Position                                 : 250
+Y-Position                                 : 100
+Width                                      : 241
+Height                                     : 119
+Umriss                                     : SHADE_ABOVE
+Horizontale Bildlaufleiste anzeigen        : false
+Vertikale Bildlaufleiste anzeigen          : false
+Visuelle Attributgruppe                    : 1f8c02
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : tahoma
+Schriftgrad                                : 8
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+Richtung                                   : STANDARD
+
+Type                                       : WINDOW
+Offset                                     : 1fdc02
+Name                                       : WIN_CLNDR
+Thema im Hilfebuch                         : 
+Titel                                      : Calender\ÇáÊÞæíã
+Primäre Leinwand                           : 4b8002
+Fensterstil                                : DIALOG
+Modal                                      : true
+Beim Beenden verbergen                     : true
+Schließen zulässig                         : false
+Verschieben zulässig                       : true
+Maximieren zulässig                        : false
+Minimieren erlaubt                         : false
+Minimierter Titel                          : 
+Menü vererben                              : true
+X-Position                                 : 208
+Y-Position                                 : 140
+Width                                      : 263
+Height                                     : 81
+Umriss                                     : SHADE_ABOVE
+Horizontale Bildlaufleiste anzeigen        : false
+Vertikale Bildlaufleiste anzeigen          : false
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+Richtung                                   : STANDARD
+
+Type                                       : WINDOW
+Offset                                     : 205002
+Name                                       : WIN_LOCK
+Thema im Hilfebuch                         : 
+Titel                                      : 5055
+Primäre Leinwand                           : 495402
+Fensterstil                                : DIALOG
+Modal                                      : true
+Beim Beenden verbergen                     : true
+Schließen zulässig                         : false
+Verschieben zulässig                       : false
+Maximieren zulässig                        : false
+Minimieren erlaubt                         : false
+Minimierter Titel                          : 
+Menü vererben                              : true
+X-Position                                 : 200
+Y-Position                                 : 150
+Width                                      : 318
+Height                                     : 125
+Umriss                                     : SHADE_ABOVE
+Horizontale Bildlaufleiste anzeigen        : false
+Vertikale Bildlaufleiste anzeigen          : false
+Visuelle Attributgruppe                    : 1f8c02
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : tahoma
+Schriftgrad                                : 8
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+Richtung                                   : STANDARD
+
+Type                                       : WINDOW
+Offset                                     : 20c402
+Name                                       : WIN_CALL_SCR_LNK
+Thema im Hilfebuch                         : 
+Titel                                      : Shorcuts
+Primäre Leinwand                           : 0
+Fensterstil                                : DIALOG
+Modal                                      : true
+Beim Beenden verbergen                     : true
+Schließen zulässig                         : true
+Verschieben zulässig                       : true
+Maximieren zulässig                        : false
+Minimieren erlaubt                         : false
+Minimierter Titel                          : 
+Menü vererben                              : true
+X-Position                                 : 380
+Y-Position                                 : 335
+Width                                      : 244
+Height                                     : 154
+Umriss                                     : SHADE_ABOVE
+Horizontale Bildlaufleiste anzeigen        : false
+Vertikale Bildlaufleiste anzeigen          : false
+Visuelle Attributgruppe                    : 1f8c02
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : tahoma
+Schriftgrad                                : 8
+Schriftstärke                              : MIDDLE
+Schriftstil                                : NORMAL
+Zeichenabstand                             : NORMAL
+Richtung                                   : STANDARD
+
+Jun 29, 2026 2:35:46 PM info.phosco.forms.translate.OracleHacker main
+INFO: Decompiled in 0.289 seconds.

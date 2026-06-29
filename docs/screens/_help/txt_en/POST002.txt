@@ -1,0 +1,204 @@
+Sales Return Invoice 
+ > 
+ POS System > System Transactions > 
+ Sales Return Invoice 
+ Use: This screen is 
+used to enter the returned goods from customers, whether they were purchased in 
+cash or on credit. The data of the sales return invoice are entered in the same 
+method of the sales invoices, meaning that it can be entered using the keypad or 
+the drop-down menus at the top of the screen. 
+ How to Use Screen 
+ First: Master Data 
+ - 
+ Return 
+Number: This field is 
+used to deal with the serial number of the sales return invoice, and it appears 
+automatically according to the document sequence configuration that was made in 
+both the POS Parameters and Settings screen and the POS Machines and Devices 
+screen. 
+ - 
+ Invoice 
+Date: The date of the 
+sales return invoice appears automatically, as the date of the server device or 
+the sub-server device is read, noting that it cannot be 
+modified. 
+ - 
+ Time: The invoice 
+time appears automatically as the time of the device is 
+read. 
+ - 
+ Contact 
+Name: It is the name 
+entered in the POS Settings screen, in the Contact Type Tab in order to 
+distinguish between the different devices of the different 
+branches. 
+ - 
+ Remarks: In this field, 
+any remarks on the sales return invoice are 
+entered. 
+ - 
+ Currency 
+/ Exchange Rate: The default 
+currency that was selected in the POS Machines and Devices screen appears 
+automatically, noting that the user can select another currency if the (Allow 
+Modifying Invoice Currency and Return Currency) parameter is activated in the 
+POS Parameters and Settings screen. Moreover, the exchange rate selected in the 
+currencies configuration appears according to the selected 
+currency. 
+ - 
+ Return 
+Price Type: This field is 
+used to determine the price that will be used in the sales return, noting that 
+it is either the selling price that has been entered in the sales invoice or the 
+current selling price that is appears in the Pricing screen while adding the 
+return. 
+ - 
+ Employee 
+Number: This field can 
+be dealt with upon activating the (Activate Employee Field) parameter, noting 
+that entering the employee number becomes mandatory upon selecting the employee 
+number entry method as (Mandatory or According to Commission Coding). The user 
+selects the employee from among the employees that have been added in the 
+Employees Data screen in the Onyx Pro ERP system. 
+ - 
+ Invoice 
+Number: This field is 
+used to select the return invoice number, from the Sales Invoices list. Once the 
+invoice number is selected, the user is automatically redirected to the detailed 
+data in order to enter the returned items manually or using the barcode reader. 
+The Invoice Number field is optional unless the user checks the (Mandatory Enter 
+Sales Invoice Number in Return) privilege in the users’ 
+privileges. 
+ - 
+ Tax 
+Period: It appears 
+automatically as (Current Period) with the ability to select the (Previous 
+Period) option in order to calculate the tax. Note that upon selecting Previous 
+Years Return, the tax period automatically changes to (Previous 
+Period). 
+ - 
+ Previous 
+Years Returns: This parameter 
+is activated if the sales invoice return is for an invoice that has been sold in 
+a previous year. Activating it automatically makes the tax period appear as a 
+(Previous Period) in order to calculate the tax. 
+ Second: Detailed Data 
+ - 
+ Item 
+Number: The item number 
+is entered manually or by using a barcode reader, noting that upon selecting the 
+invoice number in the Master Data, the user will not be able to select an item 
+that does not exist in the sales invoice. Moreover, an alert message appears 
+saying (Item number is not found in this invoice). 
+ - 
+ Item 
+Name: Once the item 
+number is entered, the item name appears. 
+ - 
+ Item 
+Unit: Once the item 
+number is entered, the item unit appears with the ability to modify it using the 
+drop-down menu (Invoice Transactions) to select Modify Quantity, or using the F8 
+key from the keypad. 
+ - 
+ FOC 
+Quantity.: The FOC 
+quantity is automatically fetched here. 
+ - 
+ Price: The selling 
+price determined in the sales invoice automatically appears with the ability to 
+display the current price if (The Current Price) is selected in the Return Price 
+Type field in the Master Data. 
+ - 
+ Discount: The discount 
+percentage entered for an item in the sales invoice appears here and cannot be 
+modified if the Invoice Number is selected in the Master Data. While if the 
+invoice number is not entered, the discount percentage can be manually 
+entered. 
+ - 
+ Tax: The data 
+appears in this field automatically, without the ability to modify. 
+ - 
+ Total: The total of 
+the return invoice is displayed in this field after excluding the discount value 
+and adding the tax. 
+ - 
+ Barcode 
+Number: The system 
+automatically displays the item's barcode number once the item number is entered 
+either manually or by using the barcode reader. 
+ - 
+ Delete 
+Item: To delete an 
+item, use the F3 key from the keypad or select the Delete Record option after 
+clicking on the Item Number field, using the right click of the mouse. In 
+addition, the item can be deleted using Shift+F6. 
+ - 
+ Template: The user can 
+highlight the sales return invoice in order to distinguish it from the sales 
+invoice by using the (Sales Return Template) in the POS Parameters and 
+Settings. 
+ - 
+ The return 
+accounting entry is as follows: 
+ Credit 
+ Debit 
+ Accounting Entry 
+ Date 
+ ***** 
+ Sales Returns 
+ Stock 
+ Replacements and Returns Intermediary Account 
+ Sales Cost 
+ ***** 
+ ***** 
+ ***** 
+ Third: Payment Screen 
+ This screen is used in the return payment, since it is used in modifying 
+the return currency, as well as, the return invoice type. Once the user clicks 
+on F12, the Payment Screen appears so that the payment method can be selected, 
+whether it will be By Currency or any other payment method. 
+ - 
+ Payment 
+Method: This field is 
+used to select the return payment method (Cash – 
+Credit). 
+ - 
+ Customer 
+Number: This field is 
+used to determine the customer number if the return type is Credit. 
+ - 
+ Amount 
+in Invoice Currency: The amount 
+appears immediately upon moving to this screen, noting that the user can only 
+view the amount in the invoice currency without modifying it. 
+ - 
+ Currency: It is the 
+currency of the return invoice. 
+ - 
+ Payment 
+Currency: This field is 
+used to determine the payment currency (Issue Amount to 
+Customer). 
+ - 
+ Exchange 
+Rate: The data 
+appears, here, automatically according to the exchange rate entered in the 
+Currencies Data screen in the Onyx Pro ERP system. 
+ - 
+ Payment 
+Amount: This field is 
+used to enter the return payment amount, which is by the selected currency in 
+the Payment Currency field. 
+ - 
+ Amount 
+in Invoice Currency: This field is 
+used to display the amount in the invoice currency. 
+ Remark: 
+ The 
+rest of the screen transactions are almost the same as the sales invoice 
+transactions regarding the methods of adding, deleting, 
+etc. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

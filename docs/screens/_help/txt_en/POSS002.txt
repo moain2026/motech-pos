@@ -1,0 +1,183 @@
+Users’ Privileges 
+ > 
+ POS System > System Configuration > 
+ Users’ Privileges 
+ Use: The screen is 
+used to achieve the following goals: 
+ - 
+ Grant users the 
+privileges to work on the POS system screens. 
+ - 
+ Grant users the 
+detailed privileges or prevent them from using the granted privileges at the 
+level of some procedures in the POS system transactions and the POS system 
+reports. Meaning that some privileges can be granted to a certain user, while 
+being blocked for another. 
+ - 
+ Grant users’ 
+privileges on the machines. 
+ How to Use the Screen 
+ After clicking on the Modify button and activating the necessary 
+privileges for each user, the screen is used as follows: 
+ First: Screens Privileges 
+ This tab is used to grant the screen privileges of the POS system to the 
+users after adding the user in the user’s data of Onyx ERP system. Through this 
+tab, the screens that the user is allowed to deal with are determined. Besides, 
+the type of dealing with each screen is determined; regarding the privileges to 
+modify, delete, print, generate reports, etc. 
+ Note: Ticking the 
+(Include) flag, on the right side, will show the tree of the POS system which is 
+(System / Configuration / Inputs / Transactions / Reports). It will appear as 
+already ticked, on the left side, after saving. Ticking the (Include) flag will 
+show the rest of the screens to the user, while if the flag is not ticked the 
+screens will be hidden from the user. 
+ Noting 
+that after 
+saving the privileges, only the screens that to which the user has been granted 
+privileges on will appear, meaning that the rest of the screens will disappear. 
+ Second: Machines Privileges 
+ This tab is used to grant POS privileges or machines privileges. It 
+determines the machine or the device through which the user will be allowed to 
+access the POS system, noting that linking the user to a POS in the user data 
+allows the user to access the system. 
+ Third: Transactions Privileges 
+ This tab is used to grant detailed privileges at the user level. For 
+example, it is not allowed to delete the items of the POS invoice, but it is 
+allowed to grant one of the users the privilege to (Delete Items in the POS 
+Invoice) and block it for another user. In this screen, there are many 
+privileges articles that will be explained in detail as 
+follows: 
+ - 
+ Modify 
+Discount for Items That Have Discount: Upon selecting 
+this parameter, the system allows the user, who is granted the privilege, to 
+modify the discount value for the items that have discount. 
+ - 
+ Use 
+Undo Key CTRL + U: Upon granting 
+this privilege to the user, they will be able to undo the invoice completely by 
+using Ctrl + U. 
+ - 
+ Use 
+Printing Previous Invoices: This privilege 
+is used to grant the user the privilege to print previous invoices by pressing 
+Ctrl + T or from the invoice transactions list. 
+ - 
+ Print 
+Last Invoice: Upon activating 
+this privilege, the system allows the user to print only the last invoice 
+entered. 
+ - 
+ Entering 
+Sales Invoice Number in Return Is Mandatory: This privilege 
+is used to prevent recording the sales return items unless the sales invoices 
+number is entered. 
+ - 
+ Use 
+Pending Invoices: This privilege 
+is used to activate the use of suspending invoices. Upon granting this privilege 
+to the user, they will be able to suspend invoices based on the number that has 
+been determined in the POS Settings screen. 
+ - 
+ Allow 
+Deleting Items from POS Invoice: Upon granting 
+this privilege to the user, the system allows deleting the items from the POS 
+invoice by clicking on F3 before saving. 
+ - 
+ Allow 
+Modifying Quantity in the POS Invoice: This privilege 
+allows the user to modify the quantity in the POS invoice by clicking on F8. If 
+this privilege is not granted, this key will not be working and the user will 
+not be allowed to modify the quantity. 
+ - 
+ Allow 
+Decreasing Quantity: Upon activating 
+this privilege the user, who has the privilege to modify the quantity, can 
+decrease the sold quantity in the selling invoice. 
+ - 
+ Approve 
+Sales Return: Upon activating 
+this privilege, the user is allowed to approve the sales return in order to 
+monitor the sales return. 
+ - 
+ Allow 
+Fetching Invoice Items to Returns: This parameter 
+is activated to allow the cashier to fetch all the invoice items to the returns. 
+This happens by clicking on the button that will appear in front of the sales 
+invoice number in the sales return invoice upon entering the 
+return. 
+ - 
+ Open 
+System More than Once: Upon activating 
+this privilege, the user can open the system more than once. If this privilege 
+is not activated, the system will open again and a warning message will 
+appear. 
+ - 
+ Invoice 
+Maximum Discount Percentage: In this field, 
+the maximum discount percentage –at the invoice level- is determined. It refers 
+to the percentage that the user can enter in the Discount field in the POS 
+invoice. 
+ - 
+ Maximum 
+Additional Discount Percentage by Item: In this field, 
+the maximum additional discount percentage –at the item level- is determined. It 
+refers to the percentage that the user can include in the POS invoice. 
+ - 
+ Maximum 
+Discount Percentage for Invoice and Items: In this field, 
+the maximum discount percentage –at the invoice level and the items level- is 
+determined. It refers to the percentage that the user can enter in the POS 
+invoice. 
+ - 
+ Below 
+Cost Sales: This privilege 
+is used to determine the method through which the user deals with the below cost 
+sales. It also determines whether the user will be granted any of the following 
+privileges: Allowed to go below, or not allowed to go below, or go below with 
+alert. 
+ - 
+ Selling 
+at Higher Than Maximum Price: This privilege 
+is used to determine the method through which the user deals with selling at a 
+price higher than the maximum price. It is also used to determine whether the 
+user will be granted any of the following privileges: Allowed to exceed the 
+maximum price, or not allowed to exceed the maximum price, or exceed the maximum 
+price with alert. 
+ - 
+ Selling 
+Below Minimum Limit: This privilege 
+is used to determine the method through which the user deals with selling at a 
+price below the minimum price. It is also used to determine whether the user 
+will be granted any of the following privileges: Allowed to go below the minimum 
+price, or not allowed to go below the minimum price, or go below the minimum 
+price with alert. 
+ - 
+ Allow 
+Modifying Price: This privilege 
+is used to determine the method through which the user deals with the selling 
+price. It is also used to determine whether the user will be granted any of the 
+following privileges: modify the price, or not allowed to modify the price, or 
+modify the price by the pricing levels that the user has a privilege on. 
+ - 
+ Items 
+Search Criterion: This privilege 
+can be dealt upon activating the (Use Search Items) parameter through the 
+Advance Search screen in the POS parameters and settings. It is used to 
+determine the items’ search mechanism in the POS invoice in the POS system. It includes options granted by the 
+organization on the user level, which are (Begins with, includes, ends with, 
+equals and parts of the word) and the user must select one of the available 
+options. Noting that upon selecting the (Begins with) option in the sales 
+invoice, and once the user enters a part of the number; a list of the items that 
+begin with the same number appears. 
+ - 
+ Number 
+of Invoice Printing Times: This privilege 
+is used to determine the number of times in which the user is allowed to print 
+the invoice. 
+ - 
+ Save: Users press 
+this button after completing data entry. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

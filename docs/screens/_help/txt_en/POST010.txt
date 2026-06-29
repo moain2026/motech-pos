@@ -1,0 +1,69 @@
+Cash Payment for Invoices 
+ > 
+ POS System > System Transactions > 
+ Cash Payment for Invoices 
+ Use: This screen is 
+used in the cash invoices payment, noting that using it becomes mandatory upon 
+activating the (Paying Sales Invoices from Payment Screen) parameter in the POS 
+Parameters and Settings screen. It separates between the selling transaction and 
+the payment transaction; therefore, the selling can be done in a certain POS 
+(Cashier), while the invoice payment can be made in another POS (Cash). It is 
+important to note that the invoices cannot be posted to the Onyx system until 
+the payment is done, which means that the status for all the invoices will be 
+the same as the pending invoices and that the user can delete some of the 
+invoice items upon the customer’s demand. 
+ How to Use Screen 
+ After clicking on the Modify button, the screen is used as 
+follows: 
+ - 
+ Invoice 
+Number: The invoice 
+number is entered manually, and then the user clicks on the ENTER button to 
+display all the invoice data. Note that an alert message may appear to the user 
+in the following cases: 
+ ? 
+ The invoice has 
+already been paid 
+ ? 
+ The invoice has 
+been posted to the Onyx system 
+ ? 
+ The invoice has 
+an invalid number 
+ - 
+ After displaying 
+the invoice data, the items can be deleted by using the right click of the mouse 
+to select the Delete Record option. 
+ - 
+ Paid 
+Amount: The amount that 
+has been paid by the customer is entered here; therefore, the remaining amount 
+automatically appears to be delivered to the customer. 
+ - 
+ User 
+Number: The system 
+automatically displays the name of the user who made the 
+payment. 
+ - 
+ Payment 
+Date: The system 
+automatically displays the payment date and time. 
+ - 
+ Payment: This parameter 
+appears as activated for the invoices that have been 
+paid. 
+ - 
+ Printing 
+Form: This field is 
+used to select the printing form of the invoice report and includes two options 
+(Minimized Form / Official Form). 
+ - 
+ Totals: These fields 
+are used to display the invoice totals. 
+ - 
+ Save: Users press 
+this button after completing data 
+entry. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

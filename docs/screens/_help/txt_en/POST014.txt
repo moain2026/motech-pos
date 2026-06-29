@@ -1,0 +1,40 @@
+Cashiers’ Financial Custodies 
+ > 
+ POS System > System Transactions > 
+ Cashiers’ Financial Custodies 
+ Use: This screen is 
+used to record the financial custodies of the (Cashiers) users, noting that 
+these custodies are the ones that the cashiers have received at the beginning of 
+the working hours. It is important to mention that these custodies must be 
+cleared at the end of the working day, and it facilitates the system 
+administrator’s work; it saves the time that is usually spent in creating daily 
+payment and receipt vouchers during handing these custodies over to the 
+cashiers. The screen use is optional and it has no financial effect, since it is 
+only used to monitor the financial custodies at the level of the (Cashier) 
+user. 
+ How to Use Screen 
+ After clicking on the Add button, this screen is used as 
+follows: 
+ - 
+ Username 
+/ Number: Here the user 
+selects the number of the (Cashier) who received the custody. The user’s name 
+appears once the user number is entered. 
+ - 
+ Currency: Here, the user 
+selects the currency according to which the custody amount will be issued. 
+ - 
+ Custody 
+Amount: Here, the user 
+records the custody amount that is known as (Fraction) or any other amounts. 
+Issuing the custodies depends on the cashier importance and the workflow 
+pressure; meaning that some cashiers have more pressure than what other cashiers 
+have so that they need this (Fraction) custody. 
+ - 
+ Clearance 
+Amount: The clearance 
+amount is entered in this column after the end of the cashier’s working 
+day. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

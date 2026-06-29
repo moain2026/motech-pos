@@ -1,0 +1,18 @@
+Machines Information (POS) 
+ > 
+ POS System > System Transactions > 
+ Machines Information (POS) 
+ Use: This screen is 
+used to display information or reports on the machines such as the machine name, 
+the default warehouse name, the date and the number of the last invoice, 
+returns, net sales, etc. 
+ How to Use Screen 
+ Upon opening this screen, all its data appear including the necessary 
+information about each POS that the management uses to evaluate the cashiers. 
+Note that the evaluation process is carried out based on the value of the sales, 
+as well as, the returns and net sales. This screen allows exporting this 
+information to an excel file by clicking on the (Excel) button in the 
+toolbar. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

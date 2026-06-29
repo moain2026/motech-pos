@@ -1,0 +1,44 @@
+Link Invoice to Loyalty Program Customer 
+ > 
+ POS System > System Transactions > 
+ Link Invoice to Loyalty Program Customer 
+ Use: This screen is 
+used to link the loyalty program customer to a certain sales invoice to which 
+the customer has not been linked before. This is done based on a sales invoice 
+through the cashier; in order to allow adding new points to the customer and 
+calculating them in the loyalty program. 
+ How to Use Screen 
+ This screen appears upon adding an invoice, which is explained as 
+follows: 
+ - 
+ Invoice 
+Number: This field is 
+used to enter the invoice number. 
+ - 
+ Invoice 
+Date/Time/Currency/Exchange Rate: The data of 
+these fields appear automatically once the user enters the invoice number and 
+clicks ENTER in the keypad. 
+ - 
+ Detailed 
+Data: The detailed 
+data of the items that have been sold to the customer appear after selecting the 
+invoice number. 
+ - 
+ Mobile 
+Number/ Customer Number / Customer Name: The customer 
+for whom the points will be calculated on the selected invoice is entered here. 
+Once the customer number or mobile number is entered, the rest of the fields 
+will appear automatically. 
+ - 
+ Number 
+of Points: The number of 
+points that will be calculated for the customer on the selected invoice appears 
+here. 
+ - 
+ Save: Users press 
+this button after completing data 
+entry. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

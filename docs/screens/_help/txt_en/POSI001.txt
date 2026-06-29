@@ -1,0 +1,221 @@
+POS Devices and Machines 
+ > 
+ POS System > System Inputs > 
+ POS Devices and Machines 
+ Use: This screen is 
+used for adding the POS (Machines), each device that uses the main device 
+(Server) or the sub-device is defined as POS. Therefore, the system allows 
+accessing the system after giving the device authorization from the Permissions 
+screen. 
+ How to Use the Screen: 
+ After clicking on the “Add” button, the screen is used as 
+follows: 
+ - 
+ POS: 
+ After adding a 
+device or a machine, the POS number automatically appears. Besides, the POS name 
+is added here and it is the name of either the main device (Server) or the 
+terminal device (Cashier) that the user wants to use as a POS. Note that the 
+sub-server can be added here if the separate POS are used in order to access the 
+system and transfer data. 
+ First: Master Data 
+ - 
+ Contact 
+Name: If the data has 
+not been entered or filled in this field, it will be automatically filled in by 
+the system upon saving. This field contains the contact’s name of the main 
+server (DB_LINK), if the system is using the separate POS, to distinguish 
+between the main server and the sub-server. 
+ - 
+ Sales 
+Invoices Sequence: Here, the sales 
+invoices sequence is determined. It is the sequence with which the system starts 
+upon working on the Sales Invoices screen. For example, the user enters the 
+number (1) so that the invoices sequence starts with 
+(1). 
+ - 
+ Sales 
+Returns Invoices Sequence: Here, the sales 
+returns invoices sequence is determined. It is the sequence with which the 
+system starts upon working on the Sales Returns Invoices screen. by the system 
+upon working on the sales returns invoices screen. For example, the user enters 
+the number (1) so that the invoices return sequence starts with 
+(1). 
+ - 
+ Default 
+Sale Currency: Here, the 
+default sale currency is determined, noting that it appears automatically in the 
+Invoice screen. It can be modified only if the (Allow Modifying Invoice and 
+Return Currency) flag is activated in the POS Settings screen. 
+ - 
+ Branch 
+Number: Here, the 
+branch number that is linked to the POS, is determined from the added branches 
+in the Branches Data screen in the Onyx PRO ERP 
+system. 
+ - 
+ Invoices 
+Type: Here, the 
+invoices types that the system will deal with in the POS are determined from the 
+types that have been added in the Invoices Types in the Onyx Pro ERP 
+system. 
+ - 
+ Return 
+Type: Here, the 
+return types that the system will deal with in the POS are determined from the 
+types that have been added in the Invoices Types in the Onyx Pro ERP 
+system. 
+ - 
+ Default 
+Warehouse: Here, the 
+default warehouse from which the sold quantities will be deducted, upon posting, 
+is determined. Upon activating the (Show Item Available Quantity in Invoice) 
+parameter, the available quantity of the default POS warehouse appears. 
+ - 
+ Cost 
+Center Number/Project Number/Activity Number: Here, the POS 
+is linked to the (Cost Center Number/Project Number/Activity Number) that will 
+be affected by the transactions that have been performed in this POS 
+(Machine). 
+ - 
+ Representative 
+Person Number: Here, the 
+representative person number is determined at the POS level. It helps in posting 
+the commission upon dealing with the representative persons with the ability to 
+select the representative person in the POS invoice by the user privilege. 
+ - 
+ Additional 
+Keypad: In this field, 
+the additional keypad is added and linked to the POS that has been added in the 
+Additional Keypad Screen. 
+ - 
+ Visa 
+Type: Here, the visa 
+type, linked to the POS is added from the types that have been added in the 
+Visas Types screen in the Customers Systems. This helps in using the visa card 
+as a payment method from the Payment screen 
+shortcut. 
+ - 
+ Pricing 
+Levels: This field 
+appears if the (At the Level of Each Point) is selected in the POS pricing 
+level. While if the selected pricing level is (General), this field disappears 
+from the screen. 
+ - 
+ LCD 
+Port: Here, the LCD 
+port (Com) is determined if the display screen is used. 
+ - 
+ Drawer 
+Port Number: This field is 
+used to determine the drawer port if the automatic drawer is used. It is also 
+used to link the drawer port to the computer, using one of the (Com) ports, and 
+in order to open it the (Open Drawer upon Invoice Payment) must be activated in 
+the POS Settings screen. 
+ - 
+ IP 
+Address: This field is 
+used to record the IP address of the POS. 
+ - 
+ Default 
+Printing Form: Here, the 
+default printing form that will be used upon printing the invoice is determined. 
+It includes the following options: 
+ ? 
+ Minimized 
+Form: It is a 
+minimized form of the invoice that can be printed by using the small thermal 
+printers. 
+ ? 
+ Official 
+Form: Upon selecting 
+this form, the official invoice form will be printed, which is an A4 
+report. 
+ - 
+ Use 
+VAT: Upon activating 
+this option, the value-added tax will be dealt with, noting that the value added 
+tax is activated at the level of each POS in the POS Machines and Devices 
+screen. 
+ - 
+ Tax 
+Calculation Method: This field is 
+used to select the tax calculation method from the methods that have been 
+defined in the Tax Calculation Methods screen in the system General 
+Configuration. 
+ - 
+ Cash 
+Number: Here, the POS 
+number is linked to the cash number that will be used upon selling in cash. If a 
+cash is selected here only the user linked to this cash will be allowed to open 
+the sales invoice. Noting that the cashes that appear here are the cashes that 
+have been identified as (POS) in the Cashes screen in the General Ledger 
+Inputs. 
+ - 
+ Use 
+Touch Screen: This option is 
+activated if the cashier uses a touch screen. Activating it means that the sales 
+invoice can be used through the touch screen, and that the user can click or 
+(Touch) on the group number followed by clicking on the item number so that the 
+system fetches the item automatically in the invoice. Note that the user can 
+repeat this step to select all the invoice items that will be sold to the 
+customer. 
+ - 
+ Link 
+Bank ATM to POS/ Link Waiting Time to Seconds: This parameter 
+is activated to link the POS to the ATM (Bank ATM) in order to check the payment 
+status if the payment was done using an ATM. Activating it shows the Waiting 
+Time field in order to determine the waiting time in seconds. 
+ - 
+ Number 
+of Cash Invoices Copies/ Number of Credit Invoices Copies: In these two 
+fields, the maximum number of printing the cash invoices and the credit invoices 
+is determined. The system sends alert messages if the limit that has been 
+determined here is exceeded. 
+ Second: Other Data 
+ - 
+ Address 
+/ Foreign Address / Telephone Number / Fax Number / Email: The data of 
+these fields is optional, and is used in adding the access addresses of the 
+POS. 
+ - 
+ Display 
+Advertising for Customer / Display Advertising Address for 
+Customer: This option is 
+activated if there is a display screen for the customer. Upon activating it, the 
+Advertising Screen Location field is automatically filled and the advertising 
+screen appears upon opening the invoice. It shows the sales invoice items that 
+have been entered by the cashier, the value of each item, and the invoice total 
+amount; in order to let the customer, know the amounts and the items that have 
+been entered. 
+ - 
+ Advertisement 
+Text: These fields 
+are used to write the advertisement texts that appear to customers in the 
+advertisement screen. For example, an advertisement for a certain promotional 
+offer and its period can be added here. 
+ - 
+ Apply 
+Advertisement Text to All POS: This option is 
+activated if the organization wants to generalize the advertisements texts on 
+all the POS. If it is not activated, advertisements can be added at the level of 
+each POS that has been added. 
+ - 
+ Additional 
+Fields: These fields 
+are used to add any data that is not accommodated by the available fields in the 
+screen, and they are renamed in the Text Translation 
+screen. 
+ - 
+ Inactive: This option is 
+used to deactivate the use of the POS. 
+ - 
+ Save: users press 
+this button after completing data entry. 
+ - 
+ Display: The POS can be 
+displayed by clicking on the (Display) button in the 
+toolbar. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

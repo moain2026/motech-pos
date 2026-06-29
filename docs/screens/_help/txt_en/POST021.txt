@@ -1,0 +1,20 @@
+Display Points Movement 
+ > 
+ POS System > System Transactions > 
+ Display Points Movement 
+ Use: This screen is 
+used to display a report on the points that have been calculated for all the 
+customers. It is also used to display the expiry date of the loyalty program for 
+the valid, as well as, the expired programs. The screen contains a special 
+feature that allows filtering the data according to one of the following 
+options: By Calculation Method, By Customers Group or From a Customer to 
+Another. Then, the user clicks on Fetch Data to display the detailed data 
+according the selected options. 
+ Remark: 
+ The 
+user can click on the arrow beside the customer number to display a screen for 
+reviewing the detailed transactions of the points balance calculated for the 
+customer. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

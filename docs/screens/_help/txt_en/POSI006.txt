@@ -1,0 +1,37 @@
+Weighted Items Keys 
+ > 
+ POS System > System Inputs > 
+ Weighted Items Keys 
+ Use: This screen is 
+used - only - to display the items specified as (Weighted Item) in the Items 
+Data screen. In this screen, the item can be linked to a specific key that is 
+used upon updating the items to the scale. 
+ How to Use Screen 
+ The 
+screen automatically displays the weighted items, and it is used after clicking 
+on the Modify button to add keys for the weighted items in the scale as 
+follows: 
+ - 
+ Group 
+Number: Once the group 
+is selected from the list, its linked weighted items appear in the detailed 
+data. If Group is not selected, the weighted items will appear for all the 
+groups. 
+ - 
+ Item 
+Number/Item Name/Foreign Name/Item Unit: Upon opening 
+the screen, only the weighted items appear according to the data entered in the 
+Items Data screen. 
+ - 
+ Key: In this field, 
+a key can be added for each weighted item, and this key is used for calling the 
+item by the scale upon selling. For example, F2 can be selected as a key for the 
+spices. Therefore, upon selling this item, F2 is pressed in the scale, which 
+facilitates the selling process. 
+ - 
+ Save: Users press 
+this button after completing data 
+entry. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

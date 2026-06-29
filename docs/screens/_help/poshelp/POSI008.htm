@@ -1,0 +1,775 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>ترميز برامج نقاطي</title>
+<meta name="GENERATOR" content="WinCHM">
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1256">
+<style>
+html,body { 
+	/* Default Font */
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11pt;
+}
+</style>
+
+
+
+
+<style>
+html,div { margin: 0; padding: 0;}
+
+body {
+	padding: 0px;
+	margin: 0px;
+	overflow: auto;
+	height: 100%;
+}
+
+#winchm_template_button{
+	float: right;
+	width: 93px;
+	top: 7px;
+	position: relative;
+	text-align: right;
+	right: 5px;
+	height: auto;
+}
+
+#winchm_template_top{
+	padding: 0px;
+	margin: 0px;
+	border-bottom: 1px solid #9B9B9B;
+	background-color: #dfdfbf;
+}
+
+#winchm_template_navigation{
+	margin: 0px;
+	padding-top: 7px;
+	padding-left: 7px;
+	padding-bottom: 3px;
+	padding-right: 0px;
+	font-size: 8.5pt;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	color: #585858;
+}
+
+#winchm_template_title{
+	margin: 0px;
+	padding-top: 4px;
+	padding-left: 7px;
+	padding-bottom: 7px;
+	padding-right: 0px;
+	font-size: 18px; 
+	font-family: Verdana, Geneva, sans-serif;
+	color: #363636;
+}
+
+#winchm_template_content{
+	margin-top: 20px;
+	margin-left: 15px;
+	margin-bottom: 20px;
+	margin-right: 15px;
+	width: auto  !important;
+	width: 100%;
+}
+
+#winchm_template_footer{
+	border-width: 1px;
+	border-color: #B1CEFE;
+	border-top-style: solid;
+	margin-top: 15px;
+	margin-left: 15px;
+	margin-bottom: 20px;
+	margin-right: 15px;
+	padding-top: 7px;
+	padding-left: 0px;
+	padding-bottom: 0px;
+	padding-right: 0px;
+	font-family: arial, helvetica, sans-serif;
+	font-size: 8.5pt;
+	color: #696969;
+	width: auto;
+	text-align: left;
+}
+
+
+#winchm_template_container{
+	margin: 0px;
+	padding: 0px;
+	position: static;
+	padding-bottom: 3px;
+	overflow: auto;
+	background-color: #F8F8F3;
+}
+
+
+#winchm_template_navigation A:link	{text-decoration: none; color:#004080}
+#winchm_template_navigation A:visited  {text-decoration: none; color: #004080}
+#winchm_template_navigation A:active {text-decoration: none; color: #004080 }
+#winchm_template_navigation A:hover {text-decoration: none;color: #0080FF}
+
+A:link	{text-decoration: underline; color:#0033CC}
+A:visited  {text-decoration: underline; color: #0033CC}
+A:active {text-decoration: underline; color: #0033CC }
+A:hover {text-decoration: underline;color: #FF0000;}
+</style>
+<style type="text/css" media="print">
+    * { display: none; }
+</style>
+<script type="text/javascript">
+function killCopy(e){ return false }
+function reEnable(){return true }
+document.onselectstart=new Function ("return false")
+if (window.sidebar){
+    document.onmousedown=killcopy
+    document.onclick=reEnable
+}
+function isMobile(){
+Agent = window.navigator.userAgent;
+if (Agent.indexOf("iPhone")>=1 || Agent.indexOf("iPad")>=1 || Agent.indexOf("iPod")>=1 || Agent.indexOf("Android")>=1){
+return true;
+}else{
+return false;	
+}
+
+}
+function d_onresize(){
+if (window.navigator.userAgent.indexOf("MSIE")>=1){
+document.getElementById('winchm_template_container').style.pixelWidth = document.body.offsetWidth - 3;
+document.getElementById('winchm_template_container').style.pixelHeight = document.body.offsetHeight - document.getElementById('winchm_template_top').offsetHeight - 4;
+}
+document.getElementById('winchm_template_container').style.top = document.getElementById('winchm_template_top').offsetHeight + 'px';
+}
+
+function d_onbeforeprint(){
+if (window.navigator.userAgent.indexOf("MSIE")>=1){
+document.getElementById('winchm_template_container').style.height = 'auto';
+}
+}
+
+function d_onafterprint(){
+d_onresize();
+}
+
+if(!isMobile()){
+
+window.onload = d_onresize;
+window.onresize = d_onresize;
+window.onbeforeprint = d_onbeforeprint;
+window.onafterprint = d_onafterprint;
+
+document.write("<style>\n");
+document.write("body {overflow: hidden;}\n");
+document.write("#winchm_template_container {position: absolute;overflow: auto;top : 0px;right: 0px;bottom: 0px;left: 0px;}\n");
+document.write("</style>\n");
+}
+
+</script>
+<style>
+@media print
+{
+body {
+	padding: 0px;
+	margin: 0px;
+	overflow: auto;
+	height: auto;
+}
+#winchm_template_container{
+	position: static;	
+	margin: 0px;
+	padding: 5px;
+	
+	width: auto;
+	height: auto;
+	overflow: hidden;
+}
+#winchm_template_button{
+visibility:hidden;
+}
+}
+.style1 {
+	border-width: 0px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="winchm_template_top">
+	<div id="winchm_template_button" style="HEIGHT: 99px; WIDTH: 324px; right: 5px; top: 7px;">
+		<a href="PDF/AppPoS_Ar.pdf">
+		<IMG alt="" src="template/Doc_03.png" width="123" height="95" class="style1"></a><a href="Specialized.htm"><img alt="" class="style1" height="100" src="template/Doc_02(1).png" width="190"></a></div>
+	<div id="winchm_template_navigation">
+		<IMG alt="" 
+src="template/Onix.png" width="193" height="47">  
+</div>
+	<div align=center><FONT face="PT Bold Heading" color=#408080>نظام نقاط البيع &gt; مدخلات النظام &gt; </FONT>  
+</div>
+	<div id="winchm_template_title"><FONT color=#808080 size=3 face="PT Bold Heading">ترميز برامج نقاطي</FONT></div>
+</div>
+<div id="winchm_template_container">
+	<div id="winchm_template_content">
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>الاستخدام:</SPAN><B><SPAN 
+lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red; mso-bidi-language: AR-YE'> 
+</SPAN></B><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'>برامج 
+نقاطي عبارة عن برامج تحفيزية تصمم لجذب العملاء ودفعهم لشراء المزيد من الأصناف 
+التي توفرها المنشأة عن طريق رصد نقاط للعميل تحتسب وفق طرق معينة ليستخدمها العميل 
+عن طريق استبدال قيمة النقاط التي حصل عليها بشراء أصناف معينة أو احتسابها كخصم، 
+والغرض من الشاشة ترميز برنامج أو أكثر من برامج نقاطي وفقاً للسياسات البيعية التي 
+تتبعها المنشأة، مع ملاحظة أن هذه الشاشة تظهر إذا تم تفعيل (استخدام نظام النقاط) 
+في شاشة متغيرات وإعدادات نقاط البيع.<?xml:namespace prefix = "o" ns = 
+"urn:schemas-microsoft-com:office:office" /><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><FONT size=4>طريقة استخدام الشاشة<o:p></o:p></FONT></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'><FONT size=4>تستخدم الشاشة بعد النقر على زر الإضافة على النحو 
+التالي:<o:p></o:p></FONT></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l2 level1 lfo1" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>رقم 
+النوع: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يقصد به رقم 
+البرنامج المطلوب ترميزه حيث يعرض النظام رقم تسلسلي آلي للبرنامج بمجرد النقر على 
+زر إضافة.</SPAN><SPAN style="FONT-SIZE: 14pt" 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoListParagraph 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 25.1pt 0cm 0cm; TEXT-INDENT: -18pt; mso-list: l2 level1 lfo1" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>طريقة 
+الاحتساب:</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> يستخدم هذا 
+الحقل لتحديد آلية احتساب النقاط على مستوى النوع في فواتير المبيعات في نظام نقاط 
+البيع؛ حيث يمكن احتساب النقاط حسب أحد الخيارات التالية: </SPAN><SPAN 
+style="FONT-SIZE: 14pt" dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo3" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN 
+style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>من قيمة الأصناف 
+التي ليس لها عروض أو خصم.</SPAN><SPAN style="FONT-SIZE: 14pt" 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo3" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN 
+style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>من قيمة الأصناف 
+التي ليس لها خصم.</SPAN><SPAN style="FONT-SIZE: 14pt" 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo3" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN 
+style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>من قيمة الأصناف 
+التي ليس لها عروض.</SPAN><SPAN style="FONT-SIZE: 14pt" 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo3" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN 
+style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>من قيمة 
+الفاتورة.</SPAN><SPAN style="FONT-SIZE: 14pt" 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo3" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN 
+style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>من صافي مبلغ 
+الفاتورة.</SPAN><SPAN style="FONT-SIZE: 14pt" 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l2 level1 lfo1" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>الاسم/ 
+الاسم الأجنبي: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>في هذا الحقل يتم 
+إضافة اسم البرنامج باللغة الافتراضية للنظام وباللغة الأجنبية.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l2 level1 lfo1" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>تاريخ 
+التفعيل: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>في هذا الحقل يتم 
+إضافة تاريخ التفعيل وهو التاريخ الذي سيبدأ فيه العمل بالبرنامج.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l2 level1 lfo1" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>تاريخ 
+الانتهاء: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم إضافة تاريخ 
+الانتهاء وهو التاريخ الذي سينتهي فيه العمل بالبرنامج ولن يتم احتساب أي نقاط بعد 
+التاريخ المحدد في هذا الحقل.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l2 level1 lfo1" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>الحد 
+الأدنى لاحتساب النقاط: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>الحد الأدنى 
+لاحتساب النقاط هو المبلغ الذي لو أن فاتورة العميل أقل منه فلن يحتسب النظام 
+النقاط للعميل.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l2 level1 lfo1" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>الحد 
+الأدنى لاستبدال النقاط</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>: الحد الأدنى 
+لاستبدال النقاط هو المبلغ الذي لو حقق العميل أقل منه فلن يستبدل النظام النقاط 
+للعميل.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l2 level1 lfo1" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>طريقة 
+احتساب النقاط: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يمكن ترميز برامج 
+نقاطي وفقاً لطرق الاحتساب المتاحة حيث يتضمن هذا الحقل أكثر من طريقة لاحتساب 
+النقاط وذلك على النحو التالي:</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo3" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN 
+style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>مبلغ: 
+</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>وفقاً لهذه 
+الطريقة تحدد قيمة النقطة الواحدة ويتم قسمة مبلغ الفاتورة على قيمة النقطة والناتج 
+هو عدد النقاط المحتسبة للعميل، فإذا كانت قيمة النقطة (1000) ريال على سبيل المثال 
+وإجمالي فواتير العميل هو (8,000) ريال فإن عدد النقاط المحتسبة للعميل هي (8) 
+نقطة.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 35.45pt 0cm 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><SPAN 
+dir=rtl></SPAN><SPAN dir=rtl></SPAN><FONT size=4><SPAN 
+style="mso-spacerun: yes">&nbsp;</SPAN>طريقة العمل وفق طريقة (مبلغ) 
+هي:</FONT></SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 70.9pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l3 level1 lfo2" 
+dir=rtl><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #477886; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">§<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>قيمة 
+النقطة الواحدة:</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> يتم في هذا 
+الحقل إدخال قيمة النقطة الواحدة.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 70.9pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l3 level1 lfo2" 
+dir=rtl><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #477886; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">§<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>قيمة 
+الاستبدال للنقطة الواحدة:</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> يتم في هذا 
+الحقل إدخال قيمة الاستبدال للنقطة الواحدة.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo3" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN 
+style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>مبلغ 
+ومضاعفاته: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>وفقاً لهذه 
+الطريقة </SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'>يحدد</SPAN><SPAN 
+lang=AR-SA style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> مبلغ 
+معياري لاحتساب النقاط، وعلى ضوء هذا المبلغ ومضاعفاته يتم احتساب 
+النقاط.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 35.45pt 0cm 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>طريقة 
+العمل وفق طريقة (المبلغ ومضاعفاته) هي:</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 70.9pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l3 level1 lfo2" 
+dir=rtl><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">§<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>المبلغ:</SPAN><SPAN 
+lang=AR-SA style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> 
+</SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'>يتم 
+في هذا الحقل إدخال مبلغ الأساس في احتساب النقاط.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 70.9pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l3 level1 lfo2" 
+dir=rtl><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #477886; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">§<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>عدد 
+النقاط:</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> </SPAN><SPAN 
+lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'>يتم 
+في هذا الحقل إدخال عدد النقاط المقابلة للمبلغ الأساس</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 70.9pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l3 level1 lfo2" 
+dir=rtl><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">§<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>مبلغ 
+الاستبدال:</SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'> 
+يتم في هذا الحقل إدخال المبلغ الأساس لاستبدال للنقاط المحتسبة حسب 
+المبلغ.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 70.9pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l3 level1 lfo2" 
+dir=rtl><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #477886; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">§<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>عدد 
+النقاط:</SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'> 
+يتم في هذا الحقل إدخال عدد النقاط المقابلة لمبلغ الاستبدال الأساس.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo3" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN 
+style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>شرائح: 
+</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>وفقاً لهذه 
+الطريقة يعرض النظام </SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'>التبويبات</SPAN><SPAN 
+lang=AR-SA style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> 
+التالية لإدخال بيانات الشرائح:</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 70.9pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l3 level1 lfo2" 
+dir=rtl><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #477886; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">§<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>طريقة 
+احتساب النقاط</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 70.9pt 0cm 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><FONT size=4>ويتم إدخال البيانات كالتالي: <o:p></o:p></FONT></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 85.1pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l0 level3 lfo4" 
+dir=rtl><FONT size=4><SPAN 
+style="FONT-FAMILY: Wingdings; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">?<SPAN style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>من 
+مبلغ إلى مبلغ:</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red; mso-bidi-language: AR-YE'> 
+</SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'>يتم 
+في هذين الحقلين إدخال مدى كل شريحة في برنامج نقاطي.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red; mso-bidi-language: AR-YE' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 85.1pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l0 level3 lfo4" 
+dir=rtl><FONT size=4><SPAN 
+style="FONT-FAMILY: Wingdings; COLOR: #477886; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">?<SPAN style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>عدد 
+النقاط:</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-bidi-language: AR-YE'> 
+</SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'>يتم 
+في هذا الحقل إدخال عدد النقاط التي سيحصل عليها العميل عند وصول المبيعات للعميل 
+حدود الشريحة سواءً على مستوى الفاتورة أو على مستوى الرصيد التراكمي.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo3" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN 
+style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>مبلغ 
+حسب المجموعات المخزنية: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>وفقاً لهذه 
+الطريقة يعرض النظام تبويب المجموعات المخزنية لإدخال بيانات النقاط على مستوى 
+المجموعة.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoListParagraph 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 70.9pt 0cm 0cm" dir=rtl><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: black'>يتم 
+إدخال البيانات كالتالي: </SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: black' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 70.9pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l3 level1 lfo2" 
+dir=rtl><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #477886; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">§<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>م/ 
+رقم المجموعة/ اسم المجموعة: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: black'>يتم 
+في هذه الحقول اختيار المجموعة المخزنية وبمجرد إدخال رقم المجموعة يظهر اسم 
+المجموعة آلياً.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 70.9pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l3 level1 lfo2" 
+dir=rtl><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #477886; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">§<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>قيمة 
+النقطة الواحدة:</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> يتم في هذا 
+الحقل إدخال قيمة النقطة الواحدة على مستوى كل مجموعة مخزنية.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 70.9pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l3 level1 lfo2" 
+dir=rtl><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #477886; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">§<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>قيمة 
+الاستبدال للنقطة الواحدة: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم في هذا الحقل 
+إدخال قيمة الاستبدال للنقطة الواحدة على مستوى كل مجموعة مخزنية.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l2 level1 lfo1" 
+dir=rtl><SPAN dir=rtl></SPAN><FONT size=4><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN 
+dir=rtl></SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><SPAN 
+dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN 
+style="mso-spacerun: yes">&nbsp;</SPAN></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>طريقة 
+استبدال النقاط</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886'><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo3" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN 
+style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>من 
+نقطة إلى نقطة:</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> 
+</SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'>يتم 
+إدخال حدود نقاط الشريحة في الحقلين.</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo3" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN 
+style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>المبلغ:</SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> 
+</SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'>يتم 
+إدخال مبلغ الاستبدال الذي سيحصل عليه العميل عند وصول نقاط العميل حدود الشريحة 
+المحدد في الحقلين السابقين.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l2 level1 lfo1" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>توقيف:</SPAN><SPAN 
+lang=AR-SA style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> 
+بتفعيل هذا المؤشر سيتم توقيف التعامل مع البرنامج النقاطي المحدد.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l2 level1 lfo1" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>تاريخ 
+التوقيف: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يعرض النظام 
+آلياً وقت وتاريخ التوقيف.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l2 level1 lfo1" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>سبب 
+التوقيف: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يُسجل المستخدم 
+هنا سبب توقيف التعامل مع البرنامج.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l2 level1 lfo1" 
+dir=rtl><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial; mso-no-proof: yes'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>حفظ: 
+</SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'>بعد 
+استكمال </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>إدخال</SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'> 
+</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'>البيانات</SPAN><SPAN 
+lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'> 
+يتم الحفظ.</SPAN><SPAN style="COLOR: red; mso-no-proof: yes" 
+dir=ltr><o:p></o:p></SPAN></FONT></P></div>	
+	<div id="winchm_template_footer"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"'><FONT size=3><FONT color=#ff0000>إد</FONT><FONT color=#808080>ارة 
+</FONT><FONT color=#316262>و</FONT><FONT color=#808080> تخطيط </FONT><FONT color=#316262>م</FONT><FONT color=#808080>وارد 
+</FONT><FONT color=#ff0000>الم<FONT color=#808080>ؤسسات</FONT></FONT></FONT></SPAN>     
+          </div>
+</div>
+<script language="JavaScript">
+  function clickIE4(){
+    if (event.button==   
+  
+  2) {
+    return false;}
+    }   function clickNS4(e){if(document.layers||document.getElementById&&!document.all){if(e.which==2||e.which== 3) { return false;}
+  }}
+  if (document.layers)
+  {  
+     document.captureEvents(Event.MOUSEDOWN);
+     document.onmousedown=
+  clickNS4;}
+  else if (document.all&&!document.GetElementById)
+  {  document.onmousedown=clickIE4;}
+  document.oncontextmenu=new Function(" return false")
+</script>
+</body>
+</html>

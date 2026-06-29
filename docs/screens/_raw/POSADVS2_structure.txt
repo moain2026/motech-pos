@@ -1,0 +1,873 @@
+Jun 29, 2026 2:35:18 PM info.phosco.forms.translate.OracleHacker usableImageIOReaders
+INFO: JPG
+jpg
+bmp
+BMP
+gif
+GIF
+WBMP
+png
+PNG
+wbmp
+jpeg
+JPEG
+
+Jun 29, 2026 2:35:18 PM info.phosco.forms.translate.OracleHacker main
+INFO: 
+Name of file: /home/work/motech-pos/db/forms_raw/POSADVS2.fmx
+Jun 29, 2026 2:35:18 PM info.phosco.forms.translate.loader.FormsLoader readContentIntoByteArray
+INFO: 
+Length of file: 19d90
+
+Jun 29, 2026 2:35:18 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+WARNING: Header starts at : 0
+Jun 29, 2026 2:35:18 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+WARNING: Text starts at : 30
+Jun 29, 2026 2:35:18 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+WARNING: Element starts at : 887c
+Jun 29, 2026 2:35:18 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+WARNING: Footer starts at : 18c60
+Jun 29, 2026 2:35:19 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+INFO: 
+
+Type                                       : MODULE
+Offset                                     : 2
+Characterset                               : AMERICAN_AMERICA.AR8MSWIN1256
+Name                                       : POSADVS2
+Titel                                      : MODULE2
+Menüquelle                                 : FILE
+Menümodule                                 : 
+Defer Required-Durchsetzung                : NO
+Mausnavigation                             : FORM
+Visuelle Attributgruppe Aktueller Datensatz: 0
+Validierungseinheit                        : STANDARD
+Interaktionsmodus                          : BLOCK
+Maximale Abfragezeit                       : 0
+Maximal abgerufene Datensätze              : 0
+Isolationsmodus                            : SAVE_ON_READ
+Koordinatensystem                          : UNIT
+Koordinatensystem-Einheit                  : POINT
+3D-Steuerelemente verwenden                : true
+Zeicheneinheit Breite                      : 7
+Zeicheneinheit Höhe                        : 14
+Richtung                                   : STANDARD
+Laufzeit-Kompatibilitätsmodus              : 5.0
+
+Type                                       : TRIGGER
+Offset                                     : 1e002
+Name                                       : ON-ERROR
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 21002
+Name                                       : ON-MESSAGE
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 15002
+Name                                       : PRE-FORM
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 18002
+Name                                       : WHEN-NEW-FORM-INSTANCE
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 1b002
+Name                                       : WHEN-TIMER-EXPIRED
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : ALERT
+Offset                                     : 51c02
+Name                                       : B4_SAVE
+Titel                                      : ÊÑÇÌÚ
+Meldung                                    : åá ÊÑíÏ ÚãáíÉ ÇáÍÝÙ ¿
+Warnstil                                   : WARNING
+Beschriftung Schaltfläche 1                : äÚã 
+Beschriftung Schaltfläche 2                : áÇ
+Beschriftung Schaltfläche 3                : 
+Standard-Warnschaltfläche                  : SECOND
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+Richtung                                   : STANDARD
+
+Type                                       : ALERT
+Offset                                     : 62c02
+Name                                       : ADD_F_DOC
+Titel                                      : ÅÖÇÝÉ ãä
+Meldung                                    : ÓíÊã ÅÖÇÝÉ ãÓÊäÏ ÌÏíÏ ãä ãÓÊäÏ ÓÇÈÞ ¡åá ÊÑíÏ ÇáÅÓÊãÑÇÑ¿
+Warnstil                                   : NOTE
+Beschriftung Schaltfläche 1                : äÚã
+Beschriftung Schaltfläche 2                : áÇ
+Beschriftung Schaltfläche 3                : 
+Standard-Warnschaltfläche                  : SECOND
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+Richtung                                   : STANDARD
+
+Type                                       : ALERT
+Offset                                     : 73c02
+Name                                       : MSGBOX
+Titel                                      : ÇáäÙÇã ÇáãÇáí
+Meldung                                    : 
+Warnstil                                   : NOTE
+Beschriftung Schaltfläche 1                : äÚã
+Beschriftung Schaltfläche 2                : 
+Beschriftung Schaltfläche 3                : 
+Standard-Warnschaltfläche                  : FIRST
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+Richtung                                   : STANDARD
+
+Type                                       : ALERT
+Offset                                     : 84c02
+Name                                       : DEL
+Titel                                      : ÊÃßíÏ ÇáÍÐÝ
+Meldung                                    :    åá ÊÑíÏ ÍÐÝ ÇáÓÌá ?
+Warnstil                                   : STOP
+Beschriftung Schaltfläche 1                : äÚã
+Beschriftung Schaltfläche 2                : áÇ
+Beschriftung Schaltfläche 3                : 
+Standard-Warnschaltfläche                  : FIRST
+Visuelle Attributgruppe                    : 95c02
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : RED
+Hintergrundfarbe                           : WHITE
+Füllmuster                                 : TRANSPARENT
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : BOLD
+Schriftstil                                : null
+Zeichenabstand                             : null
+Richtung                                   : STANDARD
+
+Type                                       : ALERT
+Offset                                     : 9ac02
+Name                                       : AL_UNDO
+Titel                                      : ÊÑÇÌÚ
+Meldung                                    : åá ÊÑíÏ ÇáÊÑÇÌÚ Úä ÇáÚãáíÉ ¿
+Warnstil                                   : WARNING
+Beschriftung Schaltfläche 1                : äÚã 
+Beschriftung Schaltfläche 2                : áÇ
+Beschriftung Schaltfläche 3                : 
+Standard-Warnschaltfläche                  : SECOND
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+Richtung                                   : STANDARD
+
+Type                                       : LIBRARY
+Offset                                     : 14e402
+Name                                       : POSLIB
+Source                                     : FILE
+Location                                   : POSLIB
+
+Type                                       : LIBRARY
+Offset                                     : 14f402
+Name                                       : YSERPDBALIB
+Source                                     : FILE
+Location                                   : yserpdbalib
+
+Type                                       : LIBRARY
+Offset                                     : 150402
+Name                                       : D2KCOMN
+Source                                     : FILE
+Location                                   : D2kcomn
+
+Type                                       : LIBRARY
+Offset                                     : 151402
+Name                                       : D2KWUTIL
+Source                                     : FILE
+Location                                   : D2kwutil
+
+Type                                       : DATA_BLOCK
+Offset                                     : 153002
+Name                                       : PARAMTR
+Navigation Style                           : SAME_RECORD
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : null
+ORDER BY Clause                            : null
+Query Array Size                           : 1
+Number of Records Buffered                 : 1
+Number of Records Displayed                : 1
+Query All Records                          : false
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : false
+Query Allowed                              : true
+Insert Allowed                             : true
+Update Allowed                             : true
+Locking Mode                               : AUTOMATIC
+Delete Allowed                             : true
+Key Mode                                   : AUTOMATIC
+Maximum Query Time                         : 0
+Maximum Records Fetched                    : 0
+Listed In Data Block Menu                  : true
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : DATA_BLOCK
+Offset                                     : 2ba402
+Name                                       : POS_BILL_DTL_INFO
+Navigation Style                           : CHANGE_RECORD
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : null
+ORDER BY Clause                            : RCRD_NO
+Query Array Size                           : 9
+Number of Records Buffered                 : 8
+Number of Records Displayed                : 8
+Query All Records                          : true
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : true
+Query Allowed                              : true
+Insert Allowed                             : true
+Update Allowed                             : true
+Locking Mode                               : AUTOMATIC
+Delete Allowed                             : true
+Key Mode                                   : AUTOMATIC
+Maximum Query Time                         : 0
+Maximum Records Fetched                    : 0
+Listed In Data Block Menu                  : true
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : DATA_BLOCK
+Offset                                     : 549402
+Name                                       : LOGIN
+Navigation Style                           : SAME_RECORD
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : null
+ORDER BY Clause                            : null
+Query Array Size                           : 2
+Number of Records Buffered                 : 1
+Number of Records Displayed                : 1
+Query All Records                          : false
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : false
+Query Allowed                              : true
+Insert Allowed                             : true
+Update Allowed                             : true
+Locking Mode                               : AUTOMATIC
+Delete Allowed                             : true
+Key Mode                                   : AUTOMATIC
+Maximum Query Time                         : 0
+Maximum Records Fetched                    : 0
+Listed In Data Block Menu                  : true
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : CANVAS
+Offset                                     : 36002
+Name                                       : MAIN
+Leinwandtyp                                : CONTENT
+Thema im Hilfebuch                         : 
+Automatisch anzeigen                       : false
+Sichtbar                                   : true
+Fenster                                    : 2e802
+Ausschnitt X-Position auf Leinwand         : 0
+Ausschnitt Y-Position auf Leinwand         : 0
+Breite                                     : 612
+Höhe                                       : 452
+Umriss                                     : SHADE_ABOVE
+Visuelle Attributgruppe                    : 3e402
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : GRAY4
+Füllmuster                                 : null
+Richtung                                   : STANDARD
+
+Type                                       : GROUP
+Offset                                     : 44402
+Parent Node                                : 0
+Child List at                              : 48c02
+Child List Length                          : 1
+
+Type                                       : IMAGE
+Offset                                     : 49002
+Parent Node                                : 44402
+Name                                       : IMAGE34
+X-Position                                 : 0
+Y-Position                                 : 0
+Breite                                     : 69746
+Höhe                                       : 51541
+Display Quality                            : HIGH
+Dither                                     : false
+Clip X Position                            : 0
+Clip Y Position                            : 0
+Clip Width                                 : 69746
+Clip Height                                : 51541
+
+Type                                       : PARAMETER
+Offset                                     : bc002
+Name                                       : P_GNR_PRMTR
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 3000
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : be402
+Name                                       : P_RSLTN_SIZE
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : 1024*768
+
+Type                                       : PARAMETER
+Offset                                     : c0802
+Name                                       : SCR_ORGNL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 5
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : c2c02
+Name                                       : CRNT_ITM
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 100
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : c5002
+Name                                       : LANG_DFLT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : c7402
+Name                                       : FLD_SRCH
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 100
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : c9802
+Name                                       : LANG_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : cbc02
+Name                                       : LANG_DIR
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : ce002
+Name                                       : USER_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 5
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : d0402
+Name                                       : BRN_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 6
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : d2802
+Name                                       : BRN_YEAR
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 4
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : d4c02
+Name                                       : CMP_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : d7002
+Name                                       : BRN_USR
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 3
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : d9402
+Name                                       : SYS_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 5
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : db802
+Name                                       : FORM_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 5
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : ddc02
+Name                                       : FORM_NAME
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 100
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : e0002
+Name                                       : BLK
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 50
+Parameter-Ausgangswert                     : IAS_POS_BILL_MST
+
+Type                                       : PARAMETER
+Offset                                     : e2402
+Name                                       : FLD_PK
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 50
+Parameter-Ausgangswert                     : BILL_NO
+
+Type                                       : PARAMETER
+Offset                                     : e4802
+Name                                       : SCR_TYP
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 38
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : e6c02
+Name                                       : DOC_TYP
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 38
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : e9002
+Name                                       : SCR_THEME_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 38
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : eb402
+Name                                       : DOC_GEN
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : ed802
+Name                                       : DATE_GEN
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : efc02
+Name                                       : DATE_SET
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : f2002
+Name                                       : DATE_SETTING
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : f4402
+Name                                       : D_SET
+Parameter-Datentyp                         : DATE
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : f6802
+Name                                       : CUST_D_TYPE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : f8c02
+Name                                       : ARALT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : fb002
+Name                                       : APALT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : fd402
+Name                                       : STK_CUR
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : $
+
+Type                                       : PARAMETER
+Offset                                     : ff802
+Name                                       : LOCAL_CUR
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 7
+Parameter-Ausgangswert                     : YR
+
+Type                                       : PARAMETER
+Offset                                     : 101c02
+Name                                       : ALLOW_DOC_DEL_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 104002
+Name                                       : USER_VIEW_DOC_ENTR
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 106402
+Name                                       : P_ORD_LOV
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 108802
+Name                                       : CC_AVAIL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 10ac02
+Name                                       : DONTSAVE
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : N
+
+Type                                       : PARAMETER
+Offset                                     : 10d002
+Name                                       : FRM_ST
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : Q
+
+Type                                       : PARAMETER
+Offset                                     : 10f402
+Name                                       : LOV_TYP
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 38
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 111802
+Name                                       : NO_OF_DECIMAL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 2
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 113c02
+Name                                       : P_CURNT_ITM
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 116002
+Name                                       : PREV_ADD
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 118402
+Name                                       : PREV_VIEW
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 11a802
+Name                                       : PREV_MODIFY
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 11cc02
+Name                                       : PREV_DELETE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 11f002
+Name                                       : PREV_PRINT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 121402
+Name                                       : PREV_RPRT_VIEW
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 123802
+Name                                       : P_REP_SMPLE
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 3
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 125c02
+Name                                       : TRMNL_NM
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 100
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 128002
+Name                                       : ALLOW_SHOW_JRNL
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 12a402
+Name                                       : P_XPOS
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 12c802
+Name                                       : P_YPOS
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 12ec02
+Name                                       : P_MACHINE_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 30
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 131002
+Name                                       : SHOW_ADVR_CUST_SCRN
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 133402
+Name                                       : ADVR_CUST_SCRN_XPOS
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 4
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 135802
+Name                                       : ADVR_CUST_TXT1
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 3000
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 137c02
+Name                                       : ADVR_CUST_TXT2
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 3000
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 13a002
+Name                                       : USE_PRICE_INCLUDE_VAT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 13c402
+Name                                       : USE_VAT
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 13e802
+Name                                       : LIC_OWNER
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 500
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 140c02
+Name                                       : LIC_VERSION
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 500
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 143002
+Name                                       : LIC_EDITION
+Parameter-Datentyp                         : CHARACTER
+Maximale Länge                             : 500
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 145402
+Name                                       : EOS_DATE
+Parameter-Datentyp                         : DATE
+Maximale Länge                             : 12
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 147802
+Name                                       : P_SYS_TYP_EDTN
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 1
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 149c02
+Name                                       : P_SYS_VRSN
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 10
+Parameter-Ausgangswert                     : null
+
+Type                                       : PARAMETER
+Offset                                     : 14c002
+Name                                       : P_SYS_SESSION_NO
+Parameter-Datentyp                         : NUMBER
+Maximale Länge                             : 38
+Parameter-Ausgangswert                     : null
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : 25402
+Name                                       : LOAD_PARAMETERS
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : 27402
+Name                                       : SET_OPEN_SCRN_SESSION
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 29402
+Name                                       : #POPUPHINT#
+Default                                    : true
+Visueller Attributtyp                      : DEFAULT
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : DEFAULT
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : WINDOW
+Offset                                     : 2e802
+Name                                       : MAIN
+Thema im Hilfebuch                         : 
+Titel                                      : 
+Primäre Leinwand                           : 0
+Fensterstil                                : DIALOG
+Modal                                      : false
+Beim Beenden verbergen                     : false
+Schließen zulässig                         : true
+Verschieben zulässig                       : true
+Maximieren zulässig                        : false
+Minimieren erlaubt                         : false
+Minimierter Titel                          : 
+Menü vererben                              : true
+X-Position                                 : 0
+Y-Position                                 : 0
+Width                                      : 612
+Height                                     : 453
+Umriss                                     : SHADE_ABOVE
+Horizontale Bildlaufleiste anzeigen        : false
+Vertikale Bildlaufleiste anzeigen          : false
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+Richtung                                   : STANDARD
+
+Jun 29, 2026 2:35:19 PM info.phosco.forms.translate.OracleHacker main
+INFO: Decompiled in 0.147 seconds.

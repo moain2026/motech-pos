@@ -1,0 +1,150 @@
+Print Barcode 
+ > 
+ POS System > System Transactions > 
+ Print Barcode 
+ Use: This screen is 
+used to print the items’ barcode. Note that the barcode of each item can be 
+printed separately or the barcode can be printed from a specific document or 
+according to the items’ group or warehouses’ group. The barcode can also be 
+printed according to the pricing, warehouse and 
+branch. 
+ How to Use Screen 
+ Below is some important information about this screen that must be 
+mentioned first before explaining how it is used: 
+ - 
+ First: 
+Barcode Printer: The default 
+path of the barcode printer exists in the (Default Values Tab) that is found in 
+the Users’ Data screen in the Onyx ERP system. Therefore, the system checks this 
+field for the barcode printer if there is no assigned one, the system prints 
+using the default printer. 
+ - 
+ Second: 
+ Link 
+the file to the Ys_ Print_ Barcode Folder Located in the YS_ ERP Folder as 
+Follows: 
+ The 
+user clicks on the Open File button, from the File menu, and then selects the 
+Input Data File Setup option, as shown in the following 
+figure: 
+ The 
+user modifies the path of the barcode file as 
+follows: 
+ Then, the user clicks on the OK button, followed by clicking on Save. 
+Therefore, the user will be logged out of the program in order to select a 
+specific item to print the barcode with the ability to modify the design of the 
+label from the same screen. 
+ - 
+ Synchronize 
+Data: This button is 
+used if there are separate POS for which the user wants to print the barcode By 
+Document from the sub-server. The data is synchronized from the main center to 
+the sub-server, using this button; so that the user can print the POS items as 
+barcodes. 
+ - 
+ Open 
+File: This button is 
+used to open the main file of the barcode design, it is also used to determine 
+the path of the barcode file, and modify the design of the barcode shape as 
+explained in the previous steps. 
+ - 
+ In order to deal 
+with the fields of this screen, the user must select the options according to 
+which the data of the items will be displayed with the barcode at the bottom of 
+the screen and printed. Below are the most important options that the user must 
+select to display the items’ data: 
+ ? 
+ Printing 
+Form: This option is 
+used to select the suitable form for printing the barcode 
+fonts. 
+ ? 
+ Warehouse 
+Number: Upon selecting 
+this option, the items are displayed By Warehouse, noting that the user can 
+fetch the item quantity in this warehouse in the Number Field (Number of Label 
+Printing Times), and can select the warehouse number in the Warehouse Number 
+Field. 
+ ? 
+ Pricing 
+Level: This option is 
+used to display the items data By Pricing Levels. 
+ ? 
+ Branch 
+Number: This option is 
+used to display the items data By Branch. 
+ ? 
+ Printing 
+Times: This field is 
+used to determine the number of times in which the barcode is printed. Note that 
+the number of printing times can be modified if there is more than one item by 
+selecting this field and clicking on the button next to the field; therefore, 
+the number of printing times will be modified for all items. 
+ ? 
+ Item 
+Number: This field is 
+used to print only one item of the displayed items. The item selected item will 
+be printed in this field, and it must be one of the displayed items in the list 
+at the bottom of the screen. If the user does not select an item, the barcode 
+will be printed for all the displayed items in the details (Table) at the bottom 
+of the screen. 
+ - 
+ After writing 
+the item number in the designated field and clicking on the Enter button, all 
+the other fields in the screen such as Item Name, Price, Barcode Number, Unit 
+and other fields are automatically filled in. 
+ ? 
+ Print 
+Barcode Number: This option is 
+used to print the barcode number in the label and not the item 
+number. 
+ ? 
+ Fetch 
+Available Quantity: This option is 
+used to fetch the available item quantity in the (Number of Printing Times) 
+field according to the quantity in the selected 
+warehouse. 
+ ? 
+ Document 
+Type: The user 
+selects the document type from the available options in this list. Therefore, 
+the items can be displayed in the details table at the bottom of the screen, in 
+which the items can be displayed By Warehouses Groups –Purchase Invoice-, or 
+Sales Invoice, etc. 
+ - 
+ Upon selecting a 
+specific document, the quantity will be fetched in the Number field. 
+ - 
+ Upon selecting a 
+warehouse group, the Number field will be filled in with number 1. While if the 
+number of a specific warehouse is selected, the available quantity in the 
+warehouse will be fetched in the Number field according to each 
+item. 
+ - 
+ Number: This field is 
+used to select the batch number or the document number for which the items are 
+required to be displayed. 
+ - 
+ Warehouse 
+Number: If the 
+warehouse number is selected in this field, the items available quantity will be 
+fetched in the Number field according to the available quantity in the selected 
+warehouse for each item. 
+ - 
+ Type: Here, the 
+document type automatically appears according to the selected document in the 
+previous field. 
+ - 
+ Details: Here, the 
+details of the items data appear after being fetched as 
+follows: 
+ - 
+ Print: This option is 
+used to select only the items that the user wants to 
+print. 
+ The rest of the 
+fields are automatically filled in according to the parameters that have been 
+selected above. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

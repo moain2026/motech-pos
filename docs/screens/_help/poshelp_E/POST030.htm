@@ -1,0 +1,542 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Print Barcode</title>
+<meta name="GENERATOR" content="WinCHM">
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1256">
+<style>
+html,body { 
+	/* Default Font */
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11pt;
+}
+</style>
+
+
+
+
+<style>
+html,div { margin: 0; padding: 0;}
+
+body {
+	padding: 0px;
+	margin: 0px;
+	overflow: auto;
+	height: 100%;
+}
+
+#winchm_template_button{
+	float: right;
+	width: 93px;
+	top: 7px;
+	position: relative;
+	text-align: right;
+	right: 5px;
+	height: auto;
+}
+
+#winchm_template_top{
+	padding: 0px;
+	margin: 0px;
+	border-bottom: 1px solid #9B9B9B;
+	background-color: #B1CEFE;
+}
+
+#winchm_template_navigation{
+	margin: 0px;
+	padding-top: 7px;
+	padding-left: 7px;
+	padding-bottom: 3px;
+	padding-right: 0px;
+	font-size: 8.5pt;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	color: #585858;
+}
+
+#winchm_template_title{
+	margin: 0px;
+	padding-top: 4px;
+	padding-left: 7px;
+	padding-bottom: 7px;
+	padding-right: 0px;
+	font-size: 18px; 
+	font-family: Verdana, Geneva, sans-serif;
+	color: #363636;
+}
+
+#winchm_template_content{
+	margin-top: 20px;
+	margin-left: 15px;
+	margin-bottom: 20px;
+	margin-right: 15px;
+	width: auto  !important;
+	width: 100%;
+}
+
+#winchm_template_footer{
+	border-width: 1px;
+	border-color: #B1CEFE;
+	border-top-style: solid;
+	margin-top: 15px;
+	margin-left: 15px;
+	margin-bottom: 20px;
+	margin-right: 15px;
+	padding-top: 7px;
+	padding-left: 0px;
+	padding-bottom: 0px;
+	padding-right: 0px;
+	font-family: arial, helvetica, sans-serif;
+	font-size: 8.5pt;
+	color: #696969;
+	width: auto;
+	text-align: left;
+}
+
+
+#winchm_template_container{
+	margin: 0px;
+	padding: 0px;
+	position: static;
+	padding-bottom: 3px;
+	overflow: auto;
+	background-color: #e1effd;
+}
+
+
+@media print
+{
+#winchm_template_container{
+	position: static;	
+	margin: 0px;
+	padding: 5px;
+	
+	width: auto;
+	height: auto;
+	overflow: auto;
+}
+#winchm_template_button{
+visibility:hidden;
+}
+}
+
+#winchm_template_navigation A:link	{text-decoration: none; color:#316262}
+#winchm_template_navigation A:visited  {text-decoration: none; color: #316262}
+#winchm_template_navigation A:active {text-decoration: none; color: #316262 }
+#winchm_template_navigation A:hover {text-decoration: none;color: #0080FF}
+
+A:link	{text-decoration: none; color:#316262}
+A:visited  {text-decoration: none; color: #316262}
+A:active {text-decoration: none; color: #316262 }
+A:hover {text-decoration: none;color: #316262;}
+</style>
+<style type="text/css" media="print">
+    * { display: none; }
+</style>
+<script type="text/javascript">
+function killCopy(e){ return false }
+function reEnable(){return true }
+document.onselectstart=new Function ("return false")
+if (window.sidebar){
+    document.onmousedown=killcopy
+    document.onclick=reEnable
+}
+function isMobile(){
+Agent = window.navigator.userAgent;
+if (Agent.indexOf("iPhone")>=1 || Agent.indexOf("iPad")>=1 || Agent.indexOf("iPod")>=1 || Agent.indexOf("Android")>=1){
+return true;
+}else{
+return false;	
+}
+
+}
+function d_onresize(){
+if (window.navigator.userAgent.indexOf("MSIE")>=1){
+document.getElementById('winchm_template_container').style.pixelWidth = document.body.offsetWidth - 3;
+document.getElementById('winchm_template_container').style.pixelHeight = document.body.offsetHeight - document.getElementById('winchm_template_top').offsetHeight - 4;
+}
+document.getElementById('winchm_template_container').style.top = document.getElementById('winchm_template_top').offsetHeight + 'px';
+}
+
+function d_onbeforeprint(){
+document.getElementById('winchm_template_container').style.width = 'auto';
+document.getElementById('winchm_template_container').style.height = 'auto';
+}
+
+function d_onafterprint(){
+d_onresize();
+}
+
+if(!isMobile()){
+
+window.onload = d_onresize;
+window.onresize = d_onresize;
+window.onbeforeprint = d_onbeforeprint;
+window.onafterprint = d_onafterprint;
+
+document.write("<style>\n");
+document.write("body {overflow: hidden;}\n");
+document.write("#winchm_template_container {position: absolute;overflow: auto;top : 0px;right: 0px;bottom: 0px;left: 0px;}\n");
+document.write("</style>\n");
+}
+
+</script>
+</head>
+
+<body>
+
+<div id="winchm_template_top">
+	<div id="winchm_template_button">
+<P align=center><IMG alt="" src="template/DOC_001.png"></P></div>
+	<div id="winchm_template_navigation"><IMG alt="" 
+src="template/Onix.gif">  
+</div>
+	<div align=center> 
+<SPAN 
+style='FONT-SIZE: 18pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #316262; LINE-HEIGHT: 107%; mso-bidi-language: AR-SA; mso-fareast-font-family: Calibri; mso-bidi-font-family: "PT Bold Heading"; mso-ansi-language: EN-US; mso-fareast-language: EN-US'><FONT size=4>&gt; 
+<FONT face="PT Bold Heading" >POS System &gt; System Transactions &gt; </FONT> </FONT> 
+</SPAN>  
+</div>
+	<p class=MsoNormal style="TEXT-ALIGN: left; MARGIN: 0cm 0cm 0pt; LINE-HEIGHT: normal" dir=rtl align="right" DESIGNTIMESP="22721"><SPAN 
+style='FONT-SIZE: 13.5pt; FONT-FAMILY: "Verdana",sans-serif; COLOR: #316262; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><FONT size=3 face="PT Bold Heading">&nbsp;&nbsp; <FONT color=#8a0000 size=4>Print Barcode</FONT> </FONT></SPAN></SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; mso-bidi-language: AR-YE'><o:p></O:P></SPAN></p>
+</div>
+<div id="winchm_template_container">
+	<div id="winchm_template_content">
+<P class=MsoNormal style="TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=ltr><FONT size=4><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Use:</SPAN></B><SPAN 
+style='FONT-FAMILY: "Simplified Arabic",serif'> </SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>This screen is 
+used to print the items’ barcode. Note that the barcode of each item can be 
+printed separately or the barcode can be printed from a specific document or 
+according to the items’ group or warehouses’ group. The barcode can also be 
+printed according to the pricing, warehouse and 
+branch.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal style="TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=ltr><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'><FONT size=4>How to Use Screen <o:p></o:p></FONT></SPAN></B></P>
+<P class=MsoNormal style="TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=ltr><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><FONT size=4>Below is some important information about this screen that must be 
+mentioned first before explaining how it is used: <o:p></o:p></FONT></SPAN></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 28.4pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l2 level1 lfo1" 
+dir=ltr><FONT size=4><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #82262b; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>First: 
+Barcode Printer:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> The default 
+path of the barcode printer exists in the (Default Values Tab) that is found in 
+the Users’ Data screen in the Onyx ERP system. Therefore, the system checks this 
+field for the barcode printer if there is no assigned one, the system prints 
+using the default printer.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 28.4pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l2 level1 lfo1" 
+dir=ltr><FONT size=4><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #82262b; mso-bidi-language: AR-YE; mso-fareast-font-family: Arial; mso-bidi-font-weight: bold'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Second: 
+</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'>Link 
+the file to the Ys_ Print_ Barcode Folder Located in the YS_ ERP Folder as 
+Follows:<B><SPAN style="COLOR: #82262b"><o:p></o:p></SPAN></B></SPAN></FONT></P>
+<P class=MsoNormal style="TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=ltr><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><FONT size=4>The 
+user clicks on the Open File button, from the File menu, and then selects the 
+Input Data File Setup option, as shown in the following 
+figure:<o:p></o:p></FONT></SPAN></P>
+<P class=MsoNormal style="TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=ltr><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><FONT size=4>The 
+user modifies the path of the barcode file as 
+follows:<o:p></o:p></FONT></SPAN></P>
+<P class=MsoNormal style="TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=ltr><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><FONT size=4>Then, the user clicks on the OK button, followed by clicking on Save. 
+Therefore, the user will be logged out of the program in order to select a 
+specific item to print the barcode with the ability to modify the design of the 
+label from the same screen.<o:p></o:p></FONT></SPAN></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 28.4pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l6 level1 lfo2" 
+dir=ltr><FONT size=4><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #82262b; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Synchronize 
+Data:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> This button is 
+used if there are separate POS for which the user wants to print the barcode By 
+Document from the sub-server. The data is synchronized from the main center to 
+the sub-server, using this button; so that the user can print the POS items as 
+barcodes.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 28.4pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l6 level1 lfo2" 
+dir=ltr><FONT size=4><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #82262b; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Open 
+File:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> This button is 
+used to open the main file of the barcode design, it is also used to determine 
+the path of the barcode file, and modify the design of the barcode shape as 
+explained in the previous steps.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 28.4pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l6 level1 lfo2" 
+dir=ltr><FONT size=4><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #82262b; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>In order to deal 
+with the fields of this screen, the user must select the options according to 
+which the data of the items will be displayed with the barcode at the bottom of 
+the screen and printed. Below are the most important options that the user must 
+select to display the items’ data:<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 49.65pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l7 level3 lfo4" 
+dir=ltr><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #82262b; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">?<SPAN style='FONT: 7pt "Times New Roman"'>&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Printing 
+Form:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> This option is 
+used to select the suitable form for printing the barcode 
+fonts.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 49.65pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l7 level3 lfo4" 
+dir=ltr><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #82262b; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">?<SPAN style='FONT: 7pt "Times New Roman"'>&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Warehouse 
+Number:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> Upon selecting 
+this option, the items are displayed By Warehouse, noting that the user can 
+fetch the item quantity in this warehouse in the Number Field (Number of Label 
+Printing Times), and can select the warehouse number in the Warehouse Number 
+Field. <o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 49.65pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l7 level3 lfo4" 
+dir=ltr><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #82262b; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">?<SPAN style='FONT: 7pt "Times New Roman"'>&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Pricing 
+Level:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> This option is 
+used to display the items data By Pricing Levels. <o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 49.65pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l7 level3 lfo4" 
+dir=ltr><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #82262b; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">?<SPAN style='FONT: 7pt "Times New Roman"'>&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Branch 
+Number:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> This option is 
+used to display the items data By Branch.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 49.65pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l7 level3 lfo4" 
+dir=ltr><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #82262b; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">?<SPAN style='FONT: 7pt "Times New Roman"'>&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Printing 
+Times: </SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>This field is 
+used to determine the number of times in which the barcode is printed. Note that 
+the number of printing times can be modified if there is more than one item by 
+selecting this field and clicking on the button next to the field; therefore, 
+the number of printing times will be modified for all items. 
+<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 49.65pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l7 level3 lfo4" 
+dir=ltr><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #82262b; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">?<SPAN style='FONT: 7pt "Times New Roman"'>&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Item 
+Number:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> This field is 
+used to print only one item of the displayed items. The item selected item will 
+be printed in this field, and it must be one of the displayed items in the list 
+at the bottom of the screen. If the user does not select an item, the barcode 
+will be printed for all the displayed items in the details (Table) at the bottom 
+of the screen.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 28.4pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l4 level1 lfo3" 
+dir=ltr><FONT size=4><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #82262b; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>After writing 
+the item number in the designated field and clicking on the Enter button, all 
+the other fields in the screen such as Item Name, Price, Barcode Number, Unit 
+and other fields are automatically filled in.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 49.65pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level3 lfo5" 
+dir=ltr><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #82262b; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">?<SPAN style='FONT: 7pt "Times New Roman"'>&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Print 
+Barcode Number:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> This option is 
+used to print the barcode number in the label and not the item 
+number.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 49.65pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level3 lfo5" 
+dir=ltr><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #82262b; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">?<SPAN style='FONT: 7pt "Times New Roman"'>&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Fetch 
+Available Quantity:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> This option is 
+used to fetch the available item quantity in the (Number of Printing Times) 
+field according to the quantity in the selected 
+warehouse.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 49.65pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level3 lfo5" 
+dir=ltr><FONT size=4><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Wingdings; COLOR: #82262b; mso-fareast-font-family: Wingdings; mso-bidi-font-family: Wingdings"><SPAN 
+style="mso-list: Ignore">?<SPAN style='FONT: 7pt "Times New Roman"'>&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Document 
+Type:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> The user 
+selects the document type from the available options in this list. Therefore, 
+the items can be displayed in the details table at the bottom of the screen, in 
+which the items can be displayed By Warehouses Groups –Purchase Invoice-, or 
+Sales Invoice, etc.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 28.4pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l0 level1 lfo6" 
+dir=ltr><FONT size=4><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #82262b; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>Upon selecting a 
+specific document, the quantity will be fetched in the Number field. <SPAN 
+style="mso-spacerun: yes">&nbsp;</SPAN><o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 28.4pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l0 level1 lfo6" 
+dir=ltr><FONT size=4><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #82262b; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>Upon selecting a 
+warehouse group, the Number field will be filled in with number 1. While if the 
+number of a specific warehouse is selected, the available quantity in the 
+warehouse will be fetched in the Number field according to each 
+item.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 28.4pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l5 level3 lfo7" 
+dir=ltr><FONT size=4><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #82262b; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Number:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> This field is 
+used to select the batch number or the document number for which the items are 
+required to be displayed.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 28.4pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l5 level3 lfo7" 
+dir=ltr><FONT size=4><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #82262b; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Warehouse 
+Number:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> If the 
+warehouse number is selected in this field, the items available quantity will be 
+fetched in the Number field according to the available quantity in the selected 
+warehouse for each item.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 28.4pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l5 level3 lfo7" 
+dir=ltr><FONT size=4><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #82262b; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Type:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> Here, the 
+document type automatically appears according to the selected document in the 
+previous field.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 28.4pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l5 level3 lfo7" 
+dir=ltr><FONT size=4><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #82262b; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Details:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> Here, the 
+details of the items data appear after being fetched as 
+follows:<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal 
+style="TEXT-ALIGN: justify; MARGIN: 0cm 0cm 0cm 28.4pt; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l3 level3 lfo8" 
+dir=ltr><FONT size=4><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #82262b; mso-fareast-font-family: Arial'><SPAN 
+style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN><SPAN dir=ltr></SPAN><B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #82262b; mso-bidi-language: AR-YE'>Print:</SPAN></B><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> This option is 
+used to select only the items that the user wants to 
+print.<o:p></o:p></SPAN></FONT></P>
+<P class=MsoNormal style="TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=ltr><FONT size=4><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>The rest of the 
+fields are automatically filled in according to the parameters that have been 
+selected above.</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=rtl><o:p></o:p></SPAN></FONT></P></div>	
+	<div id="winchm_template_footer">
+	<P class=MsoNormal style="MARGIN: 0cm 0cm 0pt; LINE-HEIGHT: normal" dir=rtl><FONT color=#808080 >
+	<SPAN lang=AR-SA style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"'> 
+<FONT size=3 ><FONT color=#ff0000>إد</FONT>ارة 
+<FONT color=#316262 >و</FONT> تخطيط 
+	<FONT color=#316262 >          م</FONT>وارد <FONT color=#ff0000>الم<FONT color=#808080>ؤسسات</FONT></FONT>  
+</FONT>  
+</SPAN><SPAN style='FONT-SIZE: 14pt; mso-bidi-font-family: "PT Bold Heading"' dir=ltr><o:p > </O:P> </SPAN></FONT>  
+</P>     
+          </div>
+</div>
+<script language="JavaScript">
+  function clickIE4(){
+    if (event.button== 2) { return
+  false;}
+  } function
+    clickNS4(e){ if
+    (document.layers||document.getElementById&&!document.all)   { if(e.which==2||e.which== 3) { return false;}
+  }}
+  if (document.layers)
+  {  
+     document.captureEvents(Event.MOUSEDOWN);
+     document.onmousedown=
+  clickNS4;}
+  else if (document.all&&!document.GetElementById)
+  {  document.onmousedown=clickIE4;}
+  document.oncontextmenu=new Function(" return false")
+</script>
+
+</body>
+</html>

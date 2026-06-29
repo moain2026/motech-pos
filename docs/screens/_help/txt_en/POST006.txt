@@ -1,0 +1,98 @@
+Cash Payment for Returns 
+ > 
+ POS System > System Transactions > 
+ Cash Payment for Returns 
+ Use: This screen is 
+used to record the cash payments for the returns and replacements, noting that a 
+(Payment) document can be generated so that the customer receives the amount 
+from the cash or from any cashier. It can be posted, and it has accounting 
+effects. The user can activate the (Use for Returns and Replacements) parameter 
+in the POS Settings screen in order to activate the screen and link its accounts 
+that will be affected by the transactions upon posting. Moreover, the screen is 
+also used to enter the returns and replacements intermediary accounts or the 
+replacement cash in the Parameters screen. It is important to mention that the 
+replacement or the return is recorded to this account and cannot be recorded to 
+the Cashiers account unless the amount is paid in cash without using this 
+screen. Below are the main steps that distinguish between the replacement and 
+the return transactions: 
+ First: 
+Replacement: Below are the 
+replacement transaction steps: 
+ - 
+ The concerned 
+employee in the Returns department gives the customer a return invoice of the 
+returned goods value, noting that this happens only after returning the goods to 
+the Returns Department. 
+ - 
+ The customer 
+replaces the piece with another piece and then goes to the 
+cashier. 
+ - 
+ The customer 
+presents the return invoice to the cashier, through which the cashier pays the 
+value of the replaced goods by making a new sales invoice. Then, the cashier 
+enters the return number and the payment number using the return amount in the 
+Payment screen. 
+ - 
+ The cashier 
+keeps the return invoice to be used later in the matching at the end of the 
+shift. 
+ Second: 
+Returns: Below are the 
+returns transaction steps: 
+ - 
+ The concerned 
+employee in the Returns department gives the customer a return invoice of the 
+returned goods value, noting that this happens only after returning the goods to 
+the Returns Department. 
+ - 
+ The customer 
+takes the return invoice and goes to the concerned employee in the Cash Returns 
+department, who creates a cash payment voucher from the Cash Payment for Cash 
+Returns screen and gives the customer the voucher to complete the return 
+transaction with the cashier. 
+ - 
+ The customer 
+goes to any cashier and hands them the voucher, so that the cashier returns the 
+amount to the customer. Note that the cashier keeps the return invoice to be 
+used later in the matching, and that the second step can be skipped; meaning 
+that the cashier can create the return voucher and pay the customer’s amount at 
+the same time. 
+ Remark: 
+ F2 can be used 
+to call this screen in the Invoice screen. 
+ How to Use Screen 
+ - 
+ Return 
+Number: In this field, 
+the return number is recorded or read by the scanner, noting that it is the only 
+field in the screen in which the data is entered by the user. After entering the 
+return number, the user clicks on the Enter button so that the system displays 
+all the return data in the rest of the screen fields. Therefore, the user saves 
+immediately and prints the voucher to enable the customer from receiving the 
+amount. 
+ - 
+ Print 
+Second Form: This option is 
+used to print the second A4 form, noting that the default form is a minimized 
+form that is printed by thermal printers. 
+ - 
+ Accounting 
+Entry 
+ Credit 
+ Debit 
+ Accounting Entry 
+ Date 
+ ***** 
+ Returns and Replacements Intermediary 
+ Account 
+ POS 
+ Cash 
+ **** 
+ - 
+ Save : Users press 
+this button after completing data 
+entry. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

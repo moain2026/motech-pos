@@ -1,0 +1,500 @@
+Jun 29, 2026 2:35:52 PM info.phosco.forms.translate.OracleHacker usableImageIOReaders
+INFO: JPG
+jpg
+bmp
+BMP
+gif
+GIF
+WBMP
+png
+PNG
+wbmp
+jpeg
+JPEG
+
+Jun 29, 2026 2:35:52 PM info.phosco.forms.translate.OracleHacker main
+INFO: 
+Name of file: /home/work/motech-pos/db/forms_raw/POSTIN_MTX.fmx
+Jun 29, 2026 2:35:52 PM info.phosco.forms.translate.loader.FormsLoader readContentIntoByteArray
+INFO: 
+Length of file: 10a80
+
+Jun 29, 2026 2:35:52 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+WARNING: Header starts at : 0
+Jun 29, 2026 2:35:52 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+WARNING: Text starts at : 30
+Jun 29, 2026 2:35:52 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+WARNING: Element starts at : df88
+Jun 29, 2026 2:35:52 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+WARNING: Footer starts at : 104e8
+Jun 29, 2026 2:35:52 PM info.phosco.forms.translate.decompiler.Forms6Decompiler execute
+INFO: 
+
+Type                                       : MODULE
+Offset                                     : 2
+Characterset                               : AMERICAN_AMERICA.AR8MSWIN1256
+Name                                       : POSTIN_MTX
+Titel                                      : MODULE1
+Menüquelle                                 : FILE
+Menümodule                                 : DEFAULT&SMARTBAR
+Defer Required-Durchsetzung                : NO
+Mausnavigation                             : FORM
+Visuelle Attributgruppe Aktueller Datensatz: 0
+Validierungseinheit                        : STANDARD
+Interaktionsmodus                          : BLOCK
+Maximale Abfragezeit                       : 0
+Maximal abgerufene Datensätze              : 0
+Isolationsmodus                            : SAVE_ON_READ
+Koordinatensystem                          : UNIT
+Koordinatensystem-Einheit                  : POINT
+3D-Steuerelemente verwenden                : true
+Zeicheneinheit Breite                      : 7
+Zeicheneinheit Höhe                        : 14
+Richtung                                   : STANDARD
+Laufzeit-Kompatibilitätsmodus              : 5.0
+
+Type                                       : TRIGGER
+Offset                                     : 15002
+Name                                       : ON-ERROR
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 18002
+Name                                       : ON-MESSAGE
+Fire in Enter-Query Mode                   : true
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : TRIGGER
+Offset                                     : 1b002
+Name                                       : WHEN-NEW-FORM-INSTANCE
+Fire in Enter-Query Mode                   : false
+Display in 'Keyboard Help'                 : false
+'Keyboard Help' Text                       : null
+
+Type                                       : DATA_BLOCK
+Offset                                     : f8802
+Name                                       : POSTING_MTX
+Navigation Style                           : SAME_RECORD
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : null
+ORDER BY Clause                            : null
+Query Array Size                           : 2
+Number of Records Buffered                 : 1
+Number of Records Displayed                : 1
+Query All Records                          : false
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : false
+Query Allowed                              : true
+Insert Allowed                             : true
+Update Allowed                             : true
+Locking Mode                               : AUTOMATIC
+Delete Allowed                             : true
+Key Mode                                   : AUTOMATIC
+Maximum Query Time                         : 0
+Maximum Records Fetched                    : 0
+Listed In Data Block Menu                  : true
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : DATA_BLOCK
+Offset                                     : 1b6802
+Name                                       : TSK_PROGRESS
+Navigation Style                           : SAME_RECORD
+Previous Navigation Data Block             : 
+Next Navigation Data Block                 : 
+Alias                                      : null
+WHERE Clause                               : null
+ORDER BY Clause                            : null
+Query Array Size                           : 6
+Number of Records Buffered                 : 5
+Number of Records Displayed                : 5
+Query All Records                          : false
+Record Orientation                         : VERTICAL
+Single Record                              : false
+Database Data Block                        : false
+Query Allowed                              : true
+Insert Allowed                             : true
+Update Allowed                             : true
+Locking Mode                               : AUTOMATIC
+Delete Allowed                             : true
+Key Mode                                   : AUTOMATIC
+Maximum Query Time                         : 0
+Maximum Records Fetched                    : 0
+Listed In Data Block Menu                  : true
+Data Block Description                     : null
+Direction                                  : STANDARD
+
+Type                                       : CANVAS
+Offset                                     : 3f402
+Name                                       : POSTING_MTX
+Leinwandtyp                                : CONTENT
+Thema im Hilfebuch                         : 
+Automatisch anzeigen                       : false
+Sichtbar                                   : true
+Fenster                                    : 30402
+Ausschnitt X-Position auf Leinwand         : 0
+Ausschnitt Y-Position auf Leinwand         : 0
+Breite                                     : 540
+Höhe                                       : 324
+Umriss                                     : SHADE_ABOVE
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Richtung                                   : STANDARD
+
+Type                                       : GROUP
+Offset                                     : 47802
+Parent Node                                : 0
+Child List at                              : 4c002
+Child List Length                          : 4
+
+Type                                       : FRAME
+Offset                                     : 4d002
+Parent Node                                : 47802
+Name                                       : GRAPHIC23
+X-Position                                 : null
+Y-Position                                 : null
+Breite                                     : null
+Höhe                                       : null
+
+Type                                       : FRAME
+Offset                                     : 61402
+Parent Node                                : 47802
+Name                                       : FRAME4
+X-Position                                 : null
+Y-Position                                 : null
+Breite                                     : null
+Höhe                                       : null
+
+Type                                       : TEXT
+Offset                                     : 74c02
+Parent Node                                : 47802
+Name                                       : TEXT5
+X-Position                                 : 26169
+Y-Position                                 : 5120
+Breite                                     : 5689
+Höhe                                       : 1138
+Line 0                                     : ÎíÇÑÇÊ ÇáÊÑÍíá
+Line Width                                 : 0.0
+Dash Style                                 : SOLID
+Cap Style                                  : BUTT
+Join Style                                 : MITRE
+Custom Spacing                             : 0
+Line Spacing                               : SINGLE
+Wrap Text                                  : true
+Bounding Box Scaleable                     : false
+Font Scaleable                             : false
+Horizontal Justification                   : START
+Vertical Justification                     : TOP
+Horizontal Origin                          : LEFT
+Vertical Origin                            : CENTER
+Bevel                                      : INSET
+Foreground Color                           : BLACK
+Background Color                           : WHITE
+Fill Pattern                               : NONE
+Edge Foreground Color                      : BLACK
+Edge Background Color                      : WHITE
+Edge Pattern                               : NONE
+Direction                                  : STANDARD
+
+Type                                       : TEXT
+Offset                                     : 81002
+Parent Node                                : 47802
+Name                                       : GRAPHIC25
+X-Position                                 : 26169
+Y-Position                                 : 5120
+Breite                                     : 5689
+Höhe                                       : 1138
+Line 0                                     : ÎíÇÑÇÊ ÇáÊÑÍíá
+Line Width                                 : 0.0
+Dash Style                                 : SOLID
+Cap Style                                  : BUTT
+Join Style                                 : MITRE
+Custom Spacing                             : 0
+Line Spacing                               : SINGLE
+Wrap Text                                  : true
+Bounding Box Scaleable                     : false
+Font Scaleable                             : false
+Horizontal Justification                   : START
+Vertical Justification                     : TOP
+Horizontal Origin                          : LEFT
+Vertical Origin                            : CENTER
+Bevel                                      : INSET
+Foreground Color                           : BLACK
+Background Color                           : WHITE
+Fill Pattern                               : NONE
+Edge Foreground Color                      : BLACK
+Edge Background Color                      : WHITE
+Edge Pattern                               : NONE
+Direction                                  : STANDARD
+
+Type                                       : CANVAS
+Offset                                     : 8d002
+Name                                       : TSK_PROGRESS
+Leinwandtyp                                : CONTENT
+Thema im Hilfebuch                         : 
+Automatisch anzeigen                       : false
+Sichtbar                                   : true
+Fenster                                    : 37802
+Ausschnitt X-Position auf Leinwand         : 0
+Ausschnitt Y-Position auf Leinwand         : 0
+Breite                                     : 284
+Höhe                                       : 198
+Umriss                                     : NONE
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Richtung                                   : STANDARD
+
+Type                                       : GROUP
+Offset                                     : 95402
+Parent Node                                : 0
+Child List at                              : 99c02
+Child List Length                          : 4
+
+Type                                       : FRAME
+Offset                                     : 9ac02
+Parent Node                                : 95402
+Name                                       : FRAME18
+X-Position                                 : null
+Y-Position                                 : null
+Breite                                     : null
+Höhe                                       : null
+
+Type                                       : FRAME
+Offset                                     : ae402
+Parent Node                                : 95402
+Name                                       : GRAPHIC24
+X-Position                                 : null
+Y-Position                                 : null
+Breite                                     : null
+Höhe                                       : null
+
+Type                                       : TEXT
+Offset                                     : c2002
+Parent Node                                : 95402
+Name                                       : TEXT26
+X-Position                                 : 19228
+Y-Position                                 : 455
+Breite                                     : 11605
+Höhe                                       : 1138
+Line 0                                     :  : ãÄÔÑ ÊÞÏã ÚãáíÉ ÇáÊÑÍíá  
+Line Width                                 : 0.0
+Dash Style                                 : SOLID
+Cap Style                                  : BUTT
+Join Style                                 : MITRE
+Custom Spacing                             : 0
+Line Spacing                               : SINGLE
+Wrap Text                                  : true
+Bounding Box Scaleable                     : true
+Font Scaleable                             : false
+Horizontal Justification                   : START
+Vertical Justification                     : TOP
+Horizontal Origin                          : LEFT
+Vertical Origin                            : TOP
+Bevel                                      : NONE
+Foreground Color                           : BLACK
+Background Color                           : WHITE
+Fill Pattern                               : NONE
+Edge Foreground Color                      : BLACK
+Edge Background Color                      : WHITE
+Edge Pattern                               : NONE
+Direction                                  : STANDARD
+
+Type                                       : FRAME
+Offset                                     : cf002
+Parent Node                                : 95402
+Name                                       : FRAME29
+X-Position                                 : null
+Y-Position                                 : null
+Breite                                     : null
+Höhe                                       : null
+
+Type                                       : FONT
+Offset                                     : e6802
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+
+Type                                       : FONT
+Offset                                     : ea002
+Schriftartname                             : Tahoma
+Schriftgrad                                : 8
+Schriftstärke                              : BOLD
+Schriftstil                                : NORMAL
+
+Type                                       : FONT
+Offset                                     : ed802
+Schriftartname                             : Tahoma
+Schriftgrad                                : 8
+Schriftstärke                              : BOLD
+Schriftstil                                : NORMAL
+
+Type                                       : FONT
+Offset                                     : f1002
+Schriftartname                             : Tahoma
+Schriftgrad                                : 8
+Schriftstärke                              : HALF_LEAN
+Schriftstil                                : NORMAL
+
+Type                                       : FONT
+Offset                                     : f4802
+Schriftartname                             : Tahoma
+Schriftgrad                                : 8
+Schriftstärke                              : HALF_LEAN
+Schriftstil                                : NORMAL
+
+Type                                       : EDITOR
+Offset                                     : e3402
+Name                                       : ED
+Titel                                      : null
+Funktionaler Kommentar                     : null
+Umbruchstil                                : WORD
+X-Position                                 : 0
+Y-Position                                 : 0
+Breite                                     : 270
+Höhe                                       : 135
+Vertikale Bildlaufleiste anzeigen          : true
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : 1ec02
+Name                                       : PROGRESS
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : 20c02
+Name                                       : CHECK_DATE
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : 22c02
+Name                                       : UPGRADE_ACC
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : 24c02
+Name                                       : F50WRITE
+Unit Type                                  : PACKAGE_SPEC
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : 26c02
+Name                                       : F50WRITE
+Unit Type                                  : PACKAGE_BODY
+
+Type                                       : PROGRAM_UNIT
+Offset                                     : 28c02
+Name                                       : POST_MTX_JVS
+Unit Type                                  : PROCEDURE_OR_FUNCTION
+
+Type                                       : VISUAL_GROUP
+Offset                                     : 2ac02
+Name                                       : #POPUPHINT#
+Default                                    : true
+Visueller Attributtyp                      : DEFAULT
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : DEFAULT
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+
+Type                                       : WINDOW
+Offset                                     : 30402
+Name                                       : POSTING_MTX
+Thema im Hilfebuch                         : 
+Titel                                      : 
+Primäre Leinwand                           : 0
+Fensterstil                                : DOCUMENT
+Modal                                      : false
+Beim Beenden verbergen                     : false
+Schließen zulässig                         : true
+Verschieben zulässig                       : true
+Maximieren zulässig                        : true
+Minimieren erlaubt                         : true
+Minimierter Titel                          : 
+Menü vererben                              : true
+X-Position                                 : 0
+Y-Position                                 : 0
+Width                                      : 540
+Height                                     : 324
+Umriss                                     : SHADE_ABOVE
+Horizontale Bildlaufleiste anzeigen        : false
+Vertikale Bildlaufleiste anzeigen          : false
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+Richtung                                   : STANDARD
+
+Type                                       : WINDOW
+Offset                                     : 37802
+Name                                       : TSK_PROGRESS
+Thema im Hilfebuch                         : 
+Titel                                      : 
+Primäre Leinwand                           : 0
+Fensterstil                                : DIALOG
+Modal                                      : false
+Beim Beenden verbergen                     : false
+Schließen zulässig                         : true
+Verschieben zulässig                       : true
+Maximieren zulässig                        : true
+Minimieren erlaubt                         : true
+Minimierter Titel                          : 
+Menü vererben                              : true
+X-Position                                 : 200
+Y-Position                                 : 200
+Width                                      : 278
+Height                                     : 197
+Umriss                                     : SHADE_ABOVE
+Horizontale Bildlaufleiste anzeigen        : false
+Vertikale Bildlaufleiste anzeigen          : false
+Visuelle Attributgruppe                    : 0
+Logisches Attribute Zeichenmodus           : null
+Weiß auf Schwarz                           : null
+Vordergrundfarbe                           : null
+Hintergrundfarbe                           : null
+Füllmuster                                 : null
+Schriftartname                             : null
+Schriftgrad                                : null
+Schriftstärke                              : null
+Schriftstil                                : null
+Zeichenabstand                             : null
+Richtung                                   : STANDARD
+
+Jun 29, 2026 2:35:52 PM info.phosco.forms.translate.OracleHacker main
+INFO: Decompiled in 0.11 seconds.

@@ -1,0 +1,1418 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>التكامل مع نظام الأونكس ERP</title>
+<meta name="GENERATOR" content="WinCHM">
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1256">
+<style>
+html,body { 
+	/* Default Font */
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 11pt;
+}
+</style>
+
+
+
+
+<style>
+html,div { margin: 0; padding: 0;}
+
+body {
+	padding: 0px;
+	margin: 0px;
+	overflow: auto;
+	height: 100%;
+}
+
+#winchm_template_button{
+	float: right;
+	width: 93px;
+	top: 7px;
+	position: relative;
+	text-align: right;
+	right: 5px;
+	height: auto;
+}
+
+#winchm_template_top{
+	padding: 0px;
+	margin: 0px;
+	border-bottom: 1px solid #9B9B9B;
+	background-color: #dfdfbf;
+}
+
+#winchm_template_navigation{
+	margin: 0px;
+	padding-top: 7px;
+	padding-left: 7px;
+	padding-bottom: 3px;
+	padding-right: 0px;
+	font-size: 8.5pt;
+	font-family: Arial, Helvetica, sans-serif;
+	font-weight: normal;
+	color: #585858;
+}
+
+#winchm_template_title{
+	margin: 0px;
+	padding-top: 4px;
+	padding-left: 7px;
+	padding-bottom: 7px;
+	padding-right: 0px;
+	font-size: 18px; 
+	font-family: Verdana, Geneva, sans-serif;
+	color: #363636;
+}
+
+#winchm_template_content{
+	margin-top: 20px;
+	margin-left: 15px;
+	margin-bottom: 20px;
+	margin-right: 15px;
+	width: auto  !important;
+	width: 100%;
+}
+
+#winchm_template_footer{
+	border-width: 1px;
+	border-color: #B1CEFE;
+	border-top-style: solid;
+	margin-top: 15px;
+	margin-left: 15px;
+	margin-bottom: 20px;
+	margin-right: 15px;
+	padding-top: 7px;
+	padding-left: 0px;
+	padding-bottom: 0px;
+	padding-right: 0px;
+	font-family: arial, helvetica, sans-serif;
+	font-size: 8.5pt;
+	color: #696969;
+	width: auto;
+	text-align: left;
+}
+
+
+#winchm_template_container{
+	margin: 0px;
+	padding: 0px;
+	position: static;
+	padding-bottom: 3px;
+	overflow: auto;
+	background-color: #F8F8F3;
+}
+
+
+#winchm_template_navigation A:link	{text-decoration: none; color:#004080}
+#winchm_template_navigation A:visited  {text-decoration: none; color: #004080}
+#winchm_template_navigation A:active {text-decoration: none; color: #004080 }
+#winchm_template_navigation A:hover {text-decoration: none;color: #0080FF}
+
+A:link	{text-decoration: underline; color:#0033CC}
+A:visited  {text-decoration: underline; color: #0033CC}
+A:active {text-decoration: underline; color: #0033CC }
+A:hover {text-decoration: underline;color: #FF0000;}
+</style>
+<style type="text/css" media="print">
+    * { display: none; }
+</style>
+<script type="text/javascript">
+function killCopy(e){ return false }
+function reEnable(){return true }
+document.onselectstart=new Function ("return false")
+if (window.sidebar){
+    document.onmousedown=killcopy
+    document.onclick=reEnable
+}
+function isMobile(){
+Agent = window.navigator.userAgent;
+if (Agent.indexOf("iPhone")>=1 || Agent.indexOf("iPad")>=1 || Agent.indexOf("iPod")>=1 || Agent.indexOf("Android")>=1){
+return true;
+}else{
+return false;	
+}
+
+}
+function d_onresize(){
+if (window.navigator.userAgent.indexOf("MSIE")>=1){
+document.getElementById('winchm_template_container').style.pixelWidth = document.body.offsetWidth - 3;
+document.getElementById('winchm_template_container').style.pixelHeight = document.body.offsetHeight - document.getElementById('winchm_template_top').offsetHeight - 4;
+}
+document.getElementById('winchm_template_container').style.top = document.getElementById('winchm_template_top').offsetHeight + 'px';
+}
+
+function d_onbeforeprint(){
+if (window.navigator.userAgent.indexOf("MSIE")>=1){
+document.getElementById('winchm_template_container').style.height = 'auto';
+}
+}
+
+function d_onafterprint(){
+d_onresize();
+}
+
+if(!isMobile()){
+
+window.onload = d_onresize;
+window.onresize = d_onresize;
+window.onbeforeprint = d_onbeforeprint;
+window.onafterprint = d_onafterprint;
+
+document.write("<style>\n");
+document.write("body {overflow: hidden;}\n");
+document.write("#winchm_template_container {position: absolute;overflow: auto;top : 0px;right: 0px;bottom: 0px;left: 0px;}\n");
+document.write("</style>\n");
+}
+
+</script>
+<style>
+@media print
+{
+body {
+	padding: 0px;
+	margin: 0px;
+	overflow: auto;
+	height: auto;
+}
+#winchm_template_container{
+	position: static;	
+	margin: 0px;
+	padding: 5px;
+	
+	width: auto;
+	height: auto;
+	overflow: hidden;
+}
+#winchm_template_button{
+visibility:hidden;
+}
+}
+.style1 {
+	border-width: 0px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="winchm_template_top">
+	<div id="winchm_template_button" style="HEIGHT: 99px; WIDTH: 324px; right: 5px; top: 7px;">
+		<a href="PDF/AppPoS_Ar.pdf">
+		<IMG alt="" src="template/Doc_03.png" width="123" height="95" class="style1"></a><a href="Specialized.htm"><img alt="" class="style1" height="100" src="template/Doc_02(1).png" width="190"></a></div>
+	<div id="winchm_template_navigation">
+		<IMG alt="" 
+src="template/Onix.png" width="193" height="47">  
+</div>
+	<div align=center><FONT face="PT Bold Heading" color=#408080>نظام نقاط البيع &gt; </FONT>  
+</div>
+	<div id="winchm_template_title"><FONT color=#808080 size=3 face="PT Bold Heading">التكامل مع نظام الأونكس ERP</FONT></div>
+</div>
+<div id="winchm_template_container">
+	<div id="winchm_template_content">
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>مقدمة</SPAN><SPAN 
+lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>على اعتبار أن 
+نظام الأونكس </SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr>ERP</SPAN><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><SPAN 
+dir=rtl></SPAN><SPAN dir=rtl></SPAN> هو النظام المتخصص بإصدار التقارير الختامية 
+من ميزانية وأرباح وخسائر وقيود اليومية وتقارير مخزون وهو المتحكم الرئيسي في نظام 
+نقاط البيع لذلك يتم التعامل مع نظام الأونكس </SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr>ERP</SPAN><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><SPAN 
+dir=rtl></SPAN><SPAN dir=rtl></SPAN> المحاسبي في حالتين قبل التعامل مع نقاط 
+البيع من أجل تهيئة المستخدمين وربط الصناديق الخاصة بهم وربط الحسابات الوسيطة 
+وإضافة الأصناف والباركود الخاص بها وبعد التعامل مع نقاط البيع من أجل عملية 
+التأثير المحاسبي والمخزني للفواتير (مبيعات ومردودات المبيعات) والدفع 
+المسبق.<o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>ويجب مراعاة 
+التالي إذا كان نظام الأونكس </SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr>ERP</SPAN><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><SPAN 
+dir=rtl></SPAN><SPAN dir=rtl></SPAN> في جهاز ونظام نقاط البيع في جهاز آخر أنه 
+يجب مزامنة وتحديث البيانات بين النظامين عبر شاشة مخصصة لذلك في 
+الاتجاهين:<o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>الاتجاه 
+الأول:</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> مزامنة البيانات 
+من نظام الأونكس </SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr>ERP</SPAN><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><SPAN 
+dir=rtl></SPAN><SPAN dir=rtl></SPAN> (السيرفر الرئيسي) إلى نظام نقاط البيع (في 
+السيرفرات الفرعية) مثل تحديث الأصناف والتسعيرة والعروض الترويجية وبيانات 
+العملاء.<o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>الاتجاه 
+الثاني:</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> من نظام نقاط 
+البيع إلى نظام الأونكس وتتم هذه الخطوة على مرحلتين <B 
+style="mso-ansi-font-weight: normal"><SPAN style="COLOR: #477886">المرحلة 
+الأولى</SPAN></B> نقل حركة الفواتير والمردودات والبيانات الأخرى من السيرفرات 
+المنفصلة الفرعية إن وجدت إلى الإدارة (السيرفر الرئيسي) حيث يوجد نظام الأونكس 
+ويتم ذلك عبر شاشة مزامنة ونقل البيانات أو تتم آلياً عبر إعدادات يتم عملها، <B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style="COLOR: #477886">المرحلة الثانية</SPAN></B> وهي ترحيل 
+البيانات من نظام نقاط البيع إلى نظام الأونكس ويتم في هذه المرحلة التخصيم من حركة 
+المخزون وعمل القيود المحاسبية اللازمة لذلك.<o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><FONT size=4>أما إذا كان النظامان في 
+نفس الجهاز لا توجد سيرفرات فرعية فلا نحتاج للمزامنة بين النظامين وإنما يتم فقط 
+ترحيل البيانات إلى الأونكس لتخصم المخزون وعمل القيود المحاسبية ومن أجل التعامل 
+مع نظام نقاط البيع سوف نقوم بإيجاز الشرح الخاص بالعلاقة بين النظامين عبر إيجاز 
+شرح حقول الشاشات المرتبطة بدون الخوض في تفاصيل الشاشات لكون المقام هنا ليس مقام 
+شرح نظام الأونكس المتوفر في كتب أخرى وبما يخدم بقية الفصول حتى يكون المستخدم على 
+علم بها.<o:p></O:P></FONT></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><A name=_Toc519595648></A><A 
+name=_Toc61968772></A><A name=_Toc62034135><SPAN style="mso-bookmark: _Toc61968772"><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Times New Roman"; mso-hansi-font-family: "Times New Roman"'><FONT size=4>تهيئة التكامل مع الأنظمة 
+الأخرى</FONT></SPAN></SPAN></SPAN></A><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Times New Roman"; mso-hansi-font-family: "Times New Roman"'><o:p></O:P></SPAN></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>نظام نقاط البيع متكامل مع الأنظمة الأخرى في إطار نظام 
+</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr>Onyx ERP)</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN>) وأول شرط من شروط تشغيله هو استكمال إجراءات التهيئة 
+الخاصة بالنظام مع الأنظمة الأخرى وفي هذا السياق سنشرح آلية تكامل إجراءات تهيئة 
+العمل في النظام مع الأنظمة الأخرى على النحو التالي:<o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN style="mso-bookmark: _Toc519595648"><A name=_Toc61968773></A><A 
+name=_Toc62034136><SPAN style="mso-bookmark: _Toc61968773"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Times New Roman"; mso-hansi-font-family: "Times New Roman"'><FONT size=4>أولاً: تهيئة التكامل مع 
+نظام التهيئة العامة</FONT></SPAN></SPAN></A></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Times New Roman"; mso-hansi-font-family: "Times New Roman"'><o:p></O:P></SPAN></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>بيانات الموظفين:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'> في هذه الشاشة يتم إدخال بيانات الموظفين (الكاشيرات) الذين 
+سيتم ربطهم في بيانات المستخدمين ومن ثم منحهم </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'>صلاحية</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'> العمل على نظام نقاط البيع، ويعتبر كل موظف يتم إضافته 
+بمثابة حساب للموظف قد يتم قيد فوارق تصفية الكاشير (الفائض أو العجز) فيه إن وجدت 
+عند التصفية، حيث يمكن في نظام نقاط البيع فلترة التقارير الخاصة بالموظفين.<SPAN 
+style="COLOR: red"><o:p></O:P></SPAN></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>تلميح:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE'>في نظام نقاط البيع ليس شرطاً إضافة المستخدم (الكاشير) في 
+بيانات الموظفين وإنما يتم الاكتفاء بإضافته في بيانات 
+المستخدمين.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE' 
+dir=ltr><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>تهيئة العملات: </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'>يتم تعريف العملات مع تحديد سعر تحويل نقاط البيع الذي سيظهر 
+في عمليات نظام نقاط البيع، كما يتم ترميز الفئات النقدية للعملات ليتم استخدامها 
+في تصفية حركة الكاشيرات في نقاط البيع.</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE' 
+dir=ltr><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>الدليل المحاسبي:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-bidi-language: AR-YE'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>بصفة عامة ينبغي على المستخدم عند بناء الدليل المحاسبي 
+مراعاة خصوصية الأنشطة المختلفة في الواقع العملي ومنها على سبيل المثال الأنشطة 
+التجارية التي تستخدم نظام البيع المباشر، لذا يجب إضافة الحسابات الضرورية 
+والوسيطة التي سيتم استخدامها عند التعامل مع نظام نقاط البيع وعند الترحيل من نظام 
+نقاط البيع إلى نظام الأونكس </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr>ERP</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN> ونذكر منها </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>على سبيل المثال لا الحصر (سلف الموظفين، الفائض والعجز، 
+استبدال النقاط) وغيرها من الحسابات.</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-bidi-language: AR-YE'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>الحسابات الوسيطة: </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم ربط الحسابات الوسيطة التي لها علاقة بنظام نقاط البيع 
+لغرض إتمام بعض الإجراءات المحاسبية، مع العلم أنه يتم ربط </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'>الحسابات</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> هنا بعد إضافتها في شاشة الدليل 
+المحاسبي.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>الحسابات الوسيطة سيتم توضيحها لأهميتها بالتفصيل كما 
+يلي:</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l0 level1 lfo2" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </SPAN></SPAN></SPAN></B><SPAN 
+dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886'>حساب عجز مبيعات نقاط البيع: </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يستخدم هذا الحساب في قيد الفارق عند وجود عجز لدى نقاط البيع 
+الناتج عن تصفية صافي المبيعات اليومية للكاشير مع المبالغ المستلمة من الكاشير في 
+نهاية اليوم، الفارق يمثل مبلغ العجز الذي سيتم ترحيله من نقاط</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN dir=ltr></SPAN><SPAN dir=ltr></SPAN><SPAN 
+lang=AR-SA style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr><SPAN dir=ltr></SPAN><SPAN 
+dir=ltr></SPAN> </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>البيع أو نظام المطاعم إلى نظام الأستاذ العام ويكون هذا 
+الحساب مدين، مع ملاحظة أنه يتم قيد الفارق (العجز) في حساب السلف المحدد في بيانات 
+المستخدمين – إن وجد - كونه له الأولوية عن الحساب الوسيط المحدد 
+هنا.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l0 level1 lfo2" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </SPAN></SPAN></SPAN></B><SPAN 
+dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>حساب فائض مبيعات نقاط البيع:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يستخدم هذا الحساب في قيد الفارق عند وجود زيادة لدى نقاط 
+البيع الناتج عن تصفية صافي المبيعات اليومية للكاشير مع المبالغ المستلمة من 
+الكاشير في نهاية اليوم والفارق يمثل مبلغ الفائض الذي سيتم ترحليه 
+من</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN dir=ltr></SPAN><SPAN dir=ltr></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr><SPAN dir=ltr></SPAN><SPAN dir=ltr></SPAN> </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>نقاط البيع أو نظام المطاعم إلى نظام الأستاذ العام ويكون 
+هذا</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN dir=ltr></SPAN><SPAN dir=ltr></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr><SPAN dir=ltr></SPAN><SPAN dir=ltr></SPAN> </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>الحساب دائن، مع ملاحظة أنه يتم قيد الفارق (الفائض) في حساب 
+<B style="mso-ansi-font-weight: normal"><SPAN 
+style="COLOR: #477886">فائض مبيعات نقاط البيع</SPAN></B> 
+المحدد في بيانات المستخدمين – إن وجد - كونه له الأولوية عن الحساب الوسيط المحدد 
+هنا.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l0 level1 lfo2" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </SPAN></SPAN></SPAN></B><SPAN 
+dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>حساب وسيط مبيعات الكوبونات: </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم في هذا الحساب قيد قيمة الكوبونات التي تعطى للزبائن، 
+تستخدم هذه الكوبونات من قبل العملاء لسداد قيمة فواتير المبيعات في نقطة البيع، 
+ويتم القيد من هذا الحساب إلى حساب الإيرادات كحساب وسيط يستطيع المستخدم عكسه في 
+أي حساب آخر يريده مقابل الكوبونات مثل الصندوق في حالة دفع قيمة الكوبونات 
+نقداً.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l0 level1 lfo2" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </SPAN></SPAN></SPAN></B><SPAN 
+dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>حساب استبدال النقاط:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يستخدم هذا الحقل لاختيار الحساب الذي سيتأثر بعمليات استبدال 
+رصيد النقاط للعملاء سواءً في فاتورة المبيعات أو فاتورة مبيعات نقاط البيع أو 
+فاتورة مردود المبيعات.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Times New Roman"; mso-hansi-font-family: "Times New Roman"'><FONT size=4>ثانياً: تهيئة التكامل مع 
+إدارة النظام<o:p></O:P></FONT></SPAN></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>بيانات المستخدمين:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-FAMILY: "Arial",sans-serif; mso-ascii-font-family: Calibri; mso-hansi-font-family: Calibri; mso-no-proof: yes'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-no-proof: yes'>في هذه </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'>الشاشة</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-no-proof: yes'> يتم إضافة المستخدمين ونخص بالذكر المستخدمين الذين يعملون 
+على نظام نقاط البيع حيث يمكن ربط المستخدم برقم الموظف وتحديد نوع المستخدم؛ مع 
+ربط المستخدم (الكاشير) ببعض البيانات الضرورية في تبويب (نقاط البيع) ليكون 
+المستخدم قادراً على التعامل مع نقطة المبيعات بعد منحه الصلاحيات 
+اللازمة.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN style="mso-bookmark: _Toc519595648"><A name=_Hlk119173875><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><FONT size=4>ملاحظة: 
+</FONT></SPAN></A></SPAN><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN 
+style="mso-bookmark: _Hlk119173875"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886'>عندما يتم ترحيل فواتير المبيعات إلى الأونكس فإن الأولوية 
+للصندوق المرتبط بالمستخدم فإذا لم يتم ربط المستخدم بصندوق فإنه يتم اعتماد 
+الصندوق المرتبط بنقطة البيع.</SPAN></SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><FONT size=4>بيانات المستخدمين<o:p></O:P></FONT></SPAN></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-no-proof: yes'>في هذا التبويب </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم تحديد نوع المستخدم (نقاط البيع) وتحديد طريقة التحقق 
+للدخول إلى النظام وهي إما (بصمة وكلمة سر أو بصمة فقط أو كلمة سر فقط) والتي سيتم 
+استخدامها من قبل المستخدم (الكاشير) في الدخول على نظام نقاط البيع.<o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>طريقة التحقق للدخول:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يستخدم </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'>هذا</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> الحقل لتحديد طريقة تحقق دخول المستخدم إلى نظام نقاط البيع 
+أو إلى نظام المطاعم وما إذا كان سيستخدم (كلمة سر) أم (بصمة) أم (كلمة سر 
+وبصمة).</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>النوع:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يستخدم هذا الحقل لتحديد نوع </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'>المستخدم</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> وما إذا كان مستخدم عام يمكنه استخدام نظام الأونكس أو أي 
+نظام من الأنظمة المرتبطة كنقاط البيع أو المطاعم، أو مستخدم (حسابات) يستطيع 
+استخدام نظام الأونكس </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr>ERP</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN> فقط، أو مستخدم (نقاط بيع) يستطيع استخدام الأنظمة 
+المرتبطة (نقاط البيع / المطاعم) فقط.<o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><FONT size=4>نقاط البيع <o:p></O:P></FONT></SPAN></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يستخدم هذا التبويب في حالة تعامل المستخدم مع نظام نقاط 
+البيع أو نظام المطاعم حيث يتم تحديد الحقول التي تستخدم عند تعامل المستخدم مع 
+نقطة البيع كما يلي:</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>رقم الصندوق:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم اختيار رقم الصندوق الذي تم تعريفه في بيانات الصناديق 
+على أنه صندوق نقطة بيع.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><SPAN style="mso-spacerun: yes">&nbsp; 
+</SPAN><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>رقم الحساب:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يظهر رقم حساب الصندوق بشكل آلي بمجرد إدخال رقم الصندوق وهو 
+الحساب الذي سيتأثر كمدين في العمليات النقدية التي يقوم بها 
+المستخدم.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> <o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>حساب السلف:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم إدخال رقم حساب سلف المستخدم في هذا الحقل حيث يتم ترحيل 
+أي عجز على مستخدم نقطة البيع أو مستخدم نظام المطاعم إلى حساب سلف الموظف، ويتم 
+الترحيل إلى هذا الحساب في حالة عدم تحديد حساب وسيط لفائض وعجز نقاط البيع في شاشة 
+الحسابات الوسيطة في نظام نقاط البيع.</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> <o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>الحساب التحليلي:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم إدخال الحساب التحليلي إذا كان لحساب السلف حسابات 
+تحليلية كحسابات ذمم(موظفين).</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> <o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>حساب فائض مبيعات نقاط البيع:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>هو الحساب الذي يتم القيد فيه فائض مبيعات الكاشيرات عند 
+التصفية.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red' 
+dir=ltr><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>نوع الاتصال:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم إدخال نوع الاتصال الذي </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'>يستخدم</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> في ربط نقاط البيع، وهذا جانب تقني حيث يوجد نوعان من أنواع 
+الاتصال (اتصال شبكة - اتصال عن بعد).</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>رقم نقطة البيع:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم اختيار نقطة </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'>البيع</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'> التي سيتم ربطها بالمستخدم سواءً كانت نقطة البيع في نظام 
+نقاط البيع أو في نظام المطاعم حيث يوجد نوعان من الربط عن طريق الـ 
+</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr>LAN</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN> أو </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr>desktop Remote</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN>.</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>اسم نقطة البيع:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>بمجرد اختيار نقطة البيع يظهر اسم نقطة البيع بشكل 
+آلي.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>اسم طابعة الباركود:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم تحديد طابعة الباركود الافتراضية على مستوى 
+المستخدم.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>مسار ملف طابعة الباركود:</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم تحديد مسار الملف الخاص بطابعة الباركود الخاصة 
+بالمستخدم.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: red; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>إثبات البصمة: </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يستخدم هذا التبويب مع مستخدمي نظام نقاط البيع أو نظام 
+المطاعم عند دخول المستخدم إلى النظام بواسطة إثبات بصمته بدلاً عن إدخال رقم 
+المستخدم وكلمة المرور، ففي حالة تعامل المنشأة مع تلك الأجهزة يتم إثبات البصمة 
+وتعريف أجهزة الاتصال بالبصمة من خلال هذا التبويب.</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>النسخ الاحتياطي: </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>تستخدم</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN dir=ltr></SPAN><SPAN dir=ltr></SPAN><SPAN 
+lang=AR-SA style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr><SPAN dir=ltr></SPAN><SPAN 
+dir=ltr></SPAN> </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>الشاشة لغرض حماية البيانات والمعلومات المدخلة في النظام عن 
+طريق النسخ الاحتياطي لها تفادياً للتلف أو الضياع الناتج عن أي طارئ (تقني - فني - 
+مادي..) ويتم من خلال هذه الشاشة إنشاء نسخ احتياطية لبعض الأنظمة المرتبطة كنقاط 
+البيع والمطاعم والمستشفيات.</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN style="mso-bookmark: _Toc519595648"><A name=_Toc58224375></A><A 
+name=_Toc58415829><SPAN style="mso-bookmark: _Toc58224375"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><FONT size=4>استرجاع النسخ الاحتياطي: 
+</FONT></SPAN></SPAN></A></SPAN><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN 
+style="mso-bookmark: _Toc58415829"><SPAN 
+style="mso-bookmark: _Toc58224375"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>تستخدم</SPAN></SPAN></SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN 
+style="mso-bookmark: _Toc58415829"><SPAN 
+style="mso-bookmark: _Toc58224375"><SPAN dir=ltr></SPAN><SPAN dir=ltr></SPAN><SPAN 
+lang=AR-SA style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr><SPAN dir=ltr></SPAN><SPAN 
+dir=ltr></SPAN> </SPAN></SPAN></SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN 
+style="mso-bookmark: _Toc58415829"><SPAN 
+style="mso-bookmark: _Toc58224375"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>الشاشة لغرض استرجاع النسخة الاحتياطية إذا استدعت الحاجة 
+لذلك، ويمكن استرجاع نسخة احتياطية لنظام نقاط البيع باستخدام تبويب (نقاط البيع)، 
+مع ملاحظة أن التبويب الأول (النظام الرئيسي) سيتم فيه استرجاع نسخة احتياطية 
+لأنظمة الأونكس </SPAN></SPAN></SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN 
+style="mso-bookmark: _Toc58415829"><SPAN 
+style="mso-bookmark: _Toc58224375"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr>ERP</SPAN></SPAN></SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN 
+style="mso-bookmark: _Toc58415829"><SPAN 
+style="mso-bookmark: _Toc58224375"><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN>.</SPAN></SPAN></SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN 
+style="mso-bookmark: _Toc58415829"><SPAN 
+style="mso-bookmark: _Toc58224375"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></SPAN></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN 
+style="mso-bookmark: _Toc58415829"><SPAN 
+style="mso-bookmark: _Toc58224375"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>الإقفال السنوي</SPAN></SPAN></SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>:</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red; mso-bidi-language: AR-YE'> </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>عند الإقفال السنوي يتم النقر على إعادة تحديث وربط البيانات 
+مع السيرفر الرئيسي ليتم إعادة ضبط كاشيرات أنظمة نقاط البيع والمطاعم 
+</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'>على السنة الجديدة.</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red; mso-bidi-language: AR-YE' 
+dir=ltr><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN style="mso-bookmark: _Toc519595648"><A name=_Toc62034138><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Times New Roman"; mso-hansi-font-family: "Times New Roman"'><FONT size=4>ثالثاً: التكامل مع أنظمة 
+الحسابات</FONT></SPAN></A></SPAN><SPAN style="mso-bookmark: _Toc62034138"></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Times New Roman",serif; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>تهيئة الصناديق: </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم إضافة الصناديق الخاصة بالمنشاة مع تمييز صناديق نقاط 
+البيع (الكاشيرات) بالتأشير على خيار (نقاط البيع)، ويتم ربط كل صندوق نقطة بيع 
+بمستخدم أو أكثر من مستخدم في شاشة بيانات المستخدمين، ويتم إضافة صندوق والتأشير 
+على خيار (صندوق وسيط) في حالة استخدام صندوق وسيط للدفع النقدي أو الاستبدال 
+للمرتجعات.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN style="mso-bookmark: _Toc519595648"><A name=_Toc519595657><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><FONT size=4>سندات 
+القبض</FONT></SPAN></A></SPAN><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>: </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم استخدام سند القبض لتوريد النقدية المستلمة من قبل موظف 
+الكاشير من واقع صافي المبيعات الفعلية في نظام نقاط البيع، حيث يتم إنزال صافي 
+نقدية المبيعات لدى الكاشيرات إلى سند القبض.</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>تلميح: </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE'>في حقل إنزال البيانات يتم اختيار (صافي مبيعات الكاشيرات) ثم 
+يتم النقر على مفتاح </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE' 
+dir=ltr>Enter</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE'><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN> فيظهر في البيانات التفصيلية مبيعات الكاشير النقدية، 
+حيث يتم توريد النقدية من صندوق نقطة البيع إلى صندوق رئيسي.<o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN style="mso-bookmark: _Toc519595648"><A name=_Toc519595658><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><FONT size=4>سندات 
+الصرف</FONT></SPAN></A></SPAN><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>: </SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم استخدام سند الصرف لصرف ودفع التزامات الشركة النقدية نحو 
+الغير، أما بالنسبة لعلاقته بنظام نقاط البيع فإنه يمكن تحديد الكاشير والشخص 
+المستفيد من عملية الصرف في عمود رقم الكاشير في البيانات التفصيلية 
+للسند.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595648"></SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>قيود اليومية: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم أولاً استخدام شاشة فائض وعجز مبيعات الكاشيرات في نظام 
+نقاط البيع لكي يتم إنزالها في شاشة قيود اليومية مع ملاحظة أن قيد الفائض أو العجز 
+سيكون حسب الإعدادات المحددة لقيد الفائض وقيد العجز والحسابات التي ستتأثر 
+بذلك.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><A name=_Toc61968776></A><A 
+name=_Toc62034139><SPAN style="mso-bookmark: _Toc61968776"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Times New Roman"; mso-hansi-font-family: "Times New Roman"'><FONT size=4>رابعاً: تهيئة التكامل مع 
+نظام إدارة المخازن</FONT></SPAN></SPAN></A><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Times New Roman"; mso-hansi-font-family: "Times New Roman"'><o:p></O:P></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>بيانات الأصناف: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم إضافة الأصناف التي يتم التعامل بها، ويتم عمل مزامنة 
+للبيانات لكي تظهر الأصناف الجديدة في نظام نقاط البيع ليتمكن مستخدم نقطة البيع من 
+التعامل معها في عمليات البيع.</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>ملاحظة: </SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE'>يتم إضافة باركود الصنف في حقل رقم الباركود أو في التبويب 
+الخاص بالباركود إذا كان للصنف أكثر من باركود، مع ملاحظة أن كل وحدة قياس لها 
+باركود، مع العلم أنه يمكن إضافة الباركود وطباعة ليبل الباركود من شاشة طباعة 
+باركود الصنف.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; COLOR: #477886; mso-bidi-language: AR-YE; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>تلميح: </SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE'>يمكن أن يقوم المستخدم بتكوين رقم الباركود يدوياً أو آليا 
+أثناء التوريد وعمل طباعة له من خلال طابعة الباركود ولصقه بالصنف.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; COLOR: #477886; mso-bidi-language: AR-YE; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><A name=_Toc519595653><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><FONT size=4>بيانات 
+المخازن</FONT></SPAN></A><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم استخدام المخازن التي يتم إضافتها هنا في نظام نقاط البيع 
+عند القيام بترحيل العمليات من نظام نقاط البيع إلى نظام الأونكس </SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr>ERP</SPAN><SPAN dir=rtl></SPAN><SPAN 
+dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN> لكي يتم تخصيم الكميات المباعة وإضافة الكميات 
+المردودة إلى المخزن الافتراضي المرتبط بنقطة البيع الذي يتم اختياره عند (إضافة 
+نقطة البيع)، مع العلم أنه يتم ربط المستخدم بالمخزن في شاشة أجهزة وآلات نقاط 
+البيع.</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"; mso-no-proof: yes'>تلميح: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886'>عند الترحيل من نقطة البيع إلى نظام الأونكس </SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886' 
+dir=ltr>ERP</SPAN><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886'><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN> يتم فحص للكمية المتوفرة في المخزن ومقارنتها بالكمية 
+المباعة وفي حالة عدم توفرها عند الترحيل تظهر رسالة تنبيه بذلك مع العلم أنه لا 
+يتم فحص الكمية عند البيع في نقطة البيع إلا إذا تم تفعيل (فحص الكمية المتوفرة) في 
+متغيرات نظام نقاط البيع.<o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><A name=_Toc519595654><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><FONT size=4>تسعيرة 
+الأصناف</FONT></SPAN></A><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>تستخدم الشاشة لغرض تسعير الأصناف أو تعديل تسعيرتها بالزيادة 
+أو النقص حسب سياسة وظروف المنشأة البيعية، ويتم عمل مزامنة للبيانات لكي تظهر 
+تسعيرة الأصناف المحدثة في نظام نقاط المبيعات ليتمكن مستخدم نقطة البيع من التعامل 
+مع التسعيرة الجديدة في عمليات البيع.</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>مع ملاحظة أن </SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE'>إدخال التسعيرة يعد أمراً ضرورياً للعمل في نظام نقاط البيع 
+ولا يمكن التعامل مع الصنف في نقطة البيع إذا كان بدون تسعيرة ويعتبر النظام الصنف 
+غير موجود إذا لم يتم تسعيره.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; COLOR: #477886; mso-bidi-language: AR-YE; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>تلميح: </SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE'>في نظام نقاط البيع يتم تحديد مستوى التسعيرة حسب متغير 
+(تسعيرة الأصناف) فقد يتم تحديده في شاشة متغيرات وإعدادات نقاط البيع، أو يتم 
+تحديدها على مستوى كل نقطة بيع ويكون هو المستوى التي يظهر في فاتورة البيع، مع 
+ملاحظة أنه يمكن ربط مستوى تسعيرة واحد بأكثر من نقطة بيع، مع إمكانية تعديل سعر 
+الصنف يدوياً أو اختيار السعر حسب مستويات السعر التي للمستخدم صلاحية 
+عليها.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; COLOR: #477886; mso-bidi-language: AR-YE; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><A name=_Toc61968777></A><A 
+name=_Toc62034140><SPAN style="mso-bookmark: _Toc61968777"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Times New Roman"; mso-hansi-font-family: "Times New Roman"'><FONT size=4>خامساً: تهيئة التكامل مع 
+نظام إدارة العملاء والمبيعات</FONT></SPAN></SPAN></A><A name=_Toc519595655></A><SPAN style="mso-bookmark: _Toc519595655"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Times New Roman"; mso-hansi-font-family: "Times New Roman"'><FONT size=4> <o:p></O:P></FONT></SPAN></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN style="mso-bookmark: _Toc519595655"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'><FONT size=4>التكامل مع نظام إدارة 
+العملاء<o:p></O:P></FONT></SPAN></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595655"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>متغيرات نظام العملاء</SPAN></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>بصفة عامة معظم المتغيرات الخاصة بنظام العملاء تؤثر بطريقة 
+مباشرة أو غير مباشرة على نظام نقاط البيع كون فاتورة مبيعات نقطة البيع هي نفس 
+فاتورة المبيعات في الـ الأونكس </SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr>ERP</SPAN><SPAN dir=rtl></SPAN><SPAN 
+dir=rtl></SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN> <SPAN lang=AR-SA>مع وجود فوارق 
+في آلية العمل في نقطة البيع لتسريع عملية البيع.</SPAN></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>مع ملاحظة أنه </SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE'>لابد من تفعيل مجموعة من المتغيرات التي تؤثر في عمل نظام 
+نقاط البيع مثل ما يتعلق بالخصم والكميات المجانية والعروض الترويجية وبطائق 
+الخصم.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; COLOR: #477886; mso-bidi-language: AR-YE; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><A name=_Toc519595656><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><FONT size=4>بيانات 
+العملاء</FONT></SPAN></A><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>تستخدم الشاشة لغرض إضافة العملاء الذين سيتم التعامل معهم 
+بالآجل، ويتم عمل مزامنة للبيانات لتظهر بيانات العملاء في نقطة البيع كي يمكن 
+التعامل معهم.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>بيانات العملاء النقديون: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>تستخدم هذه الشاشة لإضافة العملاء النقديين وسيتم استخدامهم 
+في نظام نقاط البيع مع العلم أنه يمكن إضافة بيانات العملاء النقديون في مدخلات 
+نظام نقاط البيع مع ملاحظة أن إضافتهم في نظام العملاء يغني عن الإضافة في نظام 
+نقاط البيع.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><A name=_Toc519595659><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><FONT size=4>العروض 
+الترويجية</FONT></SPAN></A><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم في هذه الشاشة ترميز العروض الترويجية التي تمنحها 
+المنشأة لعملائها في المواسم أو حسب سياستها البيعية، ويتم إنزال الكميات المجانية 
+آلياً في فاتورة نقطة البيع أو بالباركود حسب الإعدادات لذلك، حيث يتم احتساب أو 
+إنزال بيانات العروض حسب الشروط المحددة في الشاشة مثل التاريخ، أو نوع العملاء، أو 
+طريقة الدفع، أو الكمية...</SPAN><SPAN dir=ltr></SPAN><SPAN 
+dir=ltr></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr><SPAN dir=ltr></SPAN><SPAN dir=ltr></SPAN> </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>الخ.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'><FONT size=4>يمكننا توضيح خيارات 
+العروض الترويجية التي يمكن ترميزها في هذه الشاشة كما يلي:<o:p></O:P></FONT></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>عرض سعر للأصناف:</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'> </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>في هذا النوع يتم تحديد سعر للصنف غير السعر المحدد له في 
+تسعيرة الأصناف ويتم التعامل بسعر العرض الترويجي في فاتورة نقطة البيع، وسيتم 
+إهمال سعر الصنف </SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'>المحدد </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>في تسعيرة الأصناف خلال فترة العرض. </SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>عرض سعر الأصناف حسب الكمية: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>في هذا النوع من العرض يتم عند بيع صنف معين منح كميات مجانية 
+من نفس الصنف أو من صنف آخر أو من عدة أصناف وبالتالي فإنه في فاتورة نقطة البيع 
+يتم إنزال الصنف مع الكمية المجانية آلياً أو إدخال الصنف يدوياً أو باستخدام 
+الباركود.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>عرض سعر لإجمالي الفاتورة: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>في هذا النوع عند البيع يتم منح العرض بناءً على إجمالي 
+الفاتورة فقد يكون العرض خصم على مستوى الفاتورة أو منح مجاني من صنف أو عدة أصناف 
+أو منح كوبونات.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>منح مجاني من نفس الصنف كخصم حسب الأقل سعراً:</SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red'> </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>في هذا النوع فإنه يتم منح العميل قيمة المجاني كخصم نقدي من 
+الصنف الأقل سعراً في فاتورة نقطة البيع حسب المجموعة أو التصنيف أو حسب أي خيار 
+آخر.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><FONT size=4><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>منح مجاني من نفس الصنف كخصم حسب الأعلى سعراً:</SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: red'> </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>في هذا النوع من العرض فإنه يتم منح العميل قيمة المجاني كخصم 
+نقدي من الصنف الأعلى سعراً في فاتورة نقطة البيع حسب المجموعة أو التصنيف أو حسب 
+أي خيار آخر.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>ملاحظة: </SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE'>يوجد شرح شامل لكل أنواع العروض وطرق منح العروض في شاشة 
+العروض الترويجية في نظام العملاء ولا يتسع المقام هنا لشرحها 
+بالتفصيل.</SPAN></FONT><A name=_Toc519595660><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE' 
+dir=ltr><o:p></O:P></SPAN></A></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595660"><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>فواتير المبيعات مستحقة السداد: </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595660"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>يتم في هذه الشاشة</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595660"><SPAN dir=ltr></SPAN><SPAN dir=ltr></SPAN><SPAN 
+lang=AR-SA style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' 
+dir=ltr><SPAN dir=ltr></SPAN><SPAN 
+dir=ltr></SPAN> </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595660"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>تنفيذ عملية الاستحقاق لفواتير المبيعات التي تكون طريقة 
+الدفع فيها (شبكة)، ويترتب على هذه العملية إجراء قيد محاسبي يظهر فيه الحساب 
+البنكي للمنشأة كطرف مدين بديلاً عن الحساب الوسيط الذي تم استخدامه عند عملية 
+البيع.</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595660"><SPAN 
+style='FONT-SIZE: 14pt; COLOR: #477886; mso-bidi-language: AR-YE; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595660"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Times New Roman"; mso-hansi-font-family: "Times New Roman"'>سادساً: تهيئة التكامل مع نظام نقاط البيع في الأونكس 
+</SPAN></SPAN><SPAN style="mso-bookmark: _Toc519595660"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Times New Roman",serif; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr>ERP</SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595660"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Times New Roman"; mso-hansi-font-family: "Times New Roman"'><o:p></O:P></SPAN></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN 
+style="mso-bookmark: _Toc519595660"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>الترحيل: </SPAN></SPAN><SPAN 
+style="mso-bookmark: _Toc519595660"></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'>تتم عملية الترحيل في نظام (نقاط البيع في الأونكس 
+</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"' 
+dir=ltr>ERP</SPAN><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN>) نهاية اليوم أو في أي وقت يرغب به المستخدم كي يتم 
+التأثير المحاسبي والمخزني في نظام الأونكس، ولكي يتم التأثير فإنه يتم استخدام 
+شاشتي (ترحيل فواتير المبيعات، ترحيل فواتير مردود المبيعات) مع ملاحظة أنه يفضل 
+ترحيل مردود المبيعات أولاً ثم ترحيل فواتير المبيعات.</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><A name=_Toc519595661><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>ترحيل فواتير المبيعات</SPAN></FONT></A><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'>من خلال هذه الشاشة يتم ترحيل فواتير المبيعات من نظام نقاط 
+البيع إلى نظام الأونكس </SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"' 
+dir=ltr>ERP</SPAN><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN> لإتمام عملية التأثير </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>المحاسبي</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'> والمخزني لفاتورة المبيعات مع ملاحظة أنه يمكن الترحيل حسب 
+الخيارات التي توفرها الشاشة.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-bidi-font-family: "PT Bold Heading"' 
+dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>تلميح:</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-fareast-font-family: "Times New Roman"'> عند الترحيل من نقاط البيع إلى نظام الأونكس يتم ترحيل 
+فواتير المبيعات حسب الوردية في حالة تفعيل استخدام الورديات في النظام. 
+</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>تلميح: </SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE'>عند النقر على زر الترحيل يتم البدء بعملية الترحيل من نظام 
+نقاط البيع إلى نظام الأونكس </SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE' 
+dir=ltr>ERP</SPAN><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE'><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN> مع فحص الكميات المتوفرة في المخازن، وفي حالة عدم 
+توفر الكمية في المخازن تظهر الرسالة التالية:</SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>تلميح:</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886'> يتم فحص الكميات المتوفرة حسب تاريخ الانتهاء ورقم الدفعة 
+عند التخصيم من المخازن، فعند البيع بوحدة أكبر من الوحدة الأساسية للصنف وكانت 
+الكمية المتوفرة لأقدم تاريخ انتهاء عند التخصيم غير متوفرة من نفس الوحدة فإنه يتم 
+التخصيم بالوحدة الأساسية، ثم الانتقال للتاريخ الذي يليه وهكذا.<o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm; LINE-HEIGHT: normal" 
+dir=rtl><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-bidi-language: AR-YE'><FONT size=4>ولكي يتم استكمال عملية 
+الترحيل يجب توريد الكمية للمخازن، ولمعاينة الأصناف الناقصة يتم النقر على الأمر 
+(معاينة) لتظهر الشاشة التالية:<o:p></O:P></FONT></SPAN></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>ملاحظة: </SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE'>يفضل أن يتم ترحيل فواتير مردود المبيعات قبل البدء بعملية 
+ترحيل فواتير المبيعات حتى يتم توريد كميات المردودات للمخازن وفي حال تم البدء 
+بترحيل المبيعات سوف تظهر رسالة (يوجد مردود مبيعات غير مرحلة.. هل تريد الاستمرار) 
+يتم النقر على زر بموجبه يقوم النظام بترحيل الفواتير ولا يتم التراجع عن عملية 
+الترحيل نهائياً، وفي حالة وجود فوارق بين الكمية المتوفرة والمباعة يمكن عمل تسوية 
+آلية باستخدام زر (تسوية المخزون) في شريط الأدوات.</SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><A name=_Toc519595662><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>ترحيل فواتير مردود المبيعات</SPAN></FONT></A><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>: </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'>من خلالها يتم ترحيل فواتير مردود المبيعات من نظام نقاط 
+البيع إلى نظام الأونكس </SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"' 
+dir=ltr>ERP</SPAN><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'><SPAN dir=rtl></SPAN><SPAN dir=rtl></SPAN> لإتمام عملية التأثير </SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>المحاسبي</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'> والمخزني لفاتورة مردود المبيعات.</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 28.4pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l1 level1 lfo1" 
+dir=rtl><A name=_Toc519595663><FONT size=4><B style="mso-ansi-font-weight: normal"><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Arial",sans-serif; COLOR: #477886; mso-fareast-font-family: Arial'><SPAN style="mso-list: Ignore">-<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+</SPAN></SPAN></SPAN></B><SPAN dir=rtl></SPAN><SPAN 
+lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>ترحيل وثائق أخرى: </SPAN></FONT></A><SPAN 
+style="mso-bookmark: _Toc519595663"></SPAN><FONT size=4><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; mso-fareast-font-family: "Times New Roman"'>تستخدم هذه الشاشة لترحيل وثائق العمليات المختلفة في نظام 
+نقاط البيع، إذا تم منح المستخدم صلاحية الترحيل في شاشة صلاحيات المدخلات – 
+القوائم – الترحيلات، يمكن حصر هذه الوثائق فيما يلي:</SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-fareast-font-family: "Times New Roman"; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l0 level1 lfo2" 
+dir=rtl><FONT size=4><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </SPAN></SPAN></SPAN></B><SPAN 
+dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>الاستبدالات.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l0 level1 lfo2" 
+dir=rtl><FONT size=4><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </SPAN></SPAN></SPAN></B><SPAN 
+dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>الدفع النقدي للمرتجعات.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l0 level1 lfo2" 
+dir=rtl><FONT size=4><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </SPAN></SPAN></SPAN></B><SPAN 
+dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>الكوبونات.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l0 level1 lfo2" 
+dir=rtl><FONT size=4><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </SPAN></SPAN></SPAN></B><SPAN 
+dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>فائض وعجز مبيعات الكاشيرات.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l0 level1 lfo2" 
+dir=rtl><FONT size=4><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </SPAN></SPAN></SPAN></B><SPAN 
+dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>مقبوضات نقاط البيع.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 49.65pt 0cm 0cm; LINE-HEIGHT: normal; TEXT-INDENT: -14.2pt; mso-list: l0 level1 lfo2" 
+dir=rtl><FONT size=4><B 
+style="mso-ansi-font-weight: normal"><SPAN 
+style="FONT-SIZE: 14pt; FONT-FAMILY: Symbol; COLOR: #477886; mso-bidi-language: AR-YE; mso-fareast-font-family: Symbol; mso-bidi-font-family: Symbol"><SPAN style="mso-list: Ignore">·<SPAN 
+style='FONT: 7pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </SPAN></SPAN></SPAN></B><SPAN 
+dir=rtl></SPAN><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif'>مصروفات نقاط البيع.</SPAN><SPAN 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif' dir=ltr><o:p></O:P></SPAN></FONT></P>
+<P class=MsoNormal 
+style="unicode-bidi: embed; DIRECTION: rtl; TEXT-ALIGN: justify; MARGIN: 0cm 2cm; LINE-HEIGHT: normal" 
+dir=rtl><FONT size=4><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE'>مع ملاحظة </SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"; COLOR: #477886; mso-bidi-language: AR-YE; mso-ascii-font-family: "Simplified Arabic"; mso-hansi-font-family: "Simplified Arabic"'>ضرورة </SPAN><SPAN lang=AR-YE 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "Simplified Arabic",serif; COLOR: #477886; mso-bidi-language: AR-YE'>تفعيل المتغيرات الخاصة بطريقة استخدام الدفع النقدي 
+والاستبدال وإدخال الحسابات الخاصة بالمرتجعات والاستبدالات والكوبونات في شاشة 
+إعدادات نقاط البيع، وإذا تم تفعيل أي متغير آخر ستختلف المعالجة حسب المتغير وسيتم 
+شرحها عند شرح شاشة متغيرات وإعدادات نقاط البيع.<o:p></O:P></SPAN></FONT></P></div>	
+	<div id="winchm_template_footer"><SPAN lang=AR-SA 
+style='FONT-SIZE: 14pt; FONT-FAMILY: "PT Bold Heading"'><FONT size=3><FONT color=#ff0000>إد</FONT><FONT color=#808080>ارة 
+</FONT><FONT color=#316262>و</FONT><FONT color=#808080> تخطيط </FONT><FONT color=#316262>م</FONT><FONT color=#808080>وارد 
+</FONT><FONT color=#ff0000>الم<FONT color=#808080>ؤسسات</FONT></FONT></FONT></SPAN>     
+          </div>
+</div>
+<script language="JavaScript">
+  function clickIE4(){
+    if (event.button==   
+  
+  2) {
+    return false;}
+    }   function clickNS4(e){if(document.layers||document.getElementById&&!document.all){if(e.which==2||e.which== 3) { return false;}
+  }}
+  if (document.layers)
+  {  
+     document.captureEvents(Event.MOUSEDOWN);
+     document.onmousedown=
+  clickNS4;}
+  else if (document.all&&!document.GetElementById)
+  {  document.onmousedown=clickIE4;}
+  document.oncontextmenu=new Function(" return false")
+</script>
+</body>
+</html>

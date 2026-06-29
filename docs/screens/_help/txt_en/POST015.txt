@@ -1,0 +1,84 @@
+Shortage and Overage of Cashiers Sales 
+ > 
+ POS System > System Transactions > 
+ Shortage and Overage of Cashiers Sales 
+ Use: This screen is 
+used to display the entry of the cashier's shortage and overage, in which the 
+system automatically compares the data entered in the Clearance screen to the 
+actual sales, and the other transactions such as replacements and cash payment. 
+Therefore, the cashier shortage and overage are calculated and its entry is 
+recorded in the system. 
+ How to Use Screen 
+ First: Master Data 
+ - 
+ From 
+Branch: Here, the user 
+selects the branch in which the POS work and in which the overage and shortage 
+of the cashier sales have been done. 
+ - 
+ From 
+User Number – To: This field is 
+used to select the (Cashier) user number that the system will match its sales 
+clearance with the clearance that has been done in the Clearance screen. 
+ - 
+ Date: Here, the date 
+that has been selected in the Cashiers Sales Clearance appears after entering 
+the clearance number. 
+ - 
+ Clearance 
+Number/ To: This field is 
+used to enter the clearance number that the user wants to fetch. Once the user 
+selects the clearance number, the date appears 
+automatically. 
+ - 
+ Fetch 
+Data: After selecting 
+the clearance that the user wants to fetch, the user clicks on Fetch Data to 
+fetch the entry in the detailed data. 
+ - 
+ Branch 
+Number: The branch 
+number appears automatically once the user clicks on Fetch Data, noting that the 
+user cannot select another branch. 
+ - 
+ Document 
+Number: The document 
+number appears automatically once the user clicks on Fetch Data with the ability 
+to modify it. 
+ - 
+ Document 
+Date: The document 
+date appears automatically once the user clicks on the Fetch Data and cannot 
+modify it. 
+ - 
+ Group 
+Duplicate Records: This option 
+allows the user to group the duplicate accounts records together in the detailed 
+data. 
+ - 
+ Used: This option 
+appears as activated if this document has been fetched in the Journal Entries 
+screen. 
+ Second: Detailed Data 
+ - 
+ Once the user 
+clicks on the Fetch Data, the entry of the cashier’s overage or shortage is 
+matched and fetched. Note that this only happens if the shortage accounts and 
+the overage accounts have been added in the intermediary accounts in the Onyx 
+Pro system, or if they have been linked in the Users’ Data screen at the user 
+level. The accounts in the users’ data have priority over the accounts in the 
+intermediary accounts. 
+ - 
+ Save: Users press 
+this button after completing data entry. 
+ - 
+ Print: The cashier's 
+overage and shortage entry can be printed from the 
+toolbar. 
+ - 
+ Fetch 
+in Journal Entry: After saving, 
+the user can fetch this entry in the Journal Entries screen. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

@@ -1,0 +1,52 @@
+Backup 
+ > 
+ POS System > System Configuration > 
+ Backup 
+ Use: This screen is used to protect the data and the 
+information that have been entered in the system by creating a data backup. This 
+prevents any possible data loss or damage that might occur due to a (Technical – 
+Artificial – Physical) error. This screen allows creating a backup of the POS 
+system from the Backup screen in the Onyx Pro System Administration. 
+ How to Use the Screen: 
+ - 
+ Accounting 
+Unit: The accounting 
+unit, for which the backup will be done, appears automatically. Note that the 
+user cannot select any other accounting 
+unit. 
+ - 
+ Backup 
+Path: Here, the 
+backup path or location in the computer is determined. Besides, the folder in 
+which the backup will be saved is determined; it’s preferred to save the backup 
+in any of the system’s disks except (c). After the saving is done, the user 
+renames the backup file and clicks on “Open” so that the system fetches the 
+backup path and name. Consider the below remarks while creating a backup: 
+ ? 
+ The path must 
+not be long. 
+ ? 
+ The backup file 
+name must not contain spaces. 
+ ? 
+ The backup file 
+name must be in English numbers or English 
+letters. 
+ - 
+ Screen: Upon activating 
+this parameter, the Backup screen appears (Black Screen) to display the backup 
+process and its progress in the system. 
+ - 
+ Password/Password 
+Confirmation: Here, the user 
+enters the password of the backup, noting that this field is optional and that 
+the backup cannot be restored unless the password is entered. 
+ - 
+ Backup: Upon clicking 
+on the (Backup) button, the system saves the backup in the designated folder and 
+path. After backup is created, a message appears saying (Successfully done), and 
+it is preferred to keep the backup using any external 
+device. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

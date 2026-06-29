@@ -1,0 +1,10 @@
+Update Database 
+ > 
+ POS System > System Inputs > 
+ Update Database 
+ Use: This screen is 
+used to update the database, when needed. It allows updating the tables, fields, 
+screens, procedures and functions. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

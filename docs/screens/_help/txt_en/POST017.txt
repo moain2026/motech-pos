@@ -1,0 +1,98 @@
+Display Invoices Movement 
+ > 
+ POS System > System Transactions > 
+ Display Invoices Movement 
+ Use: This screen is 
+used to display the sales invoices movement and the sales returns movement. It 
+allows displaying the invoices by invoice number, quantity, price, date, POS 
+user, and exporting the data to an Excel file. 
+ How to Use Screen 
+ This screen is used only for displaying the invoices with the ability to 
+export them to an excel file as follows: 
+ First: Master Data 
+ - 
+ Invoice 
+Type: This field is 
+used to select the document type that will be displayed in the detailed data, 
+noting that the document type is either sales invoices or sales 
+returns. 
+ - 
+ Invoice 
+Number: This field is 
+used to select a specific invoice number to display its details, noting that it 
+can be entered manually or by using F9. Therefore, a list including all the 
+invoices appears, so that the user selects the invoice that they want to display 
+and click on Fetch Data to display the document data in the detailed 
+data. 
+ - 
+ Display 
+Method: This field is 
+used to select the method of displaying (Sales or Return) invoices detailed or 
+the summary. Note that upon selecting the Summary method, the invoices appear in 
+the form of a summary report and can be printed by clicking on the (Print) 
+button. 
+ - 
+ Item 
+Number: This field is 
+used to search for the sales invoices or the sales returns that contain the 
+selected item number. Once the user clicks on Fetch data, the invoices that 
+contain this item appear in the detailed data. 
+ - 
+ From 
+Date: This field is 
+used to search for the sales invoices or the sales returns that are within a 
+certain period from a specific date to another specific 
+date. 
+ - 
+ From 
+POS / To : This field is 
+used to search for the sales invoices or the sales return, using the By POS 
+option. 
+ - 
+ From 
+User Number / To: This field is 
+used to search for the sales invoices or the sales return, using the By User 
+option. 
+ - 
+ Quantity: This field is 
+used to search for the sales invoices or the sales returns, using the By 
+Selected Quantity option. 
+ - 
+ Price: This field is 
+used to search for the sales invoices or the sales returns whether it is at the 
+invoice price level or at the item price level. Note that this depends on the 
+display method (Detail or Summary) in the master 
+data. 
+ - 
+ Invoices 
+That Contain Items: It allows 
+searching for a particular item or several items included in the sales invoices 
+and the sales returns that have been fetched in the detailed 
+data. 
+ - 
+ Fetch 
+Data: After filling 
+in the data filtering options; the user clicks on the (Fetch Data) to fetch the 
+data according to the options selected in the detailed 
+data. 
+ Second: Detailed Data 
+ - 
+ The system 
+displays the data according to the options that have been selected from the 
+previous options. 
+ - 
+ Fields appear at 
+the bottom of the screen showing summary data for the following: (Items 
+Discount, Sales Tax, Total) according to the data filtering options that were 
+selected in the master data. 
+ - 
+ Excel 
+button: It is used to 
+export the screen’s data to an Excel file. 
+ Remark: 
+ The 
+buttons of the screen are used for sorting the data ascendingly or 
+descendingly. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

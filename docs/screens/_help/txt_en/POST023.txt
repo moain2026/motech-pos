@@ -1,0 +1,34 @@
+Medical Prescription 
+ > 
+ POS System > System Transactions > 
+ Medical Prescription 
+ Use : This screen 
+appears upon activating the (Use Medical Prescription) parameter in the POS 
+parameters and settings. It is used in the medical sector to record the 
+patient’s prescriptions with specifying the dosage, method of use, duration of 
+use and other instructions recommended by the treating doctor. 
+ How to Use Screen 
+ This screen appears upon adding a medical prescription. Once the user 
+logins, a list of the previously entered sales invoices appears, so that the 
+user clicks on Ok in order to display the data of the invoice items. The doctor 
+only has to specify the necessary instructions that the patient must follow 
+while using the prescribed item, noting that this screen allows the doctor to 
+print reports. 
+ - 
+ Save: Users press 
+this button after completing data entry to save the prescription and print it 
+later. 
+ - 
+ Display: This command is 
+used to display a list of the past sales invoices. 
+ - 
+ Exit: This command is 
+used to exit the screen, noting that it can be accessed again after entering the 
+user password. 
+ - 
+ Logout: This command is 
+used to logout the screen after the user has finished working on 
+it. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

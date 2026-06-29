@@ -1,0 +1,21 @@
+Price Reader 
+ > 
+ POS System > System Transactions > 
+ Price Reader 
+ Use: This screen is 
+used to display the items pricing and images, if any. This feature has been 
+designed in response to the increasing number of customers who inquire about the 
+products prices. For example, the big businesses such as the shopping malls 
+provide the users with this screen so that they can easily inquire about the 
+items’ prices, as well as, display the products images. 
+ How to Use Screen 
+ The 
+item number or the barcode number is read or entered manually in the Item Number 
+field. Note that the rest of the data is displayed directly with the item’s 
+current price after clicking Enter; therefore, the data disappears automatically 
+after a while. Moreover, the data can be deleted using the Delete button in the 
+toolbar, or using the Barcode Reader to ready another item’s 
+barcode. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

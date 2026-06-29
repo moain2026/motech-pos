@@ -1,0 +1,40 @@
+Cashiers’ Sales Summary 
+ > 
+ POS System > System Transactions > 
+ Cashiers’ Sales Summary 
+ Use: This screen is 
+used to display a summary of the following transactions: cash sales and the 
+credit sales, credit cards (online), returns, all granted discounts, and the 
+amounts of replacements and returns that have been made. This screen is a 
+summary report of the sales movement at the level of each 
+cashier. 
+ How to Use Screen 
+ First: Master Data 
+ - 
+ User: After the user 
+logs into the screen, they can display the Users’ Data by clicking on the 
+(Display) button and selecting the (Cashier) for which they want to display the 
+POS data summary. 
+ - 
+ Currency: This field is 
+used to select the currency so that the data can be displayed according to the 
+selected currency. 
+ - 
+ From 
+Date - To Date: The user can 
+display the data according to the selected dates in these fields. 
+ - 
+ Second: 
+Detailed Data 
+ - 
+ It displays 
+general details of the (Cashier) user movement during the selected 
+period. 
+ - 
+ Export 
+to Excel File: By clicking on 
+the Excel button in the toolbar, data can be exported to an Excel 
+file. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

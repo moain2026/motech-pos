@@ -1,0 +1,47 @@
+Keypad Items 
+ > 
+ POS System > System Inputs > 
+ Keypad Items 
+ Use: This screen is 
+used to link the items to the additional keypad, noting that the items that do 
+not have a barcode can be linked to an additional keypad as a group, in order to 
+be dealt with in the Invoices screen. These groups of items can be: meat, 
+poultry, beans, and fruits in order to facilitate the search for these items 
+using the Ctrl + K key. 
+ How to Use the Screen 
+ After clicking on the Add button, the screen is used as 
+follows: 
+ - 
+ Additional 
+Keypad Number/ Name: Here, the 
+number of the additional keypad is entered from among the additional keypads 
+that have been added in the Additional Keypad screen. Once the number is selected, the 
+keypad’s name appears automatically. 
+ - 
+ Group 
+Number: This field is 
+used to determine the items group number so that it can be linked to the 
+additional keypad. 
+ - 
+ Group 
+Name/Foreign Name: This field is 
+used to enter the group name in the default system language and in the foreign 
+language. 
+ - 
+ Item 
+Number: This field is 
+used to enter the item number that will be linked to the group and the 
+keypad. 
+ - 
+ Item 
+Name/Unit: The data of 
+these two fields appears automatically as soon as the item is selected, noting 
+that the unit that appears is the main unit of the item and it cannot be 
+modified. 
+ - 
+ Save: Users press 
+this button after completing data 
+entry. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

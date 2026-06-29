@@ -1,0 +1,2514 @@
+===== ASCII (strings -n 5) =====
+POST023
+YSPOS_MNU.MMX
+AMERICAN_AMERICA.AR8MSWIN1256
+P8_10_NOV_202516_53_56
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+P24_05_APR_202213_39_10
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/ADD_PROC2
+"PKG INIT"<anonymous>""
+BAR.ADD2_Btn
+P23_05_APR_202213_39_10
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/UPDATE_PROC
+"PKG INIT"<anonymous>""
+BAR.MOD_BTN
+P22_05_APR_202213_39_10
+STANDARD
+FORMS40
+FORMS4C
+SQLFORMS
+"PKG INIT"<anonymous>""
+BAR.FIRST_BTN
+BAR.Last_Btn
+FALSE
+BAR.Next_Btn
+BAR.Prev_btn
+BAR.First_btn
+P21_05_APR_202213_39_10
+STANDARD
+FORMS40
+FORMS4C
+SQLFORMS
+"PKG INIT"<anonymous>""
+BAR.FIRST_BTN
+BAR.Next_Btn
+FALSE
+BAR.Last_Btn
+BAR.Prev_btn
+BAR.First_btn
+P20_05_APR_202213_39_10
+STANDARD
+FORMS40
+FORMS4C
+SQLFORMS
+"PKG INIT"<anonymous>""
+BAR.NEXT_BTN
+BAR.Prev_Btn
+FALSE
+BAR.First_Btn
+BAR.Next_Btn
+BAR.Last_Btn
+P19_05_APR_202213_39_10
+STANDARD
+FORMS40
+FORMS4C
+SQLFORMS
+"PKG INIT"<anonymous>""
+BAR.LAST_BTN
+BAR.First_Btn
+FALSE
+BAR.Prev_Btn
+BAR.Next_Btn
+BAR.Last_Btn
+P18_05_APR_202213_39_10
+STANDARD
+FORMS40
+FORMS4C
+"PKG INIT"<anonymous>""
+BAR.LOCK_SCR
+Dmy_Lock.Dmy_Pass
+P17_05_APR_202213_39_10
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/CALL_BTN_SCR
+"PKG INIT"<anonymous>""
+BAR.CALL_MAIN_TREE
+P16_05_APR_202213_39_10
+STANDARD
+FORMS40
+FORMS4C
+TOOLS
+/LPOSLIB
+CALL_BAR_BTN_SCR
+"PKG INIT"<anonymous>"PL_ID"ID"PL_NAME""
+BTN_DOC.CALL_SAME_SCR
+tempdata
+P15_05_APR_202213_39_10
+STANDARD
+FORMS40
+FORMS4C
+TOOLS
+YS_SCR_PKG
+YSPOS35
+YS_SCR_PKG
+/LPOSLIB
+CALL_BAR_BTN_SCR
+"PKG INIT"<anonymous>"PL_ID"ID"PL_NAME"V_RPRT_FRM_NO""
+BTN_DOC.CALL_RPRT_SCR
+tempdata
+YS_SCR_PKGYSPOS35GET_SCR_RPRT_FRM_NO
+YS_SCR_PKG
+P14_05_APR_202213_39_10
+FORMS40
+STANDARD
+FORMS4C
+"PKG INIT"<anonymous>""
+BTN_DOC.CALL_LNK_SCR
+CALL_SCR_LNK.DUMMY
+P13_05_APR_202213_39_10
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/CALL_BTN_SCR
+"PKG INIT"<anonymous>""
+BTN_DOC.SHW_JRNL_DOC
+P12_05_APR_202213_39_10
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/CALL_BTN_SCR
+"PKG INIT"<anonymous>""
+BTN_DOC.APPRVD_DOC
+P11_05_APR_202213_39_10
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/CALL_BTN_SCR
+"PKG INIT"<anonymous>""
+BTN_DOC.AUDIT_REF_DOC
+P10_05_APR_202213_39_10
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/CALL_BTN_SCR
+"PKG INIT"<anonymous>""
+BTN_DOC.ARCHIVES_DOC
+P9_05_APR_202213_39_10
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/CALL_BTN_SCR
+"PKG INIT"<anonymous>""
+BTN_DOC.INACTIVE_DOC
+P6_01_DEC_201414_22_55
+STANDARD
+FORMS40
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+VIEW_BTN
+SCREEN_BTN
+PRINT_DOC_BTN
+CANCEL_BTN
+PRINT_ST
+P5_01_DEC_201414_22_55
+STANDARD
+FORMS40
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+VIEW_BTN
+SCREEN_BTN
+PRINT_DOC_BTN
+CANCEL_BTN
+PRINT_ST
+P0_10_SEP_201412_27_35
+"PKG INIT"<anonymous>""
+P4_21_APR_201416_29_56
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+P30_16_JAN_201412_58_41
+/NSPC4/PRE_FORM_PRC
+"PKG INIT"<anonymous>""
+P29_16_JAN_201412_58_41
+!/NSPC4/WHEN_NEW_FORM_INSTANCE_PRC
+"PKG INIT"<anonymous>""
+P28_16_JAN_201412_58_41
+/NSPC4/POST_FORMS_COMMIT_PRC
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+P27_16_JAN_201412_58_41
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+P26_16_JAN_201412_58_41
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+P25_16_JAN_201412_58_41
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+P24_16_JAN_201412_58_41
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+P23_16_JAN_201412_58_41
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+P22_16_JAN_201412_58_41
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+P21_16_JAN_201412_58_41
+/NSPC4/EXIT_PROC
+"PKG INIT"<anonymous>""
+P20_16_JAN_201412_58_41
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+P19_16_JAN_201412_58_41
+STANDARD
+FORMS40
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+VIEW_BTN
+SCREEN_BTN
+PRINT_DOC_BTN
+CANCEL_BTN
+PRINT_ST
+Create - 
+Delete - 
+Accept - 
+List - 
+Search_ 
+Exceute - 
+Print - 
+P10_16_JAN_201412_58_41
+/LPOSLIB
+GEN_PKG
+/NSPC4/WHEN_TIMER_EXPIRED_PRC
+"PKG INIT"<anonymous>""
+VA_BG_DTL_COLOR
+P18_16_JAN_201412_58_41
+STANDARD
+FORMS40
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+VIEW_BTN
+SCREEN_BTN
+PRINT_DOC_BTN
+CANCEL_BTN
+PRINT_ST
+P17_16_JAN_201412_58_41
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/ADD_PROC
+"PKG INIT"<anonymous>""
+BAR.ADD_Btn
+P16_16_JAN_201412_58_41
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/DELETE_PROC
+"PKG INIT"<anonymous>""
+BAR.Del_Btn
+P15_16_JAN_201412_58_41
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/SAVE_PROC
+"PKG INIT"<anonymous>""
+SAVE_BTN
+P14_16_JAN_201412_58_41
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/LIST_PROC
+"PKG INIT"<anonymous>""
+BAR.LIST_BTN
+P13_16_JAN_201412_58_41
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/KEY_ENTQRY
+"PKG INIT"<anonymous>""
+BAR.SeeK_Btn
+P12_16_JAN_201412_58_41
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/KEY_EXEQRY
+"PKG INIT"<anonymous>""
+BAR.SEEK_BTN
+P11_16_JAN_201412_58_41
+FORMS40
+STANDARD
+FORMS4C
+/NSPC4/CALL_SCR_PRINT
+"PKG INIT"<anonymous>""
+BAR.Print_Btn
+P9_16_JAN_201412_58_41
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+P8_16_JAN_201412_58_41
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+P4_12_FEB_201417_30_42
+ /NSPC4/WHEN_TAB_PAGE_CHANGED_PRC
+"PKG INIT"<anonymous>""
+P5_16_JAN_201412_58_41
+SQLFORMS
+"PKG INIT"<anonymous>""
+P87_14_MAR_201421_47_52
+STANDARD
+FORMS4C
+SQLFORMS
+"PKG INIT"<anonymous>""
+vfd 0
+VFD.exe 3
+ias_pos_bill_mst.net_amt
+ias_pos_bill_mst.a_cy
+P88_14_MAR_201421_47_52
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+VFD.exe 3
+pos_rtn_bills.Sum_Total
+pos_rtn_bills.a_cy
+P10_02_NOV_201715_58_30
+/NSPC4/CLEAR_ALL_MASTER_DETAILS
+"PKG INIT"<anonymous>""
+P9_02_NOV_201722_17_27
+STANDARD
+/NSPC4/SAVE_PROC
+/NSPC4/PRINT_PROC
+/NSPC4/ADD_PROC
+"PKG INIT"<anonymous>""
+ADD_PROC
+STANDARD
+/LPOSLIB
+GEN_PKG
+"PKG INIT"ADD_PROC""
+ADD_PROC
+	ADD_PROC2
+STANDARD
+SQLFORMS
+"PKG INIT"ADD_PROC2"V_PK_VAL""
+ADD_PROC2
+B4SAVE_PRC
+STANDARD
+/LPOSLIB
+GEN_PKG
+SQLFORMS
+"PKG INIT"B4SAVE_PRC""
+B4SAVE_PRC
+CHANGED
+PARAMETER.BLK
+CALL_BTN_SCR
+STANDARD
+/LPOSLIB
+CALL_BAR_BTN_SCR
+FORMS40
+FORMS4C
+SQLFORMS
+IAS_USR_PKG
+YSPOS35
+IAS_USR_PKG
+YS_GEN_PKG
+YSPOS35
+YS_GEN_PKG
+"PKG INIT"CALL_BTN_SCR"P_SCR_TYP"V_APPROVED_PRV"V_VRFY_PRV"V_INACTIVE_PRV""
+CALL_BTN_SCR
+CALL_OBJ.DUMMY
+Bar.Save_Btn
+FALSE
+IAS_USR_PKGYSPOS35CHK_USR_FRM_PRVIAS
+IAS_USR_PKG
+Parameter.Grant_Audit_Doc
+Parameter.Blk
+INACTIVE
+YS_GEN_PKGYSPOS35GET_USR_FLD_PRV
+YS_GEN_PKG
+CALL_SCR_PRINT
+STANDARD
+SQLFORMS
+FORMS4W
+FORMS40
+FORMS4C
+"PKG INIT"CALL_SCR_PRINT"V_AUDIT_REF"V_STAND_BY""
+CALL_SCR_PRINT
+Prnt.rep_smple
+Prnt.screen_btn
+Prnt.view_btn
+Prnt.print_doc_btn
+CHECK_DUPLICATE
+STANDARD
+SQLFORMS
+"PKG INIT"CHECK_DUPLICATE"P_BLK"V_CHK_VAL"V_MAX_SCR"V_DOC_NO""
+CHECK_DUPLICATE
+CHK_B4SAVE_DTL_PRC
+STANDARD
+/LPOSLIB
+GEN_PKG
+"PKG INIT"CHK_B4SAVE_DTL_PRC"P_REC_ST""
+CHK_B4SAVE_DTL_PRC
+DETAIL_BLOCK_1
+DETAIL_BLOCK_2
+CHK_B4SAVE_MST_PRC
+STANDARD
+/LPOSLIB
+GEN_PKG
+SQLFORMS
+"PKG INIT"CHK_B4SAVE_MST_PRC"P_REC_ST""
+CHK_B4SAVE_MST_PRC
+PARAMETER.BLK
+DELETE_PROC
+STANDARD
+"PKG INIT"DELETE_PROC"V_SHALT"V_CNT""
+DELETE_PROC
+DEL_DET_REC_PRC
+STANDARD
+SQLFORMS
+"PKG INIT"DEL_DET_REC_PRC"P_BLK_NM""
+DEL_DET_REC_PRC
+DETAIL_BLOCK_NAME_1
+DETAIL_BLOCK_NAME_2
+DETAIL_BLOCK_NAME_n
+ENA_DIS_ITM_PRC
+STANDARD
+"PKG INIT"ENA_DIS_ITM_PRC"P_TYP""
+ENA_DIS_ITM_PRC
+	EXIT_PROC
+STANDARD
+FORMS40
+FORMS4C
+SQLFORMS
+/LPOSLIB
+GEN_PKG
+FORMS4W
+"PKG INIT"EXIT_PROC""
+EXIT_PROC
+Bar.Exit_Btn
+CANCEL
+ENTER-QUERY
+al_undo
+.Dummy
+RollBack
+FILL_ALL_LIST_PRC
+STANDARD
+/LPOSLIB
+GEN_PKG
+"PKG INIT"FILL_ALL_LIST_PRC"P_POS"V_STM""
+FILL_ALL_LIST_PRC
+PAY_TYPE_NAME_POS
+ias_pos_bill_mst.bill_type
+KEY_ENTQRY
+"PKG INIT"KEY_ENTQRY""
+KEY_ENTQRY
+VA_ITM_MOVE
+VA_BTN
+MS Sans Serif
+VA_FLD
+MS Sans Serif
+VA_MNDTRY_FLD
+MS Sans Serif
+VA_CHK
+tahoma
+VA_LOV
+MS Sans Serif
+VA_CURREC
+MS Sans Serif
+VA_MAIN
+MS Sans Serif
+VA_SUM
+MS Sans Serif
+VA_EXP_DATE
+MS Sans Serif
+VA_BTCH_NO
+MS Sans Serif
+VA_WEIGH
+MS Sans Serif
+VA_FREE_QTY
+MS Sans Serif
+VA_DISC
+MS Sans Serif
+VA_VAT
+MS Sans Serif
+VA_MOV
+Wingdings 2
+VA_RADIO
+MS Sans Serif
+VA_PRMPT
+tahoma
+VA_HNTTXT
+MS Sans Serif
+VA_HDR
+MS Sans Serif
+VA_TREE
+MS Sans Serif
+VA_ERR
+MS Sans Serif
+VA_MSG
+MS Sans Serif
+VA_VER
+MS Sans Serif
+KEY_EXEQRY
+"PKG INIT"KEY_EXEQRY""
+KEY_EXEQRY
+KEY_LISTVAL_PRC
+STANDARD
+"PKG INIT"KEY_LISTVAL_PRC"P_ITM"V_LOV_NM"V_RTRN_ITM1"V_RTRN_ITM2"V_WHR"V_GO_ITM""
+KEY_LISTVAL_PRC
+	LIST_PROC
+STANDARD
+"PKG INIT"LIST_PROC"V_SHW_LV""
+LIST_PROC
+LOAD_PARAMETERS
+STANDARD
+YSPOS35
+IAS_PARA_POS
+YSPOS35
+IAS_PARA_GEN
+	IAS202535
+IAS_PARA_GEN
+YSPOS35
+IAS_PARA_INV
+	IAS202535
+IAS_PARA_INV
+/LPOSLIB
+GEN_PKG
+SQLFORMS
+YSPOS35
+PRIVILEGE_FIXED
+	IAS202535
+PRIVILEGE_FIXED
+YSPOS35
+S_BRN
+	IAS202535
+S_BRN
+YSPOS35
+USER_R
+	IAS202535
+USER_R
+YSPOS35
+IAS_GNR_CODE_DTL
+	IAS202535
+IAS_GNR_CODE_DTL
+"PKG INIT"LOAD_PARAMETERS"<cursor ptr>"<SQL statement. Line 6>"<SQL statement. Line 38>"<SQL statement. Line 54>"<SQL statement. Line 67>"<SQL statement. Line 81>""
+LOAD_PARAMETERS
+Bar.Btn_Del_Item
+Bar.Btn_Lock_Scrn
+Bar.Btn_Restor_Prnt_Oldbill
+Bar.Btn_Restor_Hng_Bill
+Bar.Btn_Prnt_Bill_Min
+Bar.Btn_End
+Ias_Pos_Bill_Mst.AD_U_ID
+Ias_Pos_Bill_Mst.AD_U_NAME
+Ias_Pos_Bill_Mst.AD_DATE
+Ias_Pos_Bill_Mst.PR_REP
+Ias_Pos_Bill_Mst.UP_U_ID
+Ias_Pos_Bill_Mst.UP_U_NAME
+Ias_Pos_Bill_Mst.UP_DATE
+Ias_Pos_Bill_Mst.UP_CNT
+SELECT NVL(USE_PAID,0),NVL(AUDIT_DEL_ITM,0),NVL(USE_VAT,0),COLLCT_RPT_ITM_PRNT,FTR_BILL,SHOW_AVLQTY_IN_BILL,SHOW_TOOLBAR,PRD_BACK_HOUR,PRD_BACK_INCRS_TYP,PRD_BACK_INCRS_F_DATE,PRD_BACK_INCRS_T_DATE,USE_FDA   FROM IAS_PARA_POS,IAS_PARA_GEN,IAS_PARA_INV"SELECT NVL(PRINT_PREV_BILL,0),NVL(ALLOW_HUNG_BILLS,0),NVL(ALLOW_DEL_ITM_FROM_POS_BILL,0)   FROM PRIVILEGE_FIXED  WHERE U_ID = :b1"SELECT NVL(BRN_LNAME,BRN_FNAME)   FROM S_BRN  WHERE BRN_NO = :b1  AND ROWNUM = 1"SELECT PRINTER_BARCODE_DFLT_NM,PRINTER_BARCODE_PATH   FROM USER_R  WHERE U_ID = :b1"SELECT COUNT(1)   FROM IAS_GNR_CODE_DTL  WHERE MAIN_CODE IN ( 23,24,25  ) AND ROWNUM = 1"
+POST_FORMS_COMMIT_PRC
+"PKG INIT"POST_FORMS_COMMIT_PRC""
+POST_FORMS_COMMIT_PRC
+PRE_FORM_PRC
+STANDARD
+/Lyserpdbalib
+SETUP_PKG
+/LPOSLIB
+GEN_PKG
+/NSPC4/LOAD_PARAMETERS
+SQLFORMS
+FORMS4C
+/NSPC4/SET_MENUS
+FORMS40
+/NSPC4/FILL_ALL_LIST_PRC
+/NSPC4/SET_POS_PRC
+"PKG INIT"PRE_FORM_PRC"V_ALT""
+PRE_FORM_PRC
+ias_pos_bill_mst
+ias_pos_bill_dtl
+TERMINAL
+YSPOS_MNU.mmx
+records_menu.add
+records_menu.save_rec
+records_menu.undo
+extra_tools.kepad
+extra_tools.weighted
+extra_tools.lengthed
+extra_tools.printoldbill
+extra_tools.opendrawer
+records_menu.lst_rec
+records_menu.nxt_rec
+records_menu.prev_rec
+records_menu.frst_rec
+bgm.item_search
+bgm.delitem
+bgm.change_qty
+bgm.change_price
+bgm.change_discount
+bgm.dis_value
+bgm.dis_per
+bgm.hung_bill
+bgm.print_bill
+bgm.change_cur
+bgm.change_bill_type
+bgm.payed
+bgm.multi_pay
+bgm.bill_note
+EXTRA_TOOLS.help
+extra_tools.reterive_hung
+LOV_C_CODE
+LOV_A_CY
+LOV_PAY_CUR
+LOV_HUNG_BILLS
+LOV_BANK
+LOV_CR_CARD
+LOV_OLDBILLS
+LOV_OLDRTBILLS
+LOV_I_CODE
+LOV_I_NAME
+LOV_PRSPN_DOSAGE
+LOV_PRSPN_USG
+LOV_PRSPN_USG_DRTON
+LOV_PRSPN_USG_MTHD
+IAS_POS_BILL_DTL
+PRINT_PROC_OLD
+STANDARD
+TOOLS
+"PKG INIT"PRINT_PROC_OLD"P_PR_TYPE"P_PRINTER_NAME"V_WHR"V_DEST_TYPE"V_P_LST"ID"V_REP_NAME"V_LANG_NO"V_PRNT"V_TITLE""
+PRINT_PROC_OLD
+	SAVE_PROC
+STANDARD
+/NSPC4/B4SAVE_PRC
+SQLFORMS
+FORMS40
+FORMS4C
+IAS_GEN_PKG
+YSPOS35
+IAS_GEN_PKG
+/NSPC4/PRINT_PROC
+"PKG INIT"SAVE_PROC""
+SAVE_PROC
+QUERY
+Bar.Exit_Btn
+IAS_GEN_PKGYSPOS35GET_MSGIAS
+IAS_GEN_PKG
+Bar.Dummy
+RollBack
+SET_POS_PRC
+STANDARD
+/LPOSLIB
+GEN_PKG
+FORMS40
+FORMS4C
+"PKG INIT"SET_POS_PRC"P_BLK_NM"V_X_POS""
+SET_POS_PRC
+.I_CODE
+,Item_Name,SUM_QTY,DISC_AMT_MST,TOT_ITEM_PRICE,TOT_DISC,SUM_TOTAL_VAT_AMT,SUM_DISC_AMT,NET_AMT,DISC_AMT_DTL,
+Ias_Pos_Bill_Dtl.Sum_Total
+Ias_Pos_Bill_Dtl.TOT_ITEM_PRICE
+IAS_POS_BILL_MST.SUM_DISC_AMT
+IAS_POS_BILL_MST.NET_AMT
+UPDATE_PROC
+"PKG INIT"UPDATE_PROC""
+UPDATE_PROC
+WHEN_NEW_FORM_INSTANCE_PRC
+STANDARD
+FORMS4W
+SQLFORMS
+FORMS4C
+FORMS40
+YS_GEN_PKG
+YSPOS35
+YS_GEN_PKG
+"PKG INIT"WHEN_NEW_FORM_INSTANCE_PRC"V_ALT"V_BILL_NO""
+WHEN_NEW_FORM_INSTANCE_PRC
+lov_oldbills
+IAS_POS_BILL_MST
+Bill_No = 
+Ias_Pos_Bill_Dtl
+ias_pos_bill_dtl.Field_Dtl1
+ias_pos_bill_mst.bil_no
+Bar.Btn_save
+YS_GEN_PKGYSPOS35GET_PROMPTY
+YS_GEN_PKG
+Bar.Btn_End
+YS_GEN_PKGYSPOS35GET_PROMPTY
+YS_GEN_PKG
+WHEN_TAB_PAGE_CHANGED_PRC
+"PKG INIT"WHEN_TAB_PAGE_CHANGED_PRC""
+WHEN_TAB_PAGE_CHANGED_PRC
+WHEN_TIMER_EXPIRED_PRC
+"PKG INIT"WHEN_TIMER_EXPIRED_PRC""
+WHEN_TIMER_EXPIRED_PRC
+CHANGE_CURR_PC
+STANDARD
+"PKG INIT"CHANGE_CURR_PC"V_QOUT_NO"V_I_PRICE""
+CHANGE_CURR_PC
+	SET_MENUS
+STANDARD
+FORMS4C
+FORMS40
+"PKG INIT"SET_MENUS"TRUEFALSE""
+SET_MENUS
+extra_tools.kepad
+extra_tools.opendrawer
+bgm.item_search
+bgm.delitem
+bgm.hung_bill
+bgm.print_bill
+bgm.change_cur
+bgm.change_bill_type
+bgm.payed
+bgm.multi_pay
+bgm.bill_note
+EXTRA_TOOLS.help
+bgm.dis_value
+bgm.dis_per
+RECORDS_MENU.DEL_REC
+records_menu.lst_rec
+records_menu.nxt_rec
+records_menu.prev_rec
+records_menu.frst_rec
+extra_tools.reterive_hung
+EXTRA_TOOLS.PRINTOLDBILL
+extra_tools.weighted
+extra_tools.lengthed
+VA_PRG
+MS Sans Serif
+VA_HNT
+MS Sans Serif
+VA_FTR
+MS Sans Serif
+VA_FLD_USR
+MS Sans Serif
+VA_PRNT
+MS Sans Serif
+VA_DSPLY
+MS Sans Serif
+VA_TOOLTIP
+MS Sans Serif
+VA_BAR
+MS Sans Serif
+VA_RCRD_MOV
+tahoma
+VA_FRM_PRNT
+tahoma
+VA_FRM_NL_CLR
+FIELD_POSITION
+STANDARD
+FORMS4C
+FORMS40
+/LPOSLIB
+GEN_PKG
+"PKG INIT"FIELD_POSITION""
+FIELD_POSITION
+Ias_Pos_Bill_Dtl.Sum_Total
+Ias_Pos_Bill_Dtl.Dummy_Vat_Amt
+Ias_Pos_Bill_Dtl.Sum_Total_Vat_Amt
+GET_ITEM_INFO
+STANDARD
+YSPOS35
+IAS_ITM_MST
+	IAS202535
+IAS_ITM_MST
+"PKG INIT"GET_ITEM_INFO"<cursor ptr>"<SQL statement. Line 4>""
+GET_ITEM_INFO
+SELECT DECODE(:b1,1,NVL(I_NAME,I_E_NAME),NVL(I_E_NAME,I_NAME))   FROM IAS_ITM_MST  WHERE I_CODE = :b2"
+GET_PRICE_RATE
+STANDARD
+YSPOS35
+IAS_PRICING_LEVELS
+	IAS202535
+IAS_PRICING_LEVELS
+/LPOSLIB
+GEN_PKG
+FORMS4C
+SQLFORMS
+YSPOS35
+EX_RATE
+	IAS202535
+EX_RATE
+"PKG INIT"GET_PRICE_RATE"<cursor ptr>"<SQL statement. Line 5>"<SQL statement. Line 15>"<SQL statement. Line 24>""
+GET_PRICE_RATE
+SELECT A_CY   FROM IAS_PRICING_LEVELS  WHERE LEV_NO = :b1"SELECT CUR_RATE   FROM EX_RATE  WHERE NVL(STOCK_CUR,0) = 1"SELECT CUR_RATE   FROM EX_RATE  WHERE CUR_CODE = :b1"
+CHECK_PACKAGE_FAILURE
+SQLFORMS
+STANDARD
+"PKG INIT"CHECK_PACKAGE_FAILURE""
+CHECK_PACKAGE_FAILURE
+QUERY_MASTER_DETAILS
+STANDARD
+FORMS4C
+FORMS40
+SQLFORMS
+/NSPC4/CHECK_PACKAGE_FAILURE
+"PKG INIT"QUERY_MASTER_DETAILS"REL_ID"ID"DETAIL"OLDMSG"RELDEF""
+QUERY_MASTER_DETAILS
+FALSE
+CLEAR_ALL_MASTER_DETAILS
+STANDARD
+FORMS40
+FORMS4C
+SQLFORMS
+/NSPC4/CHECK_PACKAGE_FAILURE
+"PKG INIT"CLEAR_ALL_MASTER_DETAILS"MASTBLK"COORDOP"TRIGBLK"STARTITM"FRMSTAT"CURBLK"CURREL"CURDTL"FIRST_CHANGED_BLOCK_BELOW"MASTER"RETBLK""
+CLEAR_ALL_MASTER_DETAILS
+CLEAR_RECORD
+SYNCHRONIZE_BLOCKS
+CHANGED
+QUERY
+FIRST_CHANGED_BLOCK_BELOW
+PRINT_PROC
+STANDARD
+TOOLS
+EX_RATE
+YSPOS35
+EX_RATE
+	IAS202535
+EX_RATE
+TEXT_IO
+	V_DETAILS
+YSPOS35
+	V_DETAILS
+	IAS202535
+	V_DETAILS
+IAS_ITM_UNT_BARCODE
+YSPOS35
+IAS_ITM_UNT_BARCODE
+	IAS202535
+IAS_ITM_UNT_BARCODE
+YSPOS35
+IAS_POS_BILL_DTL
+TOOL_ENV
+SQLFORMS
+/LPOSLIB
+GEN_PKG
+YSPOS35
+IAS_ITM_MST
+	IAS202535
+IAS_ITM_MST
+"PKG INIT"PRINT_PROC"P_PR_TYPE"P_PRINTER_NAME"V_SQLS"PL_ID"ID"V_REP_NAME"V_A_CY"V_CNT"V_OUT_FILE"HANDLE"V_SYS_PATH"V_PATH"V_POS"V_STR"V_V_CODE"V_REP_SMPLE"V_PRINTER_NAME"V_DFLT_LEV_NO"V_ITM_DISC_PER"V_ITM_DISC_AMT"V_ITM_BARCODE"V_CNT_PRNT"V_EXPDATE"V_C_CODE"<cursor ptr>"<SQL statement. Line 31>"C_ITMS"I_CODE"I_NAME"ITM_UNT"I_QTY"EXPIRE_DATE"FIELD_DTL1"FIELD_DTL2"FIELD_DTL3"FIELD_DTL4"USG_ITM"V_ROW_CNT"V_SEPERATE_LINE"I_ITMS""
+PRINT_PROC
+Err. When Fetch Data From ias_pos_bill_dtl 
+UI_ICON
+Ys_Print_Barcode\Pos_Print_Barcode
+Error When Send Data To Printer
+01/01/1900
+Ys_Print_Barcode\Bartend.Exe" "
+Ys_Print_Barcode\Pos_Print_Barcode.Btw" /P /X 
+Ys_Print_Barcode\Pos_Print_Barcode.Btw" /P /X /PRN="
+SELECT COUNT(1)   FROM IAS_POS_BILL_DTL  WHERE BILL_NO = :b1  AND FIELD_DTL1 || FIELD_DTL2  || FIELD_DTL3  || FIELD_DTL4  IS NOT NULL   OR USG_ITM IS NOT NULL   AND ROWNUM <= 1"SELECT D.I_CODE,M.I_NAME,D.ITM_UNT,D.I_QTY,D.EXPIRE_DATE,D.FIELD_DTL1,D.FIELD_DTL2,D.FIELD_DTL3,D.FIELD_DTL4,D.USG_ITM   FROM IAS_ITM_MST M,IAS_POS_BILL_DTL D  WHERE D.BILL_NO = :b1  AND D.I_CODE = M.I_CODE  AND (D.FIELD_DTL1 || D.FIELD_DTL2  || D.FIELD_DTL3  || D.FIELD_DTL4  IS NOT NULL   OR USG_ITM IS NOT NULL  )ORDER BY RCRD_NO"
+CALL_SCR_LNK_PRC
+STANDARD
+TOOLS
+FORMS40
+FORMS4W
+/LPOSLIB
+CALL_BAR_BTN_SCR
+SQLFORMS
+"PKG INIT"CALL_SCR_LNK_PRC"PL_ID"ID"PL_NAME""
+CALL_SCR_LNK_PRC
+tempdata
+WIN_CALL_SCR_LNK
+tahoma
+VA_NO_COLOR
+tahoma
+VA_FRM_CLR
+tahoma
+VA_DNT_MODFY
+tahoma
+KGROUPS
+MS Sans Serif
+WEIGTHED
+MS Sans Serif
+LENGTHED
+MS Sans Serif
+#POPUPHINT#
+YsErp_Ys
+tahoma
+Print Options
+tahoma
+Delete Item
+Shorcuts
+Calender\
+Lock_Scr
+MS Sans Serif
+1366*768
+IAS_POS_BILL_DTL
+ibrahim
+POSLIB
+POSLIB
+yserpdbalib
+YSERPDBALIB
+D2kcomn
+D2KCOMN
+D2kwutil
+D2KWUTIL
+RG_C_CODE
+Select customer.c_code,
+       Decode (:Parameter.Lang_No,1, Nvl (c_a_name, c_e_name),
+                Nvl (c_e_name, c_a_name)) c_name,
+       Decode (:Parameter.Lang_No,1, Nvl (c_group_a_name, c_group_e_name),
+                Nvl (c_group_e_name, c_group_a_name)) group_name,
+       customer.c_a_code a_code
+  From customer,Customer_Group
+ Where 
+     customer.c_Group_Code = Customer_Group.c_Group_Code(+) 
+ And ((:Parameter.User_No = 1)
+        Or (((:Parameter.Aralt = 1)
+          And Exists (
+                   Select 1
+                     From Priv_Acc
+                    Where U_Id = :Parameter.User_No
+                      And A_Code = customer.c_a_code
+                      And Nvl(Add_Flag,0) = 1 
+                      And RowNum <=1 ))
+ Or ((:Parameter.Aralt = 2)
+            And Exists (
+                   Select 1
+                     From Ias_Priv_customer
+                    Where U_Id = :Parameter.User_No
+                      And c_code = customer.c_code
+                      And Nvl(Add_Flag,0) = 1
+                      And RowNum <=1 ))))
+And  customer.c_code Like  Decode(:ias_pos_bill_mst.c_code,Null,'%',:ias_pos_bill_mst.c_code||'%') 
+Order By c_code
+C_CODE
+C_NAME
+GROUP_NAME
+A_CODE
+RG_A_CY
+Select Distinct Cur_Code,
+       Decode(:Parameter.Lang_No ,1,Nvl(Cur_Name,Cur_E_Name),Nvl(Cur_E_Name,Cur_Name)) Cur_Name ,
+       Cur_Rate
+ From Ex_Rate ,Ias_Cash_In_Hand_Dtl
+  Where Ias_Cash_In_Hand_Dtl.A_Cy = Ex_Rate.Cur_Code
+   And Nvl(Inactive,0) = 0 
+   And Exists( Select 1 From User_R
+                 Where U_Id = :Parameter.User_No
+                  And User_R.A_Code Is Not Null   
+                  And User_R.A_Code =Ias_Cash_In_Hand_Dtl.A_Code 
+                  And User_R.Cash_No =Ias_Cash_In_Hand_Dtl.Cash_No
+                  And Rownum  <=1  )
+CUR_CODE
+CUR_NAME
+CUR_RATE
+RG_FIELD_DT1
+Select Distinct FIELD_DTL1
+From ias_pos_bill_dtl
+Where FIELD_DTL1 IS NOT NULL
+union all
+Select Distinct FIELD_DTL1
+From ias_pos_hst_bill_dtl
+Where FIELD_DTL1 IS NOT NULL
+FIELD_DTL1
+RG_FIELD_DTL2
+Select Distinct FIELD_DTL2
+From ias_pos_bill_dtl
+Where FIELD_DTL2 IS NOT NULL
+union all
+Select Distinct FIELD_DTL2
+From ias_pos_hst_bill_dtl
+Where FIELD_DTL2 IS NOT NULL
+FIELD_DTL2
+RG_FIELD_DTL3
+Select Distinct FIELD_DTL3
+From ias_pos_bill_dtl
+Where FIELD_DTL3 IS NOT NULL
+union all
+Select Distinct FIELD_DTL3
+From ias_pos_hst_bill_dtl
+Where FIELD_DTL3 IS NOT NULL
+FIELD_DTL3
+RG_FIELD_DTL4
+Select Distinct FIELD_DTL4
+From ias_pos_bill_dtl
+Where FIELD_DTL4 IS NOT NULL
+union all
+Select Distinct FIELD_DTL4
+From ias_pos_hst_bill_dtl
+Where FIELD_DTL4 IS NOT NULL
+FIELD_DTL4
+RG_HUNG_BILLS
+Select bill_no,
+       bill_date,
+       bill_time,
+       Decode(Nvl(hung,0),1,Ias_Gen_Pkg.Get_Prompt(:Parameter.Lang_No,723),
+       Ias_Gen_Pkg.Get_Prompt(:Parameter.Lang_No,724)) bill_hung,
+       Decode(Nvl(Paid_Bill,0),1,Ias_Gen_Pkg.Get_Prompt(:Parameter.Lang_No,723),
+       Ias_Gen_Pkg.Get_Prompt(:Parameter.Lang_No,724)) BILL_PAID,
+       AD_U_ID,
+       MACHINE_NO
+ From ias_pos_bill_mst 
+    Where 
+( :Parameter.User_No=1 or ias_pos_bill_mst.ad_u_id = :Parameter.user_no or :Parameter.user_no=(SELECT U_MNG FROM USER_R WHERE U_ID=ias_pos_bill_mst.ad_u_id ))
+     And Nvl(hung,0) = 1
+     or Nvl(Paid_Bill,0)=Decode(:Parameter.Use_Paid,1,0,-1)
+    Order By bill_date,To_Date(bill_time ,'HH24:MI:SS') Desc
+BILL_NO
+BILL_DATE
+BILL_TIME
+BILL_HUNG
+BILL_PAID
+AD_U_ID
+MACHINE_NO
+RG_BANK
+Select bank_no ,
+       bank_name 
+  From cash_at_bank 
+   Where Exists ( Select 1     From priv_cash 
+      Where cash_at_bank.bank_no = priv_cash.cash_no
+       And cash_type=2
+       And u_id=:Parameter.User_no 
+       And Nvl(add_flag,0)=1 
+       And RowNum <= 1 )
+       And bank_no Like 
+Decode(:ias_pos_bill_mst.cash_no,Null,'%',:ias_pos_bill_mst.cash_no||'%') 
+ Order By bank_no
+BANK_NO
+BANK_NAME
+RG_CR_CARD
+Select cr_card_No,Decode(:Parameter.Lang_no,1
+                       ,Nvl(cr_card_name,cr_card_e_name),Nvl(cr_card_e_name,cr_card_name)) cr_card_name
+ From credit_card_types
+   Where cr_card_no Like Decode(:ias_pos_bill_mst.cr_card_no,Null,'%',:ias_pos_bill_mst.cr_card_no||'%')   Order By cr_card_no
+CR_CARD_NO
+CR_CARD_NAME
+RG_OLDBILLS
+Select bill_no    ,
+       bill_date  ,
+       bill_time  ,
+       bill_amt   ,
+       AD_U_ID,
+       MACHINE_NO
+From ias_pos_bill_mst 
+Where Nvl(hung,0)= 0
+  And Bill_Date=To_Date(To_Char(Ias_Gen_Pkg.Get_Sysdate,'DD/MM/YYYY'))
+ Order By  bill_no desc
+BILL_NO
+BILL_DATE
+BILL_TIME
+BILL_AMT
+AD_U_ID
+MACHINE_NO
+RG_OLDRTBILLS
+Select rt_bill_no    ,
+       rt_bill_date  ,
+       rt_bill_time  ,
+       rt_bill_amt   ,
+       Ad_Date
+Select rt_bill_no    ,
+       rt_bill_date  ,
+       rt_bill_time  ,
+       rt_bill_amt   ,
+       Ad_Date
+From ias_pos_rt_bill_mst 
+Where machine_no = :Parameter.machine_no
+  And ad_u_id    = :Parameter.user_no
+  And Nvl(hung,0)= 0
+Union All
+Select rt_bill_no    ,
+       rt_bill_date  ,
+       rt_bill_time  ,
+       rt_bill_amt   ,
+       Ad_Date
+From ias_pos_rt_bill_mst 
+Where machine_no = :Parameter.machine_no
+  And ad_u_id    = :Parameter.user_no
+  And Nvl(hung,0)= 0
+ Order By Ad_Date desc
+ Order By Ad_Date desc
+RT_BILL_NO
+RT_BILL_DATE
+RT_BILL_TIME
+RT_BILL_AMT
+AD_DATE
+RG_ITM_UNT
+Select   D.Itm_Unt,
+         Lvl_Unit,
+         P_Size
+    From Ias_Itm_Mst M,Ias_Itm_Dtl D 
+   Where M.I_Code=D.I_Code
+     And D.I_Code = :IAS_POS_BILL_DTL.I_Code
+Order By Lvl_Unit
+ITM_UNT
+LVL_UNIT
+P_SIZE
+RG_I_CODE
+select m.i_code,decode(:Parameter.Lang_No,1,nvl(i_name,i_e_name),nvl(i_e_name,i_name)) i_name,d.itm_unt unit,m.i_desc
+ From Ias_Itm_Mst M,Ias_Itm_Dtl D 
+ Where M.I_Code=D.I_Code
+And Nvl(D.Main_Unit,0)=1 
+And Nvl(service_itm,0)=0
+and Exists (select 1 from privilege_gc where u_id=:Parameter.User_no and g_code=m.g_code and add_flag=1 and RowNum<=1)
+And Get_Items_ACtivity(m.Activity_No,
+                       :Parameter.User_No       ,
+                       :Parameter.Conn_Itm_Act_By_Usr_Priv) = 1
+and m.i_code Like decode(:ias_pos_bill_dtl.i_code,Null,'%','%'||:ias_pos_bill_dtl.i_code||'%')
+order by Decode(:Parameter.Lang_No,1,i_name,i_e_name),m.i_code
+I_CODE
+I_NAME
+I_DESC
+RG_I_NAME
+select decode(:Parameter.Lang_No,1,nvl(i_name,i_e_name),nvl(i_e_name,i_name)) i_name,m.i_code,d.itm_unt unit,m.i_desc
+From Ias_Itm_Mst M,Ias_Itm_Dtl D 
+ Where M.I_Code=D.I_Code
+And Nvl(D.Main_Unit,0)=1 
+And Nvl(service_itm,0)=0
+and Exists (select 1 from privilege_gc where u_id=:Parameter.User_no and g_code=m.g_code and add_flag=1 and RowNum<=1)
+And Get_Items_ACtivity(m.Activity_No,
+                       :Parameter.User_No       ,
+                       :Parameter.Conn_Itm_Act_By_Usr_Priv) = 1
+and decode(:Parameter.Lang_No,1,I_name,i_e_name) Like decode(:ias_pos_bill_dtl.i_code,Null,'%','%'||:ias_pos_bill_dtl.i_code||'%')
+order by Decode(:Parameter.Lang_No,1,i_name,i_e_name),m.i_code
+I_NAME
+I_CODE
+I_DESC
+RG_PRSPN_DOSAGE
+SELECT SUB_NO ,
+ DECODE(:PARAMETER.LANG_NO ,1,NVL(SUB_L_NAME,SUB_F_NAME),
+ NVL(SUB_F_NAME,SUB_L_NAME))SUB_NAME
+FROM  IAS_GNR_CODE_DTL  
+WHERE MAIN_CODE=23 
+  ORDER BY RCRD_NO
+SUB_NO
+SUB_NAME
+RG_PRSPN_USG
+SELECT SUB_NO ,
+ DECODE(:PARAMETER.LANG_NO ,1,NVL(SUB_L_NAME,SUB_F_NAME),
+ NVL(SUB_F_NAME,SUB_L_NAME))SUB_NAME
+FROM  IAS_GNR_CODE_DTL  
+WHERE MAIN_CODE=24 
+  ORDER BY RCRD_NO
+SUB_NO
+SUB_NAME
+RG_PRSPN_USG_DRTON
+SELECT SUB_NO ,
+ DECODE(:PARAMETER.LANG_NO ,1,NVL(SUB_L_NAME,SUB_F_NAME),
+ NVL(SUB_F_NAME,SUB_L_NAME))SUB_NAME
+FROM  IAS_GNR_CODE_DTL  
+WHERE MAIN_CODE=25 
+  ORDER BY RCRD_NO
+SUB_NO
+SUB_NAME
+RG_PRSPN_USG_MTHD
+SELECT SUB_NO ,
+ DECODE(:PARAMETER.LANG_NO ,1,NVL(SUB_L_NAME,SUB_F_NAME),
+ NVL(SUB_F_NAME,SUB_L_NAME))SUB_NAME
+FROM  IAS_GNR_CODE_DTL  
+WHERE MAIN_CODE=26 
+  ORDER BY RCRD_NO
+SUB_NO
+SUB_NAME
+333333
+p=p=p=
+(\(\(\
+ffffff
+MS Sans Serif
+MS Sans Serif
+Add2_Btn_Erp
+P53_16_JAN_201412_58_41
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_ADD2
+Add_Btn_Erp
+P54_16_JAN_201412_58_41
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY-CREREC
+Updt_Btn_Erp
+P52_16_JAN_201412_58_41
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_MODREC
+Dlt_Btn_Erp
+P51_16_JAN_201412_58_41
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY-DELREC
+EntQry_Btn
+P45_16_JAN_201412_58_41
+STANDARD
+/NSPC4/KEY_EXEQRY
+/NSPC4/KEY_ENTQRY
+"PKG INIT"<anonymous>""
+ENTER-QUERY
+Lst_Srch_Btn_Erp
+P46_16_JAN_201412_58_41
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY-MENU
+Frst_Rcrd_Btn_Erp
+P48_16_JAN_201412_58_41
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_FRSTREC
+Prvs_Rcrd_Btn_Erp
+P50_16_JAN_201412_58_41
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_PRVSREC
+Nxt_Rcrd_Btn_Erp
+P49_16_JAN_201412_58_41
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_NXTREC
+Lst_Rcrd_Btn_Erp
+P47_16_JAN_201412_58_41
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_LSTREC
+Save_Btn_Erp
+P44_16_JAN_201412_58_41
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY-COMMIT
+Rprt_Btn_Erp
+P42_16_JAN_201412_58_41
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY-PRINT
+Tree_Btn_Erp
+P41_16_JAN_201412_58_41
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_TREESCR
+Lck_Scr_Btn_Erp
+P10_18_AUG_201411_30_34
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_LCKSCR
+Log_Off
+P43_16_JAN_201412_58_41
+STANDARD
+SQLFORMS
+/LPOSLIB
+POS_MNU_PKG
+"PKG INIT"<anonymous>""
+IAS_POS_BILL_MST
+Click Here to View The Calender
+MS Sans Serif
+Calender
+listval
+P6_11_OCT_202306_15_04
+STANDARD
+FORMS40
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+Clndr.S_Date
+Win_Clndr
+Print Previous Bill
+tahoma
+locked
+P33_28_SEP_201607_18_11
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+Dmy_Lock.Dmy_Pass
+P34_28_SEP_201607_18_11
+STANDARD
+FORMS4C
+FORMS40
+"PKG INIT"<anonymous>""
+bar.Btn_Lock_Scrn
+P35_28_SEP_201607_18_11
+STANDARD
+FORMS4C
+FORMS40
+"PKG INIT"<anonymous>""
+bar.Btn_Lock_Scrn
+Hang Bill
+Paymnt
+Outgoing_btn
+P10_02_NOV_201722_17_27
+STANDARD
+SQLFORMS
+FORMS4W
+FORMS40
+FORMS4C
+"PKG INIT"<anonymous>"V_SHLOV"V_CNT"V_BILL_NO""
+IAS_POS_BILL_MST
+LOV_OLDBILLS
+Ias_Pos_Bill_Mst.Bill_No
+Bill_No = 
+Ias_Pos_Bill_Dtl
+ias_pos_bill_dtl.Field_Dtl1
+P11_02_NOV_201722_17_27
+STANDARD
+FORMS4C
+FORMS40
+"PKG INIT"<anonymous>""
+bar.BTN_HNG_BILL
+P12_02_NOV_201722_17_27
+STANDARD
+FORMS4C
+FORMS40
+"PKG INIT"<anonymous>""
+bar.BTN_HNG_BILL
+IAS_POS_BILL_MST
+IAS_POS_BILL_MST
+Tahoma
+Bill No
+P13_14_MAR_201421_47_52
+STANDARD
+SQLFORMS
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_dtl
+ias_pos_bill_dtl.field_dtl1
+P4_02_NOV_201715_58_30
+STANDARD
+FORMS4C
+FORMS40
+FORMS4W
+SQLFORMS
+"PKG INIT"<anonymous>"V_SHLOV"V_CNT"V_BILL_NO""
+Ias_Pos_Bill_Mst.Bill_No
+LOV_OLDBILLS
+IAS_POS_BILL_MST
+Bill_No = 
+Ias_Pos_Bill_Dtl
+ias_pos_bill_dtl.Field_Dtl1
+Bill Date
+dd/mm/yyyy
+dd/mm/yyyy
+P14_14_MAR_201421_47_52
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_mst.bill_time
+Tahoma
+bill_pay_type
+P15_14_MAR_201421_47_52
+STANDARD
+/LPOSLIB
+GEN_PKG
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_mst.c_code
+ias_pos_bill_mst.cheque_no
+ias_pos_bill_mst.cheque_amt
+ias_pos_bill_mst.cheque_due_date
+ias_pos_bill_mst.cash_no
+ias_pos_bill_mst.credit_card
+ias_pos_bill_mst.cr_card_no
+ias_pos_bill_mst.cr_card_amt
+ias_pos_pay_bills.pay_amt
+P16_14_MAR_201421_47_52
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_pay_bills.pay_amt
+ias_pos_bill_mst.c_code
+ias_pos_bill_mst.cash_no
+Arial
+C_Code
+Tahoma
+C_Code
+bill_time
+Bill Time
+Tahoma
+C_Name
+Bill Note
+P17_14_MAR_201421_47_52
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_pay_bills.pay_amt
+P18_14_MAR_201421_47_52
+STANDARD
+YSPOS35
+CUSTOMER
+	IAS202535
+CUSTOMER
+"PKG INIT"<anonymous>"<cursor ptr>"<SQL statement. Line 3>""
+SELECT DECODE(:b1,1,NVL(C_A_NAME,C_E_NAME),NVL(C_E_NAME,C_A_NAME))   FROM CUSTOMER  WHERE C_CODE = :b2"
+P8_29_JAN_202516_54_07
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_pay_bills.pay_amt
+P9_29_JAN_202516_54_07
+STANDARD
+YSPOS35
+CUSTOMER
+	IAS202535
+CUSTOMER
+"PKG INIT"<anonymous>"<cursor ptr>"<SQL statement. Line 3>""
+SELECT DECODE(:b1,1,NVL(C_A_NAME,C_E_NAME),NVL(C_E_NAME,C_A_NAME))   FROM CUSTOMER  WHERE C_CODE = :b2"
+P19_14_MAR_201421_47_52
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_mst.bill_note
+P22_14_MAR_201421_47_52
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_mst.a_cy
+Cur Code
+Tahoma
+Tahoma
+PAYED_AMT
+Payed Amt
+Tahoma
+Tahoma
+POSTED
+Posted
+MACHINE_NO
+Machine No
+REPORTED
+Reported
+Tahoma
+Credit_Card
+P30_14_MAR_201421_47_52
+STANDARD
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>""
+ias_pos_bill_mst.cr_card_no
+ias_pos_bill_mst.cr_card_amt
+P31_14_MAR_201421_47_52
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_mst.cr_card_no
+Arial
+Cr_Card
+Tahoma
+P32_14_MAR_201421_47_52
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_mst.bill_type
+P33_14_MAR_201421_47_52
+STANDARD
+FORMS40
+SQLFORMS
+"PKG INIT"<anonymous>""
+ias_pos_bill_mst.cr_card_no
+ias_pos_bill_mst.cr_card_amt
+ias_pos_pay_bills.pay_amt
+P34_14_MAR_201421_47_52
+STANDARD
+FORMS4C
+FORMS40
+FORMS4W
+"PKG INIT"<anonymous>"X""
+ias_pos_bill_mst.cr_card_no
+lov_cr_card
+ias_pos_pay_bills.pay_amt
+ias_pos_bill_mst.cr_card_amt
+P35_14_MAR_201421_47_52
+STANDARD
+YSPOS35
+CREDIT_CARD_TYPES
+	IAS202535
+CREDIT_CARD_TYPES
+SQLFORMS
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>"CNT"<cursor ptr>"<SQL statement. Line 7>""
+ftr.err
+SELECT 1   FROM CREDIT_CARD_TYPES  WHERE CR_CARD_NO = :b1  AND ROWNUM <= 1"
+Arial
+Cr Amt
+P36_14_MAR_201421_47_52
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_pay_bills.pay_amt
+Cash_No
+P37_14_MAR_201421_47_52
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_mst.cash_no
+ias_pos_bill_mst.cheque_no
+P38_14_MAR_201421_47_52
+STANDARD
+FORMS4C
+FORMS40
+FORMS4W
+"PKG INIT"<anonymous>"X""
+ias_pos_bill_mst.cash_no
+lov_bank
+ias_pos_bill_mst.cheque_no
+P39_14_MAR_201421_47_52
+STANDARD
+YSPOS35
+CASH_AT_BANK
+	IAS202535
+CASH_AT_BANK
+SQLFORMS
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>"CNT"<cursor ptr>"<SQL statement. Line 8>""
+ftr.err
+SELECT 1   FROM CASH_AT_BANK  WHERE BANK_NO = :b1  AND ROWNUM <= 1"
+Cheque No
+Cheque Amt
+P40_14_MAR_201421_47_52
+FORMS40
+STANDARD
+FORMS4C
+"PKG INIT"<anonymous>""
+ias_pos_bill_mst.cheque_due_date
+ias_pos_pay_bills.pay_amt
+Cheque
+DueDate
+DD/MM/YYYY
+DD/MM/YYYY
+P41_14_MAR_201421_47_52
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_pay_bills.pay_amt
+Tahoma
+Cash Name
+Tahoma
+Tahoma
+AD_U_ID
+MS Sans Serif
+Create User
+Tahoma
+FM999999999999999999999
+FM999999999999999999999
+Ias_Usr_Pkg.Get_Usr_Nm (Ad_U_Id ,IAS_PRMTR_PKG.GetPval(p_prmtr =>'LANG_NO'))
+AD_DATE
+Create Date
+DD/MM/RRRR HH24:MI:SS
+DD/MM/RRRR HH24:MI:SS
+PR_REP
+Print Count
+FM999999999999999999999
+FM999999999999999999999
+UP_U_ID
+Last Update User
+FM999999999999999999999
+FM999999999999999999999
+Ias_Usr_Pkg.Get_Usr_Nm ( Up_U_Id ,IAS_PRMTR_PKG.GetPval(p_prmtr =>'LANG_NO'))
+UP_DATE
+Last Update Date
+DD/MM/RRRR HH24:MI:SS
+DD/MM/RRRR HH24:MI:SS
+UP_CNT
+Update Count
+FM999999999999999999999
+FM999999999999999999999
+MS Sans Serif
+19408
+FDA No
+20777
+Printing By Quantity
+P4_14_MAR_201421_47_52
+"PKG INIT"<anonymous>""
+P5_14_MAR_201421_47_52
+STANDARD
+YSPOS35
+CUSTOMER
+	IAS202535
+CUSTOMER
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>"<cursor ptr>"<SQL statement. Line 4>""
+SELECT DECODE(:b1,NVL(C_A_NAME,C_E_NAME),NVL(C_E_NAME,C_A_NAME))   FROM CUSTOMER  WHERE C_CODE = :b2"
+P6_14_MAR_201421_47_52
+STANDARD
+/LPOSLIB
+GEN_PKG
+SQLFORMS
+FORMS4C
+/NSPC4/SET_MENUS
+"PKG INIT"<anonymous>""
+CHANGED
+ias_pos_bill_mst
+P7_14_MAR_201421_47_52
+"PKG INIT"<anonymous>""
+P11_02_NOV_201715_58_30
+STANDARD
+FORMS4C
+FORMS40
+/NSPC4/QUERY_MASTER_DETAILS
+/NSPC4/CHECK_PACKAGE_FAILURE
+"PKG INIT"<anonymous>"RECSTAT"STARTITM"REL_ID"ID""
+INSERT
+IAS_POS_BILL_MST.IAS_POS_BILL_MS_IAS_POS_BILL_D
+IAS_POS_BILL_DTL
+P12_02_NOV_201715_58_30
+STANDARD
+YSPOS35
+IAS_POS_BILL_DTL
+"PKG INIT"<anonymous>"<cursor ptr>"<SQL statement. Line 9>""
+DELETE FROM IAS_POS_BILL_DTL I WHERE I.BILL_NO = :b1"
+IAS_POS_BILL_DTL
+IAS_POS_BILL_DTL
+Bill No
+I Code
+P49_14_MAR_201421_47_52
+STANDARD
+/NSPC4/GET_ITEM_INFO
+"PKG INIT"<anonymous>""
+P52_14_MAR_201421_47_52
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_dtl.Field_Dtl1
+ITEM NAME
+P12_01_DEC_201414_22_55
+"PKG INIT"<anonymous>""
+P11_01_DEC_201414_22_55
+STANDARD
+FORMS4C
+FORMS40
+FORMS4W
+"PKG INIT"<anonymous>"V_SHLV""
+INSERT
+IAS_POS_BILL_DTL.Itm_Unt
+LOV_ITM_UNT
+P10_01_DEC_201414_22_55
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_dtl.Field_Dtl1
+I Qty
+P56_14_MAR_201421_47_52
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_dtl.Field_Dtl1
+P13_02_NOV_201715_58_30
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_dtl.Field_Dtl1
+FIELD_DTL1
+10471
+Desc 1
+FIELD_DTL2
+10472
+Desc 2
+FIELD_DTL3
+10473
+ Desc 3
+FIELD_DTL4
+10474
+Desc 4
+Bill No
+DD/MM/YYYY
+DD/MM/YYYY
+Sum Qty
+USG_ITM
+MS Sans Serif
+USG_ITM
+Times New Roman
+Times New Roman
+18934
+Sys Clndr
+S_Date
+DD/MM/RRRR
+DD/MM/RRRR
+18935
+P14_02_NOV_201714_34_10
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_dtl.field_dtl2
+P8_27_AUG_202514_08_18
+STANDARD
+FORMS4W
+"PKG INIT"<anonymous>"V_SHLOV""
+LOV_PRSPN_DOSAGE
+LOV_FIELD_DTL1
+P16_02_NOV_201714_34_10
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_dtl.field_dtl3
+P7_27_AUG_202514_08_18
+STANDARD
+FORMS4W
+"PKG INIT"<anonymous>"V_SHLOV""
+LOV_PRSPN_USG
+LOV_FIELD_DTL2
+P17_02_NOV_201714_34_10
+STANDARD
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_dtl.field_dtl4
+P6_27_AUG_202514_08_18
+STANDARD
+FORMS4W
+"PKG INIT"<anonymous>"V_SHLOV""
+LOV_PRSPN_USG_DRTON
+LOV_FIELD_DTL3
+P18_02_NOV_201714_34_10
+STANDARD
+FORMS40
+SQLFORMS
+"PKG INIT"<anonymous>""
+BAR.SAVE_BTN
+ias_pos_bill_dtl.field_dtl1
+P5_27_AUG_202514_08_18
+STANDARD
+FORMS4W
+"PKG INIT"<anonymous>"V_SHLOV""
+LOV_PRSPN_USG_MTHD
+LOV_FIELD_DTL4
+P7_02_FEB_202508_56_51
+STANDARD
+FORMS4C
+FORMS4W
+FORMS40
+"PKG INIT"<anonymous>"V_ED_ID"ID"V_ED_STATE"V_ED_OUT""
+P43_14_MAR_201421_47_52
+STANDARD
+/NSPC4/GET_ITEM_INFO
+FORMS4C
+FORMS40
+"PKG INIT"<anonymous>""
+ias_pos_bill_dtl.filed_dtl1
+P46_14_MAR_201421_47_52
+STANDARD
+/LPOSLIB
+GEN_PKG
+SQLFORMS
+FORMS4C
+/NSPC4/SET_MENUS
+"PKG INIT"<anonymous>""
+CHANGED
+ias_pos_bill_mst
+P47_14_MAR_201421_47_52
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+P48_14_MAR_201421_47_52
+STANDARD
+/LPOSLIB
+GEN_PKG
+SQLFORMS
+"PKG INIT"<anonymous>""
+P3_11_OCT_202306_15_04
+STANDARD
+DATE_CNVRTR_PKG
+YSPOS35
+DATE_CNVRTR_PKG
+FORMS40
+"PKG INIT"<anonymous>""
+DATE_CNVRTR_PKGYSPOS35GET_CLNDR_NMDA
+DATE_CNVRTR_PKG
+DATE_CNVRTR_PKGYSPOS35CONVERT_DATEDA
+DATE_CNVRTR_PKG
+Clndr.C_Date
+Corr Clndr
+C_Date
+DD/MM/RRRR
+DD/MM/RRRR
+P2_11_OCT_202306_15_04
+STANDARD
+DATE_CNVRTR_PKG
+YSPOS35
+DATE_CNVRTR_PKG
+"PKG INIT"<anonymous>""
+DATE_CNVRTR_PKGYSPOS35GET_CLNDR_NMDA
+DATE_CNVRTR_PKG
+DATE_CNVRTR_PKGYSPOS35CONVERT_DATEDA
+DATE_CNVRTR_PKG
+Erp_Return
+P1_11_OCT_202306_15_04
+STANDARD
+FORMS40
+FORMS4C
+SQLFORMS
+FORMS4W
+"PKG INIT"<anonymous>""
+WIN_CLNDR
+.Dummy
+P5_11_OCT_202306_15_04
+STANDARD
+/LPOSLIB
+GEN_PKG
+SQLFORMS
+DATE_CNVRTR_PKG
+YSPOS35
+DATE_CNVRTR_PKG
+FORMS4C
+FORMS40
+"PKG INIT"<anonymous>"V_STM""
+Select  To_Char(Clndr_Code)||'-'||Cid_Addr_Op_Pkg.Get_Trns_Lbl (P_Cntry_2_Ltr   =>'',
+                                                                P_Lang_Code       =>'',
+                                                                P_Lang_Id         =>
+                                                                P_Cid_Name_Lbl    =>Clndr_Nm_Lbl) Clndr_Nm_Lbl ,TO_CHAR(Clndr_Code) From S_Clndr_List WHERE CLNDR_CODE <> 3 
+Clndr.Sys_Clndr
+Clndr.Corr_Clndr
+DATE_CNVRTR_PKGYSPOS35GET_CLNDR_NMDA
+DATE_CNVRTR_PKG
+DATE_CNVRTR_PKGYSPOS35CONVERT_DATEDA
+DATE_CNVRTR_PKG
+CLNDR.S_DATE
+CLNDR.C_DATE
+FALSE
+P4_11_OCT_202306_15_04
+STANDARD
+FORMS40
+FORMS4C
+SQLFORMS
+FORMS4W
+"PKG INIT"<anonymous>""
+WIN_CLNDR
+.Dummy
+Tahoma
+MS Sans Serif
+MS Sans Serif
+Tahoma
+P74_14_MAR_201421_47_52
+FORMS40
+"PKG INIT"<anonymous>""
+P75_14_MAR_201421_47_52
+STANDARD
+"PKG INIT"<anonymous>"ICODE""
+P76_14_MAR_201421_47_52
+STANDARD
+FORMS40
+SQLFORMS
+"PKG INIT"<anonymous>""
+delitem.ok
+WHEN-BUTTON-PRESSED
+MS Sans Serif
+P77_14_MAR_201421_47_52
+STANDARD
+FORMS4W
+SQLFORMS
+FORMS40
+/LPOSLIB
+GEN_PKG
+"PKG INIT"<anonymous>"NOTFOUND"DELACTION"ICODE"SUM_QTY""
+main6
+i_code
+i_qty
+Cancel
+P78_14_MAR_201421_47_52
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+P72_14_MAR_201421_47_52
+STANDARD
+FORMS4C
+SQLFORMS
+"PKG INIT"<anonymous>""
+P73_14_MAR_201421_47_52
+STANDARD
+FORMS4W
+SQLFORMS
+"PKG INIT"<anonymous>""
+main6
+view2
+P40_16_JAN_201412_58_41
+STANDARD
+/NSPC4/PRINT_PROC
+FORMS4W
+"PKG INIT"<anonymous>""
+WIN_PRNT
+Screen
+P39_16_JAN_201412_58_41
+STANDARD
+/NSPC4/PRINT_PROC
+FORMS4W
+"PKG INIT"<anonymous>""
+WIN_PRNT
+Print
+Erp_print
+P38_16_JAN_201412_58_41
+STANDARD
+/NSPC4/PRINT_PROC
+FORMS4W
+"PKG INIT"<anonymous>""
+WIN_PRNT
+Print_st
+print-view
+P37_16_JAN_201412_58_41
+STANDARD
+/LD2kwutil
+WIN_API_DIALOG
+/NSPC4/PRINT_PROC
+FORMS4W
+"PKG INIT"<anonymous>"V_PRINTER_NAME"V_PORT"V_RAISE""
+WIN_PRNT
+Cancel
+P36_16_JAN_201412_58_41
+FORMS40
+STANDARD
+FORMS4C
+FORMS4W
+"PKG INIT"<anonymous>""
+Bar.Add_Btn
+Bar.Add_Btn 
+Bar.Dummy 
+WIN_PRNT
+Rep Smple
+Rep Smple
+Usr No
+FM999999999999999999999
+FM999999999999999999999
+Times New Roman
+Password
+P1_18_AUG_201411_30_34
+STANDARD
+USER_R
+YSPOS35
+USER_R
+	IAS202535
+USER_R
+/LPOSLIB
+GEN_PKG
+SQLFORMS
+"PKG INIT"<anonymous>"V_PWD"<cursor ptr>"<SQL statement. Line 8>""
+SELECT PASSWORD   FROM USER_R  WHERE U_ID = :b1  AND ROWNUM <= 1"
+MS Sans Serif
+MS Sans Serif
+Enter
+P0_18_AUG_201411_30_34
+STANDARD
+USER_R
+YSPOS35
+USER_R
+	IAS202535
+USER_R
+/LPOSLIB
+GEN_PKG
+SQLFORMS
+FORMS40
+"PKG INIT"<anonymous>"V_PWD"<cursor ptr>"<SQL statement. Line 12>""
+.Dummy
+SELECT PASSWORD   FROM USER_R  WHERE U_ID = :b1  AND ROWNUM <= 1"
+P9_18_AUG_201411_30_34
+STANDARD
+FORMS40
+IAS_USR_PKG
+YSPOS35
+IAS_USR_PKG
+"PKG INIT"<anonymous>""
+DMY_LOCK.DMY_PASS
+IAS_USR_PKGYSPOS35GET_USR_NM
+IAS_USR_PKG
+P8_18_AUG_201411_30_34
+"PKG INIT"<anonymous>""
+P7_18_AUG_201411_30_34
+"PKG INIT"<anonymous>""
+P6_18_AUG_201411_30_34
+"PKG INIT"<anonymous>""
+P5_18_AUG_201411_30_34
+"PKG INIT"<anonymous>""
+P4_18_AUG_201411_30_34
+"PKG INIT"<anonymous>""
+P3_18_AUG_201411_30_34
+"PKG INIT"<anonymous>""
+P2_18_AUG_201411_30_34
+"PKG INIT"<anonymous>""
+P4_10_SEP_201412_27_35
+"PKG INIT"<anonymous>""
+P3_10_SEP_201412_27_35
+"PKG INIT"<anonymous>""
+P2_10_SEP_201412_27_35
+"PKG INIT"<anonymous>""
+P1_10_SEP_201412_27_35
+"PKG INIT"<anonymous>""
+18210
+Lnk_Scr_Btn_Erp
+P18_07_FEB_202214_56_22
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_LNKSCR
+17876
+Rprt_Scr_Btn_Erp
+P19_07_FEB_202214_56_22
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_RPRTSCR
+Sam_Scr_Btn_Erp
+P20_07_FEB_202214_56_22
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_SAMSCR
+Archvs_Btn_Erp
+P17_07_FEB_202214_56_22
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_ARCHVSCR
+Apprvd_Btn_Erp
+P16_07_FEB_202214_56_22
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_APRRVSCR
+Shw_Jrnl_Btn_Erp
+P15_07_FEB_202214_56_22
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_JRNLSCR
+Audt_Btn_Erp
+P14_07_FEB_202214_56_22
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_AUDITSCR
+Stp_Btn_Erp
+P13_07_FEB_202214_56_22
+STANDARD
+SQLFORMS
+"PKG INIT"<anonymous>""
+KEY_INCTVSCR
+S_SCR_LNK
+FORM_NO=:1 AND U_ID=:2
+ORDR_NO
+Ias_Gen_Pkg.Get_Frm_Nm (Form_No_LNKD,Ias_Prmtr_Pkg.Getpval(P_Prmtr =>'LANG_NO'))
+MS Sans Serif
+P11_07_FEB_202214_56_22
+/NSPC4/CALL_SCR_LNK_PRC
+"PKG INIT"<anonymous>""
+P10_07_FEB_202214_56_22
+/NSPC4/CALL_SCR_LNK_PRC
+"PKG INIT"<anonymous>""
+FORM_NO_LNKD
+P12_07_FEB_202214_56_22
+SQLFORMS
+"PKG INIT"<anonymous>""
+18050
+aud_rprt_btn_erp
+P26_05_APR_202213_39_10
+STANDARD
+SQLFORMS
+/LPOSLIB
+CALL_BAR_BTN_SCR
+"PKG INIT"<anonymous>""
+18051
+aud_updt_btn_erp
+P25_05_APR_202213_39_10
+STANDARD
+SQLFORMS
+/LPOSLIB
+CALL_BAR_BTN_SCR
+"PKG INIT"<anonymous>""
+MS Sans Serif
+P35_16_JAN_201412_58_41
+STANDARD
+FORMS4C
+FORMS4W
+FORMS40
+"PKG INIT"<anonymous>"V_ED_ID"ID"V_ED_STATE"V_ED_OUT""
+MS Sans Serif
+P34_16_JAN_201412_58_41
+STANDARD
+FORMS4C
+FORMS4W
+FORMS40
+"PKG INIT"<anonymous>"V_ED_ID"ID"V_ED_STATE"V_ED_OUT""
+P9_07_FEB_202214_56_22
+STANDARD
+FORMS4C
+FORMS4W
+FORMS40
+"PKG INIT"<anonymous>"V_ED_ID"ID"V_ED_STATE"V_ED_OUT""
+KEY_ADD2
+KEY_MODREC
+KEY_FRSTREC
+KEY_PRVSREC
+KEY_NXTREC
+KEY_LSTREC
+KEY_LCKSCR
+KEY_TREESCR
+KEY_SAMSCR
+KEY_RPRTSCR
+KEY_LNKSCR
+KEY_JRNLSCR
+KEY_APRRVSCR
+KEY_AUDITSCR
+KEY_ARCHVSCR
+KEY_INCTVSCR
+LOV_TRG
+DISPLAY_BILL_TOTAL
+DISPLAY_RTNBILL_TOTAL
+SAVE_PROC
+DEL_BLOCK
+FIRST_BTN
+MAIN6
+USE_PAID
+SET_POS_PRC
+BILL_TYPE
+SHOW_AVLQTY_IN_BILL
+CALL_MAIN_TREE
+DISC_AMT
+PREV_ADD2
+LOV_PRSPN_DOSAGE
+P_ITM_NOT_FOUND
+BTN_LOCK_SCRN
+DOC_DATE_NM
+BILL_DATE
+MACHINE_NO
+DELITEM
+USE_HUNG_BILLS
+IAS_POS_BILL_MST
+WHEN_NEW_FORM_INSTANCE_PRC
+EXIT_BTN
+POSTED
+CRNT_ITM
+SET_MENUS
+GET_PRICE_RATE
+USE_UNICODE
+DRAWER_PORT
+ALLOW_SHOW_JRNL
+IAS_POS_BILL_DTL
+DOC_GEN
+FIELD_DTL1
+LOV_PRSPN_USG_MTHD
+FREE_QTY
+FIELD_POSITION
+LOV_FIELD_DTL2
+DMY_LOCK
+CHECK_PACKAGE_FAILURE
+PREV_DELETE
+POS_PRICING_TYPE
+L_PREFIX_L
+WEIGHTED_ITEM_LENGTH
+B4_SAVE
+BRN_USR
+PREV_VIEW
+PAYED_AMT
+TXT_DUMMY
+UP_CNT
+WEIGHTED_PERFIX
+W_PREFIX_L
+CALL_LNK_SCR
+CALL_SCR_LNK
+ALLOW_DEL_ITM_FROM_POS_BILL
+SYS_CLNDR
+ARALT
+WEIGHTED_BASIC
+PRINT_DOC_BTN
+DEL_BTN
+P_CLS_YR
+FORM_NAME
+AUDIT_REF_DOC
+USER_VIEW_DOC_ENTR
+BILL_NOTE
+FLD_PK
+PREV_BILL_NO
+CHANGE_CURR_PC
+USE_UNDO_CTRLU
+VIEW_BTN
+SCR_NO
+UP_U_ID
+USE_VAT
+SYS_NO
+LOV_A_CY
+WEIGHTED
+P_USE_ATTCH_SCRN
+CURR_DFLT
+USER_NO
+ALLOW_CHANGE_BILL_CURR
+C_DATE
+PRINT_BILL
+LOV_OLDRTBILLS
+PRINTER_BARCODE_PATH
+LENGTHED_ITEM_LENGTH
+C_NAME
+DEF_WCODE
+REMOVE_WEIGHT_DIGIT
+BTN_DOC
+AUDIT_DEL_ITM
+DATE_SETTING
+POST_FORMS_COMMIT_PRC
+CHK_B4SAVE_MST_PRC
+LENGTHED_PERFIX
+AD_U_ID
+B4SAVE_PRC
+CMP_NO
+PRD_BACK_HOUR
+I_NAME
+F_SYS_NO
+LENGTHED_BASIC
+MOD_BTN
+S_DATE
+CLEAR_ALL_MASTER_DETAILS
+LIST_PROC
+LOCK_SCR
+PRINT_PROC
+RTN_BILL_NO
+HUNG_BILL_NO
+CUST_D_TYPE
+CHK_B4SAVE_DTL_PRC
+DONTSAVE
+BRN_NO
+LOAD_PARAMETERS
+WIN_CALL_SCR_LNK
+CALL_BTN_SCR
+DEL_DET_REC_PRC
+LENGTHED
+EXTRA_KEYPAD
+APPRVD_DOC
+CUST_CODE
+DOC_TYP
+WEIGHTED_LENGTH
+APALT
+FIELD_DTL4
+LANG_NO
+USE_QTY_FRACTION
+USE_FDA
+FRM_ST
+NEXT_BTN
+ALLOW_DOC_DEL_NO
+EXIT_PROC
+P_RSLTN_SIZE
+SHOW_PAYED_AMT
+ADD_PROC
+SCR_NM
+REP_CODE
+IAS_POS_BILL_MS_IAS_POS_BILL_D
+RET_HUNG_BILL
+LOV_TYP
+PRNT_BY_QTY
+EXPIRE_DATE
+PRICE_LEVEL
+SHW_JRNL_DOC
+PRICE_TYPE
+PR_REP
+DSPLD_BG10
+BTN_ENTR
+LENGTHED_LENGTH
+P_SYS_SESSION_NO
+LOV_HUNG_BILLS
+WIN_PRNT
+CALL_RPRT_SCR
+PREV_BTN
+CLNDR
+AL_UNDO
+LOCAL_CUR
+STOCK_RATE
+CNV_PRNT
+SHOW_TOOLBAR
+PRINTER_BARCODE_DFLT_NM
+LOV_OLDBILLS
+CC_AVAIL
+WHEN_TIMER_EXPIRED_PRC
+SCREEN_BTN
+ADD_PROC2
+OPEN_DRAWER
+TERMINAL
+PRINT_ST
+SCR_TYP
+ARCHIVES_DOC
+WIN_LOCK
+NO_OF_DECIMAL
+REPORTED
+PRICE_CUR
+LOV_C_CODE
+MAX_DISC
+LOV_ITM_UNT
+CNV_LOCK
+FIELD_DTL2
+MSGBOX
+FORM_NO
+SUPERMARKET_NAME
+LOV_FIELD_DTL3
+LOV_I_CODE
+LANG_DFLT
+BARCODE
+CALL_SCR_PRINT
+DATE_BTN
+KEY_ENTQRY
+DATE_GEN
+P_ORD_LOV
+PREV_RPRT_VIEW
+P_SYS_TYP_EDTN
+PRE_FORM_PRC
+SCR_THEME_NO
+P_SIZE
+SAVE_BTN
+SERIAL_DIGIT
+BANK_NAME
+WIN_CLNDR
+PRICE_RATE
+PRD_BACK_INCRS_T_DATE
+KEY_EXEQRY
+CHEQUE_DUE_DATE
+TRMNL_NM
+CANCEL
+CNV_CLNDR
+CR_CARD_NO
+PRINT_BTN
+BILL_NO
+DUMMY_BILL_CURR
+P_SYS_VRSN
+SEEK_BTN
+QUERY_MASTER_DETAILS
+REP_SMPLE
+ALLOW_PRINT_HUNG_BILL
+D_SET
+LOV_PRSPN_USG
+UP_DATE
+DEL_ITEM
+FLD_SRCH
+BILL_AMT
+SCR_ORGNL
+REP_FORM
+PREV_PRINT
+CHEQUE_NO
+LAST_BTN
+CORR_CLNDR
+P_BILL_NO
+ALLOW_HUNG_BILLS
+LOV_FIELD_DTL1
+MAXHUNGS
+ADD_F_DOC
+DMY_PASS
+PRINT_PREV_BILL
+USER_DIGIT
+AD_DATE
+AUD_UPDT_SCR_BTN
+LCD_PORT
+P_REP_SMPLE
+P_GNR_PRMTR
+ADD_BTN
+CALL_SCR_LNK_PRC
+BTN_SHOW_BILL
+DEF_BRN_NO
+P_LOV_RD_FRM_STNG
+VAT_AMT
+COLLCT_RPT_ITM_PRNT
+SUB_ACC
+CASH_NO
+ENA_DIS_ITM_PRC
+CALL_SAME_SCR
+AUD_RPRT_SCR_BTN
+PMANUAL
+ROWID
+BILL_TIME
+CHEQUE_AMT
+STK_CUR
+CREDIT_CARD
+POS_BILL_SERIAL
+UPDATE_PROC
+ACTIVE_VAT_DATE
+DSPLD_BG1
+DSPLD_BG2
+CHECK_DUPLICATE
+DSPLD_BG3
+DSPLD_BG4
+WHEN_TAB_PAGE_CHANGED_PRC
+DSPLD_BG5
+DSPLD_BG6
+DSPLD_BG7
+LANG_DIR
+DSPLD_BG8
+DSPLD_BG9
+SUM_QTY
+MOD_ITM_DISC
+PRD_BACK_INCRS_TYP
+MACHINE_DIGIT
+LOV_CR_CARD
+GET_ITEM_INFO
+I_QTY
+SYS_SCREEN
+PRINT_PROC_OLD
+INACTIVE_DOC
+P_QTY
+DUMMY
+LOV_I_NAME
+USE_VAT_MCH
+USR_SHW_MSG_B4SAVE
+SAVE_PROC
+PRD_BACK_INCRS_F_DATE
+FILL_ALL_LIST_PRC
+PREV_MODIFY
+EKBLOCK
+DELETE_PROC
+DISCOUNT_TYPE
+KEY_LISTVAL_PRC
+POST_ITM_FRST_EXPDATE
+FDA_CODE
+PREV_ADD
+UP_U_NAME
+C_CODE
+ITM_UNT
+DATE_SET
+FTR_BILL
+FIELD_DTL3
+I_CODE
+BRN_YEAR
+AUDIT_HUNG_BILL
+LOV_FIELD_DTL4
+USG_ITM
+P_SERVER_NO
+ADD2_BTN
+AD_U_NAME
+W_CODE
+CR_CARD_AMT
+DMY_USER_NM
+LIST_BTN
+DMY_USER_NO
+CANCEL_BTN
+LOV_PRSPN_USG_DRTON
+GIF89a
+'Y@r1'
+P@=62
+I"{h#
+E)*N1
+IMAGE759
+FRM_MAIN
+GRAPHIC1091
+RECT570
+RECT569
+RECT532
+GRAPHIC1091
+(:3=<9387@H\N@DWE78PmQW_bghg>Mqypdx\egc
+/cB8Bcccccccccccccccccccccccccccccccccccccccccccccccccc
+%&'()*456789:CDEFGHIJSTUVWXYZcdefghijstuvwxyz
+&'()*56789:CDEFGHIJSTUVWXYZcdefghijstuvwxyz
+ek{)$
+HaW2|
+!3Hbf
+tn-1'
+P!($L
+TR23}
+t]I. 
+v\YB?
+:lD+]
+_5>IS
+vcwQ@
+^[@?{"-03e
+?y'E$
+FRM_PRNT
+IMG_PRNT
+===== UTF16LE (strings -el -n 4) =====
+#&(.1
+#&(.1
+28;=?A
+%(.17:<>@
+%(*,
+%(.17:<>@
+%(*,
+QSUWY[
+$'-069?BCDJM
+NTWXY_bcdjmsvwx~
+*27A
+`````
+28;ABHKMSV
+W]`fior
+suwy{}
+#&(*
+%(*,
+(.069?AGJLNPRTV
+#&(.
+289?BDJM
+X^aghnqsy|
+Xd [
+d<$g
+h<%k
+l<&o	
+p<'s
+RVZ^`bfjnr
+!%)+/359;=?CEGKPvx|
+#)/5
+#&(.1
+#&,/135
+#&,/135
+%'-0246
+%'-0246
+*017:<>@B
+#&(./58
+9;=?
+#&,/
+069;=?A
+*01357
+ &(.1
+2468
+ &(.1
+2468
+#&(./58
+9;=?
+#&(./58
+9;=?
+#&(./58
+9;=?

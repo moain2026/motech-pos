@@ -1,0 +1,28 @@
+Scales Types 
+ > 
+ POS System > System Inputs > 
+ Scales Types 
+ Use: This screen is 
+used to add the scales used inside the organization. Note that these scales 
+appear in the items data in order to link the weighable item to the type used in 
+the weighing process. 
+ How to Use Screen 
+ After clicking on the Add button, the screen is used as 
+follows: 
+ - 
+ Scale 
+Number: Here, the scale 
+number is entered. Note that it is a serial number that the system creates and 
+it can be modified 
+ - 
+ Scale 
+Name/Foreign Name: Here, the scale 
+name is entered in the user’s default language and in the foreign 
+language. 
+ - 
+ Save: Users press 
+this button after completing data 
+entry. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

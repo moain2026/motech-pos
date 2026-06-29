@@ -1,0 +1,131 @@
+Loyalty Programs Coding 
+ > 
+ POS System > System Inputs > 
+ Loyalty Programs Coding 
+ Use: Loyalty 
+Programs are motivational programs designed to attract the customers, as well 
+as, encourage them to purchase more items. It is important to note that the 
+organization that provides a variety of items calculates the customer’s points 
+according to specific methods; so that the user can redeem the value of these 
+points later on either by purchasing specific items or by taking a specific 
+discount. This screen is used in coding one or more loyalty program according to 
+the selling policies of the organization. In addition, using these loyalty 
+programs depends on activating the (Use Loyalty Program) parameter in the Onyx 
+Pro ERP system and the POS system. 
+ How to Use Screen 
+ After clicking on the Add button, the screen is used as 
+follows: 
+ - 
+ Type 
+Number: It refers to 
+the program that is required to be coded. The system displays an automatic 
+serial number for the program upon clicking on the Add 
+button. 
+ - 
+ Name/ 
+Foreign Name: In this field, 
+the program name is added in the default language of the system and in the 
+foreign language. 
+ - 
+ Activation 
+Date: In this field, 
+the activation date of the program is added. 
+ - 
+ Expiry 
+Date: In this field, 
+the expiry date of the program will be added. After it, the program will stop 
+and the points will not be calculated. 
+ - 
+ Minimum 
+Limit for Points Calculation: It is an amount 
+that if the customers' invoice went below, the system will not calculate any 
+points for them. 
+ - 
+ Minimum 
+Limit for Points Redeeming: It is the 
+number of points that if the customers’ invoice went below the system will not 
+redeem them. 
+ - 
+ Points 
+Calculation Method: The loyalty 
+programs can be coded according to the available calculation methods. This field 
+includes more than one method for calculating the points as 
+follows: 
+ ? 
+ Amount: According to 
+this method, the value of one point is determined and the invoice amount is 
+divided by the value of the point. Therefore, the result becomes the number of 
+the calculated points for the customer. For example, if the value of the point 
+is (1000) riyals, and the total of the customer invoices is (8,000) riyals, the 
+number of the calculated points for the customer will be (8) 
+points. 
+ How the System Deals with (Amount) 
+Method: 
+ - 
+ One 
+Point Value: In this field, 
+the value of one point is entered. 
+ - 
+ One 
+Point Redeeming Value: In this field, 
+the value of redeeming one point is entered. 
+ - 
+ Amount 
+and its Multiplications: According to 
+this method, the base amount to calculate points is determined. Therefore, the 
+points’ calculation is done based on the determined amount and its 
+multiplications. 
+ - 
+ How 
+the System Deals with (Amount and Its Multiplications) Method: 
+ ? 
+ Amount: In this field, 
+the basic amount in points’ calculation is entered. 
+ ? 
+ Number 
+of Points: In this field, 
+the number of points equivalent to the base amount is entered. 
+ ? 
+ Redeeming 
+Amount: In this field, 
+the base amount for redeeming the calculated points according to the amount is 
+entered. 
+ ? 
+ Number 
+of Points: In this field, 
+the number of points equivalent to the redeeming the base amount is entered. 
+ ? 
+ Segments: According to 
+this method, the system displays the following tabs to enter the segments 
+data: 
+ ? 
+ Points 
+Calculation Method: 
+ The 
+data is entered as follows: 
+ - 
+ From 
+Amount to Amount: In these two 
+fields, the range of each segment in the loyalty program is entered. 
+ - 
+ Number 
+of Points: In this field, 
+the number of points that the customer will get upon reaching the segment’s 
+limit either at the invoice level or the cumulative balance level, is 
+entered. 
+ Points Redeeming Method: 
+ - 
+ From 
+Point to Point: In these two 
+fields, the limit of the segment points is entered. 
+ - 
+ Amount: Here, the 
+redeeming amount that the customer will get upon reaching the limit of the 
+segment points is entered. 
+ - 
+ Save: Users press 
+this button after completing data 
+entry. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

@@ -1,0 +1,42 @@
+Display Pending Invoices 
+ > 
+ POS System > System Transactions > 
+ Display Pending Invoices 
+ Use: This screen is 
+used to display the pending invoices and check them in order to decide whether 
+they will be deleted or only parts of their items will be deleted. It also 
+allows displaying all the pending invoices that have been retrieved and paid. 
+ How to Use Screen 
+ The 
+user selects the pending invoice that they want to fetch, using Ctrl+3 or by 
+clicking on the Browse Pending Invoices button in the toolbar. Therefore, the 
+Master Data and the Detailed Data of the pending invoice will appear once the 
+user selects the pending invoice. Below are the keys included in this screen 
+that facilitate dealing with it: 
+ - 
+ Shift+F8: This key is 
+used to display all the pending invoices that have been retrieved, noting that 
+the pending invoices can also be retrieved using the View button in the 
+toolbar. 
+ - 
+ Ctrl+3: This key is 
+used to display all the pending invoices that have not been paid, noting that 
+the user is allowed to delete items from the invoice or cancel it completely by 
+pressing Ctrl + x. 
+ Remark : Upon 
+using the Invoices Cash Payment screen, the system deals with all the pending 
+invoices as pending invoices that cannot be posted until they are paid from the 
+Cash Payment screen. 
+ - 
+ Ctrl 
++ X: This key is 
+used to delete the invoice items or cancel the invoice completely upon deleting 
+all of its items. Note that the user can use the Delete button from the toolbar 
+to delete the invoice items. 
+ Remark: 
+ The 
+user can view the pending invoices and retrieve them from the Sales Invoices 
+screen, using the same mechanism. 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات

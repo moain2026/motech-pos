@@ -1,0 +1,239 @@
+Help Keys 
+ > 
+ POS System > System Inputs > 
+ Help Keys 
+ Use: This screen is 
+used to display the keypad keys that can be used in the Sales Invoices screen 
+and the Sales Returns screen. These keys only work by copying the FMRUSW.RES 
+file to the developer's FORMS 60 folder. 
+ How to Use the Screen 
+ In this screen, a column for the Keypad Keys that can 
+be used in the sales invoices and the sales returns appears. While another 
+column appears, showing the function of each key, noting that the user can print 
+reports to help the cashier in using the invoices; since one of the goals of the 
+POS system is facilitating the selling process. 
+ The following report shows all the keys used in the Invoice screen 
+and the function of each key. 
+ المفتاح 
+ الوظيفة 
+ الوظيفة 
+ Ctrl 
+ + K 
+ لوحة 
+ المفاتيح الإضافية 
+ Extra 
+ Keyboard 
+ F12 
+ شاشة 
+ تعدد طرق الدفع 
+ Multi 
+ Document Type Screen 
+ Ctrl+2 
+ تغيير 
+ نوع الفاتورة 
+ Change 
+ Bill Type 
+ F4 
+ تعليق 
+ الفاتورة 
+ Hung 
+ Bill 
+ Ctrl+3 
+ استرجاع 
+ الفاتورة المعلقة 
+ Retrieve 
+ Hung Bill 
+ F10 
+ شاشة 
+ الدفع 
+ Payed 
+ Screen 
+ Shift+8 
+ طباعة 
+ فاتورة سابقة 
+ Print 
+ Old Bill 
+ F5 
+ إدخال 
+ خصم على الفاتورة (مبلغ) 
+ Enter 
+ Discount On Bill (Amount) 
+ F6 
+ إدخال 
+ خصم على الفاتورة (نسبة) 
+ Enter 
+ Discount On Bill (Percent) 
+ F3 
+ حذف 
+ صنف من الفاتورة 
+ Delete 
+ Item From Bill 
+ Ctrl 
+ + F 
+ البحث 
+ عن صنف 
+ Search 
+ Items 
+ F11 
+ إضافة 
+ فاتورة جديدة 
+ Add 
+ New Bill 
+ Page 
+ Down 
+ المجموعة 
+ اللاحقة 
+ Next 
+ Group 
+ F1 
+ شاشة 
+ المساعدة 
+ Help 
+ Screen 
+ Ctrl 
+ + D 
+ تعديل 
+ الخصم على الصنف 
+ Change 
+ Item Discount 
+ F8 
+ تعديل 
+ الكمية 
+ Change 
+ Quantity 
+ Enter 
+ اختيار 
+ الصنف 
+ Choose 
+ Item 
+ Ctrl 
+ + E 
+ شاشة 
+ الأطوال 
+ Lengths 
+ Screen 
+ Esc 
+ خروج 
+ Exit 
+ Shift+F6 
+ حذف 
+ الفاتورة الحالية 
+ Delete 
+ Current Bill 
+ Page 
+ Up 
+ المجموعة 
+ السابقة 
+ Before 
+ Group 
+ Up 
+ الصنف 
+ السابق 
+ Before 
+ Item 
+ Down 
+ الصنف 
+ اللاحق 
+ Next 
+ Item 
+ Ctrl 
+ + O 
+ فتح 
+ الدرج 
+ Open 
+ Drawer 
+ Ctrl 
+ + P 
+ تعديل 
+ سعر الصنف 
+ Change 
+ Item Price 
+ Ctrl 
+ + U 
+ إلغاء 
+ الفاتورة الحالية 
+ Cancel 
+ Current Bill 
+ Ctrl 
+ + N 
+ إدخال ملاحظة على الفاتورة 
+ Enter 
+ Bill Note 
+ Ctrl 
+ + W 
+ شاشة الموزنات 
+ Weights 
+ Screen 
+ Ctrl 
+ + S 
+ حفظ الفاتورة الحالية 
+ Save 
+ Current Bill 
+ Ctrl 
+ + T 
+ طباعة الفاتورة السابقة 
+ Print 
+ Old Bill 
+ Ctrl 
+ + 4 
+ استرجاع الفاتورة الغير محفوظة 
+ Retrieve 
+ Unsaved Bill 
+ Ctrl 
+ + B 
+ فتح شاشة جديدة 
+ Open 
+ New Screen 
+ Ctrl 
+ + I 
+ عرض وحدات الصنف 
+ Display 
+ Item Unit 
+ Ctrl 
+ + Q 
+ طباعة الفاتورة كعرض سعر 
+ Print 
+ Bill As Quotations 
+ Ctrl 
+ + L 
+ قفل الشاشة 
+ Screen 
+ Lock 
+ Ctrl 
+ + R 
+ تغيير المستخدم 
+ Change 
+ User 
+ Ctrl 
+ + H 
+ شاشة المساعدة 
+ Help 
+ Screen 
+ Shift 
+ + F8 
+ استعراض وطباعة الفواتير 
+ Display 
+ And Print Bill 
+ F2 
+ الدفع النقدي للمرتجعات 
+ Pay 
+ Cash Return Bills 
+ Ctrl 
+ + X 
+ طباعة النموذج الرسمي 
+ Print 
+ Formal Sample 
+ Ctrl 
+ + C 
+ طباعة النموذج المصغر 
+ Print 
+ Minm Sample 
+ Ctrl 
+ + A 
+ الدفع النقدي للفواتير 
+ Pay 
+ Cash for 
+Bills 
+ إد ارة 
+ و تخطيط 
+ م وارد الم ؤسسات
