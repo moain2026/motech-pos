@@ -2,6 +2,23 @@
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
 ## 2026-06-29
+### 17:22 — ✅ المرحلة 2 (Backend) — الإقلاع: NestJS يعمل + Oracle حي + bills/shifts + golden tests (subagent phase2-backend)
+- **مشروع NestJS فعلي** في `backend/` (Clean/Hexagonal، 4 طبقات/module حسب PROJECT_STRUCTURE). يبني ويعمل: `npm run build` نظيف، `npm run start:prod` يقلع، **lint نظيف صفر تحذيرات**.
+- **config بـ Zod** (`config.schema.ts` + `TypedConfigService`) — تحقّق البيئة عند الإقلاع (fail-fast). `helmet` + CORS allowlist + `ValidationPipe(whitelist, forbidNonWhitelisted)` + pino logging + graceful shutdown.
+- **OracleModule فعلي** (`node-oracledb 6 thin mode` — بلا Instant Client، مُثبَت على Oracle 12.1) + connection pool. **مستخدم قراءة-فقط `MOTECH_RO`** (`SELECT ANY TABLE` فقط؛ الكتابة تُرفض ORA-01031 — least privilege). كل SQL schema-qualified + bind variables (لا concatenation).
+- **إثبات حي (proof):**
+  - `GET /health` → `{status:ok, db:connected, schema:YSPOS23}` (يستعلم DUAL فعلياً).
+  - `GET /api/v1/bills?limit=3` → فواتير حقيقية من IAS_POS_BILL_MST.
+  - `GET /api/v1/bills/26303416578` → الرأس + 4 أسطر حقيقية + **الإجماليات المُعاد حسابها (gross 500) = المخزّن (BILL_AMT 500)**.
+  - `GET /api/v1/bills/summary/daily` → 47 يوم ملخّص.
+  - `GET /api/v1/shifts/current?cashierNo=1` → 409 `no-open-shift` (RFC 9457). 404 للفاتورة غير الموجودة (RFC 9457 + traceId).
+- **domain نقي مُعاد كتابته من PACKAGES_ANALYSIS:** `Money` (NUMERIC-safe، minor units، لا float) · `BillLine` (ضريبة نوع 1 على السعر / نوع 2 بعد الخصم — CLC_ITM_TAX §1.3) · `DiscountPolicy` (توزيع خصم الرأس تناسبياً — CLC_DISC_VAT_AMT_PRC §1.4) · `Bill` (إعادة تجميع الإجماليات — UPDT_BILL_IN_SAV_PRC §1.5). repository port + `OracleBillRepository` + `OracleShiftRepository`.
+- **اختبارات (19/19 تمرّ فعلياً):** 17 unit (Money/BillLine/DiscountPolicy/Bill) + 2 golden. **Golden: قرأ 500 فاتورة حقيقية وطابق BILL_AMT/VAT_AMT/DISC_AMT بنسبة 100% (صفر اختلاف، tol 0.01).**
+- **قيد بيانات موثّق (proof-based):** الداتاسيت الحالي (20,569 فاتورة / 41,945 سطر) **ضريبته وخصومه = صفر تماماً** على كل الفواتير. لذا golden يُثبت مسار بلا-ضريبة/بلا-خصم على بيانات حقيقية (BILL_AMT = Σ qty·price)، ومنطق الضريبة نوع1/نوع2 وتوزيع الخصم مُثبَت بـ unit tests (حالات مشتقّة من PACKAGES_ANALYSIS §1.3–1.5). نفس اختبار golden سيتحقّق تلقائياً عند تحميل داتاسيت بضرائب/خصومات بلا تغيير كود.
+- **READ-ONLY ملتزَم:** لا INSERT/UPDATE على YSPOS23 (مفروض على مستوى DB). open/close الوردية (كتابة INSRT_WRK_SHFTS) مؤجّل لمرحلة الكتابة — نُفّذ جانب القراءة (الوردية المفتوحة) فقط.
+- توثيق: `backend/README.md` (تشغيل + اختبارات + قيود). commits بهوية MoainAlabbasi.
+- **التالي:** catalog (أصناف/أسعار/كمية متاحة) + auth (JWT/RBAC) + جانب الكتابة للفاتورة (PostBillUseCase) خلف Idempotency-Key.
+
 ### 17:06 — ✅ المرحلة 1 مكتملة: التصميم المعماري الكامل (subagent phase1-design)
 - **5 ADRs** (`docs/adr/`): ADR-001 Modular Monolith + Clean/Hexagonal · ADR-002 الحزمة (React19+Vite / NestJS / Oracle→Postgres) · ADR-003 إستراتيجية البيانات (Oracle أولاً خلف ports + إعادة كتابة المنطق، مع adapters anti-corruption مؤقتة) · ADR-004 offline-first/PWA · ADR-005 Strangler-Fig. كل ADR بقالب MADR (سياق/قرار/بدائل/عواقب).
 - **`docs/ARCHITECTURE.md`**: الطبقات (domain/application/infrastructure/presentation) + 12 module (auth, shifts, catalog, bills, payments, tax, loyalty, customers, reports, einvoice, sync, settings) كلٌّ مربوط بجداوله الحقيقية وحِزَمه الأصلية + تدفّق دورة البيع (sequence) + C4 (Context+Container) Mermaid + اتصال Oracle + إستراتيجية الأمان. الثوابت الحرجة مفروضة في domain (وردية مفتوحة، إعادة تجميع الإجماليات، نوعا الضريبة/الخصم، حارس -20001، immutable).
@@ -34,7 +51,7 @@
 - **التالي: المرحلة 0 — إكمال الفك الكامل (~100 شاشة + packages + توثيق).**
 
 ## الحالة العامة
-- المرحلة الحالية: **1 (التصميم) ✅ مكتملة — التالي المرحلة 2 (Backend NestJS)**
+- المرحلة الحالية: **2 (Backend NestJS) — قيد التنفيذ:** الإقلاع مكتمل (NestJS + Oracle حي + bills/shifts + health + golden 100%). التالي catalog/auth/جانب الكتابة.
 - المعمارية معتمدة: Modular Monolith + Clean/Hexagonal + Tactical DDD (ADR-001..005 في docs/adr/). التصاميم الكاملة في docs/ARCHITECTURE.md + DATA_MODEL.md + API_DESIGN.md + SCREENS_PRIORITY.md + PROJECT_STRUCTURE.md.
 - القاعدة: حاوية oracle12 (YSPOS23، 118 جدول) شغّالة محلياً.
 - ✅ **فُكّت ووُثِّقت 80 شاشة POS كاملة** (المرحلة 0-أ). راجع `docs/screens/INDEX.md`.
