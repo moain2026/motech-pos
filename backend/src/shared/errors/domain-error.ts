@@ -52,3 +52,43 @@ export class InvalidCredentialsError extends DomainError {
   readonly httpStatus = 401;
   readonly title = 'Invalid username or password';
 }
+
+export class ShiftAlreadyOpenError extends DomainError {
+  readonly typeSlug = 'shift-already-open';
+  readonly httpStatus = 409;
+  readonly title = 'Cashier already has an open shift';
+}
+
+export class ShiftNotFoundError extends DomainError {
+  readonly typeSlug = 'shift-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Shift not found';
+}
+
+export class ShiftAlreadyClosedError extends DomainError {
+  readonly typeSlug = 'shift-already-closed';
+  readonly httpStatus = 409;
+  readonly title = 'Shift is already closed';
+}
+
+/**
+ * Returned when the same Idempotency-Key is reused with a DIFFERENT request
+ * body. Same key + same body returns the original result (not an error).
+ */
+export class IdempotencyConflictError extends DomainError {
+  readonly typeSlug = 'idempotency-conflict';
+  readonly httpStatus = 409;
+  readonly title = 'Idempotency-Key reused with a different request';
+}
+
+export class IdempotencyKeyRequiredError extends DomainError {
+  readonly typeSlug = 'idempotency-key-required';
+  readonly httpStatus = 422;
+  readonly title = 'Idempotency-Key header is required';
+}
+
+export class BillImmutableError extends DomainError {
+  readonly typeSlug = 'bill-immutable';
+  readonly httpStatus = 409;
+  readonly title = 'Bill is immutable once posted';
+}

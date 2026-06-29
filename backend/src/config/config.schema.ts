@@ -20,6 +20,13 @@ export const configSchema = z.object({
   ORACLE_POOL_MAX: z.coerce.number().int().min(1).default(4),
   ORACLE_POOL_TIMEOUT: z.coerce.number().int().min(0).default(60),
 
+  // --- Oracle WRITE side (our own schema MOTECH_POS, separate from YSPOS23) ---
+  // The new system READS reference data from YSPOS23 (MOTECH_RO) but WRITES its
+  // own bills/payments/shifts into this schema. Distinct least-privilege user.
+  ORACLE_WRITE_USER: z.string().min(1).default('MOTECH_POS'),
+  ORACLE_WRITE_PASSWORD: z.string().min(1),
+  ORACLE_WRITE_SCHEMA: z.string().min(1).default('MOTECH_POS'),
+
   // --- Auth / JWT (STANDARDS/07 §A02, §A07) ---
   // Secret MUST be provided via env in any non-test run; long random string.
   JWT_SECRET: z.string().min(16),
