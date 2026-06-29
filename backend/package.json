@@ -15,7 +15,8 @@
     "test": "vitest run --project unit",
     "test:unit": "vitest run --project unit",
     "test:golden": "vitest run --project golden",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "openapi": "ts-node scripts/gen-openapi.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.22",
