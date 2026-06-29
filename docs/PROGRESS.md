@@ -2,6 +2,22 @@
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
 ## 2026-06-29
+### 18:20 — ✅ المرحلة 0‑ج — توثيق المسارات الكاملة end‑to‑end (9 مسارات) في docs/flows/ (subagent flows-analysis)
+- **أُنشئ `docs/flows/`** بـ **9 ملفات مسار** + `INDEX.md`، كلٌّ يوثّق المسار الكامل **الواجهة (الشاشة) → المنطق (triggers/packages) → القاعدة (الجداول/الأعمدة الحقيقية)** بمنهج proof-not-assumption (أسماء مُستخرجة فعلياً من `docs/screens/`+`_raw/` و`db/schema/plsql/` 91 ملف و`db/schema/tables/` 117 DDL). كل ملف فيه: **مخطّط Mermaid sequence** + **جدول خطوات** + **ملاحظات لإعادة البناء** + **ثغرات**.
+  1. **FLOW_LOGIN** (POSLGN → DECRYPT_PASS/VALIDATE_PASS/CHECK_HDSERIAL p‑code → USER_R/IAS_USR_LGN_HSTRY/الصلاحيات؛ تأكيد: auth في Forms client وليس DB pkg).
+  2. **FLOW_OPEN_SHIFT** (POST027 → INSRT_WRK_SHFTS → POS_WRK_SHFT_CSHR؛ شرط البيع GET_WRK_SHFT_OPN_FNC).
+  3. **FLOW_SALE_BILL** (الأهم — POST001 → EXTRCT_POS_BILL_PRC: SAVE_TYP 0/1/2/3، GET_BILL_NO_PRC بصيغة الترقيم الحرفية، CLC_DISC_VAT_AMT_PRC، CLC_ITM_TAX نوع1/2، INSRT MST/DTL، UPDT_BILL_IN_SAV_PRC، CLC_ITM_TAX_AFTR_SAVE→POS_TAX_ITM_MOVMNT DOC_TYPE=4، Trigger فرض الضريبة) — أعمدة MST/DTL الحقيقية كاملة من DDL.
+  4. **FLOW_PAYMENT** (canvases الدفع في POST001 + POST011 → IAS_POS_PAY_BILLS بأعمدته الحقيقية؛ نقد/شبكة/آجل/كوبون/استبدال/عملات متعددة).
+  5. **FLOW_LOYALTY** (POS_POINT_PKG.Insrt_Pos_Point_Trns → Pos_Point_Calc_trns).
+  6. **FLOW_RETURN** (POST002 → EXTRCT_POS_RT_BILL_PRC → IAS_POS_RT_BILL_MST/DTL؛ DOC_TYPE=5).
+  7. **FLOW_CLOSE_SHIFT** (POST013 تصفية → IAS_POS_JRNL_DIFF_CSHR_MST/DTL + IAS_DEPOSIT_CURRENCY + CLS_FLG=1).
+  8. **FLOW_SYNC** (MOV_BILLS_PRC + الحارس `-20001` الحرفي + SUBMITDOCUMENT DOC_TYPE=4 + WEB_SRVC_TRNSFR_DATA_FLG/ETS_CONN_DATE + POS_SQL_QUEUE).
+  9. **FLOW_REPORTS** (POSR001..016 + POST012/013/015/017/021 → GET_POS_DATA 1/2/3، GET_BILL_DATA_XML).
+- **proof مُستشهَد حرفياً:** صيغة GET_BILL_NO_PRC (سنة+سيرفر+جهاز+[مستخدم]+تسلسل)، تعليق SAVE_TYP، معادلات الضريبة نوع1/2 وإعادة التجميع، حارس `RAISE_APPLICATION_ERROR(-20001,'There are tax bills not Sync...')`.
+- **أهم ثغرة (proof):** أسماء الأصناف/أسعارها + USER_R + IAS_POINT_TYP_MST + IAS_CASH_CUSTMR كلها synonyms → **IAS202623 غائب** (الجاري سحبه)؛ والداتاسيت الحالي **ضريبته/خصومه = صفر**. أجسام DECRYPT_PASS/VALIDATE_PASS = p‑code (غير قابلة للاسترجاع، لا حاجة لها). تخطيط الشاشات + قوالب Reports تحتاج screenshots.
+- commits بهوية MoainAlabbasi.
+- **التالي:** ربط المخطط المركزي IAS202623 عند توفّره (أسماء الأصناف/الأسعار/المستخدمين/أنواع النقاط) + جانب الكتابة (PostBill/payments/shifts) مع فرض ثوابت المسارات الموثّقة.
+
 ### 17:55 — ✅ المرحلة 3 (Frontend) — واجهة POS حديثة React 19 PWA حيّة ومتصلة بالـ backend (subagent phase3-frontend)
 - **هُيّئ مشروع `frontend/`**: **React 19 + Vite 8 + TypeScript 6** + **Tailwind v4** (@tailwindcss/vite) + مكوّنات shadcn-style مملوكة (Button/Input/Card/StateView/OnlineBadge عبر CVA+Radix Slot) + **RTL عربي** (`<html dir=rtl lang=ar>`، logical properties `ps-*/ms-*/text-start`) + **i18next** (عربي افتراضي، صفر نص hardcoded) + **PWA** (vite-plugin-pwa/Workbox: app-shell precache، items=StaleWhileRevalidate، الـ sale POSTs لا تُخزَّن في SW؛ manifest standalone RTL). خط Cairo عربي self-hosted (`public/fonts/cairo.woff2`).
 - **طبقة API** (`shared/lib/api-client.ts`): axios + **interceptor للـ JWT** (حقن Bearer) + **refresh تلقائي single-flight** عند 401 ثم إعادة المحاولة + تطبيع أخطاء **RFC 9457** لـ `ApiError` (يعرض traceId). **TanStack Query v5** لحالة الخادم (cursor-infinite) + **Zustand v5** لحالة العميل (الجلسة/التوكنات persisted + سلة البيع) + **RHF+Zod** لنموذج الدخول. هيكلة **feature-based** (auth/shifts/pos-terminal/bills/reports + shared) حسب STANDARDS/02 §3.
