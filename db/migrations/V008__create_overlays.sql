@@ -1,8 +1,8 @@
 --------------------------------------------------------------------------------
--- V007 — MOTECH_POS local overlays for customers & items (POSI010 / POSI2000)
+-- V008 — MOTECH_POS local overlays for customers & items (POSI010 / POSI2000)
 --------------------------------------------------------------------------------
 -- Run as MOTECH_POS:
---   sudo docker exec -i oracle12 sqlplus -S "MOTECH_POS/motech_pos_2026@//localhost:1521/xe" @V007__create_overlays.sql
+--   sudo docker exec -i oracle12 sqlplus -S "MOTECH_POS/motech_pos_2026@//localhost:1521/xe" @V008__create_overlays.sql
 --
 -- Purpose:
 --   YSPOS23 / IAS202623 are the LIVE ERP (SACRED, READ-ONLY). We must still let
