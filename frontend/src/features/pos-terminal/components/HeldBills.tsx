@@ -9,7 +9,6 @@ import { formatMoney } from '@/shared/lib/format';
 import { useHoldBill, useHeldBills, useResumeBill } from '@/features/bills/api/bills.api';
 import type { HeldBill } from '@/shared/lib/types';
 import { useCart, type CartLine } from '../store/cart.store';
-import { useCartTotals } from '../hooks/useCartTotals';
 import { usePosSettings } from '../store/pos-settings.store';
 
 /** Map a held-bill line back into a cart line (best-effort; names may be null). */
@@ -47,7 +46,6 @@ export function HeldBillsControls({ hasShift }: { hasShift: boolean }) {
   const customer = useCart((s) => s.customer);
   const clear = useCart((s) => s.clear);
   const loadLines = useCart((s) => s.loadLines);
-  const totals = useCartTotals();
 
   const holdBill = useHoldBill();
   const resumeBill = useResumeBill();

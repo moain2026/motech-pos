@@ -43,7 +43,10 @@ export async function sendEscPosOverWebUsb(bytes: Uint8Array): Promise<boolean> 
     await device.claimInterface(ifaceNo);
     const outEp =
       iface?.alternate.endpoints.find((e) => e.direction === 'out')?.endpointNumber ?? 1;
-    const res = await device.transferOut(outEp, bytes);
+    // Copy into a fresh ArrayBuffer-backed view (satisfies BufferSource typing).
+    const buf = new Uint8Array(bytes.length);
+    buf.set(bytes);
+    const res = await device.transferOut(outEp, buf);
     return res.status === 'ok';
   } catch {
     return false;

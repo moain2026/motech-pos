@@ -8,10 +8,11 @@ import { formatMoney } from '@/shared/lib/format';
 import { useCreateBill, usePayBill } from '@/features/bills/api/bills.api';
 import { useCurrentShift } from '@/features/shifts/api/shifts.api';
 import type { PaymentMethod, PostBillLineDto } from '@/shared/lib/types';
-import { useCart } from '../store/cart.store';
+import { useCart, type CartLine } from '../store/cart.store';
 import { useCartTotals } from '../hooks/useCartTotals';
 import { usePosSettings } from '../store/pos-settings.store';
 import { CustomerAttach } from './CustomerAttach';
+import { buildReceipt, type ReceiptModel, PrintReceiptButton } from '@/features/print';
 import { HeldBillsControls } from './HeldBills';
 import { PaymentDialog } from './PaymentDialog';
 
@@ -40,6 +41,7 @@ export function SaleSummary() {
   const payBill = usePayBill();
 
   const [done, setDone] = useState<{ billNo: string; net: number } | null>(null);
+  const [receipt, setReceipt] = useState<ReceiptModel | null>(null);
   const [error, setError] = useState<string | null>(null);
   // Enhanced multi-tender flow: bill is created (unpaid) then settled via dialog.
   const [payTarget, setPayTarget] = useState<{ id: string; billNo: string; net: number } | null>(
@@ -106,10 +108,19 @@ export function SaleSummary() {
         lines: billLines,
       });
       // 2) Pay the full net amount with the chosen method.
-      await payBill.mutateAsync({
+      const paid = await payBill.mutateAsync({
         id: bill.id,
         dto: { method, amount: bill.netAmt, currency: 'YER' },
       });
+      // Build the receipt from server truth + cart names BEFORE clearing.
+      const cartSnapshot: CartLine[] = lines;
+      setReceipt(
+        buildReceipt({
+          bill: { ...bill, payments: paid.payments?.length ? paid.payments : bill.payments },
+          cartLines: cartSnapshot,
+          paidAmount: bill.netAmt,
+        }),
+      );
       setDone({ billNo: bill.billNo, net: bill.netAmt });
       clear();
     } catch (e) {
@@ -135,7 +146,16 @@ export function SaleSummary() {
             {formatMoney(done.net)}
           </p>
         </div>
-        <Button size="lg" variant="primary" className="w-full" onClick={() => setDone(null)}>
+        {receipt ? <PrintReceiptButton receipt={receipt} /> : null}
+        <Button
+          size="lg"
+          variant="primary"
+          className="w-full"
+          onClick={() => {
+            setDone(null);
+            setReceipt(null);
+          }}
+        >
           {t('pos.newSale')}
         </Button>
       </div>

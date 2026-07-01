@@ -8,6 +8,17 @@ import type { Role } from '@/shared/lib/types';
 
 // POS is the primary screen → eager. Everything else → lazy (code-split).
 import { PosPage } from '@/features/pos-terminal';
+const PriceCheckPage = lazy(() =>
+  import('@/features/pos-terminal').then((m) => ({ default: m.PriceCheckPage })),
+);
+const VouchersPage = lazy(() =>
+  import('@/features/vouchers').then((m) => ({ default: m.VouchersPage })),
+);
+const ReconciliationPage = lazy(() =>
+  import('@/features/shifts/components/ReconciliationPage').then((m) => ({
+    default: m.ReconciliationPage,
+  })),
+);
 const BillsPage = lazy(() =>
   import('@/features/bills').then((m) => ({ default: m.BillsPage })),
 );
@@ -55,6 +66,9 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <Navigate to="/pos" replace /> },
       { path: 'pos', element: <PosPage /> },
+      { path: 'price-check', element: <Lazy><PriceCheckPage /></Lazy> },
+      { path: 'vouchers', element: <Lazy><VouchersPage /></Lazy> },
+      { path: 'reconciliation', element: <Lazy><ReconciliationPage /></Lazy> },
       { path: 'bills', element: <Lazy><BillsPage /></Lazy> },
       { path: 'bills/:billNo', element: <Lazy><BillDetailPage /></Lazy> },
       { path: 'returns', element: <Lazy><ReturnsPage /></Lazy> },

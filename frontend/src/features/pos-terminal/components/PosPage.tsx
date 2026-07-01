@@ -6,6 +6,7 @@ import { ItemGrid } from './ItemGrid';
 import { Cart } from './Cart';
 import { SaleSummary } from './SaleSummary';
 import { useCart } from '../store/cart.store';
+import { useScannerToCart } from '../hooks/useScannerToCart';
 
 /**
  * POST001 — Sales bill screen (heart of the POS).
@@ -15,11 +16,28 @@ import { useCart } from '../store/cart.store';
 export function PosPage() {
   const { t } = useTranslation();
   const qtyCount = useCart((s) => s.lines.reduce((n, l) => n + l.qty, 0));
+  // HID barcode scanner → cart (works with no search-box focus).
+  const scanFeedback = useScannerToCart();
 
   return (
     <div className="grid h-full grid-rows-[auto_minmax(0,1fr)] gap-4 p-4">
       {/* Shift / cashier header + open/close (POST027 context) */}
       <ShiftBar />
+
+      {scanFeedback ? (
+        <div
+          role="status"
+          className={`pointer-events-none fixed inset-x-0 top-4 z-50 mx-auto w-fit rounded-full px-4 py-2 text-sm font-semibold shadow-lg ${
+            scanFeedback.kind === 'added'
+              ? 'bg-[var(--color-success)] text-white'
+              : 'bg-[var(--color-danger)] text-white'
+          }`}
+        >
+          {scanFeedback.kind === 'added'
+            ? `${t('pos.scanAdded')}: ${scanFeedback.label}`
+            : `${t('pos.scanNotFound')}: ${scanFeedback.label}`}
+        </div>
+      ) : null}
 
       {/* Main: items grid + cart panel */}
       <div className="grid min-h-0 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">

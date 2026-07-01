@@ -1,6 +1,16 @@
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Receipt, BarChart3, LogOut, Users, Undo2 } from 'lucide-react';
+import {
+  ShoppingCart,
+  Receipt,
+  BarChart3,
+  LogOut,
+  Users,
+  Undo2,
+  ScanBarcode,
+  ReceiptText,
+  Scale,
+} from 'lucide-react';
 import { useSession } from '@/features/auth';
 import { OnlineBadge } from '@/shared/ui/OnlineBadge';
 import { cn } from '@/shared/lib/cn';
@@ -21,8 +31,11 @@ interface NavItem {
 
 const NAV: NavItem[] = [
   { to: '/pos', key: 'nav.pos', icon: ShoppingCart, roles: ['cashier', 'supervisor', 'admin'] },
+  { to: '/price-check', key: 'nav.priceCheck', icon: ScanBarcode, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/bills', key: 'nav.bills', icon: Receipt, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/returns', key: 'nav.returns', icon: Undo2, roles: ['cashier', 'supervisor', 'admin'] },
+  { to: '/vouchers', key: 'nav.vouchers', icon: ReceiptText, roles: ['cashier', 'supervisor', 'admin'] },
+  { to: '/reconciliation', key: 'nav.reconciliation', icon: Scale, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/customers', key: 'nav.customers', icon: Users, roles: ['supervisor', 'admin'] },
   { to: '/reports', key: 'nav.reports', icon: BarChart3, roles: ['supervisor', 'admin'] },
 ];

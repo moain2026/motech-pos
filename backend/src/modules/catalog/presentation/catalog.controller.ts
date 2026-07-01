@@ -1,10 +1,21 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Roles } from '../../auth/presentation/roles.decorator';
 import { JwtAuthGuard } from '../../auth/presentation/jwt-auth.guard';
 import { RolesGuard } from '../../auth/presentation/roles.guard';
 import { CatalogService } from '../application/catalog.service';
 import { ListItemsQuery } from './list-items.query';
+import { CreateItemDto, UpdateItemDto } from './upsert-item.dto';
 
 @ApiTags('catalog')
 @ApiBearerAuth()
@@ -27,6 +38,29 @@ export class CatalogController {
       data: items,
       meta: { count: items.length, nextCursor: nextCursor ?? null },
     };
+  }
+
+  @Post()
+  @HttpCode(201)
+  @Roles('supervisor', 'admin')
+  @ApiOperation({
+    summary: 'Create a LOCAL item (MOTECH_POS overlay; POSI2000)',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async create(@Body() body: CreateItemDto) {
+    const data = await this.catalog.create(body);
+    return { data, meta: { origin: data.origin } };
+  }
+
+  @Put(':code')
+  @Roles('supervisor', 'admin')
+  @ApiOperation({
+    summary: 'Edit an item (local overlay of price/name; POSI2000)',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async update(@Param('code') code: string, @Body() body: UpdateItemDto) {
+    const data = await this.catalog.update(code, body);
+    return { data, meta: { origin: data.origin } };
   }
 
   @Get('barcode/:bc')

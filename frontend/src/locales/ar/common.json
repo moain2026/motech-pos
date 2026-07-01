@@ -97,7 +97,10 @@
     "methodCard": "بطاقة",
     "methodCredit": "آجل",
     "addCustomer": "إضافة عميل للفاتورة",
-    "removeCustomer": "إزالة العميل"
+    "removeCustomer": "إزالة العميل",
+    "scanNotFound": "الباركود غير موجود",
+    "scanAdded": "أُضيف الصنف الممسوح",
+    "printReceipt": "طباعة الإيصال"
   },
   "bills": {
     "title": "قائمة الفواتير",
@@ -193,5 +196,14 @@
   "errors": {
     "noOpenShift": "لا توجد وردية مفتوحة لهذا الكاشير",
     "network": "تعذّر الاتصال بالخادم"
+  },
+  "print": {
+    "print": "طباعة",
+    "printing": "جارٍ الطباعة…",
+    "reprint": "إعادة طباعة",
+    "sent": "أُرسِل للطابعة",
+    "failed": "تعذّرت الطباعة — أعد المحاولة",
+    "receipt": "الإيصال",
+    "printUsb": "طباعة USB"
   }
 }
