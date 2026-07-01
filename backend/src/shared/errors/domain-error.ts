@@ -92,3 +92,30 @@ export class BillImmutableError extends DomainError {
   readonly httpStatus = 409;
   readonly title = 'Bill is immutable once posted';
 }
+
+/** The original bill referenced by a return does not exist. */
+export class OriginalBillNotFoundError extends DomainError {
+  readonly typeSlug = 'original-bill-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Original bill not found';
+}
+
+/** A return references an item that was not on the original bill. */
+export class ItemNotOnOriginalBillError extends DomainError {
+  readonly typeSlug = 'item-not-on-original-bill';
+  readonly httpStatus = 422;
+  readonly title = 'Item was not sold on the original bill';
+}
+
+/** Requested return qty exceeds the remaining (sold minus already returned) qty. */
+export class ReturnQtyExceededError extends DomainError {
+  readonly typeSlug = 'return-qty-exceeded';
+  readonly httpStatus = 422;
+  readonly title = 'Return quantity exceeds sold quantity';
+}
+
+export class ReturnNotFoundError extends DomainError {
+  readonly typeSlug = 'return-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Return not found';
+}

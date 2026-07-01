@@ -8,6 +8,7 @@ import { BillsModule } from './modules/bills/bills.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { ReturnsModule } from './modules/returns/returns.module';
 import { ShiftsModule } from './modules/shifts/shifts.module';
 
 @Module({
@@ -30,6 +31,7 @@ import { ShiftsModule } from './modules/shifts/shifts.module';
     CatalogModule,
     ShiftsModule,
     BillsModule,
+    ReturnsModule,
     ReportsModule,
     CustomersModule,
   ],
