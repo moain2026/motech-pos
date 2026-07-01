@@ -17,6 +17,8 @@ export interface QueuedOp {
   payload: unknown;
   createdAt: number;
   status: 'pending' | 'synced' | 'error';
+  /** retry counter (populated by the sync queue; optional for back-compat). */
+  attempts?: number;
 }
 
 const db = new Dexie('motech-pos') as Dexie & {

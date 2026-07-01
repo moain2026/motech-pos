@@ -1,4 +1,5 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, Optional } from '@nestjs/common';
+import { LoyaltyService } from '../../loyalty/application/loyalty.service';
 import {
   CustomerRow,
   CustomersRepository,
@@ -16,6 +17,7 @@ import {
 export class CustomersService {
   constructor(
     @Inject(CUSTOMERS_REPOSITORY) private readonly repo: CustomersRepository,
+    @Optional() private readonly loyalty?: LoyaltyService,
   ) {}
 
   search(filter: { search?: string; limit: number }): Promise<CustomerRow[]> {
@@ -33,13 +35,23 @@ export class CustomersService {
   async points(
     code: string,
     limit: number,
-  ): Promise<{ balance: PointsBalance; txns: PointsTxnRow[] }> {
+  ): Promise<{
+    balance: PointsBalance;
+    txns: PointsTxnRow[];
+    earned?: { earnedPoints: number; txnCount: number };
+  }> {
     // Ensure the customer exists first (404 otherwise).
     await this.findByCode(code);
     const [balance, txns] = await Promise.all([
       this.repo.pointsBalance(code),
       this.repo.pointsTxns(code, limit),
     ]);
-    return { balance, txns };
+    // Merge points actually EARNED by our own sales (MOTECH_POS ledger).
+    let earned: { earnedPoints: number; txnCount: number } | undefined;
+    if (this.loyalty) {
+      const b = await this.loyalty.earnedBalance(code);
+      earned = { earnedPoints: b.earnedPoints, txnCount: b.txnCount };
+    }
+    return { balance, txns, earned };
   }
 }

@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, getEnvelope, getData } from '@/shared/lib/api-client';
 import type {
   ApiEnvelope,
@@ -7,6 +7,11 @@ import type {
   PostBillDto,
   PostedBill,
   AddPaymentDto,
+  HoldBillDto,
+  HeldBill,
+  ResumeBillDto,
+  ResumeResult,
+  AddPaymentsDto,
 } from '@/shared/lib/types';
 
 /** uuid v4 for the mandatory Idempotency-Key header (crypto.randomUUID). */
@@ -83,5 +88,85 @@ export function useBillDetail(billNo: string | null) {
     queryKey: ['bill', billNo],
     enabled: !!billNo,
     queryFn: () => getData<BillDetail>(`/bills/${encodeURIComponent(billNo!)}`),
+  });
+}
+
+// ===========================================================================
+// Wave 1 — held (parked) bills + multi-tender payment
+// (proof-verified against live backend :3000, 2026-07-01)
+// ===========================================================================
+
+const HELD_KEY = 'bills-held';
+
+/**
+ * POST /bills/hold — park an in-progress sale (Idempotency-Key mandatory).
+ * Requires an open shift for cashierNo. Returns the held bill.
+ */
+export function useHoldBill() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (dto: HoldBillDto): Promise<HeldBill> => {
+      const res = await api.post<ApiEnvelope<HeldBill>>('/bills/hold', dto, {
+        headers: { 'Idempotency-Key': newIdempotencyKey() },
+      });
+      return res.data.data;
+    },
+    onSuccess: (held) => {
+      qc.invalidateQueries({ queryKey: [HELD_KEY, held.cashierNo] });
+    },
+  });
+}
+
+/** GET /bills/held?cashierNo= — list parked bills for a cashier. */
+export function useHeldBills(cashierNo: number | undefined) {
+  return useQuery({
+    queryKey: [HELD_KEY, cashierNo],
+    enabled: cashierNo != null,
+    queryFn: () =>
+      getData<HeldBill[]>(`/bills/held?cashierNo=${encodeURIComponent(String(cashierNo))}`),
+    staleTime: 10_000,
+  });
+}
+
+/**
+ * POST /bills/held/{id}/resume — resume a held bill: the backend posts it as a
+ * real sale and returns { bill, held }. Idempotency-Key mandatory.
+ */
+export function useResumeBill() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: { id: string; dto: ResumeBillDto }): Promise<ResumeResult> => {
+      const res = await api.post<ApiEnvelope<ResumeResult>>(
+        `/bills/held/${encodeURIComponent(vars.id)}/resume`,
+        vars.dto,
+        { headers: { 'Idempotency-Key': newIdempotencyKey() } },
+      );
+      return res.data.data;
+    },
+    onSuccess: (r) => {
+      qc.invalidateQueries({ queryKey: [HELD_KEY, r.bill.cashierNo] });
+      qc.invalidateQueries({ queryKey: ['bills'] });
+    },
+  });
+}
+
+/**
+ * POST /bills/{id}/payments/multi — settle a bill with MULTIPLE tenders in one
+ * call (cash + card + credit, multi-currency). Returns the full posted bill
+ * with its payments[].
+ */
+export function usePayBillMulti() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: { id: string; dto: AddPaymentsDto }): Promise<PostedBill> => {
+      const res = await api.post<ApiEnvelope<PostedBill>>(
+        `/bills/${encodeURIComponent(vars.id)}/payments/multi`,
+        vars.dto,
+      );
+      return res.data.data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['bills'] });
+    },
   });
 }

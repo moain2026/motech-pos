@@ -5,6 +5,7 @@ import type {
   Shift,
   OpenShiftDto,
   CloseShiftDto,
+  ShiftReconciliation,
 } from '@/shared/lib/types';
 
 /**
@@ -52,6 +53,36 @@ export function useOpenShift() {
     },
     onSuccess: (shift) => {
       qc.invalidateQueries({ queryKey: ['shift', 'current', shift.cashierNo] });
+    },
+  });
+}
+
+/**
+ * GET /shifts/{id}/reconciliation — cashier reconciliation / Z-X report:
+ * expected vs actual cash, over/short, and a per-payment-method breakdown.
+ * `actualCash` (counted drawer cash) and `cashExpenses` are optional query
+ * inputs for a live X-report over/short. Proof-verified against live :3000.
+ */
+export function useShiftReconciliation(
+  shiftId: string | null,
+  opts?: { actualCash?: number; cashExpenses?: number; enabled?: boolean },
+) {
+  const { actualCash, cashExpenses, enabled = true } = opts ?? {};
+  return useQuery({
+    queryKey: ['shift', 'reconciliation', shiftId, actualCash ?? null, cashExpenses ?? null],
+    enabled: !!shiftId && enabled,
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (actualCash != null && Number.isFinite(actualCash)) {
+        params.set('actualCash', String(actualCash));
+      }
+      if (cashExpenses != null && Number.isFinite(cashExpenses)) {
+        params.set('cashExpenses', String(cashExpenses));
+      }
+      const qs = params.toString();
+      return getData<ShiftReconciliation>(
+        `/shifts/${encodeURIComponent(shiftId!)}/reconciliation${qs ? `?${qs}` : ''}`,
+      );
     },
   });
 }

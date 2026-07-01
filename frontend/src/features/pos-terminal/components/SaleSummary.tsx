@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Banknote, CheckCircle2, CreditCard, Trash2 } from 'lucide-react';
+import { Banknote, CheckCircle2, CreditCard, Trash2, Wallet } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { ApiError } from '@/shared/lib/api-client';
@@ -12,6 +12,8 @@ import { useCart } from '../store/cart.store';
 import { useCartTotals } from '../hooks/useCartTotals';
 import { usePosSettings } from '../store/pos-settings.store';
 import { CustomerAttach } from './CustomerAttach';
+import { HeldBillsControls } from './HeldBills';
+import { PaymentDialog } from './PaymentDialog';
 
 /**
  * Bill summary + payment actions — REAL write path (proof-verified):
@@ -39,10 +41,48 @@ export function SaleSummary() {
 
   const [done, setDone] = useState<{ billNo: string; net: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  // Enhanced multi-tender flow: bill is created (unpaid) then settled via dialog.
+  const [payTarget, setPayTarget] = useState<{ id: string; billNo: string; net: number } | null>(
+    null,
+  );
 
   const busy = createBill.isPending || payBill.isPending;
   const empty = lines.length === 0;
   const disabled = empty || !hasShift || busy;
+
+  const billLinesDto = (): PostBillLineDto[] =>
+    lines.map((l) => ({
+      itemCode: l.code,
+      qty: l.qty,
+      unitPrice: l.price,
+      discDtl: l.lineDiscount > 0 ? l.lineDiscount / Math.max(1, l.qty) : 0,
+    }));
+
+  // Enhanced payment: create the bill (unpaid), then open the multi-tender dialog.
+  const openMultiPay = async () => {
+    setError(null);
+    setDone(null);
+    try {
+      const bill = await createBill.mutateAsync({
+        cashierNo,
+        machineNo,
+        customerCode: customer?.code,
+        customerName: customer?.name ?? 'Walk-in',
+        currency: 'YER',
+        taxCalcType: 2,
+        headerDiscount: billDiscount || 0,
+        lines: billLinesDto(),
+      });
+      setPayTarget({ id: bill.id, billNo: bill.billNo, net: bill.netAmt });
+    } catch (e) {
+      if (e instanceof ApiError) {
+        const trace = e.problem.traceId ? ` (traceId: ${e.problem.traceId})` : '';
+        setError(`${t('pos.saleError')}: ${e.problem.detail || e.problem.title}${trace}`);
+      } else {
+        setError(t('pos.saleError'));
+      }
+    }
+  };
 
   const sell = async (method: PaymentMethod) => {
     setError(null);
@@ -104,7 +144,23 @@ export function SaleSummary() {
 
   return (
     <div className="flex flex-col gap-3 border-t p-4">
+      {payTarget ? (
+        <PaymentDialog
+          billId={payTarget.id}
+          billNo={payTarget.billNo}
+          billCurrency="YER"
+          netAmt={payTarget.net}
+          onClose={() => setPayTarget(null)}
+          onSettled={() => {
+            setDone({ billNo: payTarget.billNo, net: payTarget.net });
+            setPayTarget(null);
+            clear();
+          }}
+        />
+      ) : null}
+
       <CustomerAttach />
+      <HeldBillsControls hasShift={hasShift} />
       <Row label={t('pos.subtotal')} value={formatMoney(totals.gross)} />
 
       <div className="flex items-center justify-between gap-2">
@@ -165,6 +221,11 @@ export function SaleSummary() {
           {t('pos.payCard')}
         </Button>
       </div>
+
+      <Button size="lg" variant="outline" disabled={disabled} onClick={openMultiPay}>
+        <Wallet className="size-5" />
+        {t('payMulti.button')}
+      </Button>
 
       <Button
         variant="ghost"

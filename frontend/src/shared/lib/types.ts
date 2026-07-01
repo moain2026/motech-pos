@@ -407,3 +407,169 @@ export interface PostedBill {
   lines: PostedBillLine[];
   payments: PostedBillPayment[];
 }
+
+// ---- Held (parked) bills — wave 1, proof-verified against live :3000 ----
+/** A line inside a held bill (POST /bills/hold + GET /bills/held). */
+export interface HeldBillLine {
+  itemCode: string;
+  qty: number;
+  unitPrice: number | null;
+  discDtl: number | null;
+  freeQty: number | null;
+  vatPercent: number | null;
+  itemName: string | null;
+}
+
+/** POST /bills/hold body (Idempotency-Key header mandatory). */
+export interface HoldBillLineDto {
+  itemCode: string;
+  qty: number;
+  unitPrice?: number;
+  discDtl?: number;
+  freeQty?: number;
+  vatPercent?: number;
+  itemName?: string;
+}
+
+export interface HoldBillDto {
+  cashierNo: number;
+  machineNo?: number;
+  label?: string;
+  customerCode?: string;
+  customerName?: string;
+  currency?: string;
+  taxCalcType?: 1 | 2;
+  headerDiscount?: number;
+  clientOperationId?: string;
+  lines: HoldBillLineDto[];
+}
+
+/** A held (parked) bill as returned by POST /bills/hold and GET /bills/held. */
+export interface HeldBill {
+  id: string;
+  holdNo: number;
+  label: string | null;
+  shiftId: string;
+  cashierNo: number;
+  machineNo: number;
+  customerCode: string | null;
+  customerName: string | null;
+  currency: string;
+  taxCalcType: number;
+  headerDiscount: number;
+  lineCount: number;
+  estNetAmt: number;
+  lines: HeldBillLine[];
+  status: string;
+  idempotencyKey: string;
+  clientOpId: string | null;
+  resumedBillId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** POST /bills/held/{id}/resume body. Returns the produced POSTED bill. */
+export interface ResumeBillDto {
+  cashierNo: number;
+}
+
+/** Resume envelope: { data: { bill: PostedBill, held?: HeldBill } }. */
+export interface ResumeResult {
+  bill: PostedBill;
+  held?: HeldBill;
+}
+
+// ---- Multi-tender payment (POST /bills/{id}/payments/multi) ----
+export interface PaymentTenderDto {
+  method: PaymentMethod;
+  amount: number;
+  currency?: string;
+  rate?: number;
+  cardNo?: string;
+  customerCode?: string;
+}
+
+export interface AddPaymentsDto {
+  tenders: PaymentTenderDto[];
+}
+
+// ---- Shift reconciliation / Z-X report (GET /shifts/{id}/reconciliation) ----
+export interface ReconciliationCurrencyRow {
+  currency: string;
+  count: number;
+  amount: number;
+  amountInBill: number;
+}
+
+export interface ReconciliationMethodRow {
+  method: PaymentMethod;
+  count: number;
+  amountInBill: number;
+  byCurrency: ReconciliationCurrencyRow[];
+}
+
+export interface ShiftReconciliation {
+  shiftId: string;
+  shiftNo: number;
+  cashierNo: number;
+  machineNo: number;
+  currency: string;
+  status: ShiftStatus;
+  openedAt: string;
+  closedAt: string | null;
+  openingBalance: number;
+  billCount: number;
+  netSalesTotal: number;
+  cashSales: number;
+  cashReceipts: number;
+  cashExpenses: number;
+  expectedCash: number;
+  actualCash: number | null;
+  cashDifference: number | null;
+  overShort: 'OVER' | 'SHORT' | 'BALANCED';
+  cardTotal: number;
+  creditTotal: number;
+  tenderTotal: number;
+  breakdown: ReconciliationMethodRow[];
+}
+
+// ---- Vouchers (سند قبض / صرف) — POST /vouchers, GET /vouchers ----
+export type VoucherType = 'RECEIPT' | 'EXPENSE';
+export type VoucherMethod = 'CASH' | 'CARD' | 'BANK';
+
+export interface Voucher {
+  id: string;
+  voucherNo: string;
+  type: VoucherType;
+  shiftId: string;
+  cashierNo: number;
+  machineNo: number;
+  amount: number;
+  currency: string;
+  rate: number;
+  amountInShift: number;
+  paymentMethod: VoucherMethod;
+  description: string | null;
+  partyName: string | null;
+  category: string | null;
+  status: string;
+  idempotencyKey: string;
+  clientOpId: string | null;
+  issuedAt: string;
+  createdAt: string;
+}
+
+/** POST /vouchers body (Idempotency-Key header mandatory). */
+export interface CreateVoucherDto {
+  type: VoucherType;
+  cashierNo: number;
+  machineNo?: number;
+  amount: number;
+  currency?: string;
+  rate?: number;
+  paymentMethod?: VoucherMethod;
+  description?: string;
+  partyName?: string;
+  category?: string;
+  clientOperationId?: string;
+}

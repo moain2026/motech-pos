@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { LoyaltyModule } from '../loyalty/loyalty.module';
 import { CustomersService } from './application/customers.service';
 import { CUSTOMERS_REPOSITORY } from './domain/ports/customers-repository.port';
 import { OracleCustomersRepository } from './infrastructure/oracle-customers.repository';
 import { CustomersController } from './presentation/customers.controller';
 
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, LoyaltyModule],
   controllers: [CustomersController],
   providers: [
     CustomersService,

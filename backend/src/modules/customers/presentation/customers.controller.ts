@@ -45,7 +45,10 @@ export class CustomersController {
   @ApiOperation({ summary: 'Loyalty-points balance + movements (IAS_POINT_CALC_TRNS)' })
   @ApiOkResponse({ description: 'Envelope { data, meta }' })
   async points(@Param('code') code: string, @Query() q: PointsQuery) {
-    const { balance, txns } = await this.customers.points(code, q.limit ?? 100);
-    return { data: { balance, txns }, meta: { count: txns.length } };
+    const { balance, txns, earned } = await this.customers.points(
+      code,
+      q.limit ?? 100,
+    );
+    return { data: { balance, txns, earned }, meta: { count: txns.length } };
   }
 }

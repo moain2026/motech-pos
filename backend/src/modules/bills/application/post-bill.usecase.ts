@@ -1,10 +1,11 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import {
   IdempotencyConflictError,
   InvalidBillError,
   ItemNotFoundError,
 } from '../../../shared/errors/domain-error';
+import { LoyaltyService } from '../../loyalty/application/loyalty.service';
 import { ShiftsService } from '../../shifts/application/shifts.service';
 import { Bill } from '../domain/entities/bill.entity';
 import { BillLine, VatCalcType } from '../domain/entities/bill-line.entity';
@@ -70,6 +71,7 @@ export class PostBillUseCase {
     @Inject(BILL_WRITE_REPOSITORY) private readonly repo: BillWriteRepository,
     @Inject(ITEM_REFERENCE) private readonly items: ItemReferenceReader,
     private readonly shifts: ShiftsService,
+    @Optional() private readonly loyalty?: LoyaltyService,
   ) {}
 
   async execute(
@@ -202,6 +204,20 @@ export class PostBillUseCase {
         clientOpId: requestHash,
         lines: persistLines,
       });
+
+      // (6) Loyalty (POST020): earn points when the sale is attached to a
+      // customer. Best-effort + idempotent per bill; never fails the sale.
+      if (this.loyalty && persisted.customerCode) {
+        await this.loyalty.earnOnSale({
+          customerCode: persisted.customerCode,
+          billId: persisted.id,
+          billNo: persisted.billNo,
+          billAmount: persisted.netAmt,
+          shiftId: persisted.shiftId,
+          cashierNo: persisted.cashierNo,
+        });
+      }
+
       return { bill: persisted, replayed: false };
     } catch (err) {
       if (err instanceof IdempotencyUniqueViolation) {

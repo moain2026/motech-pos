@@ -43,6 +43,8 @@ interface CartState {
   billDiscount: number;
   customer: CartCustomer | null;
   addItem: (item: Item) => void;
+  /** Replace the whole cart with the given lines (e.g. resuming a held bill). */
+  loadLines: (lines: CartLine[], billDiscount?: number, customer?: CartCustomer | null) => void;
   setQty: (code: string, qty: number) => void;
   incQty: (code: string, delta: number) => void;
   removeLine: (code: string) => void;
@@ -81,6 +83,8 @@ export const useCart = create<CartState>((set) => ({
       };
       return { lines: [...state.lines, line] };
     }),
+  loadLines: (lines, billDiscount = 0, customer = null) =>
+    set({ lines: [...lines], billDiscount: Math.max(0, billDiscount), customer }),
   setQty: (code, qty) =>
     set((state) => ({
       lines: state.lines
