@@ -119,3 +119,24 @@ export class ReturnNotFoundError extends DomainError {
   readonly httpStatus = 404;
   readonly title = 'Return not found';
 }
+
+/** A held (hung) bill was not found. */
+export class HeldBillNotFoundError extends DomainError {
+  readonly typeSlug = 'held-bill-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Held bill not found';
+}
+
+/** A held bill was already resumed or cancelled (cannot resume again). */
+export class HeldBillNotResumableError extends DomainError {
+  readonly typeSlug = 'held-bill-not-resumable';
+  readonly httpStatus = 409;
+  readonly title = 'Held bill is not in a resumable state';
+}
+
+/** A payment would exceed the bill's outstanding balance. */
+export class PaymentExceedsBalanceError extends DomainError {
+  readonly typeSlug = 'payment-exceeds-balance';
+  readonly httpStatus = 422;
+  readonly title = 'Payment exceeds the outstanding bill balance';
+}

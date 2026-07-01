@@ -80,6 +80,27 @@ export class OracleWriteService implements OnModuleInit, OnApplicationShutdown {
     return rows.length > 0 ? rows[0] : null;
   }
 
+  /**
+   * Parameterized read with extra execute options (e.g. fetchInfo to pull a
+   * CLOB as a plain string). Same pooling semantics as `query`.
+   */
+  async queryWith<T = Record<string, unknown>>(
+    sql: string,
+    binds: oracledb.BindParameters = {},
+    options: oracledb.ExecuteOptions = {},
+  ): Promise<T[]> {
+    const conn = await this.getPool().getConnection();
+    try {
+      const r = await conn.execute<T>(sql, binds, {
+        outFormat: oracledb.OUT_FORMAT_OBJECT,
+        ...options,
+      });
+      return (r.rows ?? []) as T[];
+    } finally {
+      await conn.close();
+    }
+  }
+
   /** Single autonomous DML (auto-commit) — for standalone inserts/updates. */
   async execute(
     sql: string,
@@ -106,22 +127,45 @@ export class OracleWriteService implements OnModuleInit, OnApplicationShutdown {
   async withTransaction<T>(
     work: (conn: oracledb.Connection) => Promise<T>,
   ): Promise<T> {
-    const conn = await this.getPool().getConnection();
-    try {
-      await conn.execute('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
-      const result = await work(conn);
-      await conn.commit();
-      return result;
-    } catch (err) {
+    // ORA-08177 (can't serialize access) is a TRANSIENT serialization failure
+    // under SERIALIZABLE isolation — the correct response is a bounded retry
+    // with a small backoff (the unit of work is idempotent/side-effect-free
+    // until commit). Non-serialization errors propagate immediately.
+    const maxAttempts = 4;
+    let lastErr: unknown;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const conn = await this.getPool().getConnection();
       try {
-        await conn.rollback();
-      } catch {
-        /* ignore rollback errors */
+        await conn.execute('SET TRANSACTION ISOLATION LEVEL SERIALIZABLE');
+        const result = await work(conn);
+        await conn.commit();
+        return result;
+      } catch (err) {
+        try {
+          await conn.rollback();
+        } catch {
+          /* ignore rollback errors */
+        }
+        lastErr = err;
+        if (this.isSerializationFailure(err) && attempt < maxAttempts) {
+          await sleep(15 * attempt);
+          continue;
+        }
+        throw err;
+      } finally {
+        await conn.close();
       }
-      throw err;
-    } finally {
-      await conn.close();
     }
+    throw lastErr;
+  }
+
+  private isSerializationFailure(err: unknown): boolean {
+    return (
+      typeof err === 'object' &&
+      err !== null &&
+      'errorNum' in err &&
+      (err as { errorNum?: number }).errorNum === 8177
+    );
   }
 
   /** Liveness probe for the write DB. */
@@ -133,4 +177,8 @@ export class OracleWriteService implements OnModuleInit, OnApplicationShutdown {
   schema(): string {
     return this.config.get('ORACLE_WRITE_SCHEMA');
   }
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
