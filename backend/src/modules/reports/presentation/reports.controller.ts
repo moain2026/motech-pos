@@ -7,7 +7,13 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/presentation/jwt-auth.guard';
 import { ReportsService } from '../application/reports.service';
-import { ByItemQuery, DateRangeQuery, PosReportQuery } from './reports.query';
+import {
+  ByItemQuery,
+  DateRangeQuery,
+  PosReportQuery,
+  TopCustomersQuery,
+  ZReportQuery,
+} from './reports.query';
 
 /**
  * ReportsController — READ-side analytics over the live YSPOS23 POS tables.
@@ -55,6 +61,64 @@ export class ReportsController {
   async byMachine(@Query() q: DateRangeQuery) {
     const data = await this.reports.byMachine({ from: q.from, to: q.to });
     return { data, meta: { count: data.length } };
+  }
+
+  @Get('tax')
+  @ApiOperation({ summary: 'VAT/tax report by day (taxable base + VAT collected)' })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async tax(@Query() q: DateRangeQuery) {
+    const data = await this.reports.taxReport({ from: q.from, to: q.to });
+    return { data, meta: { count: data.length } };
+  }
+
+  @Get('hourly-sales')
+  @ApiOperation({ summary: 'Hourly sales distribution (00..23) from BILL_TIME' })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async hourlySales(@Query() q: DateRangeQuery) {
+    const data = await this.reports.hourlySales({ from: q.from, to: q.to });
+    return { data, meta: { count: data.length } };
+  }
+
+  @Get('top-customers')
+  @ApiOperation({ summary: 'Top customers by total sales (bill header key)' })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async topCustomers(@Query() q: TopCustomersQuery) {
+    const data = await this.reports.topCustomers({
+      from: q.from,
+      to: q.to,
+      limit: q.limit ?? 20,
+    });
+    return { data, meta: { count: data.length } };
+  }
+
+  @Get('discount')
+  @ApiOperation({ summary: 'Discount report by day (header discount vs gross)' })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async discount(@Query() q: DateRangeQuery) {
+    const data = await this.reports.discountReport({ from: q.from, to: q.to });
+    return { data, meta: { count: data.length } };
+  }
+
+  @Get('sales-by-category')
+  @ApiOperation({ summary: 'Sales grouped by item category (ITEM_TYPES)' })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async salesByCategory(@Query() q: DateRangeQuery) {
+    const data = await this.reports.salesByCategory({ from: q.from, to: q.to });
+    return { data, meta: { count: data.length } };
+  }
+
+  @Get('z-report')
+  @ApiOperation({
+    summary: 'Z-report: full end-of-shift/day close (single summary object)',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async zReport(@Query() q: ZReportQuery) {
+    const data = await this.reports.zReport({
+      from: q.from,
+      to: q.to,
+      machineNo: q.machine,
+    });
+    return { data, meta: { count: 1 } };
   }
 
   //==========================================================================

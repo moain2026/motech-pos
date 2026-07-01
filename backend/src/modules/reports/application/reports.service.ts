@@ -38,6 +38,36 @@ export class ReportsService {
     return this.repo.byMachine(filter);
   }
 
+  /** VAT/tax report by day. */
+  taxReport(filter: DateRangeFilter) {
+    return this.repo.taxReport(filter);
+  }
+
+  /** Hourly sales distribution (00..23) from BILL_TIME. */
+  hourlySales(filter: DateRangeFilter) {
+    return this.repo.hourlySales(filter);
+  }
+
+  /** Top customers by total sales. */
+  topCustomers(filter: DateRangeFilter & { limit: number }) {
+    return this.repo.topCustomers(filter);
+  }
+
+  /** Discount report by day. */
+  discountReport(filter: DateRangeFilter) {
+    return this.repo.discountReport(filter);
+  }
+
+  /** Sales grouped by item category. */
+  salesByCategory(filter: DateRangeFilter) {
+    return this.repo.salesByCategory(filter);
+  }
+
+  /** Z-report: full close summary for a range/machine. */
+  zReport(filter: DateRangeFilter & { machineNo?: number }) {
+    return this.repo.zReport(filter);
+  }
+
   //==========================================================================
   // MOTECH_POS reports (our own recorded sales)
   //==========================================================================

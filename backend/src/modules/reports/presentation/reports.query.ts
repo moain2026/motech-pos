@@ -28,3 +28,22 @@ export class PosReportQuery extends DateRangeQuery {
   @IsString()
   shift?: string;
 }
+
+/** Top-customers query: date range + result cap. */
+export class TopCustomersQuery extends DateRangeQuery {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(500)
+  limit?: number = 20;
+}
+
+/** Z-report query: date range + optional cashier machine. */
+export class ZReportQuery extends DateRangeQuery {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  machine?: number;
+}
