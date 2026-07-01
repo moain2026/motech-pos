@@ -1,18 +1,23 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Banknote, CreditCard, Trash2 } from 'lucide-react';
+import { Banknote, CheckCircle2, CreditCard, Trash2 } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
+import { ApiError } from '@/shared/lib/api-client';
 import { formatMoney } from '@/shared/lib/format';
+import { useCreateBill, usePayBill } from '@/features/bills/api/bills.api';
+import { useCurrentShift } from '@/features/shifts/api/shifts.api';
+import type { PaymentMethod, PostBillLineDto } from '@/shared/lib/types';
 import { useCart } from '../store/cart.store';
 import { useCartTotals } from '../hooks/useCartTotals';
+import { usePosSettings } from '../store/pos-settings.store';
 
 /**
- * Bill summary + payment actions.
- * NOTE: the backend in this phase is READ-ONLY (no POST /bills yet — verified
- * against openapi.json). So "pay" computes & shows the sale locally and surfaces
- * a clear notice rather than faking a save. Totals math matches the backend
- * domain (gross - discount + vat).
+ * Bill summary + payment actions — REAL write path (proof-verified):
+ *   POST /bills (Idempotency-Key) → POST /bills/{id}/payments.
+ * Selling requires an open shift for the configured cashierNo (otherwise the
+ * pay buttons are disabled with a clear notice). RFC 9457 problem details
+ * (incl. traceId) are surfaced on failure.
  */
 export function SaleSummary() {
   const { t } = useTranslation();
@@ -20,15 +25,79 @@ export function SaleSummary() {
   const billDiscount = useCart((s) => s.billDiscount);
   const setBillDiscount = useCart((s) => s.setBillDiscount);
   const clear = useCart((s) => s.clear);
-  const lineCount = useCart((s) => s.lines.length);
-  const [notice, setNotice] = useState<string | null>(null);
+  const lines = useCart((s) => s.lines);
 
-  const disabled = lineCount === 0;
+  const cashierNo = usePosSettings((s) => s.cashierNo);
+  const machineNo = usePosSettings((s) => s.machineNo);
+  const shiftQ = useCurrentShift(cashierNo);
+  const hasShift = !!shiftQ.data?.shift;
 
-  const onPay = () => {
-    // Read-only backend: no save endpoint. Surface the computed sale + notice.
-    setNotice(t('pos.saveDisabled'));
+  const createBill = useCreateBill();
+  const payBill = usePayBill();
+
+  const [done, setDone] = useState<{ billNo: string; net: number } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const busy = createBill.isPending || payBill.isPending;
+  const empty = lines.length === 0;
+  const disabled = empty || !hasShift || busy;
+
+  const sell = async (method: PaymentMethod) => {
+    setError(null);
+    setDone(null);
+    const billLines: PostBillLineDto[] = lines.map((l) => ({
+      itemCode: l.code,
+      qty: l.qty,
+      unitPrice: l.price,
+      discDtl: l.lineDiscount > 0 ? l.lineDiscount / Math.max(1, l.qty) : 0,
+    }));
+    try {
+      // 1) Create the bill (idempotent — uuid Idempotency-Key set in the hook).
+      const bill = await createBill.mutateAsync({
+        cashierNo,
+        machineNo,
+        customerName: 'Walk-in',
+        currency: 'YER',
+        taxCalcType: 2,
+        headerDiscount: billDiscount || 0,
+        lines: billLines,
+      });
+      // 2) Pay the full net amount with the chosen method.
+      await payBill.mutateAsync({
+        id: bill.id,
+        dto: { method, amount: bill.netAmt, currency: 'YER' },
+      });
+      setDone({ billNo: bill.billNo, net: bill.netAmt });
+      clear();
+    } catch (e) {
+      if (e instanceof ApiError) {
+        const trace = e.problem.traceId ? ` (traceId: ${e.problem.traceId})` : '';
+        setError(`${t('pos.saleError')}: ${e.problem.detail || e.problem.title}${trace}`);
+      } else {
+        setError(t('pos.saleError'));
+      }
+    }
   };
+
+  // Success screen.
+  if (done) {
+    return (
+      <div className="flex flex-col items-center gap-4 border-t p-6 text-center">
+        <CheckCircle2 className="size-12 text-[var(--color-success)]" aria-hidden />
+        <div>
+          <p className="font-bold">
+            {t('pos.saleDone')} {done.billNo}
+          </p>
+          <p className="tnum mt-1 text-2xl font-extrabold text-[var(--color-brand-100)]">
+            {formatMoney(done.net)}
+          </p>
+        </div>
+        <Button size="lg" variant="primary" className="w-full" onClick={() => setDone(null)}>
+          {t('pos.newSale')}
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-3 border-t p-4">
@@ -58,21 +127,36 @@ export function SaleSummary() {
         </span>
       </div>
 
-      {notice ? (
+      {!hasShift && !empty ? (
         <p
           role="status"
           className="rounded-md bg-[var(--color-warning)]/15 p-2 text-center text-xs text-[var(--color-warning)]"
         >
-          {notice}
+          {t('pos.needShift')}
+        </p>
+      ) : null}
+
+      {busy ? (
+        <p role="status" className="text-center text-xs text-[var(--color-muted)]">
+          {createBill.isPending ? t('pos.saving') : t('pos.paying')}
+        </p>
+      ) : null}
+
+      {error ? (
+        <p
+          role="alert"
+          className="rounded-md bg-[var(--color-danger)]/15 p-2 text-center text-xs text-[var(--color-danger)]"
+        >
+          {error}
         </p>
       ) : null}
 
       <div className="grid grid-cols-2 gap-2">
-        <Button size="lg" variant="success" disabled={disabled} onClick={onPay}>
+        <Button size="lg" variant="success" disabled={disabled} onClick={() => sell('CASH')}>
           <Banknote className="size-5" />
           {t('pos.pay')}
         </Button>
-        <Button size="lg" variant="primary" disabled={disabled} onClick={onPay}>
+        <Button size="lg" variant="primary" disabled={disabled} onClick={() => sell('CARD')}>
           <CreditCard className="size-5" />
           {t('pos.payCard')}
         </Button>
@@ -81,10 +165,10 @@ export function SaleSummary() {
       <Button
         variant="ghost"
         className="text-[var(--color-danger)]"
-        disabled={disabled}
+        disabled={empty || busy}
         onClick={() => {
           clear();
-          setNotice(null);
+          setError(null);
         }}
       >
         <Trash2 className="size-4" />

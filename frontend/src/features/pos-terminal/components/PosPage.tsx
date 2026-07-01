@@ -1,8 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { ShoppingCart } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
-import { useSession } from '@/features/auth';
-import { useCurrentShift } from '@/features/shifts/api/shifts.api';
+import { ShiftBar } from '@/features/shifts/components/ShiftBar';
 import { ItemGrid } from './ItemGrid';
 import { Cart } from './Cart';
 import { SaleSummary } from './SaleSummary';
@@ -15,27 +14,12 @@ import { useCart } from '../store/cart.store';
  */
 export function PosPage() {
   const { t } = useTranslation();
-  const user = useSession((s) => s.user);
-  const shift = useCurrentShift(user?.id);
   const qtyCount = useCart((s) => s.lines.reduce((n, l) => n + l.qty, 0));
 
   return (
     <div className="grid h-full grid-rows-[auto_minmax(0,1fr)] gap-4 p-4">
-      {/* Shift / cashier header (POST027 context) */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-[var(--radius)] border bg-[var(--color-surface)] px-4 py-2 text-sm">
-        <span className="font-semibold">
-          {t('shift.cashier')}: {user?.displayName ?? user?.username}
-        </span>
-        <span className="text-[var(--color-muted)]">
-          {shift.data?.noShift
-            ? `${t('shift.none')} — ${t('shift.noneHint')}`
-            : shift.isLoading
-              ? t('status.loading')
-              : shift.data?.shift
-                ? `${t('shift.header')} #${shift.data.shift.shiftSrl ?? ''}`
-                : ''}
-        </span>
-      </div>
+      {/* Shift / cashier header + open/close (POST027 context) */}
+      <ShiftBar />
 
       {/* Main: items grid + cart panel */}
       <div className="grid min-h-0 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_380px]">

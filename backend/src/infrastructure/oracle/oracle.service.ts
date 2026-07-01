@@ -95,4 +95,9 @@ export class OracleService implements OnModuleInit, OnApplicationShutdown {
   schema(): string {
     return this.config.get('ORACLE_SCHEMA');
   }
+
+  /** The ERP master schema that owns the canonical item/customer master. */
+  masterSchema(): string {
+    return this.config.get('ORACLE_MASTER_SCHEMA');
+  }
 }

@@ -27,6 +27,21 @@ export class OracleItemRepository implements ItemRepository {
     return this.oracle.schema();
   }
 
+  private get masterSchema(): string {
+    return this.oracle.masterSchema();
+  }
+
+  /**
+   * Canonical item-name source: IAS202623.IAS_ITM_MST (Arabic I_NAME keyed by
+   * I_CODE). MOTECH_RO has SELECT (granted 2026-06-29). Read-only, qualified.
+   */
+  private nameSubquery(alias: string): string {
+    return `(
+      SELECT m.I_CODE, m.I_NAME
+      FROM ${this.masterSchema}.IAS_ITM_MST m
+    ) ${alias}`;
+  }
+
   /**
    * Per-item enrichment derived from real sale lines: the most recent
    * non-null price/barcode/unit/pack size observed for the code.
@@ -55,9 +70,9 @@ export class OracleItemRepository implements ItemRepository {
     const where: string[] = [];
 
     if (filter.search) {
-      // Search by item code prefix/substring or exact-ish barcode.
+      // Search by item code, barcode, OR Arabic name (substring).
       where.push(
-        '(UPPER(q.I_CODE) LIKE UPPER(:search) OR UPPER(e.LAST_BARCODE) LIKE UPPER(:search))',
+        '(UPPER(q.I_CODE) LIKE UPPER(:search) OR UPPER(e.LAST_BARCODE) LIKE UPPER(:search) OR nm.I_NAME LIKE :search)',
       );
       binds.search = `%${filter.search}%`;
     }
@@ -70,6 +85,7 @@ export class OracleItemRepository implements ItemRepository {
     const sql = `
       SELECT * FROM (
         SELECT q.I_CODE,
+               MAX(nm.I_NAME)        AS I_NAME,
                SUM(q.AVL_QTY)        AS TOTAL_QTY,
                MAX(e.LAST_PRICE)     AS LAST_PRICE,
                MAX(e.LAST_BARCODE)   AS LAST_BARCODE,
@@ -77,6 +93,7 @@ export class OracleItemRepository implements ItemRepository {
                MAX(e.LAST_PSIZE)     AS LAST_PSIZE
         FROM ${this.schema}.MV_ITEM_AVL_QTY q
         LEFT JOIN ${this.enrichmentSubquery('e')} ON e.I_CODE = q.I_CODE
+        LEFT JOIN ${this.nameSubquery('nm')} ON nm.I_CODE = q.I_CODE
         ${whereSql}
         GROUP BY q.I_CODE
         ORDER BY q.I_CODE
@@ -84,6 +101,7 @@ export class OracleItemRepository implements ItemRepository {
 
     type Row = {
       I_CODE: string;
+      I_NAME: string | null;
       TOTAL_QTY: number;
       LAST_PRICE: number | null;
       LAST_BARCODE: string | null;
@@ -104,18 +122,21 @@ export class OracleItemRepository implements ItemRepository {
   async findByCode(code: string): Promise<ItemDetail | null> {
     const head = await this.oracle.queryOne<{
       I_CODE: string;
+      I_NAME: string | null;
       LAST_PRICE: number | null;
       LAST_BARCODE: string | null;
       LAST_UNIT: string | null;
       LAST_PSIZE: number | null;
     }>(
       `SELECT q.I_CODE,
+              MAX(nm.I_NAME)      AS I_NAME,
               MAX(e.LAST_PRICE)   AS LAST_PRICE,
               MAX(e.LAST_BARCODE) AS LAST_BARCODE,
               MAX(e.LAST_UNIT)    AS LAST_UNIT,
               MAX(e.LAST_PSIZE)   AS LAST_PSIZE
        FROM ${this.schema}.MV_ITEM_AVL_QTY q
        LEFT JOIN ${this.enrichmentSubquery('e')} ON e.I_CODE = q.I_CODE
+       LEFT JOIN ${this.nameSubquery('nm')} ON nm.I_CODE = q.I_CODE
        WHERE q.I_CODE = :code
        GROUP BY q.I_CODE`,
       { code },
@@ -141,6 +162,7 @@ export class OracleItemRepository implements ItemRepository {
 
   private async assembleDetail(head: {
     I_CODE: string;
+    I_NAME: string | null;
     LAST_PRICE: number | null;
     LAST_BARCODE: string | null;
     LAST_UNIT: string | null;
@@ -164,6 +186,7 @@ export class OracleItemRepository implements ItemRepository {
     const totalAvailableQty = stock.reduce((acc, s) => acc + s.availableQty, 0);
     const item = new Item({
       code: head.I_CODE,
+      name: head.I_NAME,
       barcode: head.LAST_BARCODE,
       unit: head.LAST_UNIT,
       packSize: head.LAST_PSIZE == null ? null : Number(head.LAST_PSIZE),
@@ -174,6 +197,7 @@ export class OracleItemRepository implements ItemRepository {
 
   private toItem(r: {
     I_CODE: string;
+    I_NAME: string | null;
     LAST_PRICE: number | null;
     LAST_BARCODE: string | null;
     LAST_UNIT: string | null;
@@ -181,6 +205,7 @@ export class OracleItemRepository implements ItemRepository {
   }): Item {
     return new Item({
       code: r.I_CODE,
+      name: r.I_NAME,
       barcode: r.LAST_BARCODE,
       unit: r.LAST_UNIT,
       packSize: r.LAST_PSIZE == null ? null : Number(r.LAST_PSIZE),

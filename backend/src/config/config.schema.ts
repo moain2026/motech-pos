@@ -16,6 +16,10 @@ export const configSchema = z.object({
   ORACLE_PASSWORD: z.string().min(1),
   ORACLE_CONNECT_STRING: z.string().min(1),
   ORACLE_SCHEMA: z.string().min(1).default('YSPOS23'),
+  // ERP master schema that owns the canonical item/customer master
+  // (IAS_ITM_MST.I_NAME etc.). Imported locally 2026-06-29; MOTECH_RO has
+  // SELECT on it. Read-only, schema-qualified joins.
+  ORACLE_MASTER_SCHEMA: z.string().min(1).default('IAS202623'),
   ORACLE_POOL_MIN: z.coerce.number().int().min(0).default(1),
   ORACLE_POOL_MAX: z.coerce.number().int().min(1).default(4),
   ORACLE_POOL_TIMEOUT: z.coerce.number().int().min(0).default(60),

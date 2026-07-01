@@ -70,15 +70,7 @@ export interface ItemDetail extends Item {
   stock: ItemStockRow[];
 }
 
-// ---- Shifts ----
-export interface CurrentShift {
-  // Shape depends on backend; kept loose because current dataset returns 409.
-  shiftSrl?: number;
-  cashierNo?: number;
-  openDate?: string;
-  openingBalance?: number;
-  [key: string]: unknown;
-}
+
 
 // ---- Bills ----
 export interface BillSummary {
@@ -130,4 +122,131 @@ export interface DailySummaryRow {
   totalAmt: number;
   totalVat: number;
   totalDisc: number;
+}
+
+// ---- Shifts (write path) — proof-verified against live :3100 2026-06-29 ----
+export type ShiftStatus = 'OPEN' | 'CLOSED';
+
+/** Open work shift (MOTECH_POS.SHIFTS). Returned by /shifts/open,
+ *  /shifts/current, /shifts/{id}/close. */
+export interface Shift {
+  id: string;
+  shiftNo: number;
+  shiftCode: string;
+  cashierNo: number;
+  machineNo: number;
+  openingBalance: number;
+  currency: string;
+  status: ShiftStatus;
+  openedAt: string;
+  closedAt: string | null;
+  closingBalance: number | null;
+  expectedCash: number | null;
+  cashDifference: number | null;
+  closeNote: string | null;
+}
+
+/** POST /shifts/open body. Only cashierNo is strictly required. */
+export interface OpenShiftDto {
+  cashierNo: number;
+  shiftCode?: string;
+  machineNo?: number;
+  openingBalance?: number;
+  currency?: string;
+}
+
+/** POST /shifts/{id}/close body. */
+export interface CloseShiftDto {
+  closingBalance?: number;
+  closeNote?: string;
+}
+
+// ---- Bills (write path) ----
+export type PaymentMethod = 'CASH' | 'CARD' | 'CREDIT';
+
+/** POST /bills line (request). itemCode + qty required; price/vat optional
+ *  overrides (else backend uses reference price). */
+export interface PostBillLineDto {
+  itemCode: string;
+  qty: number;
+  unitPrice?: number;
+  discDtl?: number;
+  freeQty?: number;
+  vatPercent?: number;
+}
+
+/** POST /bills body. Requires open shift for cashierNo + Idempotency-Key hdr. */
+export interface PostBillDto {
+  cashierNo: number;
+  machineNo?: number;
+  customerCode?: string;
+  customerName?: string;
+  currency?: string;
+  /** 1 = on price, 2 = after discount. */
+  taxCalcType?: 1 | 2;
+  headerDiscount?: number;
+  clientOperationId?: string;
+  lines: PostBillLineDto[];
+}
+
+/** POST /bills/{id}/payments body. */
+export interface AddPaymentDto {
+  method: PaymentMethod;
+  amount: number;
+  currency?: string;
+  rate?: number;
+  cardNo?: string;
+  customerCode?: string;
+}
+
+/** A posted-bill line as returned by POST /bills + /bills/posted/{id}.
+ *  itemName is null on the bill response — the cart carries the name. */
+export interface PostedBillLine {
+  lineNo: number;
+  itemCode: string;
+  itemName: string | null;
+  qty: number;
+  freeQty: number;
+  unitPrice: number;
+  discDtl: number;
+  discMst: number;
+  vatPercent: number;
+  lineGross: number;
+  lineDiscount: number;
+  lineVat: number;
+  lineNet: number;
+  itemUnit: string | null;
+}
+
+export interface PostedBillPayment {
+  method: PaymentMethod;
+  amount: number;
+  currency: string;
+  rate?: number;
+}
+
+/** Full posted bill (MOTECH_POS) returned by POST /bills, payments, posted/{id}. */
+export interface PostedBill {
+  id: string;
+  billNo: string;
+  shiftId: string;
+  cashierNo: number;
+  machineNo: number;
+  billType: number;
+  customerCode: string | null;
+  customerName: string | null;
+  currency: string;
+  taxCalcType: number;
+  grossAmt: number;
+  discountAmt: number;
+  vatAmt: number;
+  netAmt: number;
+  paidAmt: number;
+  status: string;
+  idempotencyKey: string;
+  clientOpId: string | null;
+  issuedAt: string;
+  createdAt: string;
+  lines: PostedBillLine[];
+  payments: PostedBillPayment[];
 }

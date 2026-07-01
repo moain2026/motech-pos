@@ -4,22 +4,16 @@ import { Money } from '../../../../shared/domain/money';
  * Item — read model of a sellable POS item.
  *
  * DATA SOURCE (proof-based, see docs/db/CATALOG_DATA_NOTE.md):
- * The canonical item master/price tables (`IAS_ITM_MST`, `IAS_ITM_DTL`,
- * `IAS_ITEM_PRICE`) are *synonyms* in YSPOS23 that resolve to the main ERP
- * schema `IAS202623`, which is NOT present in the current local dump. The
- * catalog views built on them (`IAS_V_ITM_UNT`, `IAS_ITM_DATA_VW`, …) are
- * therefore INVALID and cannot be queried.
+ * The canonical item master `IAS202623.IAS_ITM_MST` (2,391 items, Arabic
+ * `I_NAME` keyed by `I_CODE`) was imported into the local container on
+ * 2026-06-29. `MOTECH_RO` was granted SELECT on it, so item NAMES are now
+ * resolved for real (e.g. 1020060001 → "بيض").
  *
- * What DOES exist with real data and is read by this module:
- *   - `MV_ITEM_AVL_QTY` (materialized view, 1,280 distinct items) — the
- *     item-code + warehouse + available-quantity authority.
- *   - `IAS_POS_BILL_DTL` (41,945 real sale lines) — last-observed selling
- *     price, barcode, unit and pack size per item code.
- *
- * So an `Item` is reconstructed from the intersection of available-qty and
- * real historical sale data. `name` is intentionally null here because item
- * names live only in the absent `IAS202623` master; the field is kept so the
- * shape is forward-compatible once that schema is reachable.
+ * An `Item` is assembled from:
+ *   - `IAS202623.IAS_ITM_MST`  → I_CODE, I_NAME (Arabic name authority)
+ *   - `MV_ITEM_AVL_QTY` (materialized view) → warehouse + available-quantity
+ *   - `IAS_POS_BILL_DTL` (real sale lines) → last-observed selling price,
+ *     barcode, unit and pack size per item code.
  */
 export class Item {
   readonly code: string;

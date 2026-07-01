@@ -114,3 +114,14 @@
 - معالجات رئيسية موثّقة: charset BYTE→CHAR (924 ORA-12899)، GTT في tablespace دائم (127 ORA-02195)، تعطيل/تفعيل FK+Triggers للـreload.
 - التوثيق الكامل: `/home/work/oracle/pos-alabasi/IAS202623_MIGRATION.md`.
 - **الأثر:** أسماء الأصناف والعملاء والمستخدمين صارت متاحة محلياً → نظام Onyx مكتمل البيانات (لم تعد فواتير POS مجرد أكواد).
+
+### 2026-07-01 — ✅ Reports module (تحليلات المبيعات) — حي بأربع نقاط نهاية
+- أُضيف `backend/src/modules/reports/` بنفس نمط bills (Clean/Hexagonal: port + Oracle repo + service + controller + module)، مسجّل في `app.module`.
+- **النقاط (كلها محمية JWT، غلاف `{data,meta}`، أخطاء RFC 9457):**
+  - `GET /api/v1/reports/daily?from&to` — تجميع يومي `GROUP BY TRUNC(BILL_DATE)` (COUNT, SUM BILL_AMT/VAT_AMT/DISC_AMT).
+  - `GET /api/v1/reports/monthly?from&to` — تجميع شهري `GROUP BY TRUNC(BILL_DATE,'MM')`.
+  - `GET /api/v1/reports/by-item?limit` — الأصناف الأكثر مبيعاً، JOIN مع `IAS202623.IAS_ITM_MST` لاسم الصنف العربي، `SUM(I_QTY)` تنازلياً.
+  - `GET /api/v1/reports/by-machine` — مبيعات كل جهاز كاشير (`MACHINE_NO`).
+- يستخدم الـ Oracle read pool (MOTECH_RO، thin mode) عبر `OracleService`، bind variables فقط، `HUNG = 0` مثل bills.
+- **proof (بيانات حيّة):** daily = 47 يوم (أعلى: 2026-06-24 → 464 فاتورة، 169377) · by-item: `خبز` 7429 · `روتي` 4433 · `مياه وادي العين 1.2لتر*12حبه` 1502 · by-machine: جهاز 3 = 16816 فاتورة / 6.96M، جهاز 2 = 3753 / 1.53M · monthly: 2026-06 (10514) + 2026-05 (10055) · بدون توكن → 401 RFC9457.
+- `npm run build` ✅ · `pm2 restart motech-pos-api` ✅ (online).

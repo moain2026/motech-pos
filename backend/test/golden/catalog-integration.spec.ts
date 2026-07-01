@@ -18,6 +18,7 @@ function configFromEnv(): TypedConfigService {
     ORACLE_CONNECT_STRING:
       process.env.ORACLE_CONNECT_STRING ?? '127.0.0.1:1521/xe',
     ORACLE_SCHEMA: process.env.ORACLE_SCHEMA ?? 'YSPOS23',
+    ORACLE_MASTER_SCHEMA: process.env.ORACLE_MASTER_SCHEMA ?? 'IAS202623',
     ORACLE_POOL_MIN: 1,
     ORACLE_POOL_MAX: 2,
     ORACLE_POOL_TIMEOUT: 30,
@@ -84,6 +85,26 @@ describe('Catalog — OracleItemRepository against real data', () => {
   it('returns null for an unknown item code', async () => {
     const missing = await repo.findByCode('___NO_SUCH_CODE___');
     expect(missing).toBeNull();
+  });
+
+  it('resolves the real Arabic item name from IAS202623.IAS_ITM_MST', async () => {
+    // 1020060001 → "بيض" (proven via sqlplus on the live master)
+    const detail = await repo.findByCode('1020060001');
+    expect(detail).not.toBeNull();
+    expect(detail!.item.name).toBe('بيض');
+  });
+
+  it('lists items WITH their Arabic names (master join)', async () => {
+    const page = await repo.list({ limit: 10 });
+    const named = page.items.filter((i) => i.name && i.name.trim().length > 0);
+    // the vast majority of catalog items have a name in the master now
+    expect(named.length).toBeGreaterThan(0);
+  });
+
+  it('searches items by Arabic name substring', async () => {
+    const res = await repo.list({ limit: 5, search: 'ارز' });
+    expect(res.items.length).toBeGreaterThan(0);
+    expect(res.items.every((i) => (i.name ?? '').includes('ارز'))).toBe(true);
   });
 
   it('search filters by code substring', async () => {
