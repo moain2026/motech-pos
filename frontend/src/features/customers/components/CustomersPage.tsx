@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Users, User, Phone, MessageCircle, Award, Star } from 'lucide-react';
+import { Users, User, Phone, MessageCircle, Award, Star, Plus, Pencil } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
+import { Button } from '@/shared/ui/Button';
+import { OriginBadge } from '@/shared/ui/OriginBadge';
 import { LoadingView, ErrorView } from '@/shared/ui/StateView';
 import { formatNumber, formatDateTime } from '@/shared/lib/format';
 import type { Customer } from '@/shared/lib/types';
 import { CustomerPicker } from './CustomerPicker';
+import { CustomerDialog } from './CustomerDialog';
 import { useCustomer, useCustomerPoints, customerLabel } from '../api/customers.api';
 
 /**
@@ -15,13 +18,20 @@ import { useCustomer, useCustomerPoints, customerLabel } from '../api/customers.
 export function CustomersPage() {
   const { t } = useTranslation();
   const [selected, setSelected] = useState<Customer | null>(null);
+  const [dialog, setDialog] = useState<{ customer: Customer | null } | null>(null);
 
   return (
     <div className="flex h-full flex-col gap-4 p-4">
-      <h1 className="flex items-center gap-2 text-xl font-bold">
-        <Users className="size-6 text-[var(--color-brand-500)]" aria-hidden />
-        {t('customers.title')}
-      </h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="flex items-center gap-2 text-xl font-bold">
+          <Users className="size-6 text-[var(--color-brand-500)]" aria-hidden />
+          {t('customers.title')}
+        </h1>
+        <Button variant="primary" onClick={() => setDialog({ customer: null })}>
+          <Plus className="size-4" />
+          {t('customers.new')}
+        </Button>
+      </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[minmax(0,380px)_minmax(0,1fr)]">
         <Card className="flex min-h-0 flex-col overflow-hidden p-3">
@@ -30,7 +40,11 @@ export function CustomersPage() {
 
         <Card className="min-h-0 overflow-auto scroll-thin p-4">
           {selected ? (
-            <CustomerDetail code={selected.code} fallback={selected} />
+            <CustomerDetail
+              code={selected.code}
+              fallback={selected}
+              onEdit={() => setDialog({ customer: selected })}
+            />
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-3 text-center text-[var(--color-muted)]">
               <User className="size-10" aria-hidden />
@@ -39,11 +53,27 @@ export function CustomersPage() {
           )}
         </Card>
       </div>
+
+      {dialog ? (
+        <CustomerDialog
+          customer={dialog.customer}
+          onClose={() => setDialog(null)}
+          onSaved={(c) => setSelected(c)}
+        />
+      ) : null}
     </div>
   );
 }
 
-function CustomerDetail({ code, fallback }: { code: string; fallback: Customer }) {
+function CustomerDetail({
+  code,
+  fallback,
+  onEdit,
+}: {
+  code: string;
+  fallback: Customer;
+  onEdit: () => void;
+}) {
   const { t } = useTranslation();
   const detail = useCustomer(code);
   const points = useCustomerPoints(code);
@@ -56,12 +86,19 @@ function CustomerDetail({ code, fallback }: { code: string; fallback: Customer }
         <span className="grid size-16 shrink-0 place-items-center rounded-full bg-[var(--color-brand-600)]/20 text-[var(--color-brand-500)]">
           <User className="size-8" aria-hidden />
         </span>
-        <div className="min-w-0">
-          <h2 className="truncate text-lg font-bold">{customerLabel(c, t('customers.noName'))}</h2>
+        <div className="min-w-0 flex-1">
+          <h2 className="flex items-center gap-2 truncate text-lg font-bold">
+            {customerLabel(c, t('customers.noName'))}
+            <OriginBadge origin={c.origin} />
+          </h2>
           <p className="tnum text-sm text-[var(--color-muted)]">
             {t('customers.code')}: {c.code}
           </p>
         </div>
+        <Button variant="outline" onClick={onEdit}>
+          <Pencil className="size-4" />
+          {t('customers.edit')}
+        </Button>
       </div>
 
       {/* Fields */}

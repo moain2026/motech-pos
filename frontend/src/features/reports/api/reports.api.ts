@@ -5,6 +5,9 @@ import type {
   MonthlySummaryRow,
   ByItemRow,
   ByMachineRow,
+  ByCashierRow,
+  PaymentMethodRow,
+  ReturnsReportRow,
 } from '@/shared/lib/types';
 
 function rangeParams(from?: string, to?: string): string {
@@ -50,6 +53,31 @@ export function useByMachineReport(from?: string, to?: string) {
   return useQuery({
     queryKey: ['report', 'by-machine', { from, to }],
     queryFn: () => getData<ByMachineRow[]>(`/reports/by-machine${rangeParams(from, to)}`),
+  });
+}
+
+/** GET /reports/by-cashier — sales & collections per cashier. */
+export function useByCashierReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'by-cashier', { from, to }],
+    queryFn: () => getData<ByCashierRow[]>(`/reports/by-cashier${rangeParams(from, to)}`),
+  });
+}
+
+/** GET /reports/payment-methods — tender totals per method/currency. */
+export function usePaymentMethodsReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'payment-methods', { from, to }],
+    queryFn: () =>
+      getData<PaymentMethodRow[]>(`/reports/payment-methods${rangeParams(from, to)}`),
+  });
+}
+
+/** GET /reports/returns — returns summary per day. */
+export function useReturnsReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'returns', { from, to }],
+    queryFn: () => getData<ReturnsReportRow[]>(`/reports/returns${rangeParams(from, to)}`),
   });
 }
 

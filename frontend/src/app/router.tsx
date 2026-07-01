@@ -34,6 +34,15 @@ const CustomersPage = lazy(() =>
 const ReturnsPage = lazy(() =>
   import('@/features/returns').then((m) => ({ default: m.ReturnsPage })),
 );
+const ItemsPage = lazy(() =>
+  import('@/features/items').then((m) => ({ default: m.ItemsPage })),
+);
+const SettingsPage = lazy(() =>
+  import('@/features/settings').then((m) => ({ default: m.SettingsPage })),
+);
+const DashboardPage = lazy(() =>
+  import('@/features/dashboard').then((m) => ({ default: m.DashboardPage })),
+);
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const token = useSession((s) => s.accessToken);
@@ -53,6 +62,7 @@ function Lazy({ children }: { children: ReactNode }) {
 }
 
 const PRIVILEGED: Role[] = ['supervisor', 'admin'];
+const ADMIN_ONLY: Role[] = ['admin'];
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -64,7 +74,7 @@ export const router = createBrowserRouter([
       </RequireAuth>
     ),
     children: [
-      { index: true, element: <Navigate to="/pos" replace /> },
+      { index: true, element: <Lazy><DashboardPage /></Lazy> },
       { path: 'pos', element: <PosPage /> },
       { path: 'price-check', element: <Lazy><PriceCheckPage /></Lazy> },
       { path: 'vouchers', element: <Lazy><VouchersPage /></Lazy> },
@@ -81,10 +91,26 @@ export const router = createBrowserRouter([
         ),
       },
       {
+        path: 'items',
+        element: (
+          <RequireRole roles={PRIVILEGED}>
+            <Lazy><ItemsPage /></Lazy>
+          </RequireRole>
+        ),
+      },
+      {
         path: 'reports',
         element: (
           <RequireRole roles={PRIVILEGED}>
             <Lazy><ReportsPage /></Lazy>
+          </RequireRole>
+        ),
+      },
+      {
+        path: 'settings',
+        element: (
+          <RequireRole roles={ADMIN_ONLY}>
+            <Lazy><SettingsPage /></Lazy>
           </RequireRole>
         ),
       },

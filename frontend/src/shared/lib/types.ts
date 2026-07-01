@@ -51,6 +51,10 @@ export interface RefreshResponse {
 // ---- Catalog ----
 /** Item summary as returned by GET /items. `name` is frequently null in the
  *  current dataset (known data constraint) — UI falls back to code/barcode. */
+/** Item provenance: ERP (Oracle reference), LOCAL (created here), EDIT (ERP
+ *  reference with a local override applied). */
+export type ItemOrigin = 'ERP' | 'LOCAL' | 'EDIT';
+
 export interface Item {
   code: string;
   name: string | null;
@@ -58,6 +62,29 @@ export interface Item {
   unit: string | null;
   packSize: number;
   lastPrice: number;
+  /** Present on live responses; absent on legacy cached rows. */
+  origin?: ItemOrigin;
+}
+
+/** POST /items body — create a LOCAL item. Requires supervisor/admin. */
+export interface CreateItemDto {
+  code: string;
+  name: string;
+  barcode?: string;
+  unit?: string;
+  price: number;
+  vatPercent?: number;
+  inactive?: boolean;
+}
+
+/** PUT /items/{code} body — patch/override (code immutable). */
+export interface UpdateItemDto {
+  name?: string;
+  barcode?: string;
+  unit?: string;
+  price?: number;
+  vatPercent?: number;
+  inactive?: boolean;
 }
 
 export interface ItemStockRow {
@@ -68,6 +95,7 @@ export interface ItemStockRow {
 export interface ItemDetail extends Item {
   totalAvailableQty: number;
   stock: ItemStockRow[];
+  vatPercent?: number | null;
 }
 
 
@@ -151,6 +179,38 @@ export interface ByMachineRow {
   totalDisc: number;
 }
 
+/** GET /reports/by-cashier — sales & collections per cashier. */
+export interface ByCashierRow {
+  cashierNo: number;
+  billCount: number;
+  grossAmt: number;
+  discountAmt: number;
+  vatAmt: number;
+  netAmt: number;
+  cashCollected: number;
+  cardCollected: number;
+  creditCollected: number;
+}
+
+/** GET /reports/payment-methods — tender totals per method/currency. */
+export interface PaymentMethodRow {
+  method: PaymentMethod;
+  currency: string;
+  txnCount: number;
+  amount: number;
+  amountInBill: number;
+}
+
+/** GET /reports/returns — returns summary per day. */
+export interface ReturnsReportRow {
+  day: string;
+  returnCount: number;
+  grossAmt: number;
+  vatAmt: number;
+  netAmt: number;
+  refundAmt: number;
+}
+
 // ---- Customers ----
 /** GET /customers, /customers/{code}. Arabic-first names. */
 export interface Customer {
@@ -161,6 +221,29 @@ export interface Customer {
   whatsapp: string | null;
   phone: string | null;
   inactive: boolean;
+  /** ERP (Oracle reference), LOCAL (created here), EDIT (overridden). */
+  origin?: ItemOrigin;
+}
+
+/** POST /customers body — create a LOCAL customer. */
+export interface CreateCustomerDto {
+  code: string;
+  arName: string;
+  enName?: string;
+  mobile?: string;
+  whatsapp?: string;
+  phone?: string;
+  inactive?: boolean;
+}
+
+/** PUT /customers/{code} body (code immutable). */
+export interface UpdateCustomerDto {
+  arName?: string;
+  enName?: string;
+  mobile?: string;
+  whatsapp?: string;
+  phone?: string;
+  inactive?: boolean;
 }
 
 export interface CustomerPointsBalance {
@@ -557,6 +640,70 @@ export interface Voucher {
   clientOpId: string | null;
   issuedAt: string;
   createdAt: string;
+}
+
+// ---- Settings (GET/PUT /settings) — proof-verified live :3000 2026-07-01 ----
+export interface SettingsNumbering {
+  machineDigit: number;
+  userDigit: number;
+  serialDigit: number;
+  posBillSerial: number;
+}
+export interface SettingsPrinting {
+  printBill: boolean;
+  printBillBeforeSave: boolean;
+  openDrawer: boolean;
+}
+export interface SettingsHungBills {
+  useHungBills: boolean;
+  maxHungs: number | null;
+  allowPrintHungBill: boolean;
+}
+export interface SettingsTax {
+  roundAmtFraction: number | null;
+  useCheckSum: boolean;
+  returnPeriod: number | null;
+  changePeriod: number | null;
+}
+export interface SettingsPoints {
+  usePosPointSys: boolean;
+  pointCalcType: number | null;
+}
+export interface SettingsFeatures {
+  useSaleOrder: boolean;
+  useDiscCard: boolean;
+  allowChangeBillCurr: boolean;
+}
+export interface SettingsDefaultRow {
+  no: number;
+  value: string;
+  comment: string;
+}
+
+/** GET /settings → resolved effective settings (system + overrides). */
+export interface Settings {
+  shopName: string | null;
+  currency: string | null;
+  priceLevel: string | null;
+  pricingType: number | null;
+  billFooter: string | null;
+  numbering: SettingsNumbering;
+  printing: SettingsPrinting;
+  hungBills: SettingsHungBills;
+  tax: SettingsTax;
+  points: SettingsPoints;
+  features: SettingsFeatures;
+  defaults: SettingsDefaultRow[];
+  hasOverrides: boolean;
+}
+
+/** PUT /settings — apply local overrides by key. */
+export interface SettingsOverride {
+  key: string;
+  value: unknown;
+}
+export interface UpdateSettingsDto {
+  overrides: SettingsOverride[];
 }
 
 /** POST /vouchers body (Idempotency-Key header mandatory). */

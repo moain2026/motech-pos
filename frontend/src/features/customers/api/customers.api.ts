@@ -1,6 +1,17 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { getData, getEnvelope } from '@/shared/lib/api-client';
-import type { Customer, CustomerPoints } from '@/shared/lib/types';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
+import { api, getData, getEnvelope } from '@/shared/lib/api-client';
+import type {
+  ApiEnvelope,
+  CreateCustomerDto,
+  Customer,
+  CustomerPoints,
+  UpdateCustomerDto,
+} from '@/shared/lib/types';
 
 const PAGE = 30;
 
@@ -39,6 +50,42 @@ export function useCustomerPoints(code: string | null) {
     queryKey: ['customer', code, 'points'],
     enabled: !!code,
     queryFn: () => getData<CustomerPoints>(`/customers/${encodeURIComponent(code!)}/points`),
+  });
+}
+
+/** POST /customers — create a LOCAL customer (supervisor/admin). */
+export function useCreateCustomer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (dto: CreateCustomerDto): Promise<Customer> => {
+      const res = await api.post<ApiEnvelope<Customer>>('/customers', dto);
+      return res.data.data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['customers'] }),
+  });
+}
+
+/** PUT /customers/{code} — update a customer (code immutable). */
+export function useUpdateCustomer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      code,
+      dto,
+    }: {
+      code: string;
+      dto: UpdateCustomerDto;
+    }): Promise<Customer> => {
+      const res = await api.put<ApiEnvelope<Customer>>(
+        `/customers/${encodeURIComponent(code)}`,
+        dto,
+      );
+      return res.data.data;
+    },
+    onSuccess: (c) => {
+      qc.invalidateQueries({ queryKey: ['customers'] });
+      qc.invalidateQueries({ queryKey: ['customer', c.code] });
+    },
   });
 }
 

@@ -8,6 +8,9 @@ import {
   CalendarRange,
   Package,
   MonitorSmartphone,
+  UserCog,
+  CreditCard,
+  Undo2,
 } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { LoadingView, ErrorView, EmptyView } from '@/shared/ui/StateView';
@@ -17,16 +20,29 @@ import {
   useMonthlyReport,
   useByItemReport,
   useByMachineReport,
+  useByCashierReport,
+  usePaymentMethodsReport,
+  useReturnsReport,
 } from '../api/reports.api';
 import type { UseQueryResult } from '@tanstack/react-query';
 
-type Tab = 'daily' | 'monthly' | 'byItem' | 'byMachine';
+type Tab =
+  | 'daily'
+  | 'monthly'
+  | 'byItem'
+  | 'byMachine'
+  | 'byCashier'
+  | 'paymentMethods'
+  | 'returns';
 
 const TABS: { key: Tab; icon: typeof CalendarDays }[] = [
   { key: 'daily', icon: CalendarDays },
   { key: 'monthly', icon: CalendarRange },
   { key: 'byItem', icon: Package },
   { key: 'byMachine', icon: MonitorSmartphone },
+  { key: 'byCashier', icon: UserCog },
+  { key: 'paymentMethods', icon: CreditCard },
+  { key: 'returns', icon: Undo2 },
 ];
 
 /**
@@ -41,6 +57,9 @@ export function ReportsPage() {
   const monthly = useMonthlyReport();
   const byItem = useByItemReport();
   const byMachine = useByMachineReport();
+  const byCashier = useByCashierReport();
+  const paymentMethods = usePaymentMethodsReport();
+  const returns = useReturnsReport();
 
   return (
     <div className="flex h-full flex-col gap-4 p-4">
@@ -75,6 +94,9 @@ export function ReportsPage() {
         {tab === 'monthly' && <MonthlyReport query={monthly} />}
         {tab === 'byItem' && <ByItemReport query={byItem} />}
         {tab === 'byMachine' && <ByMachineReport query={byMachine} />}
+        {tab === 'byCashier' && <ByCashierReport query={byCashier} />}
+        {tab === 'paymentMethods' && <PaymentMethodsReport query={paymentMethods} />}
+        {tab === 'returns' && <ReturnsReport query={returns} />}
       </div>
     </div>
   );
@@ -251,6 +273,147 @@ function ByItemReport({ query }: { query: ReturnType<typeof useByItemReport> }) 
               <td className="tnum px-3 py-2 text-end">{formatNumber(r.totalQty)}</td>
               <td className="tnum px-3 py-2 text-end">{formatNumber(r.lineCount)}</td>
               <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.totalAmt)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </TableCard>
+    </ReportShell>
+  );
+}
+
+/* ---------- by cashier ---------- */
+
+function ByCashierReport({ query }: { query: ReturnType<typeof useByCashierReport> }) {
+  const { t } = useTranslation();
+  const rows = useMemo(() => query.data ?? [], [query.data]);
+  const kpis = useMemo(
+    () => ({
+      totalAmt: rows.reduce((n, r) => n + r.netAmt, 0),
+      totalBills: rows.reduce((n, r) => n + r.billCount, 0),
+    }),
+    [rows],
+  );
+  return (
+    <ReportShell query={query} empty={rows.length === 0}>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Kpi icon={<Coins className="size-6" />} label={t('reports.totalAmt')} value={formatMoney(kpis.totalAmt)} />
+        <Kpi icon={<Receipt className="size-6" />} label={t('reports.billCount')} value={formatNumber(kpis.totalBills)} />
+      </div>
+      <TableCard>
+        <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+          <tr>
+            <Th>{t('reports.cashierNo')}</Th>
+            <Th end>{t('reports.billCount')}</Th>
+            <Th end>{t('reports.netAmt')}</Th>
+            <Th end>{t('reports.cashCollected')}</Th>
+            <Th end>{t('reports.cardCollected')}</Th>
+            <Th end>{t('reports.creditCollected')}</Th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {rows.map((r) => (
+            <tr key={r.cashierNo} className="hover:bg-[var(--color-surface-2)]">
+              <td className="tnum px-3 py-2 font-medium">{r.cashierNo}</td>
+              <td className="tnum px-3 py-2 text-end">{formatNumber(r.billCount)}</td>
+              <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.netAmt)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.cashCollected)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.cardCollected)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.creditCollected)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </TableCard>
+    </ReportShell>
+  );
+}
+
+/* ---------- payment methods ---------- */
+
+function PaymentMethodsReport({
+  query,
+}: {
+  query: ReturnType<typeof usePaymentMethodsReport>;
+}) {
+  const { t } = useTranslation();
+  const rows = useMemo(() => query.data ?? [], [query.data]);
+  const kpis = useMemo(
+    () => ({
+      totalAmt: rows.reduce((n, r) => n + r.amountInBill, 0),
+      totalTxns: rows.reduce((n, r) => n + r.txnCount, 0),
+    }),
+    [rows],
+  );
+  const methodLabel = (m: string) => t(`reports.method.${m}`, { defaultValue: m });
+  return (
+    <ReportShell query={query} empty={rows.length === 0}>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Kpi icon={<Coins className="size-6" />} label={t('reports.totalAmt')} value={formatMoney(kpis.totalAmt)} />
+        <Kpi icon={<Receipt className="size-6" />} label={t('reports.txnCount')} value={formatNumber(kpis.totalTxns)} />
+      </div>
+      <TableCard>
+        <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+          <tr>
+            <Th>{t('reports.paymentMethod')}</Th>
+            <Th>{t('reports.currency')}</Th>
+            <Th end>{t('reports.txnCount')}</Th>
+            <Th end>{t('reports.amount')}</Th>
+            <Th end>{t('reports.amountInBill')}</Th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {rows.map((r, i) => (
+            <tr key={`${r.method}-${r.currency}-${i}`} className="hover:bg-[var(--color-surface-2)]">
+              <td className="px-3 py-2 font-medium">{methodLabel(r.method)}</td>
+              <td className="tnum px-3 py-2">{r.currency}</td>
+              <td className="tnum px-3 py-2 text-end">{formatNumber(r.txnCount)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatNumber(r.amount)}</td>
+              <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.amountInBill)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </TableCard>
+    </ReportShell>
+  );
+}
+
+/* ---------- returns ---------- */
+
+function ReturnsReport({ query }: { query: ReturnType<typeof useReturnsReport> }) {
+  const { t } = useTranslation();
+  const rows = useMemo(() => query.data ?? [], [query.data]);
+  const kpis = useMemo(
+    () => ({
+      totalRefund: rows.reduce((n, r) => n + r.refundAmt, 0),
+      totalCount: rows.reduce((n, r) => n + r.returnCount, 0),
+    }),
+    [rows],
+  );
+  return (
+    <ReportShell query={query} empty={rows.length === 0}>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Kpi icon={<Coins className="size-6" />} label={t('reports.totalRefund')} value={formatMoney(kpis.totalRefund)} />
+        <Kpi icon={<Undo2 className="size-6" />} label={t('reports.returnCount')} value={formatNumber(kpis.totalCount)} />
+      </div>
+      <TableCard>
+        <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+          <tr>
+            <Th>{t('reports.day')}</Th>
+            <Th end>{t('reports.returnCount')}</Th>
+            <Th end>{t('reports.grossAmt')}</Th>
+            <Th end>{t('reports.totalVat')}</Th>
+            <Th end>{t('reports.netAmt')}</Th>
+            <Th end>{t('reports.refundAmt')}</Th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {rows.map((r) => (
+            <tr key={r.day} className="hover:bg-[var(--color-surface-2)]">
+              <td className="tnum px-3 py-2 font-medium">{r.day}</td>
+              <td className="tnum px-3 py-2 text-end">{formatNumber(r.returnCount)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.grossAmt)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.vatAmt)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.netAmt)}</td>
+              <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.refundAmt)}</td>
             </tr>
           ))}
         </tbody>

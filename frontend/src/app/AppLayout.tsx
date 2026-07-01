@@ -10,6 +10,9 @@ import {
   ScanBarcode,
   ReceiptText,
   Scale,
+  LayoutDashboard,
+  Package,
+  Settings2,
 } from 'lucide-react';
 import { useSession } from '@/features/auth';
 import { OnlineBadge } from '@/shared/ui/OnlineBadge';
@@ -30,6 +33,7 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
+  { to: '/', key: 'nav.dashboard', icon: LayoutDashboard, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/pos', key: 'nav.pos', icon: ShoppingCart, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/price-check', key: 'nav.priceCheck', icon: ScanBarcode, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/bills', key: 'nav.bills', icon: Receipt, roles: ['cashier', 'supervisor', 'admin'] },
@@ -37,7 +41,9 @@ const NAV: NavItem[] = [
   { to: '/vouchers', key: 'nav.vouchers', icon: ReceiptText, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/reconciliation', key: 'nav.reconciliation', icon: Scale, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/customers', key: 'nav.customers', icon: Users, roles: ['supervisor', 'admin'] },
+  { to: '/items', key: 'nav.items', icon: Package, roles: ['supervisor', 'admin'] },
   { to: '/reports', key: 'nav.reports', icon: BarChart3, roles: ['supervisor', 'admin'] },
+  { to: '/settings', key: 'nav.settings', icon: Settings2, roles: ['admin'] },
 ];
 
 /** Authenticated app shell: side nav (RTL) + content outlet. */
@@ -73,6 +79,7 @@ export function AppLayout() {
             <NavLink
               key={to}
               to={to}
+              end={to === '/'}
               className={({ isActive }) =>
                 cn(
                   'flex items-center gap-3 rounded-[var(--radius)] px-3 py-3 text-sm font-medium transition-colors',

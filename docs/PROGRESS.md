@@ -256,6 +256,20 @@
 
 - **حالة عامة:** `npm run build` ✅ · 4 migrations على MOTECH_POS ✅ · `pm2 restart motech-pos-api` ✅ (online) · **71 اختبار وحدة تمر جميعها** · OpenApi مُعاد توليده (كل الـendpoints الجديدة موجودة). commits منفصلة بهوية MoainAlabbasi <Moain.learn@gmail.com>.
 
+### 2026-07-01 — ✅ الموجة 2 (Frontend): ربط ميزات الموجة 2 بواجهة Motech POS
+ربط الواجهة (React 19 · TanStack Query v5 · shadcn-style · RTL عربي · RFC9457 · RBAC) بمسارات backend الموجودة والمُثبتة حيّاً على :3000. لم يُمس أي backend. `npm run build` نظيف (صفر أخطاء TS) و`lint` صفر أخطاء. نُشر على `/var/www/motech-pos/` وتحقّق حيّاً عبر الدومين.
+
+- **1) لوحة رئيسية (Dashboard):** `features/dashboard` — صفحة الدخول الافتراضية (`/`). KPIs اليوم (مبيعات/عدد فواتير عبر `GET /reports/daily?from=today&to=today`) + حالة الوردية (`GET /shifts/current`) + روابط سريعة حسب الدور.
+- **2) نقاط الولاء عند البيع:** شريحة رصيد النقاط تحت العميل المرفق في شاشة POS (`useCustomerPoints`) — إضافةً للعرض الموجود في شاشة العملاء.
+- **3) إدارة الأصناف (CRUD):** `features/items` — بحث + شاشة إضافة/تعديل (`POST/PUT /items`). سعر/اسم/وحدة/باركود محلي + شارة المصدر (ERP/LOCAL/EDIT). supervisor/admin فقط. **proof:** POST → origin LOCAL، PUT على صنف ERP → origin EDIT (السعر يُعاد بعد الاختبار) ✅.
+- **4) إدارة العملاء (CRUD):** `CustomerDialog` (`POST/PUT /customers`) موصولة بشاشة العملاء (أزرار إضافة/تعديل) + شارة المصدر. **proof:** POST → LOCAL، PUT يحدّث ✅.
+- **5) شاشة الإعدادات:** `features/settings` — عرض `GET /settings` كامل (ترقيم/طباعة/ضريبة/نقاط/خيارات) + تعديل admin فقط عبر overrides (`PUT /settings`: shopName, billFooter, currency, points.usePosPointSys). **proof:** round-trip لـ shopName يُطبَّق ثم يُستعاد ✅.
+- **6) التقارير الإضافية:** ثلاث تبويبات جديدة في شاشة التقارير: حسب الكاشير (`/reports/by-cashier`) · طرق الدفع (`/reports/payment-methods`) · المرتجعات (`/reports/returns`). **proof حي عبر الدومين:** الثلاثة 200 ✅.
+- **6-bis) السندات (قبض/صرف):** كانت الشاشة والـAPI موجودة لكن مفاتيح الترجمة (`vouchers.*` + `nav.vouchers/priceCheck/reconciliation`) كانت مفقودة من `common.json` — أُضيفت كلها.
+- **مشترك:** `OriginBadge` جديد (ERP/LOCAL/EDIT) يُعاد استخدامه في الأصناف والعملاء. router + AppLayout: مسارات `/` (dashboard) و`/items` (PRIVILEGED) و`/settings` (ADMIN_ONLY) مع RBAC. أنواع جديدة في `types.ts` (Settings, ByCashierRow, PaymentMethodRow, ReturnsReportRow, Create/Update DTOs, ItemOrigin).
+- **proof build/نشر:** `npm run build` → صفر أخطاء TS، 28 precache entries · `sudo cp -r dist/* /var/www/motech-pos/` · الدومين `https://nuugneol.gensparkclaw.com/` يعطي `<title>Motech POS</title>` وحزمة index الجديدة 200؛ chunks (dashboard/items/settings) 200 حيّاً ✅.
+- **قيود:** الإعدادات القابلة للتعديل من الواجهة محصورة بالمفاتيح التي يقبلها backend فعلاً (اسم المحل/التذييل/العملة/تفعيل النقاط)؛ البقية للعرض فقط تجنّباً لاختراع مفاتيح. لا يوجد DELETE للأصناف/العملاء في backend → التعطيل عبر `inactive`. لوحة KPIs تعتمد `/reports/daily` (نطاق اليوم) لأنه لا يوجد endpoint لحظي مخصص.
+
 ### 2026-07-01 — ✅ الموجة 3 (تقارير POSR إضافية + module cards/coupons)
 توسعة module `reports` بستة تقارير YSPOS23 حقيقية + module `cards` جديد للبطاقات والكوبونات. كله قراءة فقط عبر MOTECH_RO (YSPOS23 + IAS202623)، JWT، RFC9457، bind variables، نمط hexagonal (port/service/controller). لم يُمس أي module آخر.
 

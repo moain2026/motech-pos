@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { UserPlus, UserCheck, X } from 'lucide-react';
+import { UserPlus, UserCheck, X, Star } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
-import { CustomerPicker, customerLabel } from '@/features/customers';
+import { CustomerPicker, customerLabel, useCustomerPoints } from '@/features/customers';
+import { formatNumber } from '@/shared/lib/format';
 import { useCart } from '../store/cart.store';
 
 /**
@@ -18,18 +19,21 @@ export function CustomerAttach() {
   return (
     <>
       {customer ? (
-        <div className="flex items-center justify-between gap-2 rounded-[var(--radius)] border bg-[var(--color-surface-2)] px-3 py-2">
-          <span className="flex min-w-0 items-center gap-2 text-sm">
-            <UserCheck className="size-4 shrink-0 text-[var(--color-success)]" aria-hidden />
-            <span className="truncate font-medium">{customer.name}</span>
-          </span>
-          <button
-            onClick={() => setCustomer(null)}
-            className="text-[var(--color-muted)] hover:text-[var(--color-danger)]"
-            aria-label={t('pos.removeCustomer')}
-          >
-            <X className="size-4" />
-          </button>
+        <div className="flex flex-col gap-1 rounded-[var(--radius)] border bg-[var(--color-surface-2)] px-3 py-2">
+          <div className="flex items-center justify-between gap-2">
+            <span className="flex min-w-0 items-center gap-2 text-sm">
+              <UserCheck className="size-4 shrink-0 text-[var(--color-success)]" aria-hidden />
+              <span className="truncate font-medium">{customer.name}</span>
+            </span>
+            <button
+              onClick={() => setCustomer(null)}
+              className="text-[var(--color-muted)] hover:text-[var(--color-danger)]"
+              aria-label={t('pos.removeCustomer')}
+            >
+              <X className="size-4" />
+            </button>
+          </div>
+          <CustomerPointsChip code={customer.code} />
         </div>
       ) : (
         <Button variant="outline" className="w-full justify-start" onClick={() => setOpen(true)}>
@@ -65,5 +69,19 @@ export function CustomerAttach() {
         </div>
       ) : null}
     </>
+  );
+}
+
+/** Loyalty balance chip shown under the attached customer at the POS. */
+function CustomerPointsChip({ code }: { code: string }) {
+  const { t } = useTranslation();
+  const points = useCustomerPoints(code);
+  if (points.isLoading || points.isError || !points.data) return null;
+  const total = points.data.balance.totalPoints ?? 0;
+  return (
+    <span className="flex items-center gap-1.5 text-xs text-[var(--color-warning)]">
+      <Star className="size-3.5" aria-hidden />
+      {t('pos.loyaltyPoints')}: <span className="tnum font-bold">{formatNumber(total)}</span>
+    </span>
   );
 }
