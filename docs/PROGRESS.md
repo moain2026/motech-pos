@@ -2,6 +2,24 @@
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
 ## 2026-07-01
+### الموجة 4 (backend): module المخزون + إدارة الأجهزة/المستخدمين — حيّ ومُختبَر (subagent wave4-inventory-admin)
+موديولان جديدان بنمط catalog/reports (Clean/Hexagonal: port/service/repo/controller)، قراءة فقط على Onyx عبر MOTECH_RO (يملك SELECT ANY TABLE — لا حاجة GRANT إضافي، مثبت)، JWT، RFC9457، bind variables، schema-qualified. لم يُمس أي module قائم — إضافة موديولين + سطرين في app.module فقط. **proof-not-assumption: كل endpoint curl حيّ ببيانات حقيقية.**
+
+1. **module `inventory` (المخزون — POSAVLQTY) ✅** — aggregations حقيقية على `YSPOS23.MV_ITEM_AVL_QTY` (2004 صف، 1280 صنف) + أسماء عربية من `IAS202623.IAS_ITM_MST`:
+   - `GET /api/v1/inventory?search=&cursor=&limit=` — قائمة الأصناف بكمياتها المجمّعة (`SUM(AVL_QTY)`) بأسمائها العربية + عدد المخازن، cursor pagination بـ I_CODE. بحث بالكود أو الاسم العربي.
+   - `GET /api/v1/inventory/:code` — كمية الصنف مفصّلة **بكل مخزن/دفعة** (W_CODE, BATCH_NO, EXPIRE_DATE, AVL_QTY) + الإجمالي. 404 RFC9457 للمجهول.
+   - `GET /api/v1/inventory/low-stock?threshold=&limit=` — أصناف منخفضة (`SUM(AVL_QTY) <= threshold` تصاعدياً).
+   - **proof حي:** list → "ارز الديوان (10 كجم) 4قطم" qty 0، "ارز الفخامه" qty 5 · detail 1010010004 → مخزن W_CODE=2 batch=0 · low-stock(thr=1) → "جبنه مالح البقرات" -24100، "خبز" -7961 (قيم سالبة حقيقية من MV) · 404 للكود المجهول (RFC9457 item-not-found) · limit=999 → 400 · بلا توكن → 401 ✅.
+
+2. **module `admin` (الأجهزة + المستخدمين + الجلسات — admin فقط عبر RBAC) ✅** — قراءة من Onyx مباشرةً:
+   - `GET /api/v1/admin/machines` — أجهزة الكاشير من `YSPOS23.IAS_POS_MACHINE` (3 أجهزة: SERVER3/POS1/POS2) بحالتها (inactive/useVat/defWarehouse/defBranch/lastBillDate/ip/priceLevel).
+   - `GET /api/v1/admin/users` — المستخدمون من `IAS202623.USER_R` (4) بأسمائهم العربية (U_A_NAME) + isAdmin/loggedOn/locked/inactive/userType. (MOTECH_RO يقرأ USER_R عبر SELECT ANY TABLE — لا GRANT لزم.)
+   - `GET /api/v1/admin/sessions?userId=&limit=` — سجل الدخول/الخروج من `YSPOS23.IAS_USR_LGN_HSTRY` (608 صف) الأحدث أولاً.
+   - **proof حي:** machines → 3 أجهزة (SERVER3 lastBill 2026-05-17) · users → "مدير النظام" (isAdmin=true, loggedOn=true)، "محمد المجهلي"، "طارق العباسي"، "صدام العتواني" (أسماء عربية حقيقية) · sessions → دخول U_ID=1 على SERVER3 2026-06-28 · **RBAC: cashier → admin/users = 403** · بلا توكن → 401 ✅.
+
+- **الأمان/الجودة:** JWT مؤكّد (401) · RBAC admin-only على /admin (403 للكاشير) · validation (400) · 404 RFC9457 · bind variables فقط · **لا كتابة على YSPOS23/IAS202623** (قراءة فقط).
+- **حالة عامة:** `npm run build` ✅ · `pm2 restart motech-pos-api` ✅ (online) · **87 اختبار وحدة تمر جميعها** (+7 جديدة: inventory 4، admin 3) · OpenApi مُعاد توليده (الـ6 مسارات الجديدة موجودة: inventory×3، admin×3). commits منفصلة بهوية MoainAlabbasi <Moain.learn@gmail.com>.
+
 ### الموجة القادمة (P0) — إكمال دورة البيع الحرجة (backend) — حيّ ومُختبَر (subagent wave1-p0-backend)
 أُكملت **3 ثغرات P0** من COMPLETION_MATRIX (الرابعة كانت جاهزة)، كلها backend بنمط bills نفسه (Clean/Hexagonal، MOTECH_POS للكتابة فقط، RFC9457، Idempotency، bind variables). proof-not-assumption: كل واحدة curl حيّ + اختبارات.
 

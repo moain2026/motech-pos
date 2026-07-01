@@ -3,11 +3,13 @@ import { LoggerModule } from 'nestjs-pino';
 import { ConfigModule } from './config/config.module';
 import { HealthModule } from './health/health.module';
 import { OracleModule } from './infrastructure/oracle/oracle.module';
+import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { BillsModule } from './modules/bills/bills.module';
 import { CardsModule } from './modules/cards/cards.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { CustomersModule } from './modules/customers/customers.module';
+import { InventoryModule } from './modules/inventory/inventory.module';
 import { LoyaltyModule } from './modules/loyalty/loyalty.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ReturnsModule } from './modules/returns/returns.module';
@@ -39,6 +41,8 @@ import { VouchersModule } from './modules/vouchers/vouchers.module';
     ReportsModule,
     CardsModule,
     CustomersModule,
+    InventoryModule,
+    AdminModule,
     LoyaltyModule,
     VouchersModule,
     SettingsModule,
