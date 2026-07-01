@@ -200,3 +200,28 @@
 - **proof حي (curl، بيانات حقيقية):** login admin → JWT · `GET /settings` → `shopName=YEMENSOFT` قيم حقيقية (numbering 2/3/5، defaults 15 صف بعد فلترة INACTIVE) · `GET /settings/machine/2` → `terminal=POS1 currency=YER branchNo=1` · `PUT /settings` (currency=USD, printing.printBill=1, default.13=9) → `applied:3 hasOverrides:true` والقيم مدموجة · `GET /settings` ثانيةً يؤكد الثبات + الدمج · **RBAC:** cashier1 `PUT` → **403 Forbidden** · مفتاح خبيث `evil.hack` → **400** · جهاز 999 → **404** · بلا توكن → **401** · **DB proof:** صفوف overlay في MOTECH_POS فقط (UPDATED_BY=3=admin من JWT sub) · مسح بـ `value:null` أعاد القيم الحيّة و`hasOverrides:false` · **YSPOS23 لم تُمس** (IAS_PARA_POS ما زال صفاً واحداً SETTING_NAME=YEMENSOFT).
 - `npm run build` ✅ · migration على MOTECH_POS ✅ · `pm2 restart motech-pos-api` ✅ (online).
 - الهوية: MoainAlabbasi <Moain.learn@gmail.com>.
+
+### 2026-07-01 — ✅ ميزات أجهزة POS (طباعة حرارية ESC/POS + باركود + QR فاتورة إلكترونية + مزامنة offline) — واجهة
+- أُضيفت وحدة مستقلة `frontend/src/features/print/` + دعوم في `frontend/src/shared/` (ملفات جديدة، لا تُمَس أي feature أخرى إلا استيراداً في POS). اتّباع STANDARDS/13 §3–§5 و§1–§2.
+- **1) الطباعة الحرارية:**
+  - `receipt-model.ts` — نموذج إيصال موحّد يُبنى من الفاتورة المُرحّلة (حقيقة الخادم للمبالغ/الرقم) + أسطر السلة (مصدر الأسماء العربية، لأن استجابة الفاتورة تُرجِع `itemName=null`).
+  - `receipt-print.ts` — مسار المتصفّح الافتراضي الموثوق: قالب HTML **80mm RTL** يُحقن في `iframe` مخفي → `window.print()`، مع QR كصورة data-URL و`@page{size:80mm auto}`. فشل الطباعة **لا يُفشل البيع** (§3).
+  - `escpos-encoder.ts` — تصدير **ESC/POS bytes** (init، CP1256 للعربية، محاذاة/عريض/حجم مضاعف، QR أمر model-2، فتح درج النقد `ESC p`، قص جزئي `GS V`) — للطابعات الحرارية عبر WebUSB/agent مستقبلاً.
+  - `webusb-printer.ts` — إرسال البايتات مباشرة عبر **WebUSB** (feature-detected؛ يبقى `window.print` الافتراضي).
+  - زر **«طباعة»** (`PrintReceiptButton`) يظهر في شاشة نجاح البيع (`SaleSummary`) + خيار «طباعة USB» عند توفّر WebUSB.
+- **2) الباركود:**
+  - `useBarcodeScanner.ts` (shared/hooks) — التقاط ماسح **HID keyboard-wedge** عالمياً بتمييز الإدخال السريع (فاصل < 40ms) المنتهي بـ Enter عن كتابة الإنسان.
+  - `useScannerToCart.ts` — جسر المسح→السلة: مسح → `GET /items/barcode/:bc` (endpoint موجود، proof-verified) → إضافة للسلة + toast تغذية راجعة (§4، §10 هدف < 100ms).
+  - `barcode-lookup.api.ts` — بحث بالباركود مع **fallback لكاش Dexie** عند عدم الاتصال (offline-first).
+  - `barcode.ts` + `BarcodeDisplay.tsx` — توليد/عرض باركود عبر **JsBarcode** (auto EAN-13 لـ13 رقم، وإلا Code-128).
+- **3) QR الفاتورة الإلكترونية:** `shared/einvoice/zatca-tlv.ts` — ترميز **TLV نمط ZATCA** (Tag-Length-Value ثم Base64): البائع، الرقم الضريبي، الطابع الزمني، الإجمالي، الضريبة (§5، adapter قابل لكل دولة عبر `store-config`).
+- **4) إعداد المتجر:** `shared/config/store-config.store.ts` — هوية البائع/الرقم الضريبي/العملة/الدولة (Zustand persist) لرأس الإيصال وQR (الخادم الحالي لا يوفّرها).
+- **5) مزامنة offline:** `shared/offline/sync-queue.ts` — طابور Dexie append-only لفواتير الـoffline بـ`clientOperationId` (= مفتاح idempotency للرأس والـheader معاً → لا ازدواج)، flusher خلفي عند `online` + دوري، dead-letter بعد 6 محاولات (§1، §2). يُشغَّل في `providers.tsx`.
+- **proof:**
+  - `tsc --noEmit --skipLibCheck` على كل ملفاتي = **0 أخطاء** · `oxlint` على 14 ملفاً = **0 تحذير/خطأ** · `tsc -b` أخطاؤه الوحيدة من ملفات workstream مُوازٍ (HeldBills/VouchersPage — غير ملفاتي، كانت حمراء قبل عملي).
+  - **QR TLV:** ترميز→Base64→فكّ يؤكد البنية (tag1..5، اسم عربي UTF-8، مبالغ) — `hex` + `Base64` مطبوعان.
+  - **الإيصال الحراري 80mm RTL:** لقطة شاشة حيّة (CDP) — رأس المحل + الرقم الضريبي + الأصناف بأسماء عربية + qty×price=net + الإجمالي/الضريبة/الصافي + الدفع/المدفوع/الباقي + QR + التذييل. ✅
+  - **الباركود:** لقطة حيّة — EAN-13 (`6287002861172`) + Code-128 (`1010010013`). ✅
+  - **ESC/POS:** تدفّق بايتات مُتحقَّق (init 1b40، CP1256 1b7420، QR model-2، درج، قص GS V). ✅
+- **قيود معروفة:** (1) العربية على ESC/POS النصّي تعتمد codepage الطابعة (CP1256)؛ الطابعات الرخيصة بلا دعم عربي تحتاج **rasterization** (GS v 0 bitmap) — غير مُنفَّذ هذه المرحلة (مسار المتصفّح يغطّي العربية بالكامل). (2) **وكيل الطباعة المحلي** (المفضّل للإنتاج §3) غير مُنفَّذ — WebUSB مسار مباشر بديل. (3) طابور offline يستخدم مسار `/bills` الحالي؛ لا يوجد بعد ترقيم رسمي offline→online مؤقّت (§5) لأن الخادم يولّد الرقم عند الإنشاء. (4) لا اختبار وحدة رسمي (Vitest غير مُهيّأ في الواجهة) — أُثبِت عبر تنفيذ فعلي + لقطات.
+- الهوية: MoainAlabbasi <Moain.learn@gmail.com>.
