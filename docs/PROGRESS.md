@@ -225,3 +225,33 @@
   - **ESC/POS:** تدفّق بايتات مُتحقَّق (init 1b40، CP1256 1b7420، QR model-2، درج، قص GS V). ✅
 - **قيود معروفة:** (1) العربية على ESC/POS النصّي تعتمد codepage الطابعة (CP1256)؛ الطابعات الرخيصة بلا دعم عربي تحتاج **rasterization** (GS v 0 bitmap) — غير مُنفَّذ هذه المرحلة (مسار المتصفّح يغطّي العربية بالكامل). (2) **وكيل الطباعة المحلي** (المفضّل للإنتاج §3) غير مُنفَّذ — WebUSB مسار مباشر بديل. (3) طابور offline يستخدم مسار `/bills` الحالي؛ لا يوجد بعد ترقيم رسمي offline→online مؤقّت (§5) لأن الخادم يولّد الرقم عند الإنشاء. (4) لا اختبار وحدة رسمي (Vitest غير مُهيّأ في الواجهة) — أُثبِت عبر تنفيذ فعلي + لقطات.
 - الهوية: MoainAlabbasi <Moain.learn@gmail.com>.
+
+### 2026-07-01 — ✅ الموجة 2 (P1 backend): سندات + نقاط ولاء + CRUD overlay + تقارير إضافية
+كل الميزات في MOTECH_POS (الكتابة)، YSPOS23/IAS202623 قراءة فقط. RFC9457 + Idempotency + NestJS hexagonal (قلّدت نمط bills/returns). لم تُكسر أي وحدة قائمة (إضافة endpoints/modules جديدة فقط + دمج اختياري عبر ports).
+
+- **1) المقبوضات والمصروفات (POST025/POST026)** — module `vouchers` جديد:
+  - جدول `MOTECH_POS.VOUCHERS` (V005): نوع RECEIPT/EXPENSE، مبلغ+عملة+سعر صرف، طريقة دفع، وصف/مستفيد/تصنيف، وردية، `IDEMPOTENCY_KEY UNIQUE`، ترقيم خادمي `SEQ_VOUCHER_NO` (RCP/EXP+YYMM+machine+seq).
+  - `POST /api/v1/vouchers` (قبض/صرف، Idempotency-Key إلزامي، وردية مفتوحة شرط)، `GET /api/v1/vouchers?shift=&type=&cashierNo=&from=&to=`، `GET /api/v1/vouchers/:id`.
+  - **يدخل في مطابقة إقفال الوردية:** `ShiftsService.reconciliation` صار يطوي المقبوضات/المصروفات النقدية → `expectedCash = opening + cashSales + cashReceipts - cashExpenses` عبر port اختياري `VOUCHER_CASH_TOTALS` (لا اقتران صلب/دائري).
+  - **proof حي:** فتح وردية (opening=1000) → سند قبض 500 (+ replay بنفس المفتاح = نفس السند، لا ازدواج) → سند صرف 120 → `reconciliation` = **expectedCash 1380** (1000+500-120) ✅. 9 اختبارات وحدة.
+
+- **2) نقاط الولاء الفعلية (POST020/POST021)** — module `loyalty` جديد:
+  - جدولا `MOTECH_POS.LOYALTY_CONFIG` (قاعدة الكسب overlay؛ `IAS_POINT_TYP_MST` **فارغ 0 صف** في هذه البيئة) + `POINTS_LEDGER` (سجل حركة) (V006).
+  - `PointsPolicy` مستخرج حرفياً من `PKG_POS_POINT_PKG.Get_Point_Cnt` (calc-type 1: `TRUNC(bill/AMT_4POINT)`، type 2: `*POINT_CNT`) — proof-referenced.
+  - `LoyaltyService.earnOnSale` مربوط في `PostBillUseCase` بعد الحفظ (best-effort، لا يُفشل البيع)، **idempotent لكل فاتورة** عبر `UQ_POINTS_BILL_TYP (BILL_ID)`.
+  - `GET /api/v1/loyalty/customers/:code/points` (الرصيد المكتسب + سجل من MOTECH_POS)؛ و`customers/:code/points` صار يُرجع `earned` أيضاً.
+  - **proof حي:** فاتورة صافي 23400 لعميل "1" → **234 نقطة** (23400/100) · فاتورة 38000 لعميل "2" → **380** + إعادة الفاتورة (replay) **لا تضاعف** النقاط (صف واحد) ✅. 12 اختبار وحدة.
+
+- **3) CRUD أصناف/عملاء (POSI010/POSI2000)** — overlay في MOTECH_POS:
+  - جدولا `CUSTOMERS_OVERLAY` + `ITEMS_OVERLAY` (V007): `ORIGIN LOCAL|EDIT`، `CODE UNIQUE`.
+  - `POST|PUT /api/v1/customers` (إنشاء عميل محلي / تعديل حقول عميل ERP محلياً)، `POST|PUT /api/v1/items` (سعر/اسم محلي). كتابة للـoverlay فقط، **YSPOS23 لم تُمس**.
+  - **القراءة تدمج الأصلي + overlay** (overlay يفوز): `GET /customers/:code`, `GET /items/:code`, والبحث/القوائم تُظهر السطور المحلية وكل سطر يحمل `origin`. writes محميّة supervisor/admin. 409 للتكرار، 404 للمجهول.
+  - **proof حي:** عميل محلي `LOC-C-1` + تعديل عميل ERP "1" (EDIT) · صنف محلي `LOC-I-1` + تعديل سعر صنف ERP `1010010004` (7800→**9999** في القراءة المدموجة) · تكرار `1010010004` → **409** ✅ (نُظّفت صفوف الاختبار). 9 اختبارات وحدة.
+
+- **4) تقارير إضافية (MOTECH_POS)** — أُضيفت إلى module `reports`:
+  - `GET /api/v1/reports/by-cashier?shift=&from=&to=` (مبيعات كل كاشير من BILLS + join PAYMENTS: نقد/بطاقة/آجل) — POST012.
+  - `GET /api/v1/reports/payment-methods` (توزيع طرق الدفع per method×currency).
+  - `GET /api/v1/reports/returns` (المرتجعات باليوم: عدد/إجمالي/ضريبة/صافي/مبلغ الاسترجاع).
+  - **proof حي:** by-cashier (كاشير 12: net 48100, cash **47960**) · payment-methods (CASH YER 48160، CARD YER 160، CASH USD 250، CREDIT YER 30) · returns (2026-07-01: 5 مرتجعات، refund 610) ✅. 3 اختبارات وحدة.
+
+- **حالة عامة:** `npm run build` ✅ · 4 migrations على MOTECH_POS ✅ · `pm2 restart motech-pos-api` ✅ (online) · **71 اختبار وحدة تمر جميعها** · OpenApi مُعاد توليده (كل الـendpoints الجديدة موجودة). commits منفصلة بهوية MoainAlabbasi <Moain.learn@gmail.com>.

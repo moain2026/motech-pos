@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, Matches, Max, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Matches, Max, Min } from 'class-validator';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -20,4 +20,11 @@ export class ByItemQuery extends DateRangeQuery {
   @Min(1)
   @Max(500)
   limit?: number = 20;
+}
+
+/** MOTECH_POS report filter: date range + optional shift. */
+export class PosReportQuery extends DateRangeQuery {
+  @IsOptional()
+  @IsString()
+  shift?: string;
 }

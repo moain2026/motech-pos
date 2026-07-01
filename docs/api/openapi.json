@@ -119,15 +119,80 @@
                         "bearer": []
                     }
                 ]
+            },
+            "post": {
+                "operationId": "CatalogController_create",
+                "summary": "Create a LOCAL item (MOTECH_POS overlay; POSI2000)",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateItemDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "catalog"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
             }
         },
-        "/api/v1/items/barcode/{bc}": {
-            "get": {
-                "operationId": "CatalogController_byBarcode",
-                "summary": "Resolve an item by barcode (detail + price + stock)",
+        "/api/v1/items/{code}": {
+            "put": {
+                "operationId": "CatalogController_update",
+                "summary": "Edit an item (local overlay of price/name; POSI2000)",
                 "parameters": [
                     {
-                        "name": "bc",
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateItemDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "catalog"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "get": {
+                "operationId": "CatalogController_byCode",
+                "summary": "Item detail: price + per-warehouse available quantity",
+                "parameters": [
+                    {
+                        "name": "code",
                         "required": true,
                         "in": "path",
                         "schema": {
@@ -150,13 +215,13 @@
                 ]
             }
         },
-        "/api/v1/items/{code}": {
+        "/api/v1/items/barcode/{bc}": {
             "get": {
-                "operationId": "CatalogController_byCode",
-                "summary": "Item detail: price + per-warehouse available quantity",
+                "operationId": "CatalogController_byBarcode",
+                "summary": "Resolve an item by barcode (detail + price + stock)",
                 "parameters": [
                     {
-                        "name": "code",
+                        "name": "bc",
                         "required": true,
                         "in": "path",
                         "schema": {
@@ -889,6 +954,66 @@
                 ]
             }
         },
+        "/api/v1/reports/by-cashier": {
+            "get": {
+                "operationId": "ReportsController_byCashier",
+                "summary": "Sales per cashier (MOTECH_POS bills+payments; POST012)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/payment-methods": {
+            "get": {
+                "operationId": "ReportsController_paymentMethods",
+                "summary": "Payment-method distribution (MOTECH_POS payments)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/returns": {
+            "get": {
+                "operationId": "ReportsController_returns",
+                "summary": "Returns aggregation by day (MOTECH_POS returns)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
         "/api/v1/customers": {
             "get": {
                 "operationId": "CustomersController_search",
@@ -907,12 +1032,77 @@
                         "bearer": []
                     }
                 ]
+            },
+            "post": {
+                "operationId": "CustomersController_create",
+                "summary": "Create a LOCAL customer (MOTECH_POS overlay; POSI010)",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateCustomerDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "customers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
             }
         },
         "/api/v1/customers/{code}": {
+            "put": {
+                "operationId": "CustomersController_update",
+                "summary": "Edit a customer (local overlay of ERP fields; POSI010)",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateCustomerDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "customers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
             "get": {
                 "operationId": "CustomersController_byCode",
-                "summary": "Single customer by C_CODE",
+                "summary": "Single customer by C_CODE (ERP + overlay merged)",
                 "parameters": [
                     {
                         "name": "code",
@@ -966,6 +1156,235 @@
                     }
                 ]
             }
+        },
+        "/api/v1/loyalty/customers/{code}/points": {
+            "get": {
+                "operationId": "LoyaltyController_points",
+                "summary": "Earned loyalty balance + ledger for a customer (MOTECH_POS)",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "loyalty"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/vouchers": {
+            "post": {
+                "operationId": "VouchersController_create",
+                "summary": "Create a cash voucher (RECEIPT/قبض or EXPENSE/صرف); open shift required, idempotent",
+                "parameters": [
+                    {
+                        "name": "idempotency-key",
+                        "required": true,
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "description": "uuid v7 — mandatory; replays return the same voucher (no dup)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateVoucherDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "vouchers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "get": {
+                "operationId": "VouchersController_list",
+                "summary": "List vouchers (filter by shift, type, cashier, date)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "vouchers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/vouchers/{id}": {
+            "get": {
+                "operationId": "VouchersController_getOne",
+                "summary": "Voucher detail (MOTECH_POS by UUID)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "vouchers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/settings": {
+            "get": {
+                "operationId": "SettingsController_get",
+                "summary": "Effective POS settings (live YSPOS23.IAS_PARA_POS merged with local overrides)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "settings"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "put": {
+                "operationId": "SettingsController_update",
+                "summary": "Upsert POS setting overrides (overlay in MOTECH_POS) — admin only",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateSettingsDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta } with merged settings"
+                    }
+                },
+                "tags": [
+                    "settings"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "SettingsController_create",
+                "summary": "Create/upsert POS setting overrides (alias of PUT) — admin only",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateSettingsDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta } with merged settings"
+                    }
+                },
+                "tags": [
+                    "settings"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/settings/machine/{no}": {
+            "get": {
+                "operationId": "SettingsController_machine",
+                "summary": "Settings for a specific cashier machine (IAS_POS_MACHINE)",
+                "parameters": [
+                    {
+                        "name": "no",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "settings"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
         }
     },
     "info": {
@@ -1012,6 +1431,63 @@
                 "required": [
                     "refreshToken"
                 ]
+            },
+            "CreateItemDto": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "Item business code (I_CODE) — must be unique"
+                    },
+                    "name": {
+                        "type": "string",
+                        "description": "Local name (I_NAME)"
+                    },
+                    "barcode": {
+                        "type": "string"
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "number",
+                        "description": "Local price (excl VAT), >= 0"
+                    },
+                    "vatPercent": {
+                        "type": "number",
+                        "description": "Local VAT percent"
+                    },
+                    "inactive": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "code"
+                ]
+            },
+            "UpdateItemDto": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string"
+                    },
+                    "barcode": {
+                        "type": "string"
+                    },
+                    "unit": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "number",
+                        "description": "Local price (excl VAT), >= 0"
+                    },
+                    "vatPercent": {
+                        "type": "number"
+                    },
+                    "inactive": {
+                        "type": "boolean"
+                    }
+                }
             },
             "OpenShiftDto": {
                 "type": "object",
@@ -1434,6 +1910,157 @@
                     "originalBillNo",
                     "cashierNo",
                     "lines"
+                ]
+            },
+            "CreateCustomerDto": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "Customer business code (C_CODE) — must be unique"
+                    },
+                    "arName": {
+                        "type": "string",
+                        "description": "Arabic name (C_A_NAME)"
+                    },
+                    "enName": {
+                        "type": "string",
+                        "description": "English name (C_E_NAME)"
+                    },
+                    "mobile": {
+                        "type": "string"
+                    },
+                    "whatsapp": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "inactive": {
+                        "type": "boolean"
+                    }
+                },
+                "required": [
+                    "code"
+                ]
+            },
+            "UpdateCustomerDto": {
+                "type": "object",
+                "properties": {
+                    "arName": {
+                        "type": "string"
+                    },
+                    "enName": {
+                        "type": "string"
+                    },
+                    "mobile": {
+                        "type": "string"
+                    },
+                    "whatsapp": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "inactive": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "CreateVoucherDto": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "RECEIPT",
+                            "EXPENSE"
+                        ],
+                        "description": "RECEIPT (قبض) or EXPENSE (صرف)"
+                    },
+                    "cashierNo": {
+                        "type": "number",
+                        "description": "Cashier number (must have an open shift)"
+                    },
+                    "machineNo": {
+                        "type": "number",
+                        "description": "POS machine number"
+                    },
+                    "amount": {
+                        "type": "number",
+                        "description": "Voucher amount (> 0), in the given currency"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Currency code (default: shift currency)"
+                    },
+                    "rate": {
+                        "type": "number",
+                        "description": "Exchange rate to shift currency (default 1)"
+                    },
+                    "paymentMethod": {
+                        "type": "string",
+                        "enum": [
+                            "CASH",
+                            "CARD",
+                            "BANK"
+                        ],
+                        "description": "Tender channel (default CASH). Only CASH affects drawer cash."
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "البيان / reason"
+                    },
+                    "partyName": {
+                        "type": "string",
+                        "description": "المستفيد / الدافع — party name"
+                    },
+                    "category": {
+                        "type": "string",
+                        "description": "Optional classification/category"
+                    },
+                    "clientOperationId": {
+                        "type": "string",
+                        "description": "Client-generated operation id (uuid v7)"
+                    }
+                },
+                "required": [
+                    "type",
+                    "cashierNo",
+                    "amount"
+                ]
+            },
+            "SettingOverrideDto": {
+                "type": "object",
+                "properties": {
+                    "key": {
+                        "type": "string",
+                        "description": "Canonical setting key (e.g. currency, printing.printBill, default.16)",
+                        "example": "currency"
+                    },
+                    "value": {
+                        "type": "object",
+                        "description": "New value as text; null reverts to the live YSPOS23 value",
+                        "nullable": true,
+                        "example": "USD"
+                    }
+                },
+                "required": [
+                    "key"
+                ]
+            },
+            "UpdateSettingsDto": {
+                "type": "object",
+                "properties": {
+                    "overrides": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SettingOverrideDto"
+                        }
+                    }
+                },
+                "required": [
+                    "overrides"
                 ]
             }
         }

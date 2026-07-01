@@ -7,7 +7,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/presentation/jwt-auth.guard';
 import { ReportsService } from '../application/reports.service';
-import { ByItemQuery, DateRangeQuery } from './reports.query';
+import { ByItemQuery, DateRangeQuery, PosReportQuery } from './reports.query';
 
 /**
  * ReportsController — READ-side analytics over the live YSPOS23 POS tables.
@@ -54,6 +54,50 @@ export class ReportsController {
   @ApiOkResponse({ description: 'Envelope { data, meta }' })
   async byMachine(@Query() q: DateRangeQuery) {
     const data = await this.reports.byMachine({ from: q.from, to: q.to });
+    return { data, meta: { count: data.length } };
+  }
+
+  //==========================================================================
+  // MOTECH_POS reports (our own recorded sales)
+  //==========================================================================
+
+  @Get('by-cashier')
+  @ApiOperation({
+    summary: 'Sales per cashier (MOTECH_POS bills+payments; POST012)',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async byCashier(@Query() q: PosReportQuery) {
+    const data = await this.reports.byCashier({
+      from: q.from,
+      to: q.to,
+      shiftId: q.shift,
+    });
+    return { data, meta: { count: data.length } };
+  }
+
+  @Get('payment-methods')
+  @ApiOperation({
+    summary: 'Payment-method distribution (MOTECH_POS payments)',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async paymentMethods(@Query() q: PosReportQuery) {
+    const data = await this.reports.paymentMethods({
+      from: q.from,
+      to: q.to,
+      shiftId: q.shift,
+    });
+    return { data, meta: { count: data.length } };
+  }
+
+  @Get('returns')
+  @ApiOperation({ summary: 'Returns aggregation by day (MOTECH_POS returns)' })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async returns(@Query() q: PosReportQuery) {
+    const data = await this.reports.returnsReport({
+      from: q.from,
+      to: q.to,
+      shiftId: q.shift,
+    });
     return { data, meta: { count: data.length } };
   }
 }

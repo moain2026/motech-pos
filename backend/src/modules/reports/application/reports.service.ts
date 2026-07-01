@@ -1,5 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
+  PosReportFilter,
+  PosReportsRepository,
+  POS_REPORTS_REPOSITORY,
+} from '../domain/ports/pos-reports-repository.port';
+import {
   DateRangeFilter,
   ReportsRepository,
   REPORTS_REPOSITORY,
@@ -13,6 +18,8 @@ import {
 export class ReportsService {
   constructor(
     @Inject(REPORTS_REPOSITORY) private readonly repo: ReportsRepository,
+    @Inject(POS_REPORTS_REPOSITORY)
+    private readonly pos: PosReportsRepository,
   ) {}
 
   daily(filter: DateRangeFilter) {
@@ -29,5 +36,24 @@ export class ReportsService {
 
   byMachine(filter: DateRangeFilter) {
     return this.repo.byMachine(filter);
+  }
+
+  //==========================================================================
+  // MOTECH_POS reports (our own recorded sales)
+  //==========================================================================
+
+  /** Sales per cashier (POST012). */
+  byCashier(filter: PosReportFilter) {
+    return this.pos.byCashier(filter);
+  }
+
+  /** Payment-method distribution. */
+  paymentMethods(filter: PosReportFilter) {
+    return this.pos.paymentMethods(filter);
+  }
+
+  /** Returns aggregation. */
+  returnsReport(filter: PosReportFilter) {
+    return this.pos.returns(filter);
   }
 }
