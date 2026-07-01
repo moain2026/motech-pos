@@ -954,6 +954,126 @@
                 ]
             }
         },
+        "/api/v1/reports/tax": {
+            "get": {
+                "operationId": "ReportsController_tax",
+                "summary": "VAT/tax report by day (taxable base + VAT collected)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/hourly-sales": {
+            "get": {
+                "operationId": "ReportsController_hourlySales",
+                "summary": "Hourly sales distribution (00..23) from BILL_TIME",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/top-customers": {
+            "get": {
+                "operationId": "ReportsController_topCustomers",
+                "summary": "Top customers by total sales (bill header key)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/discount": {
+            "get": {
+                "operationId": "ReportsController_discount",
+                "summary": "Discount report by day (header discount vs gross)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/sales-by-category": {
+            "get": {
+                "operationId": "ReportsController_salesByCategory",
+                "summary": "Sales grouped by item category (ITEM_TYPES)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/z-report": {
+            "get": {
+                "operationId": "ReportsController_zReport",
+                "summary": "Z-report: full end-of-shift/day close (single summary object)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
         "/api/v1/reports/by-cashier": {
             "get": {
                 "operationId": "ReportsController_byCashier",
@@ -1006,6 +1126,46 @@
                 },
                 "tags": [
                     "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/cards": {
+            "get": {
+                "operationId": "CardsController_listCards",
+                "summary": "Payment-card types (CREDIT_CARD_TYPES)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "cards"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/coupons": {
+            "get": {
+                "operationId": "CardsController_listCoupons",
+                "summary": "Coupon document headers (IAS_CPN_MST)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "cards"
                 ],
                 "security": [
                     {

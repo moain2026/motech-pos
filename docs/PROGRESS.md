@@ -255,3 +255,24 @@
   - **proof حي:** by-cashier (كاشير 12: net 48100, cash **47960**) · payment-methods (CASH YER 48160، CARD YER 160، CASH USD 250، CREDIT YER 30) · returns (2026-07-01: 5 مرتجعات، refund 610) ✅. 3 اختبارات وحدة.
 
 - **حالة عامة:** `npm run build` ✅ · 4 migrations على MOTECH_POS ✅ · `pm2 restart motech-pos-api` ✅ (online) · **71 اختبار وحدة تمر جميعها** · OpenApi مُعاد توليده (كل الـendpoints الجديدة موجودة). commits منفصلة بهوية MoainAlabbasi <Moain.learn@gmail.com>.
+
+### 2026-07-01 — ✅ الموجة 3 (تقارير POSR إضافية + module cards/coupons)
+توسعة module `reports` بستة تقارير YSPOS23 حقيقية + module `cards` جديد للبطاقات والكوبونات. كله قراءة فقط عبر MOTECH_RO (YSPOS23 + IAS202623)، JWT، RFC9457، bind variables، نمط hexagonal (port/service/controller). لم يُمس أي module آخر.
+
+- **1) تقارير POSR إضافية** (أُضيفت إلى `reports`، aggregations SQL حقيقية من YSPOS23):
+  - `GET /api/v1/reports/tax?from=&to=` — تقرير ضريبي باليوم: `totalVat` + `netBeforeVat` (=BILL_AMT−VAT) + خصم/إجمالي.
+  - `GET /api/v1/reports/hourly-sales?from=&to=` — المبيعات بالساعة (00..23) بتحليل `SUBSTR(BILL_TIME,1,2)` (BILL_DATE بلا وقت؛ الوقت في BILL_TIME).
+  - `GET /api/v1/reports/top-customers?limit=&from=&to=` — أعلى العملاء حسب المبيعات (C_CODE/CUST_CODE من رأس الفاتورة؛ walk-in تتجمّع تحت NULL).
+  - `GET /api/v1/reports/discount?from=&to=` — تقرير الخصومات باليوم (DISC_AMT مقابل الإجمالي + نسبة الخصم %).
+  - `GET /api/v1/reports/sales-by-category?from=&to=` — المبيعات حسب فئة الصنف (IAS_ITM_MST.ITEM_TYPE → IAS202623.ITEM_TYPES.IT_A_NAME).
+  - `GET /api/v1/reports/z-report?from=&to=&machine=` — إقفال وردية/يوم كامل (كائن واحد): عدد فواتير/إجمالي/ضريبة/خصم/صافي/مرتجع + أول/آخر وقت فاتورة + تقسيم دفع نقد/بطاقة (بطاقة=CR_CARD_AMT، نقد=الباقي).
+  - **proof حي (June 2026):** tax يوم 2026-06-25: 292 فاتورة، net 110143.3 · hourly: ساعة 00 → 354 فاتورة · top-customers: عميل "2" 7 فواتير 34010 · sales-by-category: "الاصناف الغير موزونه" 4,061,460 + "الاصناف الموزونه" 147,067.52 · z-report 2026-06-25: 292 فاتورة، gross 110143.3، CASH 109203.3 / CARD 940، أول 00:00:48 آخر 18:07:16 ✅.
+
+- **2) module `cards` جديد** (POSI007/POSI012 — البطاقات/الكوبونات، قراءة IAS202623):
+  - `GET /api/v1/cards` — أنواع بطاقات الدفع من `CREDIT_CARD_TYPES` (رقم/اسم عربي/إنجليزي/عمولة%/نوع/بنك).
+  - `GET /api/v1/coupons?limit=` — رؤوس مستندات الكوبونات من `IAS_CPN_MST` (فارغ 0 صف في هذه البيئة → يُرجع `[]` بشكل سليم).
+  - **proof حي:** cards → 8 بطاقات (جوالي، حاسب، جيب، …) · coupons → `{"data":[],"meta":{"count":0}}` ✅.
+  - `CardsModule` مُسجّل في `app.module.ts`؛ OracleModule عام (@Global) فيُحقن OracleService مباشرة.
+
+- **الأمان/الجودة:** JWT مؤكّد (بدون توكن → 401 RFC9457 `unauthorized`) · validation (limit>500 → 400 RFC9457 `bad-request`) · bind variables فقط · لا كتابة على أي schema.
+- **حالة عامة:** `npm run build` ✅ · `pm2 restart motech-pos-api` ✅ (online) · **111 اختبار وحدة تمر جميعها** (+9 جديدة: reports-extended 6، cards 3) · OpenApi مُعاد توليده (الـ8 مسارات الجديدة موجودة). commits منفصلة بهوية MoainAlabbasi <Moain.learn@gmail.com>.
