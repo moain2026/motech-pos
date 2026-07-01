@@ -125,3 +125,13 @@
 - يستخدم الـ Oracle read pool (MOTECH_RO، thin mode) عبر `OracleService`، bind variables فقط، `HUNG = 0` مثل bills.
 - **proof (بيانات حيّة):** daily = 47 يوم (أعلى: 2026-06-24 → 464 فاتورة، 169377) · by-item: `خبز` 7429 · `روتي` 4433 · `مياه وادي العين 1.2لتر*12حبه` 1502 · by-machine: جهاز 3 = 16816 فاتورة / 6.96M، جهاز 2 = 3753 / 1.53M · monthly: 2026-06 (10514) + 2026-05 (10055) · بدون توكن → 401 RFC9457.
 - `npm run build` ✅ · `pm2 restart motech-pos-api` ✅ (online).
+
+### 2026-07-01 — ✅ Customers module (بيانات العملاء + نقاط الولاء) — حي بثلاث نقاط نهاية
+- أُضيف `backend/src/modules/customers/` بنفس نمط reports/bills (Clean/Hexagonal: port + Oracle repo + service + controller + module)، مسجّل في `app.module`.
+- يقرأ الجداول المركزية `IAS202623` عبر الـ Oracle read pool (MOTECH_RO، thin mode)، bind variables فقط.
+- **النقاط (كلها محمية JWT، غلاف `{data,meta}`، أخطاء RFC 9457):**
+  - `GET /api/v1/customers?search&limit` — بحث في `CUSTOMER` بالاسم العربي/الإنجليزي/الكود/الموبايل (`C_A_NAME/C_E_NAME/C_CODE/C_MOBILE LIKE`)، يرجّع الكود + الاسم العربي + الموبايل/واتساب/الهاتف + حالة النشاط.
+  - `GET /api/v1/customers/:code` — عميل واحد بـ `C_CODE` (404 RFC9457 إن لم يوجد).
+  - `GET /api/v1/customers/:code/points` — رصيد + حركة نقاط الولاء من `IAS_POINT_CALC_TRNS` (`SUM(POINT_CNT)` + آخر الحركات؛ يتحقق من وجود العميل أولاً).
+- **proof (بيانات حيّة):** بحث بلا فلتر → عميلان: `محمد العباسي` (code 1) و `المهندس انس الدبعي` (code 2) · بحث `محمد` (عربي) → صف واحد صحيح · `/customers/1` → الاسم العربي · `/customers/1/points` → `{balance:{totalPoints:0,txnCount:0},txns:[]}` (فاضي = مقبول، الجدول فارغ) · `/customers/NOPE` → 404 RFC9457 · بدون توكن → 401.
+- `npm run build` ✅ · `pm2 restart motech-pos-api` ✅ (online).
