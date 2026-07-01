@@ -10,11 +10,13 @@ import { CardsModule } from './modules/cards/cards.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
+import { EInvoiceModule } from './modules/einvoice/einvoice.module';
 import { LoyaltyModule } from './modules/loyalty/loyalty.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ReturnsModule } from './modules/returns/returns.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { ShiftsModule } from './modules/shifts/shifts.module';
+import { SyncModule } from './modules/sync/sync.module';
 import { VouchersModule } from './modules/vouchers/vouchers.module';
 
 @Module({
@@ -46,6 +48,8 @@ import { VouchersModule } from './modules/vouchers/vouchers.module';
     LoyaltyModule,
     VouchersModule,
     SettingsModule,
+    EInvoiceModule,
+    SyncModule,
   ],
 })
 export class AppModule {}

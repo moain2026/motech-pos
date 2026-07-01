@@ -175,3 +175,35 @@ export class OverlayConflictError extends DomainError {
   readonly httpStatus = 409;
   readonly title = 'Record already exists';
 }
+
+/** An e-invoice was requested for a bill that does not exist in MOTECH_POS. */
+export class EInvoiceBillNotFoundError extends DomainError {
+  readonly typeSlug = 'einvoice-bill-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Bill not found for e-invoice';
+}
+
+/** No generated e-invoice was found for the requested bill. */
+export class EInvoiceNotFoundError extends DomainError {
+  readonly typeSlug = 'einvoice-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'E-invoice not found';
+}
+
+/**
+ * The critical -20001 guard: an internal sync/transfer to the center was
+ * attempted while taxable bills still have no issued e-invoice. Mirrors
+ * MOV_BILLS_PRC RAISE_APPLICATION_ERROR(-20001,'There are tax bills not Sync...').
+ */
+export class TaxBillsNotSyncedError extends DomainError {
+  readonly typeSlug = 'tax-bills-not-synced';
+  readonly httpStatus = 409;
+  readonly title = 'There are tax bills not synced to the tax authority';
+}
+
+/** A bill was requested for sync but does not exist in MOTECH_POS. */
+export class SyncBillNotFoundError extends DomainError {
+  readonly typeSlug = 'sync-bill-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Bill not found for sync';
+}
