@@ -270,7 +270,7 @@
         "/api/v1/shifts/{id}/close": {
             "post": {
                 "operationId": "ShiftsController_close",
-                "summary": "Close a work shift (expected cash + difference)",
+                "summary": "Close a work shift (expected cash + over/short)",
                 "parameters": [
                     {
                         "name": "id",
@@ -293,6 +293,55 @@
                 },
                 "responses": {
                     "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "shifts"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/shifts/{id}/reconciliation": {
+            "get": {
+                "operationId": "ShiftsController_reconciliation",
+                "summary": "Cashier reconciliation / Z-report: expected vs actual cash, over/short, per-method breakdown",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "actualCash",
+                        "required": false,
+                        "in": "query",
+                        "description": "Counted actual cash (for a live X-report over/short); optional",
+                        "schema": {
+                            "example": 4250.5,
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "cashExpenses",
+                        "required": false,
+                        "in": "query",
+                        "description": "Cash expenses paid out during the shift",
+                        "schema": {
+                            "example": 0,
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
                         "description": ""
                     }
                 },
@@ -399,7 +448,7 @@
         "/api/v1/bills/{id}/payments": {
             "post": {
                 "operationId": "BillsController_pay",
-                "summary": "Add a payment (cash/card/credit) to a posted bill",
+                "summary": "Add a payment (cash/card/credit; partial/multi-currency) to a posted bill",
                 "parameters": [
                     {
                         "name": "id",
@@ -416,6 +465,178 @@
                         "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/AddPaymentDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "bills"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/bills/{id}/payments/multi": {
+            "post": {
+                "operationId": "BillsController_payMulti",
+                "summary": "Settle a bill with MULTIPLE tenders in one call (cash + card + credit, multi-currency)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddPaymentsDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "bills"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/bills/hold": {
+            "post": {
+                "operationId": "BillsController_hold",
+                "summary": "Hold (park) an in-progress sale (open shift required)",
+                "parameters": [
+                    {
+                        "name": "idempotency-key",
+                        "required": true,
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "description": "uuid — mandatory; replays return the same held bill",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/HoldBillDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "bills"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/bills/held": {
+            "get": {
+                "operationId": "BillsController_listHeld",
+                "summary": "List held (parked) bills for a cashier",
+                "parameters": [
+                    {
+                        "name": "cashierNo",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "bills"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/bills/held/{id}/resume": {
+            "post": {
+                "operationId": "BillsController_resume",
+                "summary": "Resume a held bill → post it as a real sale",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "idempotency-key",
+                        "required": true,
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "description": "uuid — mandatory; idempotency key for the produced POSTED bill",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResumeBillDto"
                             }
                         }
                     }
@@ -500,6 +721,249 @@
                 },
                 "tags": [
                     "bills"
+                ]
+            }
+        },
+        "/api/v1/returns": {
+            "post": {
+                "operationId": "ReturnsController_create",
+                "summary": "Create a sales return (original bill verified, open shift required, idempotent)",
+                "parameters": [
+                    {
+                        "name": "idempotency-key",
+                        "required": true,
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "description": "uuid v7 — mandatory; replays return the same document (no dup)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateReturnDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "returns"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "get": {
+                "operationId": "ReturnsController_list",
+                "summary": "List returns (newest first, cursor paginated)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "returns"
+                ]
+            }
+        },
+        "/api/v1/returns/{id}": {
+            "get": {
+                "operationId": "ReturnsController_getOne",
+                "summary": "Return detail (MOTECH_POS by UUID, or legacy YSPOS23 by RT number)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "returns"
+                ]
+            }
+        },
+        "/api/v1/reports/daily": {
+            "get": {
+                "operationId": "ReportsController_daily",
+                "summary": "Daily sales aggregation (count / amount / vat / disc)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/monthly": {
+            "get": {
+                "operationId": "ReportsController_monthly",
+                "summary": "Monthly sales aggregation (count / amount / vat / disc)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/by-item": {
+            "get": {
+                "operationId": "ReportsController_byItem",
+                "summary": "Best-selling items (Arabic name, qty desc)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/by-machine": {
+            "get": {
+                "operationId": "ReportsController_byMachine",
+                "summary": "Sales per cashier machine (MACHINE_NO)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/customers": {
+            "get": {
+                "operationId": "CustomersController_search",
+                "summary": "Search customers by Arabic/English name, code or mobile",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "customers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/customers/{code}": {
+            "get": {
+                "operationId": "CustomersController_byCode",
+                "summary": "Single customer by C_CODE",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "customers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/customers/{code}/points": {
+            "get": {
+                "operationId": "CustomersController_points",
+                "summary": "Loyalty-points balance + movements (IAS_POINT_CALC_TRNS)",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "customers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
                 ]
             }
         }
@@ -588,6 +1052,11 @@
                         "type": "number",
                         "example": 4250.5,
                         "description": "Counted closing cash (defaults to expected if omitted)"
+                    },
+                    "cashExpenses": {
+                        "type": "number",
+                        "example": 0,
+                        "description": "Cash paid out of the drawer during the shift (reduces expected cash)"
                     },
                     "closeNote": {
                         "type": "string",
@@ -724,6 +1193,247 @@
                 "required": [
                     "method",
                     "amount"
+                ]
+            },
+            "PaymentTenderDto": {
+                "type": "object",
+                "properties": {
+                    "method": {
+                        "type": "string",
+                        "example": "CASH",
+                        "enum": [
+                            "CASH",
+                            "CARD",
+                            "CREDIT"
+                        ]
+                    },
+                    "amount": {
+                        "type": "number",
+                        "example": 300
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "USD",
+                        "description": "Tender currency (IAS_DEPOSIT_CURRENCY_MST)"
+                    },
+                    "rate": {
+                        "type": "number",
+                        "example": 250,
+                        "description": "Exchange rate to bill currency"
+                    },
+                    "cardNo": {
+                        "type": "string",
+                        "example": "****1234"
+                    },
+                    "customerCode": {
+                        "type": "string",
+                        "example": "C001"
+                    }
+                },
+                "required": [
+                    "method",
+                    "amount"
+                ]
+            },
+            "AddPaymentsDto": {
+                "type": "object",
+                "properties": {
+                    "tenders": {
+                        "description": "Multiple tenders settling one bill",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaymentTenderDto"
+                        }
+                    }
+                },
+                "required": [
+                    "tenders"
+                ]
+            },
+            "HoldBillLineDto": {
+                "type": "object",
+                "properties": {
+                    "itemCode": {
+                        "type": "string",
+                        "example": "100001",
+                        "description": "Item code (YSPOS23 I_CODE)"
+                    },
+                    "qty": {
+                        "type": "number",
+                        "example": 2
+                    },
+                    "unitPrice": {
+                        "type": "number",
+                        "example": 150
+                    },
+                    "discDtl": {
+                        "type": "number",
+                        "example": 0
+                    },
+                    "freeQty": {
+                        "type": "number",
+                        "example": 0
+                    },
+                    "vatPercent": {
+                        "type": "number",
+                        "example": 15
+                    },
+                    "itemName": {
+                        "type": "string",
+                        "example": "خبز"
+                    }
+                },
+                "required": [
+                    "itemCode",
+                    "qty"
+                ]
+            },
+            "HoldBillDto": {
+                "type": "object",
+                "properties": {
+                    "cashierNo": {
+                        "type": "number",
+                        "example": 12,
+                        "description": "Cashier number (must have open shift)"
+                    },
+                    "machineNo": {
+                        "type": "number",
+                        "example": 1
+                    },
+                    "label": {
+                        "type": "string",
+                        "example": "Table 5",
+                        "description": "Optional label (table/customer)"
+                    },
+                    "customerCode": {
+                        "type": "string",
+                        "example": "C001"
+                    },
+                    "customerName": {
+                        "type": "string",
+                        "example": "Walk-in"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "YER"
+                    },
+                    "taxCalcType": {
+                        "type": "number",
+                        "example": 2,
+                        "enum": [
+                            1,
+                            2
+                        ]
+                    },
+                    "headerDiscount": {
+                        "type": "number",
+                        "example": 0
+                    },
+                    "clientOperationId": {
+                        "type": "string",
+                        "example": "018f2c1a-...uuidv7"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/HoldBillLineDto"
+                        }
+                    }
+                },
+                "required": [
+                    "cashierNo",
+                    "lines"
+                ]
+            },
+            "ResumeBillDto": {
+                "type": "object",
+                "properties": {
+                    "cashierNo": {
+                        "type": "number",
+                        "example": 12,
+                        "description": "Cashier number (must have open shift)"
+                    }
+                },
+                "required": [
+                    "cashierNo"
+                ]
+            },
+            "CreateReturnLineDto": {
+                "type": "object",
+                "properties": {
+                    "itemCode": {
+                        "type": "string",
+                        "example": "1060080003",
+                        "description": "Item code (YSPOS23 I_CODE)"
+                    },
+                    "qty": {
+                        "type": "number",
+                        "example": 1,
+                        "description": "Quantity to return (<= sold remaining)"
+                    },
+                    "unitPrice": {
+                        "type": "number",
+                        "example": 300,
+                        "description": "Override price (else original)"
+                    },
+                    "vatPercent": {
+                        "type": "number",
+                        "example": 15,
+                        "description": "Override VAT% (else original)"
+                    },
+                    "replaceAmount": {
+                        "type": "number",
+                        "example": 0,
+                        "description": "Replacement amount (item swap)"
+                    }
+                },
+                "required": [
+                    "itemCode",
+                    "qty"
+                ]
+            },
+            "CreateReturnDto": {
+                "type": "object",
+                "properties": {
+                    "originalBillNo": {
+                        "type": "string",
+                        "example": "26201300078",
+                        "description": "Original bill being returned"
+                    },
+                    "cashierNo": {
+                        "type": "number",
+                        "example": 12,
+                        "description": "Cashier number (must have open shift)"
+                    },
+                    "machineNo": {
+                        "type": "number",
+                        "example": 1
+                    },
+                    "returnType": {
+                        "type": "number",
+                        "example": 3,
+                        "description": "RETURN_TYPE (default 3 = cash refund)"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "example": "YER"
+                    },
+                    "clientOperationId": {
+                        "type": "string",
+                        "example": "018f2c1a-...uuidv7",
+                        "description": "Client op id"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CreateReturnLineDto"
+                        }
+                    }
+                },
+                "required": [
+                    "originalBillNo",
+                    "cashierNo",
+                    "lines"
                 ]
             }
         }

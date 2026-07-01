@@ -1,6 +1,30 @@
 # 📈 سجل تقدّم Motech POS
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
+## 2026-07-01
+### الموجة القادمة (P0) — إكمال دورة البيع الحرجة (backend) — حيّ ومُختبَر (subagent wave1-p0-backend)
+أُكملت **3 ثغرات P0** من COMPLETION_MATRIX (الرابعة كانت جاهزة)، كلها backend بنمط bills نفسه (Clean/Hexagonal، MOTECH_POS للكتابة فقط، RFC9457، Idempotency، bind variables). proof-not-assumption: كل واحدة curl حيّ + اختبارات.
+
+1. **الفواتير المعلّقة (Hold/Resume) — POST003 / IAS_POS_HUNG_BILLS** ✅
+   - **جدول جديد `MOTECH_POS.HELD_BILLS`** (migration `V004`، طُبِّق فعلاً): UUID v7 PK، `LINES_JSON CLOB (IS JSON)` لقطة أمينة للسلة، `HOLD_NO` من `SEQ_HOLD_NO`، `IDEMPOTENCY_KEY UNIQUE`، FK→SHIFTS، CHECK للحالة (HELD/RESUMED/CANCELLED) والمبالغ.
+   - `POST /api/v1/bills/hold` (Idempotency-Key إلزامي، وردية مفتوحة إلزامية، يقدّر الصافي بمنطق الدومين) · `GET /api/v1/bills/held?cashierNo=` (قائمة المعلّقة) · `POST /api/v1/bills/held/:id/resume` (يعيد بناء السلة → يمرّرها لـ PostBillUseCase → فاتورة POSTED حقيقية، يعلّم المعلّقة RESUMED ويربط BILLS.ID).
+   - **proof حي:** hold (label "Table 5"، سطرين) → estNet 203.5 · replay نفس المفتاح → replayed:true نفس id · list → 1 · resume → billNo حقيقي gross 200/vat 13.5/net 203.5 held.status=RESUMED · re-resume → نفس الفاتورة (لا ازدواج) · hold بلا وردية → 409 no-open-shift · بلا Idempotency-Key → 422.
+2. **الدفع المتعدد/الجزئي + العملات — POST001/POST006** ✅
+   - وسّعت `AddPaymentUseCase`: يقبل عدة طرق (نقد+بطاقة+آجل) في فاتورة واحدة، **مبالغ جزئية تتراكم** حتى إجمالي الفاتورة، **عملات متعددة** (`amountInBill = amount*rate`، دلالة IAS_DEPOSIT_CURRENCY_MST)، **يمنع تجاوز غير-النقد للرصيد المتبقّي (422 payment-exceeds-balance)**، **النقد يسمح بالفكّة (change)**. آجل يتطلب customerCode. يرجّع settlement (outstanding/change/fullyPaid) مع الفاتورة كاملة (متوافق للخلف).
+   - `POST /api/v1/bills/:id/payments` (تندر واحد، محسّن) · `POST /api/v1/bills/:id/payments/multi` (عدة تندرات في نداء واحد).
+   - **proof حي:** جزئي نقد 100 على فاتورة 203.5 → outstanding 103.5 fullyPaid=false · بطاقة 200>الرصيد → 422 · multi (بطاقة50+آجل30+نقد40) → fullyPaid=true change 16.5 (4 دفعات) · آجل بلا عميل → 422 · **متعدد العملات: 1 USD@250 → 250 YER in-bill fully paid**.
+3. **مطابقة/تصفية إقفال الوردية (Z-report) — POST013/POST015 + POST027 + POSR001** ✅
+   - وسّعت `shifts/close` + خدمة `reconciliation`: **expected cash = فتح + مبيعات نقد − مصروفات نقد**، **actual cash** المُدخل، **الفرق over/short**، **تفصيل حسب طريقة الدفع × العملة** (Z-report data). `close` يقبل `cashExpenses` ويرجّع الوردية (متوافق للخلف) + التصفية في `meta`.
+   - `GET /api/v1/shifts/:id/reconciliation?actualCash=&cashExpenses=` (X-report للمفتوحة / Z-report للمغلقة).
+   - **proof حي:** X-report (مفتوحة): expected 1000+390 = 1390 · actual 1200 → −190 SHORT · breakdown (CASH 390 منها USD 250+YER 140، CARD 50، CREDIT 30) · close بمصروفات 50: expected 1340 → −140 SHORT.
+4. **قارئ الأسعار — POST016** ✅ (كان جاهزاً): `GET /api/v1/items/:code` يرجّع الكود+الاسم العربي+السعر+الكمية المتاحة (كل مخزن)+الباركود+الوحدة. تحقّق حي: `1020060001 → بيض، سعر 50، كمية −1088`.
+
+- **صلابة إضافية:** أضفت **retry مقيّد على ORA-08177 (فشل تسلسل SERIALIZABLE عابر)** في `OracleWriteService.withTransaction` — يفيد كل جانب الكتابة (shifts/bills/returns/held) لا الجديد فقط.
+- **الاختبارات (proof):** **42 unit** (+9 add-payment جديدة: جزئي/متعدد/فكّة/عملة/تجاوز/آجل/immutable) كلها تمرّ · **31 golden/integration حيّة** (+11 جديدة `p0-features-integration`: دورة hold→list→resume + دفع جزئي/multi/عملة + X/Z reconciliation على القاعدتين الحقيقيتين) — **صفر كسر للقديم** (write-side/catalog/bills-golden تمرّ). **build + lint نظيفان.**
+- توثيق: `docs/api/openapi.json` مُعاد توليده (**32 مسار**، +hold/held/resume/payments-multi/reconciliation) + هذا السجل + `docs/COMPLETION_MATRIX.md` (خارطة الثغرات المرجعية).
+- `pm2 restart motech-pos-api` ✅ (online، health يفحص القاعدتين). commits منفصلة بهوية MoainAlabbasi.
+- **التالي (P1):** المقبوضات/المصروفات (سندات) لتغذية cashExpenses فعلياً · نقاط الولاء · CRUD الأصناف/العملاء · ربط أزرار الدفع المتعدد/hold-resume في الواجهة.
+
 ## 2026-06-29
 ### 18:40 — ✅ المرحلة 2‑ج — جانب الكتابة (قاعدة MOTECH_POS منفصلة + PostBill + payments + shifts) (subagent phase2c-write-side)
 - **قاعدة كتابة خاصة منفصلة `MOTECH_POS`** (مستخدم/سكيمة جديدة في نفس حاوية oracle12، **منفصلة تماماً عن YSPOS23 المقدّسة**). YSPOS23 = قراءة فقط عبر `MOTECH_RO`؛ الكتابة فقط في `MOTECH_POS`. **proof العزل:** `MOTECH_POS` لا يملك أي صلاحية على YSPOS23 → `SELECT … FROM YSPOS23.*` يرجع **ORA-00942** (عزل على مستوى الصلاحيات لا الكود).
