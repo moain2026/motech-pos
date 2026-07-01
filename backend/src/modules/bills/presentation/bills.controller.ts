@@ -23,9 +23,17 @@ import { Roles } from '../../auth/presentation/roles.decorator';
 import { RolesGuard } from '../../auth/presentation/roles.guard';
 import { AddPaymentUseCase } from '../application/add-payment.usecase';
 import { BillsService } from '../application/bills.service';
+import { HoldBillUseCase } from '../application/hold-bill.usecase';
 import { PostBillUseCase } from '../application/post-bill.usecase';
+import { VatCalcType } from '../domain/entities/bill-line.entity';
 import { DailySummaryQuery, ListBillsQuery } from './list-bills.query';
-import { AddPaymentDto, PostBillDto } from './post-bill.dto';
+import {
+  AddPaymentDto,
+  AddPaymentsDto,
+  HoldBillDto,
+  PostBillDto,
+  ResumeBillDto,
+} from './post-bill.dto';
 
 @ApiTags('bills')
 @Controller('bills')
@@ -34,6 +42,7 @@ export class BillsController {
     private readonly bills: BillsService,
     private readonly postBill: PostBillUseCase,
     private readonly addPayment: AddPaymentUseCase,
+    private readonly holdBill: HoldBillUseCase,
   ) {}
 
   //==========================================================================
@@ -81,7 +90,10 @@ export class BillsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('cashier', 'supervisor', 'admin')
-  @ApiOperation({ summary: 'Add a payment (cash/card/credit) to a posted bill' })
+  @ApiOperation({
+    summary:
+      'Add a payment (cash/card/credit; partial/multi-currency) to a posted bill',
+  })
   async pay(@Param('id') id: string, @Body() body: AddPaymentDto) {
     const data = await this.addPayment.execute({
       billId: id,
@@ -93,6 +105,104 @@ export class BillsController {
       customerCode: body.customerCode,
     });
     return { data };
+  }
+
+  @Post(':id/payments/multi')
+  @HttpCode(201)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('cashier', 'supervisor', 'admin')
+  @ApiOperation({
+    summary:
+      'Settle a bill with MULTIPLE tenders in one call (cash + card + credit, multi-currency)',
+  })
+  async payMulti(@Param('id') id: string, @Body() body: AddPaymentsDto) {
+    const data = await this.addPayment.executeMany({
+      billId: id,
+      tenders: body.tenders,
+    });
+    return { data };
+  }
+
+  //==========================================================================
+  // HELD (hung) bills — Hold / Resume (POST003)
+  //==========================================================================
+
+  @Post('hold')
+  @HttpCode(201)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('cashier', 'supervisor', 'admin')
+  @ApiHeader({
+    name: 'Idempotency-Key',
+    description: 'uuid — mandatory; replays return the same held bill',
+    required: true,
+  })
+  @ApiOperation({ summary: 'Hold (park) an in-progress sale (open shift required)' })
+  async hold(
+    @Body() body: HoldBillDto,
+    @Headers('idempotency-key') idempotencyKey?: string,
+  ) {
+    if (!idempotencyKey || !isUuid(idempotencyKey)) {
+      throw new IdempotencyKeyRequiredError(
+        'A valid uuid Idempotency-Key header is required to hold a bill',
+        {},
+      );
+    }
+    const { held, replayed } = await this.holdBill.hold({
+      idempotencyKey,
+      cashierNo: body.cashierNo,
+      machineNo: body.machineNo,
+      label: body.label,
+      customerCode: body.customerCode,
+      customerName: body.customerName,
+      currency: body.currency,
+      taxCalcType: body.taxCalcType as VatCalcType | undefined,
+      headerDiscount: body.headerDiscount,
+      clientOperationId: body.clientOperationId ?? uuidv7(),
+      lines: body.lines,
+    });
+    return { data: held, meta: { replayed } };
+  }
+
+  @Get('held')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('cashier', 'supervisor', 'admin')
+  @ApiOperation({ summary: 'List held (parked) bills for a cashier' })
+  async listHeld(@Query('cashierNo') cashierNo: string) {
+    const items = await this.holdBill.listHeld(Number(cashierNo));
+    return { data: items, meta: { count: items.length } };
+  }
+
+  @Post('held/:id/resume')
+  @HttpCode(201)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('cashier', 'supervisor', 'admin')
+  @ApiHeader({
+    name: 'Idempotency-Key',
+    description: 'uuid — mandatory; idempotency key for the produced POSTED bill',
+    required: true,
+  })
+  @ApiOperation({ summary: 'Resume a held bill → post it as a real sale' })
+  async resume(
+    @Param('id') id: string,
+    @Body() body: ResumeBillDto,
+    @Headers('idempotency-key') idempotencyKey?: string,
+  ) {
+    if (!idempotencyKey || !isUuid(idempotencyKey)) {
+      throw new IdempotencyKeyRequiredError(
+        'A valid uuid Idempotency-Key header is required to resume a bill',
+        {},
+      );
+    }
+    const { bill, held, replayed } = await this.holdBill.resume({
+      heldId: id,
+      cashierNo: body.cashierNo,
+      idempotencyKey,
+    });
+    return { data: { bill, held }, meta: { replayed } };
   }
 
   @Get('posted/:id')
