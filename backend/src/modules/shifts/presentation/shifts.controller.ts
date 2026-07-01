@@ -13,7 +13,7 @@ import { JwtAuthGuard } from '../../auth/presentation/jwt-auth.guard';
 import { Roles } from '../../auth/presentation/roles.decorator';
 import { RolesGuard } from '../../auth/presentation/roles.guard';
 import { ShiftsService } from '../application/shifts.service';
-import { CloseShiftDto, OpenShiftDto } from './shifts.dto';
+import { CloseShiftDto, OpenShiftDto, ReconciliationQuery } from './shifts.dto';
 
 @ApiTags('shifts')
 @ApiBearerAuth()
@@ -57,12 +57,35 @@ export class ShiftsController {
 
   @Post(':id/close')
   @Roles('cashier', 'supervisor', 'admin')
-  @ApiOperation({ summary: 'Close a work shift (expected cash + difference)' })
+  @ApiOperation({ summary: 'Close a work shift (expected cash + over/short)' })
   async close(@Param('id') id: string, @Body() body: CloseShiftDto) {
-    const data = await this.shifts.close({
+    const shift = await this.shifts.close({
       shiftId: id,
       closingBalance: body.closingBalance,
+      cashExpenses: body.cashExpenses,
       closeNote: body.closeNote,
+    });
+    // Backward-compatible: `data` is the closed shift record (expectedCash /
+    // cashDifference are on it). The full Z-report breakdown is available via
+    // GET /shifts/:id/reconciliation and echoed here under meta for convenience.
+    const reconciliation = await this.shifts.reconciliation(id, {
+      cashExpenses: body.cashExpenses,
+    });
+    return { data: shift, meta: { reconciliation } };
+  }
+
+  @Get(':id/reconciliation')
+  @ApiOperation({
+    summary:
+      'Cashier reconciliation / Z-report: expected vs actual cash, over/short, per-method breakdown',
+  })
+  async reconciliation(
+    @Param('id') id: string,
+    @Query() q: ReconciliationQuery,
+  ) {
+    const data = await this.shifts.reconciliation(id, {
+      actualCash: q.actualCash,
+      cashExpenses: q.cashExpenses,
     });
     return { data };
   }

@@ -53,7 +53,10 @@ export interface OpenShiftInput {
 
 export interface CloseShiftInput {
   shiftId: string;
+  /** Counted actual cash in the drawer at close (for over/short). */
   closingBalance?: number;
+  /** Expenses paid out of the drawer during the shift (reduces expected cash). */
+  cashExpenses?: number;
   closeNote?: string;
 }
 
@@ -64,6 +67,48 @@ export interface ShiftCashTotals {
   cashTotal: number;
   cardTotal: number;
   creditTotal: number;
+}
+
+/** One payment-method line in the Z-report breakdown. */
+export interface PaymentMethodBreakdown {
+  method: string;
+  count: number;
+  /** Sum in bill currency (AMOUNT_IN_BILL). */
+  amountInBill: number;
+  /** Per-currency detail (raw amounts before rate conversion). */
+  byCurrency: Array<{ currency: string; count: number; amount: number; amountInBill: number }>;
+}
+
+/**
+ * Z-report / cashier reconciliation payload (POST013/POST015 + POSR001):
+ * expected vs actual cash, over/short, and a full per-method breakdown.
+ */
+export interface ShiftReconciliation {
+  shiftId: string;
+  shiftNo: number;
+  cashierNo: number;
+  machineNo: number | null;
+  currency: string;
+  status: ShiftStatus;
+  openedAt: string;
+  closedAt: string | null;
+  openingBalance: number;
+  billCount: number;
+  netSalesTotal: number;
+  /** expected cash = opening + cash sales - cash expenses. */
+  cashSales: number;
+  cashExpenses: number;
+  expectedCash: number;
+  /** actual counted cash (closingBalance); null while still OPEN and uncounted. */
+  actualCash: number | null;
+  /** actualCash - expectedCash (positive = over, negative = short); null if uncounted. */
+  cashDifference: number | null;
+  overShort: 'OVER' | 'SHORT' | 'BALANCED' | null;
+  cardTotal: number;
+  creditTotal: number;
+  /** Grand total of all tenders in bill currency. */
+  tenderTotal: number;
+  breakdown: PaymentMethodBreakdown[];
 }
 
 export interface ShiftWriteRepository {
@@ -81,4 +126,7 @@ export interface ShiftWriteRepository {
 
   /** Cash/sales totals for a shift (for close + summary). */
   cashTotals(shiftId: string): Promise<ShiftCashTotals>;
+
+  /** Per-payment-method breakdown (method × currency) for the Z-report. */
+  paymentBreakdown(shiftId: string): Promise<PaymentMethodBreakdown[]>;
 }

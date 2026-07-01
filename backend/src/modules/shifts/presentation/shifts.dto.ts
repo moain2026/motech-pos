@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
   IsInt,
   IsNumber,
@@ -51,9 +52,37 @@ export class CloseShiftDto {
   @Max(1_000_000_000)
   closingBalance?: number;
 
+  @ApiPropertyOptional({
+    example: 0,
+    description: 'Cash paid out of the drawer during the shift (reduces expected cash)',
+  })
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 4 })
+  @Min(0)
+  cashExpenses?: number;
+
   @ApiPropertyOptional({ example: 'End of morning shift' })
   @IsOptional()
   @IsString()
   @MaxLength(250)
   closeNote?: string;
+}
+
+export class ReconciliationQuery {
+  @ApiPropertyOptional({
+    example: 4250.5,
+    description: 'Counted actual cash (for a live X-report over/short); optional',
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 4 })
+  @Min(0)
+  actualCash?: number;
+
+  @ApiPropertyOptional({ example: 0, description: 'Cash expenses paid out during the shift' })
+  @IsOptional()
+  @Type(() => Number)
+  @IsNumber({ maxDecimalPlaces: 4 })
+  @Min(0)
+  cashExpenses?: number;
 }

@@ -10,6 +10,7 @@ import {
 import {
   CloseShiftInput,
   OpenShiftInput,
+  PaymentMethodBreakdown,
   ShiftCashTotals,
   ShiftRecord,
   ShiftWriteRepository,
@@ -148,9 +149,13 @@ export class OracleShiftWriteRepository implements ShiftWriteRepository {
     }
 
     const totals = await this.cashTotals(input.shiftId);
-    const expectedCash = existing.openingBalance + totals.cashTotal;
+    const cashExpenses = input.cashExpenses ?? 0;
+    // expected cash = opening + cash sales - cash expenses (POST013/015).
+    const expectedCash = round4(
+      existing.openingBalance + totals.cashTotal - cashExpenses,
+    );
     const closingBalance = input.closingBalance ?? expectedCash;
-    const cashDifference = closingBalance - expectedCash;
+    const cashDifference = round4(closingBalance - expectedCash);
 
     return this.db.withTransaction(async (conn) => {
       await conn.execute(
@@ -177,6 +182,42 @@ export class OracleShiftWriteRepository implements ShiftWriteRepository {
       );
       return this.map((row.rows as ShiftRow[])[0]);
     });
+  }
+
+  async paymentBreakdown(shiftId: string): Promise<PaymentMethodBreakdown[]> {
+    const rows = await this.db.query<{
+      METHOD: string;
+      CURRENCY: string;
+      CNT: number;
+      AMOUNT: number;
+      AMOUNT_IN_BILL: number;
+    }>(
+      `SELECT METHOD, CURRENCY, COUNT(*) AS CNT,
+              NVL(SUM(AMOUNT),0) AS AMOUNT,
+              NVL(SUM(AMOUNT_IN_BILL),0) AS AMOUNT_IN_BILL
+       FROM ${this.schema}.PAYMENTS WHERE SHIFT_ID = :s
+       GROUP BY METHOD, CURRENCY
+       ORDER BY METHOD, CURRENCY`,
+      { s: shiftId },
+    );
+    const byMethod = new Map<string, PaymentMethodBreakdown>();
+    for (const r of rows) {
+      const method = r.METHOD;
+      let m = byMethod.get(method);
+      if (!m) {
+        m = { method, count: 0, amountInBill: 0, byCurrency: [] };
+        byMethod.set(method, m);
+      }
+      m.count += Number(r.CNT);
+      m.amountInBill = round4(m.amountInBill + Number(r.AMOUNT_IN_BILL));
+      m.byCurrency.push({
+        currency: r.CURRENCY,
+        count: Number(r.CNT),
+        amount: Number(r.AMOUNT),
+        amountInBill: Number(r.AMOUNT_IN_BILL),
+      });
+    }
+    return [...byMethod.values()];
   }
 
   async cashTotals(shiftId: string): Promise<ShiftCashTotals> {
@@ -224,4 +265,8 @@ export class OracleShiftWriteRepository implements ShiftWriteRepository {
       (err as { errorNum?: number }).errorNum === 1
     );
   }
+}
+
+function round4(n: number): number {
+  return Math.round(n * 10000) / 10000;
 }

@@ -6,6 +6,7 @@ import {
 import {
   CloseShiftInput,
   OpenShiftInput,
+  ShiftReconciliation,
   ShiftRecord,
   ShiftRepository,
   ShiftWriteRepository,
@@ -60,4 +61,78 @@ export class ShiftsService {
     const totals = await this.repo.cashTotals(shiftId);
     return { shift, totals };
   }
+
+  /**
+   * Cashier reconciliation / Z-report (POST013/POST015 + POSR001):
+   * expected vs actual cash, over/short, and per-method (× currency) breakdown.
+   * Works for OPEN shifts (X-report, live) and CLOSED shifts (Z-report, final).
+   */
+  async reconciliation(
+    shiftId: string,
+    opts?: { actualCash?: number; cashExpenses?: number },
+  ): Promise<ShiftReconciliation> {
+    const shift = await this.repo.findById(shiftId);
+    if (!shift) {
+      throw new ShiftNotFoundError(`Shift ${shiftId} not found`, { shiftId });
+    }
+    const totals = await this.repo.cashTotals(shiftId);
+    const breakdown = await this.repo.paymentBreakdown(shiftId);
+
+    // Expenses: explicit override, else 0 (no expenses module yet in MVP).
+    const cashExpenses = opts?.cashExpenses ?? 0;
+    const expectedCash = round4(
+      shift.openingBalance + totals.cashTotal - cashExpenses,
+    );
+    // Actual cash: for a CLOSED shift use the recorded closing balance; for an
+    // OPEN shift use the optional counted figure if supplied.
+    const actualCash =
+      opts?.actualCash != null
+        ? opts.actualCash
+        : shift.status === 'CLOSED'
+          ? shift.closingBalance
+          : null;
+    const cashDifference =
+      actualCash == null ? null : round4(actualCash - expectedCash);
+    const overShort: ShiftReconciliation['overShort'] =
+      cashDifference == null
+        ? null
+        : cashDifference > EPS
+          ? 'OVER'
+          : cashDifference < -EPS
+            ? 'SHORT'
+            : 'BALANCED';
+    const tenderTotal = round4(
+      breakdown.reduce((a, b) => a + b.amountInBill, 0),
+    );
+
+    return {
+      shiftId: shift.id,
+      shiftNo: shift.shiftNo,
+      cashierNo: shift.cashierNo,
+      machineNo: shift.machineNo,
+      currency: shift.currency,
+      status: shift.status,
+      openedAt: shift.openedAt,
+      closedAt: shift.closedAt,
+      openingBalance: shift.openingBalance,
+      billCount: totals.billCount,
+      netSalesTotal: totals.netSalesTotal,
+      cashSales: totals.cashTotal,
+      cashExpenses,
+      expectedCash,
+      actualCash,
+      cashDifference,
+      overShort,
+      cardTotal: totals.cardTotal,
+      creditTotal: totals.creditTotal,
+      tenderTotal,
+      breakdown,
+    };
+  }
+}
+
+const EPS = 0.0001;
+
+function round4(n: number): number {
+  return Math.round(n * 10000) / 10000;
 }
