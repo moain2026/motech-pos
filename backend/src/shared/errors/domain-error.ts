@@ -140,3 +140,38 @@ export class PaymentExceedsBalanceError extends DomainError {
   readonly httpStatus = 422;
   readonly title = 'Payment exceeds the outstanding bill balance';
 }
+
+/** A cash voucher (receipt/expense) was not found. */
+export class VoucherNotFoundError extends DomainError {
+  readonly typeSlug = 'voucher-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Voucher not found';
+}
+
+/** Invalid voucher payload (bad amount/type/etc). */
+export class InvalidVoucherError extends DomainError {
+  readonly typeSlug = 'invalid-voucher';
+  readonly httpStatus = 422;
+  readonly title = 'Invalid voucher';
+}
+
+/** A customer/item overlay record was not found. */
+export class OverlayNotFoundError extends DomainError {
+  readonly typeSlug = 'overlay-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Record not found';
+}
+
+/** Invalid overlay payload (customer/item local edit). */
+export class InvalidOverlayError extends DomainError {
+  readonly typeSlug = 'invalid-overlay';
+  readonly httpStatus = 422;
+  readonly title = 'Invalid record';
+}
+
+/** Attempt to create an overlay that already exists (duplicate local code). */
+export class OverlayConflictError extends DomainError {
+  readonly typeSlug = 'overlay-conflict';
+  readonly httpStatus = 409;
+  readonly title = 'Record already exists';
+}

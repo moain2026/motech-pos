@@ -10,6 +10,7 @@ import { CustomersModule } from './modules/customers/customers.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ReturnsModule } from './modules/returns/returns.module';
 import { ShiftsModule } from './modules/shifts/shifts.module';
+import { VouchersModule } from './modules/vouchers/vouchers.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ShiftsModule } from './modules/shifts/shifts.module';
     ReturnsModule,
     ReportsModule,
     CustomersModule,
+    VouchersModule,
   ],
 })
 export class AppModule {}

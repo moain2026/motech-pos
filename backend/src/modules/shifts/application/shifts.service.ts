@@ -1,8 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import {
   NoOpenShiftError,
   ShiftNotFoundError,
 } from '../../../shared/errors/domain-error';
+import {
+  VoucherCashTotalsProvider,
+  VOUCHER_CASH_TOTALS,
+} from '../domain/ports/voucher-cash-totals.port';
 import {
   CloseShiftInput,
   OpenShiftInput,
@@ -20,6 +24,9 @@ export class ShiftsService {
     @Inject(SHIFT_REPOSITORY) private readonly legacy: ShiftRepository,
     @Inject(SHIFT_WRITE_REPOSITORY)
     private readonly repo: ShiftWriteRepository,
+    @Optional()
+    @Inject(VOUCHER_CASH_TOTALS)
+    private readonly vouchers?: VoucherCashTotalsProvider,
   ) {}
 
   /**
@@ -78,10 +85,17 @@ export class ShiftsService {
     const totals = await this.repo.cashTotals(shiftId);
     const breakdown = await this.repo.paymentBreakdown(shiftId);
 
-    // Expenses: explicit override, else 0 (no expenses module yet in MVP).
-    const cashExpenses = opts?.cashExpenses ?? 0;
+    // Cash vouchers (POST025/POST026): receipts add to the drawer, expenses
+    // remove from it. Pulled from the vouchers module when present.
+    const voucherTotals = this.vouchers
+      ? await this.vouchers.shiftCashTotals(shiftId)
+      : { cashReceipts: 0, cashExpenses: 0, netCashEffect: 0, receiptCount: 0, expenseCount: 0 };
+    const cashReceipts = voucherTotals.cashReceipts;
+    // Expenses: explicit override wins; else voucher-sourced cash expenses.
+    const cashExpenses = opts?.cashExpenses ?? voucherTotals.cashExpenses;
+    // Expected cash = opening + cash sales + cash receipts - cash expenses.
     const expectedCash = round4(
-      shift.openingBalance + totals.cashTotal - cashExpenses,
+      shift.openingBalance + totals.cashTotal + cashReceipts - cashExpenses,
     );
     // Actual cash: for a CLOSED shift use the recorded closing balance; for an
     // OPEN shift use the optional counted figure if supplied.
@@ -118,6 +132,7 @@ export class ShiftsService {
       billCount: totals.billCount,
       netSalesTotal: totals.netSalesTotal,
       cashSales: totals.cashTotal,
+      cashReceipts,
       cashExpenses,
       expectedCash,
       actualCash,

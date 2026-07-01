@@ -95,8 +95,10 @@ export interface ShiftReconciliation {
   openingBalance: number;
   billCount: number;
   netSalesTotal: number;
-  /** expected cash = opening + cash sales - cash expenses. */
+  /** expected cash = opening + cash sales + cash receipts - cash expenses. */
   cashSales: number;
+  /** CASH receipt vouchers (POST025) folded into the drawer. */
+  cashReceipts: number;
   cashExpenses: number;
   expectedCash: number;
   /** actual counted cash (closingBalance); null while still OPEN and uncounted. */
