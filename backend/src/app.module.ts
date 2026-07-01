@@ -5,6 +5,7 @@ import { HealthModule } from './health/health.module';
 import { OracleModule } from './infrastructure/oracle/oracle.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { BillsModule } from './modules/bills/bills.module';
+import { CardsModule } from './modules/cards/cards.module';
 import { CatalogModule } from './modules/catalog/catalog.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { LoyaltyModule } from './modules/loyalty/loyalty.module';
@@ -36,6 +37,7 @@ import { VouchersModule } from './modules/vouchers/vouchers.module';
     BillsModule,
     ReturnsModule,
     ReportsModule,
+    CardsModule,
     CustomersModule,
     LoyaltyModule,
     VouchersModule,
