@@ -1346,6 +1346,135 @@
                 ]
             }
         },
+        "/api/v1/inventory/low-stock": {
+            "get": {
+                "operationId": "InventoryController_lowStock",
+                "summary": "Low-stock items (total qty <= threshold, ascending)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "inventory"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/inventory/{code}": {
+            "get": {
+                "operationId": "InventoryController_byCode",
+                "summary": "Item stock detail (per-warehouse / batch available qty)",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "inventory"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/inventory": {
+            "get": {
+                "operationId": "InventoryController_list",
+                "summary": "List items with aggregated available quantities (Arabic names)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "inventory"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/machines": {
+            "get": {
+                "operationId": "AdminController_machines",
+                "summary": "POS cashier machines + status (IAS_POS_MACHINE)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "admin"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/users": {
+            "get": {
+                "operationId": "AdminController_users",
+                "summary": "System users with Arabic names (USER_R)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "admin"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/sessions": {
+            "get": {
+                "operationId": "AdminController_sessions",
+                "summary": "Login/logout history (IAS_USR_LGN_HSTRY, most recent first)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "admin"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
         "/api/v1/vouchers": {
             "post": {
                 "operationId": "VouchersController_create",
@@ -1538,6 +1667,164 @@
                 },
                 "tags": [
                     "settings"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/einvoice/generate/{billId}": {
+            "post": {
+                "operationId": "EInvoiceController_generate",
+                "summary": "Generate the e-invoice (TLV/QR + JSON + hash) for a posted bill; simulates SUBMITDOCUMENT",
+                "parameters": [
+                    {
+                        "name": "billId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "einvoice"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/einvoice/{billId}": {
+            "get": {
+                "operationId": "EInvoiceController_get",
+                "summary": "Fetch the generated e-invoice document for a bill",
+                "parameters": [
+                    {
+                        "name": "billId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "einvoice"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/sync/status": {
+            "get": {
+                "operationId": "SyncController_status",
+                "summary": "Sync queue status (pending/synced/failed counts)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "sync"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/sync/queue": {
+            "get": {
+                "operationId": "SyncController_queue",
+                "summary": "List sync queue entries (optionally by status)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "sync"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/sync/enqueue": {
+            "post": {
+                "operationId": "SyncController_enqueue",
+                "summary": "Enqueue a bill for sync to the center (idempotent per bill)",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/EnqueueSyncDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "sync"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/sync/run": {
+            "post": {
+                "operationId": "SyncController_run",
+                "summary": "Process the pending sync queue (simulated transfer; enforces the -20001 e-invoice guard)",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SyncRunDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "sync"
                 ],
                 "security": [
                     {
@@ -2222,6 +2509,14 @@
                 "required": [
                     "overrides"
                 ]
+            },
+            "EnqueueSyncDto": {
+                "type": "object",
+                "properties": {}
+            },
+            "SyncRunDto": {
+                "type": "object",
+                "properties": {}
             }
         }
     }

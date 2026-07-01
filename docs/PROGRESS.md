@@ -308,3 +308,18 @@
 
 - **الأمان/الجودة:** JWT مؤكّد (بدون توكن → 401 RFC9457 `unauthorized`) · validation (limit>500 → 400 RFC9457 `bad-request`) · bind variables فقط · لا كتابة على أي schema.
 - **حالة عامة:** `npm run build` ✅ · `pm2 restart motech-pos-api` ✅ (online) · **111 اختبار وحدة تمر جميعها** (+9 جديدة: reports-extended 6، cards 3) · OpenApi مُعاد توليده (الـ8 مسارات الجديدة موجودة). commits منفصلة بهوية MoainAlabbasi <Moain.learn@gmail.com>.
+
+### 2026-07-01 — ✅ الموجة 4 (Backend): module الفوترة الإلكترونية + المزامنة (einvoice + sync)
+بناء module جديدين في `backend/src/modules/einvoice/` و`sync/` (NestJS، hexagonal، JWT، RFC9457، Idempotency، الكتابة على MOTECH_POS فقط — لا مساس بـ Onyx الحي). محاكاة آمنة للمزامنة و`SUBMITDOCUMENT` (لا اتصال خارجي). لم يُمس أي module آخر؛ أُضيف سطرا التسجيل في `app.module.ts` بحذر بلا حذف. migration واحد `V009__create_sync_einvoice.sql` (EINVOICES + SYNC_QUEUE على MOTECH_POS).
+
+- **1) einvoice module (الفوترة الإلكترونية):** توليد المستند الضريبي نمط ZATCA (مطابق `PKG_GNR_E_INVC_OP` + `PKG_GNR_QR_CODE_API_PKG`):
+  - `domain/einvoice-policy.ts`: بنّاء نقي حتمي — TLV (5 وسوم إلزامية: البائع/الرقم الضريبي/التاريخ/الإجمالي شامل الضريبة/الضريبة) → Base64 (رمز QR)، + مستند JSON مُهيكل + تجزئة SHA-256.
+  - `POST /api/v1/einvoice/generate/:billId` — يولّد المستند + QR + hash + FDA_CODE (حتمي من التجزئة) ويحاكي SUBMITDOCUMENT (يعلّم `submitted`). **idempotent** لكل فاتورة (UNIQUE BILL_ID) → إعادة الطلب تُرجع الأصل (`replayed=true`).
+  - `GET /api/v1/einvoice/:billId` — استرجاع المستند المخزّن.
+  - **الإجمالي = NET_AMT** (شامل الضريبة: net = gross − disc + vat)، غير الشامل = NET_AMT − VAT_AMT.
+- **2) sync module (المزامنة نحو "المركز"):** إدارة طابور ترحيل الفواتير (محاكاة — لا كتابة على Onyx)، مطابق `PKG_POS_MOV_TRNS_PKG.MOV_BILLS_PRC` + `POS_SQL_QUEUE`:
+  - `domain/sync-guard.ts`: **الحارس الحرج -20001** كـ predicate نقي: الفاتورة الضريبية (vat>0) لا تُزامَن قبل إصدار فاتورتها الإلكترونية؛ الرسالة حرفياً `There are tax bills not Sync. to tax authority bills count=N`.
+  - `GET /api/v1/sync/status` (عدّادات pending/synced/failed) · `GET /api/v1/sync/queue` (بحسب الحالة) · `POST /api/v1/sync/enqueue` (idempotent لكل فاتورة) · `POST /api/v1/sync/run` (يعالج الطابور: يفرض الحارس، يحاكي الترحيل، يعلّم synced/failed؛ supervisor/admin فقط).
+  - `SyncModule` يستهلك `EInvoiceService` (module عام) لتقييم الحارس بلا استيراد دائري.
+- **proof حي (curl على :3000):** فاتورة ضريبية (net 230، vat 30) → enqueue → **run قبل الفوترة الإلكترونية = blocked** برسالة -20001 حرفياً ✅ → generate e-invoice (total **230** شامل الضريبة، QR TLV يُفكّ لـ5 وسوم صحيحة، fdaCode، submitted) ✅ → فاتورة B2 (total **57.5**) → generate ثم enqueue ثم **run = synced** ✅ · idempotency: إعادة generate/enqueue → `replayed=true` بنفس التجزئة ✅ · بلا توكن → 401 RFC9457 ✅ · صفوف EINVOICES/SYNC_QUEUE مؤكّدة في DB.
+- **حالة عامة:** `npm run build` ✅ · migration V009 على MOTECH_POS ✅ · `pm2 restart motech-pos-api` ✅ (online) · **99 اختبار وحدة تمر** (+12 جديدة: einvoice 4، sync 8) · OpenApi مُعاد توليده (الـ6 مسارات الجديدة موجودة). commits منفصلة بهوية MoainAlabbasi <Moain.learn@gmail.com>.
