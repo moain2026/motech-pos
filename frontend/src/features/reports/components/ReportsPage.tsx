@@ -1,21 +1,46 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BarChart3, Receipt, Coins } from 'lucide-react';
+import {
+  BarChart3,
+  Receipt,
+  Coins,
+  CalendarDays,
+  CalendarRange,
+  Package,
+  MonitorSmartphone,
+} from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { LoadingView, ErrorView, EmptyView } from '@/shared/ui/StateView';
 import { formatMoney, formatNumber } from '@/shared/lib/format';
-import { useDailySummary } from '../api/reports.api';
+import {
+  useDailyReport,
+  useMonthlyReport,
+  useByItemReport,
+  useByMachineReport,
+} from '../api/reports.api';
+import type { UseQueryResult } from '@tanstack/react-query';
 
+type Tab = 'daily' | 'monthly' | 'byItem' | 'byMachine';
+
+const TABS: { key: Tab; icon: typeof CalendarDays }[] = [
+  { key: 'daily', icon: CalendarDays },
+  { key: 'monthly', icon: CalendarRange },
+  { key: 'byItem', icon: Package },
+  { key: 'byMachine', icon: MonitorSmartphone },
+];
+
+/**
+ * Reports screen — 4 reports (daily / monthly / best-selling / by-machine)
+ * with KPI cards + tables. All data via TanStack Query, RFC 9457 errors.
+ */
 export function ReportsPage() {
   const { t } = useTranslation();
-  const query = useDailySummary();
-  const rows = useMemo(() => query.data ?? [], [query.data]);
+  const [tab, setTab] = useState<Tab>('daily');
 
-  const kpis = useMemo(() => {
-    const totalAmt = rows.reduce((n, r) => n + r.totalAmt, 0);
-    const totalBills = rows.reduce((n, r) => n + r.billCount, 0);
-    return { totalAmt, totalBills };
-  }, [rows]);
+  const daily = useDailyReport();
+  const monthly = useMonthlyReport();
+  const byItem = useByItemReport();
+  const byMachine = useByMachineReport();
 
   return (
     <div className="flex h-full flex-col gap-4 p-4">
@@ -24,56 +49,38 @@ export function ReportsPage() {
         {t('reports.title')}
       </h1>
 
-      {query.isLoading ? (
-        <LoadingView />
-      ) : query.isError ? (
-        <ErrorView error={query.error} onRetry={() => query.refetch()} />
-      ) : rows.length === 0 ? (
-        <EmptyView />
-      ) : (
-        <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <Kpi
-              icon={<Coins className="size-6" />}
-              label={t('reports.totalAmt')}
-              value={formatMoney(kpis.totalAmt)}
-            />
-            <Kpi
-              icon={<Receipt className="size-6" />}
-              label={t('reports.billCount')}
-              value={formatNumber(kpis.totalBills)}
-            />
-          </div>
+      {/* Tabs */}
+      <div className="flex flex-wrap gap-2" role="tablist" aria-label={t('reports.title')}>
+        {TABS.map(({ key, icon: Icon }) => (
+          <button
+            key={key}
+            role="tab"
+            aria-selected={tab === key}
+            onClick={() => setTab(key)}
+            className={
+              'flex items-center gap-2 rounded-[var(--radius)] border px-4 py-2 text-sm font-medium transition-colors ' +
+              (tab === key
+                ? 'border-[var(--color-brand-500)] bg-[var(--color-brand-600)] text-white'
+                : 'text-[var(--color-muted)] hover:bg-[var(--color-surface-2)]')
+            }
+          >
+            <Icon className="size-4" aria-hidden />
+            {t(`reports.tab.${key}`)}
+          </button>
+        ))}
+      </div>
 
-          <Card className="min-h-0 flex-1 overflow-auto scroll-thin">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
-                <tr>
-                  <th className="px-3 py-2 text-start font-semibold">{t('reports.day')}</th>
-                  <th className="px-3 py-2 text-end font-semibold">{t('reports.billCount')}</th>
-                  <th className="px-3 py-2 text-end font-semibold">{t('reports.totalAmt')}</th>
-                  <th className="px-3 py-2 text-end font-semibold">{t('reports.totalVat')}</th>
-                  <th className="px-3 py-2 text-end font-semibold">{t('reports.totalDisc')}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {rows.map((r) => (
-                  <tr key={r.day} className="hover:bg-[var(--color-surface-2)]">
-                    <td className="tnum px-3 py-2 font-medium">{r.day}</td>
-                    <td className="tnum px-3 py-2 text-end">{formatNumber(r.billCount)}</td>
-                    <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.totalAmt)}</td>
-                    <td className="tnum px-3 py-2 text-end">{formatMoney(r.totalVat)}</td>
-                    <td className="tnum px-3 py-2 text-end">{formatMoney(r.totalDisc)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
-        </>
-      )}
+      <div className="min-h-0 flex-1 overflow-hidden">
+        {tab === 'daily' && <DailyReport query={daily} />}
+        {tab === 'monthly' && <MonthlyReport query={monthly} />}
+        {tab === 'byItem' && <ByItemReport query={byItem} />}
+        {tab === 'byMachine' && <ByMachineReport query={byMachine} />}
+      </div>
     </div>
   );
 }
+
+/* ---------- shared building blocks ---------- */
 
 function Kpi({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
@@ -86,5 +93,212 @@ function Kpi({ icon, label, value }: { icon: React.ReactNode; label: string; val
         <p className="tnum text-xl font-extrabold">{value}</p>
       </div>
     </Card>
+  );
+}
+
+function ReportShell<T>({
+  query,
+  empty,
+  children,
+}: {
+  query: UseQueryResult<T[]>;
+  empty: boolean;
+  children: React.ReactNode;
+}) {
+  if (query.isLoading) return <LoadingView />;
+  if (query.isError) return <ErrorView error={query.error} onRetry={() => query.refetch()} />;
+  if (empty) return <EmptyView />;
+  return <div className="flex h-full flex-col gap-4">{children}</div>;
+}
+
+function Th({ children, end }: { children: React.ReactNode; end?: boolean }) {
+  return (
+    <th className={`px-3 py-2 font-semibold ${end ? 'text-end' : 'text-start'}`}>{children}</th>
+  );
+}
+
+function TableCard({ children }: { children: React.ReactNode }) {
+  return (
+    <Card className="min-h-0 flex-1 overflow-auto scroll-thin">
+      <table className="w-full text-sm">{children}</table>
+    </Card>
+  );
+}
+
+/* ---------- daily ---------- */
+
+function DailyReport({ query }: { query: ReturnType<typeof useDailyReport> }) {
+  const { t } = useTranslation();
+  const rows = useMemo(() => query.data ?? [], [query.data]);
+  const kpis = useMemo(
+    () => ({
+      totalAmt: rows.reduce((n, r) => n + r.totalAmt, 0),
+      totalBills: rows.reduce((n, r) => n + r.billCount, 0),
+    }),
+    [rows],
+  );
+  return (
+    <ReportShell query={query} empty={rows.length === 0}>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Kpi icon={<Coins className="size-6" />} label={t('reports.totalAmt')} value={formatMoney(kpis.totalAmt)} />
+        <Kpi icon={<Receipt className="size-6" />} label={t('reports.billCount')} value={formatNumber(kpis.totalBills)} />
+      </div>
+      <TableCard>
+        <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+          <tr>
+            <Th>{t('reports.day')}</Th>
+            <Th end>{t('reports.billCount')}</Th>
+            <Th end>{t('reports.totalAmt')}</Th>
+            <Th end>{t('reports.totalVat')}</Th>
+            <Th end>{t('reports.totalDisc')}</Th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {rows.map((r) => (
+            <tr key={r.day} className="hover:bg-[var(--color-surface-2)]">
+              <td className="tnum px-3 py-2 font-medium">{r.day}</td>
+              <td className="tnum px-3 py-2 text-end">{formatNumber(r.billCount)}</td>
+              <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.totalAmt)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.totalVat)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.totalDisc)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </TableCard>
+    </ReportShell>
+  );
+}
+
+/* ---------- monthly ---------- */
+
+function MonthlyReport({ query }: { query: ReturnType<typeof useMonthlyReport> }) {
+  const { t } = useTranslation();
+  const rows = useMemo(() => query.data ?? [], [query.data]);
+  const kpis = useMemo(
+    () => ({
+      totalAmt: rows.reduce((n, r) => n + r.totalAmt, 0),
+      totalBills: rows.reduce((n, r) => n + r.billCount, 0),
+    }),
+    [rows],
+  );
+  return (
+    <ReportShell query={query} empty={rows.length === 0}>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Kpi icon={<Coins className="size-6" />} label={t('reports.totalAmt')} value={formatMoney(kpis.totalAmt)} />
+        <Kpi icon={<Receipt className="size-6" />} label={t('reports.billCount')} value={formatNumber(kpis.totalBills)} />
+      </div>
+      <TableCard>
+        <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+          <tr>
+            <Th>{t('reports.month')}</Th>
+            <Th end>{t('reports.billCount')}</Th>
+            <Th end>{t('reports.totalAmt')}</Th>
+            <Th end>{t('reports.totalVat')}</Th>
+            <Th end>{t('reports.totalDisc')}</Th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {rows.map((r) => (
+            <tr key={r.month} className="hover:bg-[var(--color-surface-2)]">
+              <td className="tnum px-3 py-2 font-medium">{r.month}</td>
+              <td className="tnum px-3 py-2 text-end">{formatNumber(r.billCount)}</td>
+              <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.totalAmt)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.totalVat)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.totalDisc)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </TableCard>
+    </ReportShell>
+  );
+}
+
+/* ---------- by item (best sellers) ---------- */
+
+function ByItemReport({ query }: { query: ReturnType<typeof useByItemReport> }) {
+  const { t } = useTranslation();
+  const rows = useMemo(() => query.data ?? [], [query.data]);
+  const kpis = useMemo(
+    () => ({
+      totalQty: rows.reduce((n, r) => n + r.totalQty, 0),
+      totalAmt: rows.reduce((n, r) => n + r.totalAmt, 0),
+    }),
+    [rows],
+  );
+  return (
+    <ReportShell query={query} empty={rows.length === 0}>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Kpi icon={<Package className="size-6" />} label={t('reports.totalQty')} value={formatNumber(kpis.totalQty)} />
+        <Kpi icon={<Coins className="size-6" />} label={t('reports.totalAmt')} value={formatMoney(kpis.totalAmt)} />
+      </div>
+      <TableCard>
+        <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+          <tr>
+            <Th>#</Th>
+            <Th>{t('reports.itemName')}</Th>
+            <Th>{t('reports.itemCode')}</Th>
+            <Th end>{t('reports.qty')}</Th>
+            <Th end>{t('reports.lineCount')}</Th>
+            <Th end>{t('reports.totalAmt')}</Th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {rows.map((r, i) => (
+            <tr key={r.iCode} className="hover:bg-[var(--color-surface-2)]">
+              <td className="tnum px-3 py-2 text-[var(--color-muted)]">{i + 1}</td>
+              <td className="px-3 py-2 font-medium">{r.iName?.trim() || r.iCode}</td>
+              <td className="tnum px-3 py-2 text-[var(--color-muted)]">{r.iCode}</td>
+              <td className="tnum px-3 py-2 text-end">{formatNumber(r.totalQty)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatNumber(r.lineCount)}</td>
+              <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.totalAmt)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </TableCard>
+    </ReportShell>
+  );
+}
+
+/* ---------- by machine ---------- */
+
+function ByMachineReport({ query }: { query: ReturnType<typeof useByMachineReport> }) {
+  const { t } = useTranslation();
+  const rows = useMemo(() => query.data ?? [], [query.data]);
+  const kpis = useMemo(
+    () => ({
+      totalAmt: rows.reduce((n, r) => n + r.totalAmt, 0),
+      totalBills: rows.reduce((n, r) => n + r.billCount, 0),
+    }),
+    [rows],
+  );
+  return (
+    <ReportShell query={query} empty={rows.length === 0}>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Kpi icon={<Coins className="size-6" />} label={t('reports.totalAmt')} value={formatMoney(kpis.totalAmt)} />
+        <Kpi icon={<Receipt className="size-6" />} label={t('reports.billCount')} value={formatNumber(kpis.totalBills)} />
+      </div>
+      <TableCard>
+        <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+          <tr>
+            <Th>{t('reports.machineNo')}</Th>
+            <Th end>{t('reports.billCount')}</Th>
+            <Th end>{t('reports.totalAmt')}</Th>
+            <Th end>{t('reports.totalVat')}</Th>
+            <Th end>{t('reports.totalDisc')}</Th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {rows.map((r) => (
+            <tr key={r.machineNo} className="hover:bg-[var(--color-surface-2)]">
+              <td className="tnum px-3 py-2 font-medium">#{r.machineNo}</td>
+              <td className="tnum px-3 py-2 text-end">{formatNumber(r.billCount)}</td>
+              <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.totalAmt)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.totalVat)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.totalDisc)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </TableCard>
+    </ReportShell>
   );
 }

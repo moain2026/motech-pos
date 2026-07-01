@@ -32,14 +32,22 @@ export interface CartTotals {
   qtyCount: number; // total quantity
 }
 
+/** Customer attached to the open sale (optional). */
+export interface CartCustomer {
+  code: string;
+  name: string;
+}
+
 interface CartState {
   lines: CartLine[];
   billDiscount: number;
+  customer: CartCustomer | null;
   addItem: (item: Item) => void;
   setQty: (code: string, qty: number) => void;
   incQty: (code: string, delta: number) => void;
   removeLine: (code: string) => void;
   setBillDiscount: (amount: number) => void;
+  setCustomer: (c: CartCustomer | null) => void;
   clear: () => void;
 }
 
@@ -50,6 +58,7 @@ function round2(n: number): number {
 export const useCart = create<CartState>((set) => ({
   lines: [],
   billDiscount: 0,
+  customer: null,
   addItem: (item) =>
     set((state) => {
       const existing = state.lines.find((l) => l.code === item.code);
@@ -87,7 +96,8 @@ export const useCart = create<CartState>((set) => ({
   removeLine: (code) =>
     set((state) => ({ lines: state.lines.filter((l) => l.code !== code) })),
   setBillDiscount: (amount) => set({ billDiscount: Math.max(0, amount) }),
-  clear: () => set({ lines: [], billDiscount: 0 }),
+  setCustomer: (c) => set({ customer: c }),
+  clear: () => set({ lines: [], billDiscount: 0, customer: null }),
 }));
 
 /** Pure totals selector (used by useCartTotals hook). */

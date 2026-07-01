@@ -1,15 +1,31 @@
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { ShoppingCart, Receipt, BarChart3, LogOut } from 'lucide-react';
+import { ShoppingCart, Receipt, BarChart3, LogOut, Users, Undo2 } from 'lucide-react';
 import { useSession } from '@/features/auth';
 import { OnlineBadge } from '@/shared/ui/OnlineBadge';
 import { cn } from '@/shared/lib/cn';
+import type { Role } from '@/shared/lib/types';
 
-const NAV = [
-  { to: '/pos', key: 'nav.pos', icon: ShoppingCart },
-  { to: '/bills', key: 'nav.bills', icon: Receipt },
-  { to: '/reports', key: 'nav.reports', icon: BarChart3 },
-] as const;
+/**
+ * Role-based navigation (RBAC). `roles` lists who may see each entry:
+ *   cashier    → sell, bills, returns
+ *   supervisor → + reports, customers
+ *   admin      → everything
+ */
+interface NavItem {
+  to: string;
+  key: string;
+  icon: typeof ShoppingCart;
+  roles: Role[];
+}
+
+const NAV: NavItem[] = [
+  { to: '/pos', key: 'nav.pos', icon: ShoppingCart, roles: ['cashier', 'supervisor', 'admin'] },
+  { to: '/bills', key: 'nav.bills', icon: Receipt, roles: ['cashier', 'supervisor', 'admin'] },
+  { to: '/returns', key: 'nav.returns', icon: Undo2, roles: ['cashier', 'supervisor', 'admin'] },
+  { to: '/customers', key: 'nav.customers', icon: Users, roles: ['supervisor', 'admin'] },
+  { to: '/reports', key: 'nav.reports', icon: BarChart3, roles: ['supervisor', 'admin'] },
+];
 
 /** Authenticated app shell: side nav (RTL) + content outlet. */
 export function AppLayout() {
@@ -17,6 +33,8 @@ export function AppLayout() {
   const navigate = useNavigate();
   const user = useSession((s) => s.user);
   const clear = useSession((s) => s.clear);
+  const role = user?.role;
+  const nav = NAV.filter((n) => !role || n.roles.includes(role));
 
   const logout = () => {
     clear();
@@ -38,7 +56,7 @@ export function AppLayout() {
         </div>
 
         <nav className="flex flex-1 flex-col gap-1 p-2">
-          {NAV.map(({ to, key, icon: Icon }) => (
+          {nav.map(({ to, key, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}

@@ -124,6 +124,163 @@ export interface DailySummaryRow {
   totalDisc: number;
 }
 
+/** GET /reports/monthly — one row per YYYY-MM. */
+export interface MonthlySummaryRow {
+  month: string;
+  billCount: number;
+  totalAmt: number;
+  totalVat: number;
+  totalDisc: number;
+}
+
+/** GET /reports/by-item — best-selling items (Arabic names). */
+export interface ByItemRow {
+  iCode: string;
+  iName: string | null;
+  totalQty: number;
+  totalAmt: number;
+  lineCount: number;
+}
+
+/** GET /reports/by-machine — sales per POS machine. */
+export interface ByMachineRow {
+  machineNo: number;
+  billCount: number;
+  totalAmt: number;
+  totalVat: number;
+  totalDisc: number;
+}
+
+// ---- Customers ----
+/** GET /customers, /customers/{code}. Arabic-first names. */
+export interface Customer {
+  code: string;
+  arName: string | null;
+  enName: string | null;
+  mobile: string | null;
+  whatsapp: string | null;
+  phone: string | null;
+  inactive: boolean;
+}
+
+export interface CustomerPointsBalance {
+  code: string;
+  totalPoints: number;
+  txnCount: number;
+}
+
+export interface CustomerPointsTxn {
+  date?: string;
+  points?: number;
+  billNo?: string;
+  note?: string | null;
+  [key: string]: unknown;
+}
+
+export interface CustomerPoints {
+  balance: CustomerPointsBalance;
+  txns: CustomerPointsTxn[];
+}
+
+// ---- Returns ----
+/** GET /returns — return-bill list row. */
+export interface ReturnSummary {
+  id: string;
+  source: string;
+  rtBillNo: string;
+  originalBillNo: string | null;
+  rtBillDate: string;
+  returnType: number;
+  rtBillAmt: number;
+  vatAmt: number;
+  discAmt: number;
+  cName: string | null;
+  machineNo: number;
+  lineCount: number;
+}
+
+export interface ReturnLine {
+  iCode: string;
+  qty: number;
+  price: number;
+  discount: number;
+  vat: number;
+  net: number;
+  replaceAmount?: number;
+  itmUnit: string | null;
+}
+
+export interface ReturnDetail {
+  rtBillNo: string;
+  originalBillNo: string | null;
+  rtBillDate: string;
+  returnType: number;
+  customer: { code: string | null; name: string | null };
+  machineNo: number;
+  lines: ReturnLine[];
+  totals: { gross: number; discount: number; vat: number; net: number };
+  stored: { rtBillAmt: number; vatAmt: number; discAmt: number; payedAmt: number };
+}
+
+/** POST /returns line. */
+export interface PostReturnLineDto {
+  itemCode: string;
+  qty: number;
+  unitPrice?: number;
+  discDtl?: number;
+  vatPercent?: number;
+}
+
+/** POST /returns body. Requires Idempotency-Key header (uuid). */
+export interface PostReturnDto {
+  cashierNo: number;
+  machineNo?: number;
+  originalBillNo: string;
+  customerCode?: string;
+  customerName?: string;
+  currency?: string;
+  lines: PostReturnLineDto[];
+}
+
+export interface PostedReturnLine {
+  lineNo: number;
+  itemCode: string;
+  itemName: string | null;
+  qty: number;
+  unitPrice: number;
+  discDtl: number;
+  discMst: number;
+  vatPercent: number;
+  lineGross: number;
+  lineDiscount: number;
+  lineVat: number;
+  lineNet: number;
+  replaceAmount: number;
+  itemUnit: string | null;
+}
+
+export interface PostedReturn {
+  id: string;
+  rtBillNo: string;
+  originalBillNo: string;
+  cashierNo: number;
+  machineNo: number;
+  returnType: number;
+  customerCode: string | null;
+  customerName: string | null;
+  currency: string;
+  grossAmt: number;
+  discountAmt: number;
+  vatAmt: number;
+  netAmt: number;
+  refundAmt: number;
+  status: string;
+  idempotencyKey: string;
+  issuedAt: string;
+  createdAt: string;
+  lines: PostedReturnLine[];
+}
+
 // ---- Shifts (write path) — proof-verified against live :3100 2026-06-29 ----
 export type ShiftStatus = 'OPEN' | 'CLOSED';
 

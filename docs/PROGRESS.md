@@ -146,3 +146,21 @@
 - **proof حي (curl، بيانات حقيقية):** login cashier1 → JWT(253) · `GET /returns` → مرتجعات YSPOS23 حقيقية (RT 2602303400183 = 200/جهاز 3) · `GET /returns/2602303400183` → أسطر + إجماليات مُعاد حسابها تطابق المخزّن · فتح وردية → `POST /returns` (فاتورة 26201300078، صنف 1030020018 كمية1) → **201** `RT_BILL_NO=R260700100000001` refundAmt=100 · إعادة نفس المفتاح+نفس الجسم → **replayed:true** نفس الـ id · نفس المفتاح+جسم مختلف → **409 idempotency-conflict** · إرجاع نفس الصنف ثانيةً (sold1 returned1) → **422 return-qty-exceeded** · إرجاع جزئي تراكمي (صنف 1050020195 مُباع 2: إرجاع 1 ثم 1 نجحا، الثالث → 422 sold2 returned2) · صنف غير مُباع → **422 item-not-on-original-bill** · فاتورة غير موجودة → **404 original-bill-not-found** · بلا Idempotency-Key → **422** · بلا توكن → **401** · `GET /returns/:uuid` → المرتجع من MOTECH_POS.
 - ملاحظة داتاسيت: بعض مرتجعات YSPOS23 القديمة لها `BILL_NO=NULL` (مرتجعات غير مربوطة) — نموذج القراءة يتسامح معها، بينما مسار الكتابة يُلزم `ORIGINAL_BILL_NO` (تحقّق use-case + NOT NULL في العمود).
 - `npm run build` ✅ · `npm run lint` ✅ (نظيف) · migration على MOTECH_POS ✅ · `pm2 restart motech-pos-api` ✅ (online).
+
+### 2026-07-01 — ✅ Frontend اكتمل (Reports + Customers + Returns + POS محسّن + تنقّل RBAC) — منشور حيّ
+- أُكملت واجهة `frontend/` (React 19 · Vite 8 · TanStack Query v5 · Zustand · Tailwind v4 · i18next RTL عربي) بنمط feature-based، وربطت بكل نقاط الـ backend الحقيقية (تُحقّقت curl حيّة على :3000 قبل الكتابة — proof-not-assumption).
+- **الشاشات المُضافة/المُفعّلة:**
+  1. **التقارير** (`features/reports`) — 4 تبويبات (يومي/شهري/الأكثر مبيعاً بالأسماء العربية/حسب الجهاز) مع KPIs + جداول. API: `useDailyReport/useMonthlyReport/useByItemReport/useByMachineReport` → `/reports/{daily,monthly,by-item,by-machine}`.
+  2. **العملاء** (`features/customers`) — بحث + قائمة (`CustomerPicker` قابل لإعادة الاستخدام) + تفاصيل عميل + نقاط الولاء (رصيد + حركات). API: `useCustomerSearch/useCustomer/useCustomerPoints`.
+  3. **المرتجعات** (`features/returns`) — قائمة + درج تفاصيل + حوار إنشاء مرتجع (إدخال رقم الفاتورة الأصلية → تحميل أسطرها عبر `useBillDetail` → اختيار كمية الإرجاع لكل سطر ≤ المباع → POST بـ `Idempotency-Key=uuid`). API: `useReturns/useReturnDetail/useCreateReturn`.
+  4. **POS محسّن** — الأصناف تعرض الاسم العربي (البيانات صارت تحمل `name`)، إضافة عميل للفاتورة (`CustomerAttach` + حالة `customer` في `cart.store`) يُمرَّر كـ `customerCode/customerName` في POST /bills، مسار بيع فعلي كامل (bill → payment) كان موجوداً وبقي يعمل.
+  5. **تنقّل/RBAC** — `AppLayout` قائمة جانبية حسب الدور (cashier: بيع/فواتير/مرتجعات · supervisor+admin: + عملاء + تقارير)، و`router` يحرس `/customers` و`/reports` بـ `RequireRole` (يعيد توجيه cashier إلى /pos).
+- كل عرض بيانات يعالج loading/error(RFC9457 + traceId)/empty/success؛ RTL منطقي (`ps/pe/text-start/end`)؛ uuid موحّد في `shared/lib/idempotency.ts`.
+- **proof:**
+  - `npm run build` ✅ (311 modules، dist ~640KB precache، صفر أخطاء TS).
+  - نُشر: `sudo cp -r dist/* /var/www/motech-pos/` (Caddy يخدمه على `nuugneol.gensparkclaw.com`، الـAPI عبر `/api` → :3000).
+  - الرابط العام يفتح: `GET /` → 200 · chunk المرتجعات → 200 · `POST /api/v1/auth/login` عبر العام → 200.
+  - **e2e عبر الرابط العام** (curl API + تصفّح فعلي عبر CDP بحساب admin): login → 4 تقارير 200 · بحث عملاء (محمد العباسي) · نقاط عميل · قائمة مرتجعات · بيع فعلي مع عميل مربوط → `billNo 260700100000013 net 60 cust محمد العباسي` · إنشاء مرتجع فعلي → `R260700100000005 net 50 orig 26303416578 status POSTED` · حارس تجاوز الكمية يعمل (422 return-qty-exceeded).
+  - **لقطات شاشة حيّة** لكل الشاشات (pos/reports/customers/returns/bills) — RTL سليم، أسماء عربية، KPIs (إجمالي 8.49M / 20,569 فاتورة)، قائمة جانبية بكل الأيقونات.
+- **قيود معروفة:** (1) المرتجعات تُنشأ ضد الفواتير القديمة (YSPOS23 `IAS_POS_BILL_MST`) لا فواتير MOTECH_POS الجديدة — هذا سلوك الـ backend الحالي (`OracleOriginalBillRepository`). (2) نقاط الولاء فارغة في الداتاسيت الحالي (`IAS_POINT_CALC_TRNS` فارغ) — الواجهة تعرض 0/لا حركات بشكل سليم. (3) تحذير بناء غير مؤثّر: `features/customers` يُستورد ثابتاً من POS فيبقى في الحزمة الرئيسية بدل التقسيم — مقبول.
+- الهوية: MoainAlabbasi <Moain.learn@gmail.com>.

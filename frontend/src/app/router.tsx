@@ -4,8 +4,9 @@ import { useSession } from '@/features/auth';
 import { LoginPage } from '@/features/auth';
 import { AppLayout } from './AppLayout';
 import { LoadingView } from '@/shared/ui/StateView';
+import type { Role } from '@/shared/lib/types';
 
-// POS is the primary screen → eager. Bills/reports → lazy (code-split).
+// POS is the primary screen → eager. Everything else → lazy (code-split).
 import { PosPage } from '@/features/pos-terminal';
 const BillsPage = lazy(() =>
   import('@/features/bills').then((m) => ({ default: m.BillsPage })),
@@ -16,6 +17,12 @@ const BillDetailPage = lazy(() =>
 const ReportsPage = lazy(() =>
   import('@/features/reports').then((m) => ({ default: m.ReportsPage })),
 );
+const CustomersPage = lazy(() =>
+  import('@/features/customers').then((m) => ({ default: m.CustomersPage })),
+);
+const ReturnsPage = lazy(() =>
+  import('@/features/returns').then((m) => ({ default: m.ReturnsPage })),
+);
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const token = useSession((s) => s.accessToken);
@@ -23,9 +30,18 @@ function RequireAuth({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+/** Route-level RBAC: redirect to /pos if the user's role is not permitted. */
+function RequireRole({ roles, children }: { roles: Role[]; children: ReactNode }) {
+  const role = useSession((s) => s.user?.role);
+  if (role && !roles.includes(role)) return <Navigate to="/pos" replace />;
+  return <>{children}</>;
+}
+
 function Lazy({ children }: { children: ReactNode }) {
   return <Suspense fallback={<LoadingView />}>{children}</Suspense>;
 }
+
+const PRIVILEGED: Role[] = ['supervisor', 'admin'];
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
@@ -41,7 +57,23 @@ export const router = createBrowserRouter([
       { path: 'pos', element: <PosPage /> },
       { path: 'bills', element: <Lazy><BillsPage /></Lazy> },
       { path: 'bills/:billNo', element: <Lazy><BillDetailPage /></Lazy> },
-      { path: 'reports', element: <Lazy><ReportsPage /></Lazy> },
+      { path: 'returns', element: <Lazy><ReturnsPage /></Lazy> },
+      {
+        path: 'customers',
+        element: (
+          <RequireRole roles={PRIVILEGED}>
+            <Lazy><CustomersPage /></Lazy>
+          </RequireRole>
+        ),
+      },
+      {
+        path: 'reports',
+        element: (
+          <RequireRole roles={PRIVILEGED}>
+            <Lazy><ReportsPage /></Lazy>
+          </RequireRole>
+        ),
+      },
     ],
   },
   { path: '*', element: <Navigate to="/" replace /> },

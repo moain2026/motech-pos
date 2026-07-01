@@ -6,7 +6,9 @@
   "nav": {
     "pos": "فاتورة البيع",
     "bills": "الفواتير",
-    "reports": "التقارير اليومية",
+    "returns": "المرتجعات",
+    "customers": "العملاء",
+    "reports": "التقارير",
     "logout": "تسجيل الخروج"
   },
   "status": {
@@ -93,7 +95,9 @@
     "method": "طريقة الدفع",
     "methodCash": "نقداً",
     "methodCard": "بطاقة",
-    "methodCredit": "آجل"
+    "methodCredit": "آجل",
+    "addCustomer": "إضافة عميل للفاتورة",
+    "removeCustomer": "إزالة العميل"
   },
   "bills": {
     "title": "قائمة الفواتير",
@@ -119,13 +123,72 @@
     "type": "النوع"
   },
   "reports": {
-    "title": "تقرير المبيعات اليومي",
+    "title": "التقارير",
     "day": "اليوم",
+    "month": "الشهر",
     "billCount": "عدد الفواتير",
     "totalAmt": "إجمالي المبيعات",
     "totalVat": "إجمالي الضريبة",
     "totalDisc": "إجمالي الخصم",
-    "range": "آخر فترة"
+    "totalQty": "إجمالي الكمية",
+    "qty": "الكمية",
+    "lineCount": "عدد البنود",
+    "itemName": "الصنف",
+    "itemCode": "الكود",
+    "machineNo": "رقم الجهاز",
+    "range": "آخر فترة",
+    "tab": {
+      "daily": "يومي",
+      "monthly": "شهري",
+      "byItem": "الأكثر مبيعاً",
+      "byMachine": "حسب الجهاز"
+    }
+  },
+  "customers": {
+    "title": "العملاء",
+    "search": "ابحث بالاسم أو الكود…",
+    "code": "الكود",
+    "noName": "بدون اسم",
+    "inactive": "غير نشط",
+    "selectHint": "اختر عميلاً لعرض بياناته ونقاطه",
+    "enName": "الاسم بالإنجليزية",
+    "mobile": "الجوال",
+    "phone": "الهاتف",
+    "whatsapp": "واتساب",
+    "points": "نقاط الولاء",
+    "totalPoints": "إجمالي النقاط",
+    "txnCount": "عدد الحركات",
+    "pointsCol": "النقاط",
+    "date": "التاريخ",
+    "note": "ملاحظة",
+    "noTxns": "لا توجد حركات نقاط"
+  },
+  "returns": {
+    "title": "المرتجعات",
+    "new": "مرتجع جديد",
+    "createTitle": "إنشاء مرتجع",
+    "detailTitle": "تفاصيل المرتجع",
+    "rtBillNo": "رقم المرتجع",
+    "originalBill": "الفاتورة الأصلية",
+    "originalBillNo": "رقم الفاتورة الأصلية",
+    "originalBillPlaceholder": "أدخل رقم الفاتورة الأصلية…",
+    "load": "تحميل",
+    "date": "التاريخ",
+    "machine": "الجهاز",
+    "lines": "البنود",
+    "amount": "المبلغ",
+    "item": "الصنف",
+    "price": "السعر",
+    "sold": "المُباع",
+    "returnQty": "كمية المرتجع",
+    "net": "الصافي",
+    "refundTotal": "إجمالي الاسترداد",
+    "submit": "تأكيد المرتجع",
+    "creating": "جارٍ إنشاء المرتجع…",
+    "created": "تم إنشاء المرتجع — رقم",
+    "createError": "تعذّر إنشاء المرتجع",
+    "pickLines": "اختر صنفاً واحداً على الأقل وكميته",
+    "close": "إغلاق"
   },
   "errors": {
     "noOpenShift": "لا توجد وردية مفتوحة لهذا الكاشير",

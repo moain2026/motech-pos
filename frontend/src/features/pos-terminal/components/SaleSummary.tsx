@@ -11,6 +11,7 @@ import type { PaymentMethod, PostBillLineDto } from '@/shared/lib/types';
 import { useCart } from '../store/cart.store';
 import { useCartTotals } from '../hooks/useCartTotals';
 import { usePosSettings } from '../store/pos-settings.store';
+import { CustomerAttach } from './CustomerAttach';
 
 /**
  * Bill summary + payment actions — REAL write path (proof-verified):
@@ -26,6 +27,7 @@ export function SaleSummary() {
   const setBillDiscount = useCart((s) => s.setBillDiscount);
   const clear = useCart((s) => s.clear);
   const lines = useCart((s) => s.lines);
+  const customer = useCart((s) => s.customer);
 
   const cashierNo = usePosSettings((s) => s.cashierNo);
   const machineNo = usePosSettings((s) => s.machineNo);
@@ -56,7 +58,8 @@ export function SaleSummary() {
       const bill = await createBill.mutateAsync({
         cashierNo,
         machineNo,
-        customerName: 'Walk-in',
+        customerCode: customer?.code,
+        customerName: customer?.name ?? 'Walk-in',
         currency: 'YER',
         taxCalcType: 2,
         headerDiscount: billDiscount || 0,
@@ -101,6 +104,7 @@ export function SaleSummary() {
 
   return (
     <div className="flex flex-col gap-3 border-t p-4">
+      <CustomerAttach />
       <Row label={t('pos.subtotal')} value={formatMoney(totals.gross)} />
 
       <div className="flex items-center justify-between gap-2">
