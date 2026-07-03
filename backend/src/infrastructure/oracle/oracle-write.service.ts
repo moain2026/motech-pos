@@ -210,6 +210,11 @@ export class OracleWriteService implements OnModuleInit, OnApplicationShutdown {
   onyxSchema(): string {
     return this.config.get('ORACLE_ONYX_SCHEMA');
   }
+
+  /** ERP master schema (IAS202623) — item/customer Arabic names. */
+  masterSchema(): string {
+    return this.config.get('ORACLE_MASTER_SCHEMA');
+  }
 }
 
 function sleep(ms: number): Promise<void> {

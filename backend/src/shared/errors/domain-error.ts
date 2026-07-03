@@ -272,3 +272,24 @@ export class InvalidCollectionError extends DomainError {
   readonly httpStatus = 422;
   readonly title = 'Invalid collection';
 }
+
+/** The requested stock-count session does not exist. */
+export class StockCountNotFoundError extends DomainError {
+  readonly typeSlug = 'stock-count-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Stock count not found';
+}
+
+/** Mutation attempted on a POSTED (approved, immutable) stock count. */
+export class StockCountPostedError extends DomainError {
+  readonly typeSlug = 'stock-count-posted';
+  readonly httpStatus = 409;
+  readonly title = 'Stock count already posted';
+}
+
+/** Posting a stock count that has no counted lines yet. */
+export class StockCountEmptyError extends DomainError {
+  readonly typeSlug = 'stock-count-empty';
+  readonly httpStatus = 422;
+  readonly title = 'Stock count has no lines';
+}
