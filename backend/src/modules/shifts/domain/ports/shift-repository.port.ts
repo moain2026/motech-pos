@@ -24,7 +24,7 @@ export interface ShiftRepository {
 
 export const SHIFT_WRITE_REPOSITORY = Symbol('SHIFT_WRITE_REPOSITORY');
 
-export type ShiftStatus = 'OPEN' | 'CLOSED';
+export type ShiftStatus = 'OPEN' | 'CLOSED' | 'SETTLED';
 
 export interface ShiftRecord {
   id: string;
@@ -41,6 +41,13 @@ export interface ShiftRecord {
   expectedCash: number | null;
   cashDifference: number | null;
   closeNote: string | null;
+  /** POST013 settlement: counted cash (sum of denominations) once settled. */
+  countedCash: number | null;
+  /** countedCash - expectedCash at settle time (over/short). */
+  settleDifference: number | null;
+  settledAt: string | null;
+  settledBy: number | null;
+  settleNote: string | null;
 }
 
 export interface OpenShiftInput {
@@ -58,6 +65,58 @@ export interface CloseShiftInput {
   /** Expenses paid out of the drawer during the shift (reduces expected cash). */
   cashExpenses?: number;
   closeNote?: string;
+}
+
+//==============================================================================
+// POST013 — cash count by denominations + approved settlement
+//==============================================================================
+
+/** One denomination line of the counted cash (e.g. 1000 × 5). */
+export interface DenominationLine {
+  /** Face value of the note/coin (1000, 500, 250 …). */
+  value: number;
+  /** How many notes/coins of that value were counted. */
+  count: number;
+}
+
+/** Persisted denomination row (value × count = amount). */
+export interface ShiftDenomination {
+  currency: string;
+  value: number;
+  count: number;
+  amount: number;
+}
+
+export interface SaveShiftCountInput {
+  shiftId: string;
+  currency: string;
+  denominations: DenominationLine[];
+}
+
+export interface SettleShiftInput {
+  shiftId: string;
+  expectedCash: number;
+  countedCash: number;
+  difference: number;
+  settledBy?: number;
+  note?: string;
+}
+
+/** Final settlement view (GET /shifts/:id/settlement). */
+export interface ShiftSettlement {
+  shiftId: string;
+  shiftNo: number;
+  cashierNo: number;
+  currency: string;
+  status: ShiftStatus;
+  expectedCash: number | null;
+  countedCash: number | null;
+  difference: number | null;
+  overShort: 'OVER' | 'SHORT' | 'BALANCED' | null;
+  denominations: ShiftDenomination[];
+  settledAt: string | null;
+  settledBy: number | null;
+  settleNote: string | null;
 }
 
 /** Aggregated cash totals for a shift (computed from PAYMENTS). */
@@ -131,4 +190,13 @@ export interface ShiftWriteRepository {
 
   /** Per-payment-method breakdown (method × currency) for the Z-report. */
   paymentBreakdown(shiftId: string): Promise<PaymentMethodBreakdown[]>;
+
+  /** Replace the saved denomination count for a shift (POST013 count entry). */
+  saveCount(input: SaveShiftCountInput): Promise<ShiftDenomination[]>;
+
+  /** Saved denomination lines for a shift. */
+  findDenominations(shiftId: string): Promise<ShiftDenomination[]>;
+
+  /** Persist the approved settlement (CLOSED -> SETTLED, immutable after). */
+  settle(input: SettleShiftInput): Promise<ShiftRecord>;
 }

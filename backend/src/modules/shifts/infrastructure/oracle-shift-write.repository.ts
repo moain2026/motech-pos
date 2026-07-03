@@ -5,13 +5,17 @@ import { uuidv7 } from '../../../shared/domain/uuid';
 import {
   ShiftAlreadyClosedError,
   ShiftAlreadyOpenError,
+  ShiftAlreadySettledError,
   ShiftNotFoundError,
 } from '../../../shared/errors/domain-error';
 import {
   CloseShiftInput,
   OpenShiftInput,
   PaymentMethodBreakdown,
+  SaveShiftCountInput,
+  SettleShiftInput,
   ShiftCashTotals,
+  ShiftDenomination,
   ShiftRecord,
   ShiftWriteRepository,
 } from '../domain/ports/shift-repository.port';
@@ -31,6 +35,11 @@ interface ShiftRow {
   EXPECTED_CASH: number | null;
   CASH_DIFFERENCE: number | null;
   CLOSE_NOTE: string | null;
+  COUNTED_CASH: number | null;
+  SETTLE_DIFFERENCE: number | null;
+  SETTLED_AT: Date | null;
+  SETTLED_BY: number | null;
+  SETTLE_NOTE: string | null;
 }
 
 /**
@@ -64,12 +73,19 @@ export class OracleShiftWriteRepository implements ShiftWriteRepository {
       cashDifference:
         row.CASH_DIFFERENCE == null ? null : Number(row.CASH_DIFFERENCE),
       closeNote: row.CLOSE_NOTE,
+      countedCash: row.COUNTED_CASH == null ? null : Number(row.COUNTED_CASH),
+      settleDifference:
+        row.SETTLE_DIFFERENCE == null ? null : Number(row.SETTLE_DIFFERENCE),
+      settledAt: row.SETTLED_AT ? row.SETTLED_AT.toISOString() : null,
+      settledBy: row.SETTLED_BY == null ? null : Number(row.SETTLED_BY),
+      settleNote: row.SETTLE_NOTE,
     };
   }
 
   private readonly cols = `ID, SHIFT_NO, SHIFT_CODE, CASHIER_NO, MACHINE_NO,
     OPENING_BALANCE, CURRENCY, STATUS, OPENED_AT, CLOSED_AT, CLOSING_BALANCE,
-    EXPECTED_CASH, CASH_DIFFERENCE, CLOSE_NOTE`;
+    EXPECTED_CASH, CASH_DIFFERENCE, CLOSE_NOTE, COUNTED_CASH,
+    SETTLE_DIFFERENCE, SETTLED_AT, SETTLED_BY, SETTLE_NOTE`;
 
   async findOpenByCashier(cashierNo: number): Promise<ShiftRecord | null> {
     const row = await this.db.queryOne<ShiftRow>(
@@ -141,7 +157,7 @@ export class OracleShiftWriteRepository implements ShiftWriteRepository {
         shiftId: input.shiftId,
       });
     }
-    if (existing.status === 'CLOSED') {
+    if (existing.status !== 'OPEN') {
       throw new ShiftAlreadyClosedError(
         `Shift ${input.shiftId} is already closed`,
         { shiftId: input.shiftId },
@@ -255,6 +271,90 @@ export class OracleShiftWriteRepository implements ShiftWriteRepository {
       cardTotal: Number(row?.CARD_TOTAL ?? 0),
       creditTotal: Number(row?.CREDIT_TOTAL ?? 0),
     };
+  }
+
+  /** Replace the saved denomination count for a shift (POST013). */
+  async saveCount(input: SaveShiftCountInput): Promise<ShiftDenomination[]> {
+    await this.db.withTransaction(async (conn) => {
+      await conn.execute(
+        `DELETE FROM ${this.schema}.SHIFT_DENOMINATIONS
+         WHERE SHIFT_ID = :s AND CURRENCY = :c`,
+        { s: input.shiftId, c: input.currency },
+      );
+      for (const d of input.denominations) {
+        await conn.execute(
+          `INSERT INTO ${this.schema}.SHIFT_DENOMINATIONS
+             (ID, SHIFT_ID, CURRENCY, DENOMINATION_VALUE, DENOM_COUNT, AMOUNT)
+           VALUES (:id, :shiftId, :currency, :val, :cnt, :amount)`,
+          {
+            id: uuidv7(),
+            shiftId: input.shiftId,
+            currency: input.currency,
+            val: d.value,
+            cnt: d.count,
+            amount: round4(d.value * d.count),
+          },
+        );
+      }
+    });
+    return this.findDenominations(input.shiftId);
+  }
+
+  async findDenominations(shiftId: string): Promise<ShiftDenomination[]> {
+    const rows = await this.db.query<{
+      CURRENCY: string;
+      DENOMINATION_VALUE: number;
+      DENOM_COUNT: number;
+      AMOUNT: number;
+    }>(
+      `SELECT CURRENCY, DENOMINATION_VALUE, DENOM_COUNT, AMOUNT
+       FROM ${this.schema}.SHIFT_DENOMINATIONS
+       WHERE SHIFT_ID = :s
+       ORDER BY CURRENCY, DENOMINATION_VALUE DESC`,
+      { s: shiftId },
+    );
+    return rows.map((r) => ({
+      currency: r.CURRENCY,
+      value: Number(r.DENOMINATION_VALUE),
+      count: Number(r.DENOM_COUNT),
+      amount: Number(r.AMOUNT),
+    }));
+  }
+
+  /** Persist the approved settlement: CLOSED -> SETTLED (immutable after). */
+  async settle(input: SettleShiftInput): Promise<ShiftRecord> {
+    return this.db.withTransaction(async (conn) => {
+      const res = await conn.execute(
+        `UPDATE ${this.schema}.SHIFTS
+           SET STATUS = 'SETTLED',
+               COUNTED_CASH = :countedCash,
+               SETTLE_DIFFERENCE = :difference,
+               SETTLED_AT = SYSTIMESTAMP,
+               SETTLED_BY = :settledBy,
+               SETTLE_NOTE = :note
+         WHERE ID = :id AND STATUS = 'CLOSED'`,
+        {
+          id: input.shiftId,
+          countedCash: input.countedCash,
+          difference: input.difference,
+          settledBy: input.settledBy ?? null,
+          note: input.note ?? null,
+        },
+      );
+      if ((res.rowsAffected ?? 0) === 0) {
+        // Row exists (caller verified) but not CLOSED => already settled.
+        throw new ShiftAlreadySettledError(
+          `Shift ${input.shiftId} is already settled`,
+          { shiftId: input.shiftId },
+        );
+      }
+      const row = await conn.execute<ShiftRow>(
+        `SELECT ${this.cols} FROM ${this.schema}.SHIFTS WHERE ID = :id`,
+        { id: input.shiftId },
+        { outFormat: oracledb.OUT_FORMAT_OBJECT },
+      );
+      return this.map((row.rows as ShiftRow[])[0]);
+    });
   }
 
   private isUniqueViolation(err: unknown): boolean {

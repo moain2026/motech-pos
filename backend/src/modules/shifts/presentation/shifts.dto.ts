@@ -1,6 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  IsArray,
   IsInt,
   IsNumber,
   IsOptional,
@@ -9,6 +12,7 @@ import {
   Max,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
 
 export class OpenShiftDto {
@@ -66,6 +70,65 @@ export class CloseShiftDto {
   @IsString()
   @MaxLength(250)
   closeNote?: string;
+}
+
+/** One counted denomination line (POST013): face value × count. */
+export class DenominationLineDto {
+  @ApiProperty({ example: 1000, description: 'Denomination face value' })
+  @IsNumber({ maxDecimalPlaces: 4 })
+  @IsPositive()
+  value!: number;
+
+  @ApiProperty({ example: 5, description: 'How many notes/coins counted' })
+  @IsInt()
+  @Min(0)
+  @Max(1_000_000)
+  count!: number;
+}
+
+export class ShiftCountDto {
+  @ApiPropertyOptional({ example: 'YER', description: 'Currency of the count (defaults to shift currency)' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(7)
+  currency?: string;
+
+  @ApiProperty({
+    type: [DenominationLineDto],
+    example: [
+      { value: 1000, count: 5 },
+      { value: 500, count: 10 },
+      { value: 250, count: 8 },
+      { value: 100, count: 20 },
+    ],
+    description: 'Counted cash by denomination; the sum is the actual cash',
+  })
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(100)
+  @ValidateNested({ each: true })
+  @Type(() => DenominationLineDto)
+  denominations!: DenominationLineDto[];
+}
+
+export class SettleShiftDto {
+  @ApiPropertyOptional({ example: 12, description: 'Approving user/cashier number' })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  settledBy?: number;
+
+  @ApiPropertyOptional({ example: 'End-of-day settlement' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(250)
+  note?: string;
+
+  @ApiPropertyOptional({ example: 0, description: 'Override cash expenses when computing expected cash' })
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 4 })
+  @Min(0)
+  cashExpenses?: number;
 }
 
 export class ReconciliationQuery {

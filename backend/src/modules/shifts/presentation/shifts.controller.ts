@@ -13,7 +13,13 @@ import { JwtAuthGuard } from '../../auth/presentation/jwt-auth.guard';
 import { Roles } from '../../auth/presentation/roles.decorator';
 import { RolesGuard } from '../../auth/presentation/roles.guard';
 import { ShiftsService } from '../application/shifts.service';
-import { CloseShiftDto, OpenShiftDto, ReconciliationQuery } from './shifts.dto';
+import {
+  CloseShiftDto,
+  OpenShiftDto,
+  ReconciliationQuery,
+  SettleShiftDto,
+  ShiftCountDto,
+} from './shifts.dto';
 
 @ApiTags('shifts')
 @ApiBearerAuth()
@@ -87,6 +93,45 @@ export class ShiftsController {
       actualCash: q.actualCash,
       cashExpenses: q.cashExpenses,
     });
+    return { data };
+  }
+
+  @Post(':id/count')
+  @Roles('cashier', 'supervisor', 'admin')
+  @ApiOperation({
+    summary:
+      'Save counted cash by denominations (POST013); sum = actual cash. Replaces a previous count.',
+  })
+  async count(@Param('id') id: string, @Body() body: ShiftCountDto) {
+    const data = await this.shifts.saveCount(id, {
+      currency: body.currency,
+      denominations: body.denominations,
+    });
+    return { data };
+  }
+
+  @Post(':id/settle')
+  @Roles('supervisor', 'admin')
+  @ApiOperation({
+    summary:
+      'Approve the settlement (POST013): expected vs counted denominations → over/short, status SETTLED (irreversible)',
+  })
+  async settle(@Param('id') id: string, @Body() body: SettleShiftDto) {
+    const data = await this.shifts.settle(id, {
+      settledBy: body.settledBy,
+      note: body.note,
+      cashExpenses: body.cashExpenses,
+    });
+    return { data };
+  }
+
+  @Get(':id/settlement')
+  @ApiOperation({
+    summary:
+      'Final settlement view: expected, counted by denominations, difference, status',
+  })
+  async settlement(@Param('id') id: string) {
+    const data = await this.shifts.settlement(id);
     return { data };
   }
 

@@ -65,6 +65,24 @@ export class ShiftNotFoundError extends DomainError {
   readonly title = 'Shift not found';
 }
 
+export class ShiftAlreadySettledError extends DomainError {
+  readonly typeSlug = 'shift-already-settled';
+  readonly httpStatus = 409;
+  readonly title = 'Shift already settled';
+}
+
+export class ShiftNotClosedError extends DomainError {
+  readonly typeSlug = 'shift-not-closed';
+  readonly httpStatus = 409;
+  readonly title = 'Shift must be closed before settlement';
+}
+
+export class ShiftCountRequiredError extends DomainError {
+  readonly typeSlug = 'shift-count-required';
+  readonly httpStatus = 409;
+  readonly title = 'Counted denominations required before settlement';
+}
+
 export class ShiftAlreadyClosedError extends DomainError {
   readonly typeSlug = 'shift-already-closed';
   readonly httpStatus = 409;

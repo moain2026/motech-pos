@@ -383,3 +383,14 @@
 - **`GET /items/barcode/:bc` محسّن:** باركود موزون → فكّ → بحث الصنف بالكود المضمّن (ERP + overlay) → إرجاع التفاصيل + حقل `scanned: {isWeighted, barcode, itemCode, quantity}`. باركود عادي → السلوك السابق + `scanned: {isWeighted:false, quantity:1}` (الواجهة تعبّئ كمية السطر مباشرة من `scanned.quantity`).
 - **proof حي (curl :3000):** `029000101250` → صنف **90001 "رز الواحه سكبه40كيلو"** (سعر 780، مخزون 31.422) + `scanned.quantity=1.25` كجم ✅ · `029001200750` → **90012 "طحينه الخروف الاصلي14كيلو"** + quantity=0.75 ✅ · الباركود العادي `2790001005064` → نفس الصنف بـ`isWeighted:false, quantity:1` ✅ · موزون لصنف غير موجود `029999901000` → 404 RFC9457 برسالة تشمل الكود المستخرج ✅.
 - **حالة عامة:** `npm run build` ✅ · **109 اختبار وحدة تمر** (+4 جديدة weighted-barcode) ✅ · `pm2 restart motech-pos-api` (online) ✅ · OpenAPI مُعاد توليده.
+
+### 2026-07-03 — ✅ تصفية الوردية بفئات العملة + تصفية معتمدة (POST013)
+استكمال «تصفية مبيعات الكاشيرات»: إدخال العدّ الفعلي بفئات العملة وحفظ تصفية معتمدة نهائية لا يمكن تكرارها.
+
+- **DB (V012):** جدول `MOTECH_POS.SHIFT_DENOMINATIONS` (SHIFT_ID, CURRENCY, DENOMINATION_VALUE, DENOM_COUNT, AMOUNT — UNIQUE على shift×currency×value) + توسيع `SHIFTS`: حالة **SETTLED** (OPEN→CLOSED→SETTLED) وأعمدة COUNTED_CASH/SETTLE_DIFFERENCE/SETTLED_AT/SETTLED_BY/SETTLE_NOTE. grants لـ MOTECH_RW (DML) وMOTECH_RO (SELECT).
+- **endpoints جديدة:**
+  - `POST /shifts/{id}/count` — حفظ العدّ بالفئات (مثلاً 1000×5، 500×10…)؛ المجموع = actual cash. يستبدل عدّاً سابقاً لنفس العملة، ويُرفض بعد الاعتماد (409 shift-already-settled).
+  - `POST /shifts/{id}/settle` (supervisor/admin فقط) — يحسب المتوقّع (نفس رياضيات reconciliation شاملة السندات) vs المعدود من الفئات → الفرق over/short → يحفظ الحالة **SETTLED** نهائياً. guards: 409 shift-not-closed لو الوردية ما زالت مفتوحة، 409 shift-count-required لو لا عدّ محفوظ، 409 shift-already-settled عند التكرار (UPDATE مشروط `STATUS='CLOSED'` كـbackstop ذرّي في القاعدة).
+  - `GET /shifts/{id}/settlement` — العرض النهائي: المتوقّع/المعدود بالفئات/الفرق/الحالة (أرقام مجمّدة بعد الاعتماد، حيّة قبله).
+- **proof حي (curl :3000):** فتح وردية (عهدة 1000) → بيع نقدي 15600 → إقفال (expected=16600) → settle قبل العدّ ⇒ 409 shift-count-required ✅ → عدّ بالفئات 1000×16+500×1+50×1=16550 → settle ⇒ **SETTLED، فرق -50 SHORT** ✅ → settle ثانية ⇒ 409 shift-already-settled ✅ → إعادة عدّ بعد الاعتماد ⇒ 409 ✅ → SELECT مباشر أظهر SHIFTS (SETTLED/16600/16550/-50/12) + 3 صفوف SHIFT_DENOMINATIONS ✅ (نُظّفت بيانات الاختبار بعدها).
+- **حالة عامة:** `npm run build` ✅ · **112 اختبار وحدة تمر** (+3 جديدة shift-settlement: مجموع الفئات، over/short + جمود SETTLED، guards) ✅ · `pm2 restart motech-pos-api` (online) ✅.
