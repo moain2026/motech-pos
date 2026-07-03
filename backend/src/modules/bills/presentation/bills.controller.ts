@@ -92,7 +92,7 @@ export class BillsController {
   @Roles('cashier', 'supervisor', 'admin')
   @ApiOperation({
     summary:
-      'Add a payment (cash/card/credit; partial/multi-currency) to a posted bill',
+      'Add a payment (cash/card/credit/points/coupon; partial/multi-currency) to a posted bill',
   })
   async pay(@Param('id') id: string, @Body() body: AddPaymentDto) {
     const data = await this.addPayment.execute({
@@ -103,6 +103,7 @@ export class BillsController {
       rate: body.rate,
       cardNo: body.cardNo,
       customerCode: body.customerCode,
+      couponNo: body.couponNo,
     });
     return { data };
   }

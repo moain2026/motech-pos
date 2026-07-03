@@ -5,6 +5,7 @@ import { LoyaltyRule } from '../domain/points-policy';
 import {
   EarnedPointsBalance,
   InsertEarnInput,
+  InsertRedeemInput,
   LoyaltyRepository,
   PointsLedgerRow,
 } from '../domain/ports/loyalty-repository.port';
@@ -102,6 +103,49 @@ export class OracleLoyaltyRepository implements LoyaltyRepository {
       { id },
     );
     return row ? this.map(row) : null;
+  }
+
+  async insertRedeem(input: InsertRedeemInput): Promise<PointsLedgerRow> {
+    const id = uuidv7();
+    try {
+      await this.db.execute(
+        `INSERT INTO ${this.schema}.POINTS_LEDGER
+           (ID, CUSTOMER_CODE, POINT_TYP_NO, TRNS_TYPE, BILL_ID, BILL_NO,
+            DOC_AMT, POINT_CNT, POINT_AMT, SHIFT_ID, CASHIER_NO, NOTE)
+         VALUES (:id, :customerCode, :pointTypNo, 2, :billId, :billNo,
+            :docAmt, :pointCnt, :pointAmt, :shiftId, :cashierNo, :note)`,
+        {
+          id,
+          customerCode: input.customerCode,
+          pointTypNo: input.pointTypNo,
+          billId: input.billId,
+          billNo: input.billNo,
+          docAmt: input.docAmt,
+          pointCnt: -Math.abs(input.pointCnt),
+          pointAmt: input.pointAmt,
+          shiftId: input.shiftId,
+          cashierNo: input.cashierNo,
+          note: input.note,
+        },
+      );
+    } catch (err) {
+      // Duplicate redeem for the same bill → return the existing movement.
+      if (this.isUniqueViolation(err) && input.billId) {
+        const existing = await this.db.queryOne<LedgerRow>(
+          `SELECT * FROM ${this.schema}.POINTS_LEDGER
+           WHERE BILL_ID = :b AND TRNS_TYPE = 2`,
+          { b: input.billId },
+        );
+        if (existing) return this.map(existing);
+      }
+      throw err;
+    }
+    const row = await this.db.queryOne<LedgerRow>(
+      `SELECT * FROM ${this.schema}.POINTS_LEDGER WHERE ID = :id`,
+      { id },
+    );
+    if (!row) throw new Error('insertRedeem: ledger row vanished');
+    return this.map(row);
   }
 
   async earnedBalance(customerCode: string): Promise<EarnedPointsBalance> {

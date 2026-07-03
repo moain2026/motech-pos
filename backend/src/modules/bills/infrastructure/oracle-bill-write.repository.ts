@@ -60,6 +60,7 @@ interface PaymentRow {
   AMOUNT_IN_BILL: number;
   CARD_NO: string | null;
   CUSTOMER_CODE: string | null;
+  COUPON_NO: string | null;
   CREATED_AT: Date;
 }
 
@@ -297,9 +298,9 @@ export class OracleBillWriteRepository implements BillWriteRepository {
       await conn.execute(
         `INSERT INTO ${this.schema}.PAYMENTS
            (ID, BILL_ID, SHIFT_ID, METHOD, CURRENCY, AMOUNT, RATE,
-            AMOUNT_IN_BILL, CARD_NO, CUSTOMER_CODE)
+            AMOUNT_IN_BILL, CARD_NO, CUSTOMER_CODE, COUPON_NO)
          VALUES (:id, :billId, :shiftId, :method, :currency, :amount, :rate,
-            :amountInBill, :cardNo, :customerCode)`,
+            :amountInBill, :cardNo, :customerCode, :couponNo)`,
         {
           id: uuidv7(),
           billId: input.billId,
@@ -311,6 +312,7 @@ export class OracleBillWriteRepository implements BillWriteRepository {
           amountInBill,
           cardNo: input.cardNo ?? null,
           customerCode: input.customerCode ?? null,
+          couponNo: input.couponNo ?? null,
         },
       );
       // Recompute PAID_AMT from the payment lines (single source of truth).
@@ -359,7 +361,7 @@ export class OracleBillWriteRepository implements BillWriteRepository {
     );
     const payRows = await this.db.query<PaymentRow>(
       `SELECT ID, METHOD, CURRENCY, AMOUNT, RATE, AMOUNT_IN_BILL, CARD_NO,
-              CUSTOMER_CODE, CREATED_AT
+              CUSTOMER_CODE, COUPON_NO, CREATED_AT
        FROM ${this.schema}.PAYMENTS WHERE BILL_ID = :id ORDER BY CREATED_AT, ID`,
       { id: head.ID },
     );
@@ -390,6 +392,7 @@ export class OracleBillWriteRepository implements BillWriteRepository {
       amountInBill: Number(r.AMOUNT_IN_BILL),
       cardNo: r.CARD_NO,
       customerCode: r.CUSTOMER_CODE,
+      couponNo: r.COUPON_NO,
       createdAt: r.CREATED_AT.toISOString(),
     }));
 

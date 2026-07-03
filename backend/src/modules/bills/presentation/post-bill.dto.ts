@@ -104,15 +104,23 @@ export class PostBillDto {
   lines!: PostBillLineDto[];
 }
 
-export class AddPaymentDto {
-  @ApiProperty({ example: 'CASH', enum: ['CASH', 'CARD', 'CREDIT'] })
-  @IsIn(['CASH', 'CARD', 'CREDIT'])
-  method!: 'CASH' | 'CARD' | 'CREDIT';
+const PAYMENT_METHODS = ['CASH', 'CARD', 'CREDIT', 'POINTS', 'COUPON'] as const;
+type PaymentMethodDto = (typeof PAYMENT_METHODS)[number];
 
-  @ApiProperty({ example: 300 })
+export class AddPaymentDto {
+  @ApiProperty({ example: 'CASH', enum: PAYMENT_METHODS })
+  @IsIn(PAYMENT_METHODS)
+  method!: PaymentMethodDto;
+
+  @ApiPropertyOptional({
+    example: 300,
+    description:
+      'Tender amount. For POINTS: number of points to redeem. Optional for COUPON (defaults to face value).',
+  })
+  @IsOptional()
   @IsNumber({ maxDecimalPlaces: 4 })
   @IsPositive()
-  amount!: number;
+  amount?: number;
 
   @ApiPropertyOptional({ example: 'YER' })
   @IsOptional()
@@ -137,18 +145,29 @@ export class AddPaymentDto {
   @IsString()
   @MaxLength(15)
   customerCode?: string;
+
+  @ApiPropertyOptional({ example: 'CPN-0001', description: 'Coupon number (COUPON tenders)' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  couponNo?: string;
 }
 
 /** One tender in a multi-payment settlement (cash + card + credit …). */
 export class PaymentTenderDto {
-  @ApiProperty({ example: 'CASH', enum: ['CASH', 'CARD', 'CREDIT'] })
-  @IsIn(['CASH', 'CARD', 'CREDIT'])
-  method!: 'CASH' | 'CARD' | 'CREDIT';
+  @ApiProperty({ example: 'CASH', enum: PAYMENT_METHODS })
+  @IsIn(PAYMENT_METHODS)
+  method!: PaymentMethodDto;
 
-  @ApiProperty({ example: 300 })
+  @ApiPropertyOptional({
+    example: 300,
+    description:
+      'Tender amount. For POINTS: number of points to redeem. Optional for COUPON (defaults to face value).',
+  })
+  @IsOptional()
   @IsNumber({ maxDecimalPlaces: 4 })
   @IsPositive()
-  amount!: number;
+  amount?: number;
 
   @ApiPropertyOptional({ example: 'USD', description: 'Tender currency (IAS_DEPOSIT_CURRENCY_MST)' })
   @IsOptional()
@@ -173,6 +192,12 @@ export class PaymentTenderDto {
   @IsString()
   @MaxLength(15)
   customerCode?: string;
+
+  @ApiPropertyOptional({ example: 'CPN-0001', description: 'Coupon number (COUPON tenders)' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  couponNo?: string;
 }
 
 export class AddPaymentsDto {

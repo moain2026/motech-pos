@@ -5,6 +5,7 @@ import {
   CardsRepository,
   CardTypeRow,
   CouponRow,
+  ResolvedCoupon,
 } from '../domain/ports/cards-repository.port';
 
 /**
@@ -79,5 +80,35 @@ export class OracleCardsRepository implements CardsRepository {
       toCoupon: r.T_CPN_NO,
       description: r.DOC_DSC,
     }));
+  }
+
+  async findCoupon(couponNo: string): Promise<ResolvedCoupon | null> {
+    type Row = {
+      DOC_NO: number;
+      CPN_BOOK_NO: string | null;
+      BOOK_I_PRICE: number | null;
+      DOC_DSC: string | null;
+    };
+    // A coupon belongs to the book whose F_CPN_NO..T_CPN_NO range contains it
+    // (numeric compare when both sides are numeric, exact match otherwise).
+    const row = await this.oracle.queryOne<Row>(
+      `SELECT DOC_NO, CPN_BOOK_NO, BOOK_I_PRICE, DOC_DSC
+       FROM ${this.masterSchema}.IAS_CPN_MST
+       WHERE (F_CPN_NO = :cpn OR T_CPN_NO = :cpn)
+          OR (REGEXP_LIKE(:cpn, '^\\d+$')
+              AND REGEXP_LIKE(F_CPN_NO, '^\\d+$')
+              AND REGEXP_LIKE(T_CPN_NO, '^\\d+$')
+              AND TO_NUMBER(:cpn) BETWEEN TO_NUMBER(F_CPN_NO)
+                                      AND TO_NUMBER(T_CPN_NO))`,
+      { cpn: couponNo } as BindParameters,
+    );
+    if (!row) return null;
+    return {
+      docNo: Number(row.DOC_NO),
+      couponNo,
+      value: row.BOOK_I_PRICE == null ? null : Number(row.BOOK_I_PRICE),
+      bookNo: row.CPN_BOOK_NO,
+      description: row.DOC_DSC,
+    };
   }
 }

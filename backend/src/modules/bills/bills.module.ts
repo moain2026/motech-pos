@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { CardsModule } from '../cards/cards.module';
 import { ShiftsModule } from '../shifts/shifts.module';
 import { AddPaymentUseCase } from './application/add-payment.usecase';
 import { BillsService } from './application/bills.service';
@@ -16,7 +17,7 @@ import { OracleItemReferenceRepository } from './infrastructure/oracle-item-refe
 import { BillsController } from './presentation/bills.controller';
 
 @Module({
-  imports: [AuthModule, ShiftsModule],
+  imports: [AuthModule, CardsModule, ShiftsModule],
   controllers: [BillsController],
   providers: [
     BillsService,

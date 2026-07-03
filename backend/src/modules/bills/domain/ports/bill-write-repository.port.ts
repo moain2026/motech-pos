@@ -18,16 +18,20 @@ export interface PersistedBillLine {
   itemUnit: string | null;
 }
 
+/** Supported tender methods (CK_PAYMENTS_METHOD). */
+export type PaymentMethod = 'CASH' | 'CARD' | 'CREDIT' | 'POINTS' | 'COUPON';
+
 /** A persisted payment line. */
 export interface PersistedPayment {
   id: string;
-  method: 'CASH' | 'CARD' | 'CREDIT';
+  method: PaymentMethod;
   currency: string;
   amount: number;
   rate: number;
   amountInBill: number;
   cardNo: string | null;
   customerCode: string | null;
+  couponNo: string | null;
   createdAt: string;
 }
 
@@ -79,12 +83,13 @@ export interface InsertBillInput {
 export interface AddPaymentInput {
   billId: string;
   shiftId: string;
-  method: 'CASH' | 'CARD' | 'CREDIT';
+  method: PaymentMethod;
   currency: string;
   amount: number;
   rate: number;
   cardNo?: string | null;
   customerCode?: string | null;
+  couponNo?: string | null;
 }
 
 export interface BillWriteRepository {

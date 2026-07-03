@@ -1,7 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
+import { CardsService } from '../../cards/application/cards.service';
+import { LoyaltyService } from '../../loyalty/application/loyalty.service';
 import {
   BillImmutableError,
   BillNotFoundError,
+  CouponNotFoundError,
+  InsufficientPointsError,
   InvalidBillError,
   PaymentExceedsBalanceError,
 } from '../../../shared/errors/domain-error';
@@ -9,18 +13,26 @@ import {
   AddPaymentInput,
   BillWriteRepository,
   BILL_WRITE_REPOSITORY,
+  PaymentMethod,
   PersistedBill,
 } from '../domain/ports/bill-write-repository.port';
 
 export interface PaymentTenderRequest {
-  method: 'CASH' | 'CARD' | 'CREDIT';
-  /** Amount in the payment currency (converted via rate to the bill currency). */
-  amount: number;
+  method: PaymentMethod;
+  /**
+   * Amount in the payment currency (converted via rate to the bill currency).
+   * For POINTS this is the NUMBER OF POINTS to redeem (converted to money via
+   * the loyalty rule's pointValue). Optional for COUPON (defaults to the
+   * coupon's face value).
+   */
+  amount?: number;
   currency?: string;
   /** Exchange rate to the bill currency (default 1). */
   rate?: number;
   cardNo?: string;
   customerCode?: string;
+  /** Coupon number (COUPON tenders). */
+  couponNo?: string;
 }
 
 export interface AddPaymentRequest extends PaymentTenderRequest {
@@ -69,6 +81,8 @@ const CHANGE_METHODS = new Set(['CASH']);
 export class AddPaymentUseCase {
   constructor(
     @Inject(BILL_WRITE_REPOSITORY) private readonly repo: BillWriteRepository,
+    @Optional() private readonly loyalty?: LoyaltyService,
+    @Optional() private readonly cards?: CardsService,
   ) {}
 
   /** Add a single payment tender. */
@@ -106,10 +120,38 @@ export class AddPaymentUseCase {
           { billId: req.billId },
         );
       }
-      if (!Number.isFinite(t.amount) || t.amount <= 0) {
-        throw new InvalidBillError('Payment amount must be positive', {
-          billId: req.billId,
-        });
+      if (t.method === 'POINTS') {
+        const custCode = t.customerCode ?? bill.customerCode;
+        if (!custCode) {
+          throw new InvalidBillError(
+            'Points payment requires a customerCode (loyalty account)',
+            { billId: req.billId },
+          );
+        }
+        if (!this.loyalty) {
+          throw new InvalidBillError('Points payment is not available', {
+            billId: req.billId,
+          });
+        }
+      }
+      if (t.method === 'COUPON') {
+        if (!t.couponNo) {
+          throw new InvalidBillError('Coupon payment requires a couponNo', {
+            billId: req.billId,
+          });
+        }
+        if (!this.cards) {
+          throw new InvalidBillError('Coupon payment is not available', {
+            billId: req.billId,
+          });
+        }
+      }
+      if (t.method !== 'COUPON' || t.amount != null) {
+        if (!Number.isFinite(t.amount) || (t.amount as number) <= 0) {
+          throw new InvalidBillError('Payment amount must be positive', {
+            billId: req.billId,
+          });
+        }
       }
       const rate = t.rate ?? 1;
       if (!Number.isFinite(rate) || rate <= 0) {
@@ -119,13 +161,63 @@ export class AddPaymentUseCase {
       }
     }
 
+    // Resolve non-cash tender amounts (points → money, coupon → face value)
+    // BEFORE any write. POINTS: amount = points * pointValue (loyalty rule).
+    // COUPON: verified against IAS_CPN_MST; unknown coupon → 422.
+    const resolved: ResolvedTender[] = [];
+    for (const t of req.tenders) {
+      if (t.method === 'POINTS') {
+        const custCode = (t.customerCode ?? bill.customerCode) as string;
+        const points = t.amount as number;
+        const value = await this.loyalty!.pointValue();
+        const balance = await this.loyalty!.earnedBalance(custCode);
+        if (balance.earnedPoints < points) {
+          // Surface insufficiency early (redeemForPayment re-checks on write).
+          throw new InsufficientPointsError(
+            `Customer ${custCode} has ${balance.earnedPoints} points; ${points} requested`,
+            {
+              billId: req.billId,
+              customerCode: custCode,
+              available: balance.earnedPoints,
+              requested: points,
+            },
+          );
+        }
+        resolved.push({
+          tender: t,
+          amount: round4(points * value),
+          points,
+          customerCode: custCode,
+        });
+      } else if (t.method === 'COUPON') {
+        const coupon = await this.cards!.findCoupon(t.couponNo as string);
+        if (!coupon) {
+          throw new CouponNotFoundError(
+            `Coupon ${t.couponNo} not found in IAS_CPN_MST`,
+            { billId: req.billId, couponNo: t.couponNo },
+          );
+        }
+        const amount = t.amount ?? coupon.value ?? 0;
+        if (!(amount > 0)) {
+          throw new InvalidBillError(
+            `Coupon ${t.couponNo} has no usable value`,
+            { billId: req.billId, couponNo: t.couponNo },
+          );
+        }
+        resolved.push({ tender: t, amount });
+      } else {
+        resolved.push({ tender: t, amount: t.amount as number });
+      }
+    }
+
     // Running outstanding balance in the bill currency.
     let outstanding = round4(bill.netAmt - bill.paidAmt);
     let change = 0;
 
-    for (const t of req.tenders) {
+    for (const r of resolved) {
+      const t = r.tender;
       const rate = t.rate ?? 1;
-      const inBill = round4(t.amount * rate);
+      const inBill = round4(r.amount * rate);
 
       if (CHANGE_METHODS.has(t.method)) {
         // Cash may overtender: the excess becomes change (fakka).
@@ -145,15 +237,29 @@ export class AddPaymentUseCase {
         );
       }
 
+      // POINTS: deduct from the ledger FIRST (redeem write validates balance
+      // and is idempotent per bill) — if it fails, no payment row is written.
+      if (t.method === 'POINTS') {
+        await this.loyalty!.redeemForPayment({
+          customerCode: r.customerCode as string,
+          billId: bill.id,
+          billNo: bill.billNo,
+          points: r.points as number,
+          shiftId: bill.shiftId,
+          cashierNo: bill.cashierNo,
+        });
+      }
+
       const input: AddPaymentInput = {
         billId: bill.id,
         shiftId: bill.shiftId,
         method: t.method,
         currency: t.currency ?? bill.currency,
-        amount: t.amount,
+        amount: r.amount,
         rate,
         cardNo: t.cardNo ?? null,
-        customerCode: t.customerCode ?? null,
+        customerCode: (t.customerCode ?? r.customerCode) ?? null,
+        couponNo: t.couponNo ?? null,
       };
       await this.repo.addPayment(input);
       outstanding = round4(Math.max(0, outstanding - inBill));
@@ -177,6 +283,17 @@ export class AddPaymentUseCase {
       fullyPaid: outstanding <= EPS,
     };
   }
+}
+
+/** A tender with its resolved bill-currency-side amount. */
+interface ResolvedTender {
+  tender: PaymentTenderRequest;
+  /** Monetary amount in the tender currency (points/coupon already valued). */
+  amount: number;
+  /** POINTS only: number of points to redeem. */
+  points?: number;
+  /** POINTS only: the loyalty customer. */
+  customerCode?: string;
 }
 
 const EPS = 0.0001;

@@ -23,6 +23,16 @@ export interface CouponRow {
   description: string | null;
 }
 
+/** A resolvable coupon (number inside an IAS_CPN_MST book range). */
+export interface ResolvedCoupon {
+  docNo: number;
+  couponNo: string;
+  /** Face value of one coupon (BOOK_I_PRICE), or null when not priced. */
+  value: number | null;
+  bookNo: string | null;
+  description: string | null;
+}
+
 /**
  * CardsRepository — READ-ONLY reads over the IAS202623 master schema for
  * payment-card types (CREDIT_CARD_TYPES) and coupon documents (IAS_CPN_MST).
@@ -34,4 +44,11 @@ export interface CardsRepository {
 
   /** Coupon document headers (returns [] when none exist). */
   listCoupons(limit: number): Promise<CouponRow[]>;
+
+  /**
+   * Resolve a coupon number against IAS_CPN_MST (number within the book's
+   * F_CPN_NO..T_CPN_NO range). Returns null when no matching document exists
+   * (the table is EMPTY in this environment — null is the normal outcome).
+   */
+  findCoupon(couponNo: string): Promise<ResolvedCoupon | null>;
 }

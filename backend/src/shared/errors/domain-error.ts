@@ -141,6 +141,20 @@ export class PaymentExceedsBalanceError extends DomainError {
   readonly title = 'Payment exceeds the outstanding bill balance';
 }
 
+/** Customer's loyalty points balance cannot cover a POINTS payment. */
+export class InsufficientPointsError extends DomainError {
+  readonly typeSlug = 'insufficient-points';
+  readonly httpStatus = 422;
+  readonly title = 'Insufficient loyalty points balance';
+}
+
+/** Coupon not found (or not valid) in IAS_CPN_MST. */
+export class CouponNotFoundError extends DomainError {
+  readonly typeSlug = 'coupon-not-found';
+  readonly httpStatus = 422;
+  readonly title = 'Coupon not found';
+}
+
 /** A cash voucher (receipt/expense) was not found. */
 export class VoucherNotFoundError extends DomainError {
   readonly typeSlug = 'voucher-not-found';

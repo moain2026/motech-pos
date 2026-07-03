@@ -23,4 +23,9 @@ export class CardsService {
   listCoupons(limit: number) {
     return this.repo.listCoupons(limit);
   }
+
+  /** Resolve a coupon number against IAS_CPN_MST (null when unknown). */
+  findCoupon(couponNo: string) {
+    return this.repo.findCoupon(couponNo);
+  }
 }

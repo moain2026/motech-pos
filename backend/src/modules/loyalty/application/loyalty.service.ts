@@ -6,6 +6,7 @@ import {
   PointsLedgerRow,
 } from '../domain/ports/loyalty-repository.port';
 import { earnPoints } from '../domain/points-policy';
+import { InsufficientPointsError } from '../../../shared/errors/domain-error';
 
 export interface EarnOnSaleInput {
   customerCode: string;
@@ -15,6 +16,24 @@ export interface EarnOnSaleInput {
   shiftId?: string | null;
   cashierNo?: number | null;
   pointTypNo?: number;
+}
+
+export interface RedeemForPaymentInput {
+  customerCode: string;
+  billId: string | null;
+  billNo: string | null;
+  /** Points to redeem (positive). */
+  points: number;
+  shiftId?: string | null;
+  cashierNo?: number | null;
+  pointTypNo?: number;
+}
+
+export interface RedeemResult {
+  ledger: PointsLedgerRow;
+  /** Monetary value of the redeemed points (points * pointValue). */
+  amount: number;
+  pointValue: number;
 }
 
 /**
@@ -61,6 +80,51 @@ export class LoyaltyService {
       );
       return null;
     }
+  }
+
+  /**
+   * Monetary value of one point (redeem rate) from the active loyalty rule.
+   * Defaults to 1 when no rule is configured.
+   */
+  async pointValue(pointTypNo = 1): Promise<number> {
+    const rule = await this.repo.activeRule(pointTypNo);
+    return rule?.pointValue ?? 1;
+  }
+
+  /**
+   * Redeem points as a bill payment (POINTS tender). Verifies the customer's
+   * ledger balance covers the requested points, then writes a REDEEM
+   * (TRNS_TYPE=2, negative POINT_CNT) movement. UNLIKE earning, a redeem
+   * failure MUST fail the payment — no best-effort here.
+   */
+  async redeemForPayment(input: RedeemForPaymentInput): Promise<RedeemResult> {
+    const pointTypNo = input.pointTypNo ?? 1;
+    const value = await this.pointValue(pointTypNo);
+    const balance = await this.repo.earnedBalance(input.customerCode);
+    if (balance.earnedPoints < input.points) {
+      throw new InsufficientPointsError(
+        `Customer ${input.customerCode} has ${balance.earnedPoints} points; ${input.points} requested`,
+        {
+          customerCode: input.customerCode,
+          available: balance.earnedPoints,
+          requested: input.points,
+        },
+      );
+    }
+    const amount = round4(input.points * value);
+    const ledger = await this.repo.insertRedeem({
+      customerCode: input.customerCode,
+      pointTypNo,
+      billId: input.billId,
+      billNo: input.billNo,
+      docAmt: amount,
+      pointCnt: input.points,
+      pointAmt: amount,
+      shiftId: input.shiftId ?? null,
+      cashierNo: input.cashierNo ?? null,
+      note: 'redeem as payment',
+    });
+    return { ledger, amount, pointValue: value };
   }
 
   earnedBalance(customerCode: string): Promise<EarnedPointsBalance> {

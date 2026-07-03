@@ -39,6 +39,20 @@ export interface InsertEarnInput {
   note: string | null;
 }
 
+export interface InsertRedeemInput {
+  customerCode: string;
+  pointTypNo: number;
+  billId: string | null;
+  billNo: string | null;
+  docAmt: number;
+  /** Points to deduct (positive number; stored negated in the ledger). */
+  pointCnt: number;
+  pointAmt: number;
+  shiftId: string | null;
+  cashierNo: number | null;
+  note: string | null;
+}
+
 export interface LoyaltyRepository {
   /** Active earning rule for a point type (defaults to type 1), or null. */
   activeRule(pointTypNo?: number): Promise<LoyaltyRule | null>;
@@ -49,6 +63,13 @@ export interface LoyaltyRepository {
    * Returns null if pointCnt <= 0 (nothing earned).
    */
   insertEarn(input: InsertEarnInput): Promise<PointsLedgerRow | null>;
+
+  /**
+   * Insert a REDEEM movement (TRNS_TYPE=2, negative POINT_CNT). Idempotent
+   * per (billId, trnsType=2): a duplicate redeem for the same bill returns
+   * the existing row instead of double-deducting.
+   */
+  insertRedeem(input: InsertRedeemInput): Promise<PointsLedgerRow>;
 
   /** Earned-points balance (MOTECH_POS ledger) for a customer. */
   earnedBalance(customerCode: string): Promise<EarnedPointsBalance>;

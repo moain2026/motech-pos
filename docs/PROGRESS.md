@@ -2,6 +2,15 @@
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
 ## 2026-07-03
+### طرق دفع جديدة: نقاط الولاء (POINTS) + كوبون (COUPON) — حيّ ومُختبَر (subagent payments-points-coupon)
+تكامل كامل مع `AddPaymentUseCase` الموجود (لم يُعَد بناؤه) — تندران جديدان يعملان منفردَين أو ضمن multi مع نقد/بطاقة/آجل:
+
+1. **الدفع بالنقاط (POINTS) ✅** — `amount` = عدد النقاط؛ تُحوَّل لقيمة نقدية بمعدل `POINT_VALUE` من `LOYALTY_CONFIG` (الآن 1 نقطة = 1 ريال). فحص كفاية الرصيد قبل أي كتابة (422 `insufficient-points`)، ثم **خصم بحركة REDEEM (TRNS_TYPE=2، POINT_CNT سالب) في POINTS_LEDGER** قبل سطر الدفع — idempotent لكل فاتورة (UQ_POINTS_BILL_TYP). `LoyaltyService.redeemForPayment` جديدة (فشلها يفشل الدفع — ليست best-effort مثل الكسب). يتطلب عميل ولاء (من التندر أو الفاتورة، وإلا 422).
+2. **الدفع بالكوبون (COUPON) ✅** — تحقّق من `IAS202623.IAS_CPN_MST` عبر `CardsService.findCoupon` (رقم الكوبون داخل نطاق F_CPN_NO..T_CPN_NO أو مطابقة تامة، read-only عبر MOTECH_RO). القيمة من `amount` أو `BOOK_I_PRICE`. الجدول فاضي في بيئتنا → 422 `coupon-not-found` سليم (RFC9457). `COUPON_NO` يُخزَّن مع سطر الدفع.
+3. **migration `V011`** (مُطبَّق حياً): `PAYMENTS.METHOD` CHECK صار يشمل POINTS/COUPON + عمود `COUPON_NO`.
+4. **proof حي (curl):** فاتورة 50 ريال لعميل 1 (رصيده 234 نقطة) → دفع 20 نقطة → paidAmt=20، outstanding=30، **الرصيد 234→214** وحركة (TRNS_TYPE=2, −20, 'redeem as payment') في اللدجر · طلب 9999 نقطة → 422 insufficient-points ("has 214") · كوبون CPN-123 → 422 coupon-not-found · تسوية الباقي نقد 30 → fullyPaid=true و`YSPOS23.IAS_POS_BILL_MST.PAYED_AMT=50` (المرآة تعمل) ✅
+- build ✅ · pm2 restart ✅ · **105/105 اختبار وحدة** (+6 جديدة: POINTS خصم/كفاية/بلا عميل، COUPON قيمة/غير موجود، mix POINTS+COUPON+CASH) · (golden الحية: نفس 12 فشلاً بيئياً مسبقاً قبل التغيير وبعده — حالة وردية/بيانات، ليست من هذا العمل).
+
 ### توأمة Onyx مكتملة: المخزون ينقص عند البيع + المرتجعات تُكتب في YSPOS23 (subagent reroute-inventory-returns)
 **الدورة الكاملة بيع←مخزون←مرتجع←مخزون تعمل على جداول Onyx الحقيقية. proof حي موثّق أدناه.**
 
