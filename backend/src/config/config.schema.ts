@@ -35,8 +35,16 @@ export const configSchema = z.object({
   ORACLE_ONYX_SCHEMA: z.string().min(1).default('YSPOS23'),
 
   // --- Auth / JWT (STANDARDS/07 §A02, §A07) ---
-  // Secret MUST be provided via env in any non-test run; long random string.
-  JWT_SECRET: z.string().min(16),
+  // Secret MUST be provided via env; ≥32 chars AND not a known dev/template
+  // value (the API is public — a guessable secret = full token forgery).
+  JWT_SECRET: z
+    .string()
+    .min(32, 'JWT_SECRET must be at least 32 characters')
+    .refine(
+      (s) =>
+        !/^(dev-local-secret|change-me|changeme|secret|test)/i.test(s),
+      'JWT_SECRET must not be a dev/template placeholder — generate one: openssl rand -base64 48',
+    ),
   JWT_ACCESS_TTL: z.string().default('15m'),
   JWT_REFRESH_TTL: z.string().default('7d'),
   JWT_ISSUER: z.string().default('motech-pos'),
