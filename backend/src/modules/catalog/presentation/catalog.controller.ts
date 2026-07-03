@@ -64,7 +64,12 @@ export class CatalogController {
   }
 
   @Get('barcode/:bc')
-  @ApiOperation({ summary: 'Resolve an item by barcode (detail + price + stock)' })
+  @ApiOperation({
+    summary:
+      'Resolve an item by barcode (detail + price + stock). Weighted scale ' +
+      'barcodes (prefix 02, 12 digits) are decoded: the embedded item code ' +
+      'resolves the item and data.scanned.quantity carries the weight in kg.',
+  })
   async byBarcode(@Param('bc') bc: string) {
     const data = await this.catalog.getByBarcode(bc);
     return { data };

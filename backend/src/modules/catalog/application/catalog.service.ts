@@ -5,6 +5,7 @@ import {
   OverlayConflictError,
 } from '../../../shared/errors/domain-error';
 import { Item } from '../domain/entities/item.entity';
+import { parseWeightedBarcode } from '../domain/weighted-barcode';
 import {
   ItemOverlayRepository,
   ItemOverlayRow,
@@ -171,13 +172,46 @@ export class CatalogService {
   }
 
   async getByBarcode(barcode: string) {
+    // Weighted (scale) barcode? Decode → resolve by embedded item code and
+    // surface the embedded quantity so the cashier's cart line is pre-filled.
+    const weighted = parseWeightedBarcode(barcode);
+    if (weighted) {
+      const detail = await this.resolveDetailByCode(weighted.itemCode);
+      if (detail) {
+        return {
+          ...detail,
+          scanned: {
+            isWeighted: true as const,
+            barcode: weighted.raw,
+            itemCode: weighted.itemCode,
+            quantity: weighted.quantity,
+          },
+        };
+      }
+      throw new ItemNotFoundError(
+        `No item for weighted barcode ${barcode} (item code ${weighted.itemCode})`,
+        { barcode, itemCode: weighted.itemCode },
+      );
+    }
     const found = await this.repo.findByBarcode(barcode);
     if (!found) {
       throw new ItemNotFoundError(`No item for barcode ${barcode}`, {
         barcode,
       });
     }
-    return this.toDetailDto(found);
+    return {
+      ...this.toDetailDto(found),
+      scanned: { isWeighted: false as const, barcode, quantity: 1 },
+    };
+  }
+
+  /** getByCode variant that returns null instead of throwing (scan path). */
+  private async resolveDetailByCode(code: string) {
+    const found = await this.repo.findByCode(code);
+    const ov = await this.overlay.findByCode(code);
+    if (!found && !ov) return null;
+    if (!found && ov) return this.overlayToDetailDto(ov);
+    return this.applyOverlayToDetail(this.toDetailDto(found as ItemDetail), ov);
   }
 
   private toListDto(i: Item) {

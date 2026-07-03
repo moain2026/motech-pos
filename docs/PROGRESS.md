@@ -375,3 +375,11 @@
 - **addPayment:** يحدّث `PAID_AMT` في MOTECH_POS **ويعكس** `PAYED_AMT` على رأس Onyx الحقيقي.
 - **proof حي (curl :3000):** login admin → فتح وردية (shiftNo 85) → `POST /bills` (صنف 1060080003 ×2 ×300) → **BILL_NO 260700300000284** → `SELECT` مباشر من `YSPOS23.IAS_POS_BILL_MST` أظهر الصف (BILL_AMT=600، MACHINE_NO=3، AD_TRMNL_NM=MOTECH-POS) + سطر DTL (DOC_D_SEQ=465) ✅ → دفع نقدي 600 → `PAYED_AMT=600` في YSPOS23 ✅ → `GET /reports/daily` أظهر 2026-07-03: billCount=1, totalAmt=600 ✅ → إعادة نفس `POST` بنفس Idempotency-Key أرجعت **نفس BILL_NO ونفس id بلا صف جديد** ✅.
 - **حالة عامة:** `npm run build` ✅ · **99 اختبار وحدة تمر** ✅ · `pm2 restart motech-pos-api` (online) ✅.
+
+### 2026-07-03 — ✅ فكّ باركود الموزونات (weighted barcode) في endpoint المسح
+دعم باركود الميزان بنمط Onyx (قيم IAS_PARA_POS الحيّة: WEIGHTED_PERFIX='02'، WEIGHTED_LENGTH=12، WEIGHTED_ITEM_LENGTH=5، WEIGHTED_BASIC=1000). الكاشير يمسح باركود موزون → يُفكّ تلقائياً → الصنف يُرجَع مع الكمية الصحيحة (كجم).
+
+- **`domain/weighted-barcode.ts` (catalog):** دالة نقية `parseWeightedBarcode` — لو الباركود 12 خانة أرقام ويبدأ بـ'02' → استخراج كود الصنف (5 خانات بعد البادئة، مع إزالة الأصفار البادئة) + الذيل ÷1000 = الوزن كجم. غير ذلك → null (سلوك عادي). config قابل للحقن دفاعياً.
+- **`GET /items/barcode/:bc` محسّن:** باركود موزون → فكّ → بحث الصنف بالكود المضمّن (ERP + overlay) → إرجاع التفاصيل + حقل `scanned: {isWeighted, barcode, itemCode, quantity}`. باركود عادي → السلوك السابق + `scanned: {isWeighted:false, quantity:1}` (الواجهة تعبّئ كمية السطر مباشرة من `scanned.quantity`).
+- **proof حي (curl :3000):** `029000101250` → صنف **90001 "رز الواحه سكبه40كيلو"** (سعر 780، مخزون 31.422) + `scanned.quantity=1.25` كجم ✅ · `029001200750` → **90012 "طحينه الخروف الاصلي14كيلو"** + quantity=0.75 ✅ · الباركود العادي `2790001005064` → نفس الصنف بـ`isWeighted:false, quantity:1` ✅ · موزون لصنف غير موجود `029999901000` → 404 RFC9457 برسالة تشمل الكود المستخرج ✅.
+- **حالة عامة:** `npm run build` ✅ · **109 اختبار وحدة تمر** (+4 جديدة weighted-barcode) ✅ · `pm2 restart motech-pos-api` (online) ✅ · OpenAPI مُعاد توليده.

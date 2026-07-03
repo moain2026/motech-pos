@@ -218,7 +218,7 @@
         "/api/v1/items/barcode/{bc}": {
             "get": {
                 "operationId": "CatalogController_byBarcode",
-                "summary": "Resolve an item by barcode (detail + price + stock)",
+                "summary": "Resolve an item by barcode (detail + price + stock). Weighted scale barcodes (prefix 02, 12 digits) are decoded: the embedded item code resolves the item and data.scanned.quantity carries the weight in kg.",
                 "parameters": [
                     {
                         "name": "bc",
@@ -513,7 +513,7 @@
         "/api/v1/bills/{id}/payments": {
             "post": {
                 "operationId": "BillsController_pay",
-                "summary": "Add a payment (cash/card/credit; partial/multi-currency) to a posted bill",
+                "summary": "Add a payment (cash/card/credit/points/coupon; partial/multi-currency) to a posted bill",
                 "parameters": [
                     {
                         "name": "id",
@@ -786,6 +786,46 @@
                 },
                 "tags": [
                     "bills"
+                ]
+            }
+        },
+        "/api/v1/cards": {
+            "get": {
+                "operationId": "CardsController_listCards",
+                "summary": "Payment-card types (CREDIT_CARD_TYPES)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "cards"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/coupons": {
+            "get": {
+                "operationId": "CardsController_listCoupons",
+                "summary": "Coupon document headers (IAS_CPN_MST)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "cards"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
                 ]
             }
         },
@@ -1126,46 +1166,6 @@
                 },
                 "tags": [
                     "reports"
-                ],
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/cards": {
-            "get": {
-                "operationId": "CardsController_listCards",
-                "summary": "Payment-card types (CREDIT_CARD_TYPES)",
-                "parameters": [],
-                "responses": {
-                    "200": {
-                        "description": "Envelope { data, meta }"
-                    }
-                },
-                "tags": [
-                    "cards"
-                ],
-                "security": [
-                    {
-                        "bearer": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/coupons": {
-            "get": {
-                "operationId": "CardsController_listCoupons",
-                "summary": "Coupon document headers (IAS_CPN_MST)",
-                "parameters": [],
-                "responses": {
-                    "200": {
-                        "description": "Envelope { data, meta }"
-                    }
-                },
-                "tags": [
-                    "cards"
                 ],
                 "security": [
                     {
@@ -2088,12 +2088,15 @@
                         "enum": [
                             "CASH",
                             "CARD",
-                            "CREDIT"
+                            "CREDIT",
+                            "POINTS",
+                            "COUPON"
                         ]
                     },
                     "amount": {
                         "type": "number",
-                        "example": 300
+                        "example": 300,
+                        "description": "Tender amount. For POINTS: number of points to redeem. Optional for COUPON (defaults to face value)."
                     },
                     "currency": {
                         "type": "string",
@@ -2111,11 +2114,15 @@
                     "customerCode": {
                         "type": "string",
                         "example": "C001"
+                    },
+                    "couponNo": {
+                        "type": "string",
+                        "example": "CPN-0001",
+                        "description": "Coupon number (COUPON tenders)"
                     }
                 },
                 "required": [
-                    "method",
-                    "amount"
+                    "method"
                 ]
             },
             "PaymentTenderDto": {
@@ -2127,12 +2134,15 @@
                         "enum": [
                             "CASH",
                             "CARD",
-                            "CREDIT"
+                            "CREDIT",
+                            "POINTS",
+                            "COUPON"
                         ]
                     },
                     "amount": {
                         "type": "number",
-                        "example": 300
+                        "example": 300,
+                        "description": "Tender amount. For POINTS: number of points to redeem. Optional for COUPON (defaults to face value)."
                     },
                     "currency": {
                         "type": "string",
@@ -2151,11 +2161,15 @@
                     "customerCode": {
                         "type": "string",
                         "example": "C001"
+                    },
+                    "couponNo": {
+                        "type": "string",
+                        "example": "CPN-0001",
+                        "description": "Coupon number (COUPON tenders)"
                     }
                 },
                 "required": [
-                    "method",
-                    "amount"
+                    "method"
                 ]
             },
             "AddPaymentsDto": {
