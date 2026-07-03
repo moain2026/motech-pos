@@ -2585,7 +2585,7 @@
                     },
                     "password": {
                         "type": "string",
-                        "example": "cashier123"
+                        "example": "••••••••"
                     }
                 },
                 "required": [

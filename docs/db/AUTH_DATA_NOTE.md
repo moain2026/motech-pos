@@ -40,20 +40,22 @@ passwords, seeded from a JSON file (`AUTH_USERS_FILE`, default
 - `JwtAuthGuard` (Bearer access token) + `RolesGuard` (`@Roles(...)` RBAC).
 - Errors are RFC 9457 (`invalid-credentials` 401, `forbidden` 403).
 
-### Seed users (DEV ONLY — change for any real deployment)
-| username | role | password (dev) |
-|----------|------|----------------|
-| `cashier1` | cashier | `cashier123` |
-| `supervisor1` | supervisor | `super123` |
-| `admin` | admin | `admin123` |
+### Users
+| username | role |
+|----------|------|
+| `cashier1` | cashier |
+| `supervisor1` | supervisor |
+| `admin` | admin |
 
-> Regenerate hashes: `node -e "console.log(require('bcryptjs').hashSync('PW',10))"`.
-> `auth-users.json` is gitignored where it contains real hashes; commit only a
-> documented dev seed.
+> Passwords are strong random secrets (2026-07-04 rotation) stored ONLY in
+> `auth-users.json` as bcrypt cost-12 hashes. The file is gitignored; see
+> `auth-users.example.json` for the shape. Regenerate a hash:
+> `node -e "console.log(require('bcryptjs').hashSync(process.argv[1], 12))" 'PW'`.
+> **Never write plaintext passwords in docs/README.**
 
 ### Live proof (2026-06-29)
 ```
-POST /api/v1/auth/login {cashier1/cashier123} → 200 {access, refresh, user{role:cashier}}
+POST /api/v1/auth/login {cashier1/<valid pw>} → 200 {access, refresh, user{role:cashier}}
 POST /api/v1/auth/login {cashier1/wrong}      → 401 invalid-credentials (RFC 9457)
 GET  /api/v1/items (no token)                 → 401 unauthorized
 GET  /api/v1/items (Bearer access)            → 200 real items

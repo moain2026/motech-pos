@@ -140,9 +140,11 @@ Errors follow **RFC 9457** (`application/problem+json`) with a `traceId`.
 - `JwtAuthGuard` verifies the token (rejects refresh tokens); `RolesGuard`
   enforces `@Roles(...)`. Secret + TTLs come from validated env
   (`JWT_SECRET`, `JWT_ACCESS_TTL`, `JWT_REFRESH_TTL`, `JWT_ISSUER`).
-- Dev seed users live in `auth-users.json` (`AUTH_USERS_FILE`), bcrypt-hashed:
-  `cashier1/cashier123`, `supervisor1/super123`, `admin/admin123`
-  (**dev only** — replace for any real deployment).
+- Users live in `auth-users.json` (`AUTH_USERS_FILE`), bcrypt-hashed. The file
+  is **gitignored** (contains credential hashes); copy
+  `auth-users.example.json` and set strong random passwords per user
+  (`node -e "console.log(require('bcryptjs').hashSync(process.argv[1], 12))" 'PW'`).
+  Never commit real hashes or document passwords.
 
 ---
 

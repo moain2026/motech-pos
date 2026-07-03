@@ -5,3 +5,4 @@ dist/
 coverage/
 .swc/
 *.tsbuildinfo
+auth-users.json

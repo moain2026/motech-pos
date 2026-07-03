@@ -88,7 +88,7 @@ CORS setup is needed locally. For a different backend set `VITE_API_BASE_URL`.
 
 ```bash
 cd ../backend && set -a && . ./.env && set +a && PORT=3100 node dist/main.js
-# seed users (dev): cashier1/cashier123 · supervisor1/super123 · admin/admin123
+# users: backend/auth-users.json (gitignored) — ask the admin for credentials
 ```
 
 ## Known constraints (this phase)

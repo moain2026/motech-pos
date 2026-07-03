@@ -2,7 +2,7 @@
   {
     "id": 1,
     "username": "cashier1",
-    "passwordHash": "$2b$10$KLa1Ff1ZvNjQY6aw.Rf.4uajKL9fYKRuJ2aCU6VdAe8rnpwQYDdJu",
+    "passwordHash": "<bcrypt hash — generate: node -e \"console.log(require('bcryptjs').hashSync(process.argv[1], 12))\" 'YOUR_PASSWORD'>",
     "role": "cashier",
     "displayName": "Cashier One",
     "branchNo": 1,
@@ -11,7 +11,7 @@
   {
     "id": 2,
     "username": "supervisor1",
-    "passwordHash": "$2b$10$q28vDo/DnIoJB7yYkpL9GO.i8UeUV/LCnFVXSZmPyrmO5NlElWTEG",
+    "passwordHash": "<bcrypt hash>",
     "role": "supervisor",
     "displayName": "Supervisor One",
     "branchNo": 1,
@@ -20,7 +20,7 @@
   {
     "id": 3,
     "username": "admin",
-    "passwordHash": "$2b$10$Oo7FrLbifQiW6y6djmulcOAre9nBl80MjJbvngfuAQuo/7t5P/xqG",
+    "passwordHash": "<bcrypt hash>",
     "role": "admin",
     "displayName": "Administrator",
     "branchNo": 1,
