@@ -73,6 +73,12 @@ describe('Golden — real bills vs recomputed totals', () => {
          SELECT m.BILL_NO, m.BILL_AMT, m.VAT_AMT, m.DISC_AMT, m.CLC_VAT_AMT_TYP, m.CLC_TAX_FREE_QTY_FLG
          FROM ${schema}.IAS_POS_BILL_MST m
          WHERE m.HUNG = 0
+           -- Only genuine legacy Onyx bills: since the Onyx-twin change, Motech
+           -- POS writes its own bills into these tables (AD_TRMNL_NM =
+           -- 'MOTECH-POS') with BILL_AMT = net (gross − disc + vat), while this
+           -- golden test proves the LEGACY header convention (BILL_AMT = gross
+           -- in the no-tax dataset). Sampling our own rows would be circular.
+           AND (m.AD_TRMNL_NM IS NULL OR m.AD_TRMNL_NM <> 'MOTECH-POS')
            AND EXISTS (SELECT 1 FROM ${schema}.IAS_POS_BILL_DTL d WHERE d.BILL_NO = m.BILL_NO)
          ORDER BY m.BILL_NO DESC
        ) WHERE ROWNUM <= :lim`,

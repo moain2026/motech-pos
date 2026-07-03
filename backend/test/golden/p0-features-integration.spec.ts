@@ -23,7 +23,11 @@ const writePass = process.env.ORACLE_WRITE_PASSWORD ?? 'motech_pos_2026';
 const connectString = process.env.ORACLE_CONNECT_STRING ?? '127.0.0.1:1521/xe';
 const writeSchema = process.env.ORACLE_WRITE_SCHEMA ?? 'MOTECH_POS';
 const ITEM_CODE = process.env.GOLDEN_ITEM_CODE ?? '1020060001';
-const CASHIER = 800000 + (Date.now() % 90000);
+// Posted bills land in the REAL YSPOS23.IAS_POS_BILL_MST/DTL (Onyx twin), so
+// the cashier number must fit the legacy columns (BRN_USR NUMBER(3),
+// AD_U_ID NUMBER(5)) → keep it ≤ 999. Range 200-289 (disjoint from the
+// write-side suite's 700-789); leftovers are purged in beforeAll.
+const CASHIER = 200 + (Date.now() % 90);
 
 let app: import('@nestjs/common').INestApplication;
 let httpServer: ReturnType<import('@nestjs/common').INestApplication['getHttpServer']>;
@@ -59,6 +63,23 @@ beforeAll(async () => {
     poolMax: 2,
     poolAlias: 'test-p0-write',
   });
+
+  // Purge leftovers from a previous crashed run for this cashier (an open
+  // shift would break "opens a shift for the run"; a held bill would break
+  // the held-bills count assertion).
+  await dbExec(
+    `DELETE FROM ${writeSchema}.PAYMENTS WHERE BILL_ID IN
+       (SELECT ID FROM ${writeSchema}.BILLS WHERE CASHIER_NO = :c)`,
+    { c: CASHIER },
+  );
+  await dbExec(
+    `DELETE FROM ${writeSchema}.BILL_LINES WHERE BILL_ID IN
+       (SELECT ID FROM ${writeSchema}.BILLS WHERE CASHIER_NO = :c)`,
+    { c: CASHIER },
+  );
+  await dbExec(`DELETE FROM ${writeSchema}.BILLS WHERE CASHIER_NO = :c`, { c: CASHIER });
+  await dbExec(`DELETE FROM ${writeSchema}.HELD_BILLS WHERE CASHIER_NO = :c`, { c: CASHIER });
+  await dbExec(`DELETE FROM ${writeSchema}.SHIFTS WHERE CASHIER_NO = :c`, { c: CASHIER });
 
   const login = await request(httpServer)
     .post('/api/v1/auth/login')
@@ -117,7 +138,12 @@ describe('P0 features (live)', () => {
       machineNo: 1,
       label: 'Table 5',
       lines: [
-        { itemCode: ITEM_CODE, qty: 2 },
+        // Explicit price/vat on BOTH lines: the reference price is the item's
+        // LAST sale price in YSPOS23.IAS_POS_BILL_DTL, and since the Onyx-twin
+        // change our own posted bills land there too — a previous run would
+        // shift the reference price and make omitted-price totals
+        // non-deterministic.
+        { itemCode: ITEM_CODE, qty: 2, unitPrice: 50, vatPercent: 0 },
         { itemCode: ITEM_CODE, qty: 1, unitPrice: 100, discDtl: 10, vatPercent: 15 },
       ],
     };

@@ -27,8 +27,12 @@ const writeSchema = process.env.ORACLE_WRITE_SCHEMA ?? 'MOTECH_POS';
 
 // A real item code with a reference price in YSPOS23 (see SALES_FLOW notes).
 const ITEM_CODE = process.env.GOLDEN_ITEM_CODE ?? '1010010004';
-// Unique cashier per run (timestamp-based, fits NUMBER(10)).
-const CASHIER = 900000 + (Date.now() % 90000);
+// Unique-ish cashier per run. Since the Onyx-twin write path lands the bill
+// in the REAL YSPOS23.IAS_POS_BILL_MST/DTL, the cashier number must fit the
+// legacy columns (BRN_USR NUMBER(3), AD_U_ID NUMBER(5)) → keep it ≤ 999.
+// Range 700-789 (disjoint from p0 suite's 200-289 and from real Onyx users
+// ≤ 23); leftover rows from crashed runs are purged in beforeAll.
+const CASHIER = 700 + (Date.now() % 90);
 
 let app: import('@nestjs/common').INestApplication;
 let httpServer: ReturnType<import('@nestjs/common').INestApplication['getHttpServer']>;
@@ -74,6 +78,22 @@ beforeAll(async () => {
     poolMax: 2,
     poolAlias: 'test-write',
   });
+
+  // Purge leftovers from a previous crashed run for this cashier (an open
+  // shift would break the "no-open-shift" and "opens a shift" cases).
+  await dbExec(
+    `DELETE FROM ${writeSchema}.PAYMENTS WHERE BILL_ID IN
+       (SELECT ID FROM ${writeSchema}.BILLS WHERE CASHIER_NO = :c)`,
+    { c: CASHIER },
+  );
+  await dbExec(
+    `DELETE FROM ${writeSchema}.BILL_LINES WHERE BILL_ID IN
+       (SELECT ID FROM ${writeSchema}.BILLS WHERE CASHIER_NO = :c)`,
+    { c: CASHIER },
+  );
+  await dbExec(`DELETE FROM ${writeSchema}.BILLS WHERE CASHIER_NO = :c`, { c: CASHIER });
+  await dbExec(`DELETE FROM ${writeSchema}.HELD_BILLS WHERE CASHIER_NO = :c`, { c: CASHIER });
+  await dbExec(`DELETE FROM ${writeSchema}.SHIFTS WHERE CASHIER_NO = :c`, { c: CASHIER });
 
   // Log in (dev seed cashier) to obtain a JWT for protected write routes.
   const login = await request(httpServer)
