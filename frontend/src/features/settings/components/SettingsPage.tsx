@@ -10,6 +10,7 @@ import {
   Save,
   CheckCircle2,
   Info,
+  CreditCard,
 } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
@@ -18,6 +19,7 @@ import { LoadingView, ErrorView } from '@/shared/ui/StateView';
 import { ApiError } from '@/shared/lib/api-client';
 import type { Settings, SettingsOverride } from '@/shared/lib/types';
 import { useSettings, useUpdateSettings } from '../api/settings.api';
+import { useCards } from '../api/cards.api';
 
 /**
  * الإعدادات (Settings) — view/edit system settings. Reads GET /settings;
@@ -149,6 +151,9 @@ function SettingsForm({ data }: { data: Settings }) {
         />
       </Section>
 
+      {/* Payment cards (read-only list of configured card types) */}
+      <CardsSection />
+
       {/* Printing (read-only view of current values) */}
       <Section icon={<Printer className="size-5" />} title={t('settings.printSection')}>
         <ReadOnly label={t('settings.printBill')} value={yesNo(t, data.printing.printBill)} />
@@ -204,6 +209,53 @@ function SettingsForm({ data }: { data: Settings }) {
 
 function yesNo(t: (k: string) => string, v: boolean): string {
   return v ? t('settings.yes') : t('settings.no');
+}
+
+/** Payment-card types (GET /cards) — read-only list shown in settings. */
+function CardsSection() {
+  const { t } = useTranslation();
+  const q = useCards();
+  const cards = q.data ?? [];
+  return (
+    <Card className="p-4">
+      <h2 className="mb-3 flex items-center gap-2 font-bold text-[var(--color-fg)]">
+        <span className="text-[var(--color-brand-500)]"><CreditCard className="size-5" /></span>
+        {t('settings.cardsSection')}
+      </h2>
+      {q.isLoading ? (
+        <p className="text-sm text-[var(--color-muted)]">{t('status.loading')}</p>
+      ) : q.isError ? (
+        <p className="text-sm text-[var(--color-danger)]">{t('settings.cardsError')}</p>
+      ) : cards.length === 0 ? (
+        <p className="text-sm text-[var(--color-muted)]">{t('status.empty')}</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+              <tr>
+                <th className="px-3 py-2 text-start font-semibold">{t('settings.cardName')}</th>
+                <th className="px-3 py-2 text-end font-semibold">{t('settings.cardType')}</th>
+                <th className="px-3 py-2 text-end font-semibold">{t('settings.cardCommission')}</th>
+                <th className="px-3 py-2 text-end font-semibold">{t('settings.cardBank')}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {cards.map((c) => (
+                <tr key={c.cardNo} className="hover:bg-[var(--color-surface-2)]">
+                  <td className="px-3 py-2 font-medium">
+                    {c.cardName?.trim() || c.cardEName?.trim() || `#${c.cardNo}`}
+                  </td>
+                  <td className="tnum px-3 py-2 text-end text-[var(--color-muted)]">{c.cardType}</td>
+                  <td className="tnum px-3 py-2 text-end">{c.commissionPct}%</td>
+                  <td className="tnum px-3 py-2 text-end text-[var(--color-muted)]">{c.bankNo ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Card>
+  );
 }
 
 function Section({

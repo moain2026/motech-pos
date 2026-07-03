@@ -43,6 +43,15 @@ const SettingsPage = lazy(() =>
 const DashboardPage = lazy(() =>
   import('@/features/dashboard').then((m) => ({ default: m.DashboardPage })),
 );
+const InventoryPage = lazy(() =>
+  import('@/features/inventory').then((m) => ({ default: m.InventoryPage })),
+);
+const AdminPage = lazy(() =>
+  import('@/features/admin').then((m) => ({ default: m.AdminPage })),
+);
+const SyncPage = lazy(() =>
+  import('@/features/sync').then((m) => ({ default: m.SyncPage })),
+);
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const token = useSession((s) => s.accessToken);
@@ -95,6 +104,30 @@ export const router = createBrowserRouter([
         element: (
           <RequireRole roles={PRIVILEGED}>
             <Lazy><ItemsPage /></Lazy>
+          </RequireRole>
+        ),
+      },
+      {
+        path: 'inventory',
+        element: (
+          <RequireRole roles={PRIVILEGED}>
+            <Lazy><InventoryPage /></Lazy>
+          </RequireRole>
+        ),
+      },
+      {
+        path: 'sync',
+        element: (
+          <RequireRole roles={PRIVILEGED}>
+            <Lazy><SyncPage /></Lazy>
+          </RequireRole>
+        ),
+      },
+      {
+        path: 'admin',
+        element: (
+          <RequireRole roles={ADMIN_ONLY}>
+            <Lazy><AdminPage /></Lazy>
           </RequireRole>
         ),
       },

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Banknote, CheckCircle2, CreditCard, Trash2, Wallet } from 'lucide-react';
+import { Banknote, CheckCircle2, CreditCard, Trash2, Wallet, FileText } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { ApiError } from '@/shared/lib/api-client';
@@ -15,6 +15,7 @@ import { CustomerAttach } from './CustomerAttach';
 import { buildReceipt, type ReceiptModel, PrintReceiptButton } from '@/features/print';
 import { HeldBillsControls } from './HeldBills';
 import { PaymentDialog } from './PaymentDialog';
+import { EInvoiceDialog } from '@/features/einvoice';
 
 /**
  * Bill summary + payment actions — REAL write path (proof-verified):
@@ -40,7 +41,8 @@ export function SaleSummary() {
   const createBill = useCreateBill();
   const payBill = usePayBill();
 
-  const [done, setDone] = useState<{ billNo: string; net: number } | null>(null);
+  const [done, setDone] = useState<{ id: string; billNo: string; net: number } | null>(null);
+  const [showEInvoice, setShowEInvoice] = useState(false);
   const [receipt, setReceipt] = useState<ReceiptModel | null>(null);
   const [error, setError] = useState<string | null>(null);
   // Enhanced multi-tender flow: bill is created (unpaid) then settled via dialog.
@@ -121,7 +123,7 @@ export function SaleSummary() {
           paidAmount: bill.netAmt,
         }),
       );
-      setDone({ billNo: bill.billNo, net: bill.netAmt });
+      setDone({ id: bill.id, billNo: bill.billNo, net: bill.netAmt });
       clear();
     } catch (e) {
       if (e instanceof ApiError) {
@@ -149,6 +151,15 @@ export function SaleSummary() {
         {receipt ? <PrintReceiptButton receipt={receipt} /> : null}
         <Button
           size="lg"
+          variant="outline"
+          className="w-full"
+          onClick={() => setShowEInvoice(true)}
+        >
+          <FileText className="size-5" />
+          {t('einvoice.button')}
+        </Button>
+        <Button
+          size="lg"
           variant="primary"
           className="w-full"
           onClick={() => {
@@ -158,6 +169,13 @@ export function SaleSummary() {
         >
           {t('pos.newSale')}
         </Button>
+        {showEInvoice ? (
+          <EInvoiceDialog
+            billId={done.id}
+            billNo={done.billNo}
+            onClose={() => setShowEInvoice(false)}
+          />
+        ) : null}
       </div>
     );
   }
@@ -172,7 +190,7 @@ export function SaleSummary() {
           netAmt={payTarget.net}
           onClose={() => setPayTarget(null)}
           onSettled={() => {
-            setDone({ billNo: payTarget.billNo, net: payTarget.net });
+            setDone({ id: payTarget.id, billNo: payTarget.billNo, net: payTarget.net });
             setPayTarget(null);
             clear();
           }}

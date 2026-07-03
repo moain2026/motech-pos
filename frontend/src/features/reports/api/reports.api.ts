@@ -8,6 +8,12 @@ import type {
   ByCashierRow,
   PaymentMethodRow,
   ReturnsReportRow,
+  TaxReportRow,
+  HourlySalesRow,
+  ZReport,
+  TopCustomerRow,
+  DiscountReportRow,
+  SalesByCategoryRow,
 } from '@/shared/lib/types';
 
 function rangeParams(from?: string, to?: string): string {
@@ -78,6 +84,59 @@ export function useReturnsReport(from?: string, to?: string) {
   return useQuery({
     queryKey: ['report', 'returns', { from, to }],
     queryFn: () => getData<ReturnsReportRow[]>(`/reports/returns${rangeParams(from, to)}`),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Wave 5 — additional reports (proof-verified live :3000, 2026-07-01)
+// ---------------------------------------------------------------------------
+
+/** GET /reports/tax — VAT/tax report by day (taxable base + VAT collected). */
+export function useTaxReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'tax', { from, to }],
+    queryFn: () => getData<TaxReportRow[]>(`/reports/tax${rangeParams(from, to)}`),
+  });
+}
+
+/** GET /reports/hourly-sales — sales distribution across the 24 hours. */
+export function useHourlySalesReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'hourly-sales', { from, to }],
+    queryFn: () => getData<HourlySalesRow[]>(`/reports/hourly-sales${rangeParams(from, to)}`),
+  });
+}
+
+/** GET /reports/z-report — single end-of-day close summary object. */
+export function useZReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'z-report', { from, to }],
+    queryFn: () => getData<ZReport>(`/reports/z-report${rangeParams(from, to)}`),
+  });
+}
+
+/** GET /reports/top-customers — top customers by total sales. */
+export function useTopCustomersReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'top-customers', { from, to }],
+    queryFn: () => getData<TopCustomerRow[]>(`/reports/top-customers${rangeParams(from, to)}`),
+  });
+}
+
+/** GET /reports/discount — header discount vs gross, per day. */
+export function useDiscountReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'discount', { from, to }],
+    queryFn: () => getData<DiscountReportRow[]>(`/reports/discount${rangeParams(from, to)}`),
+  });
+}
+
+/** GET /reports/sales-by-category — sales grouped by item category. */
+export function useSalesByCategoryReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'sales-by-category', { from, to }],
+    queryFn: () =>
+      getData<SalesByCategoryRow[]>(`/reports/sales-by-category${rangeParams(from, to)}`),
   });
 }
 

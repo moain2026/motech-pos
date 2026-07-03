@@ -13,6 +13,8 @@ export interface ListMeta {
   count: number;
   /** Cursor for the next page (null/absent when no more). */
   nextCursor?: string | null;
+  /** Low-stock threshold (GET /inventory/low-stock). */
+  threshold?: number;
 }
 
 /** RFC 9457 Problem Details (application/problem+json). */
@@ -719,4 +721,190 @@ export interface CreateVoucherDto {
   partyName?: string;
   category?: string;
   clientOperationId?: string;
+}
+
+// ===========================================================================
+// Wave 5 — inventory, admin, e-invoice, sync, cards, new reports
+// (proof-verified against live backend :3000, 2026-07-01)
+// ===========================================================================
+
+// ---- Inventory (GET /inventory, /inventory/low-stock, /inventory/{code}) ----
+/** One item row with aggregated available quantity across warehouses. */
+export interface InventoryItem {
+  code: string;
+  name: string | null;
+  totalAvailableQty: number;
+  warehouseCount: number;
+}
+
+/** Per-warehouse / per-batch stock line for a single item. */
+export interface InventoryStockLine {
+  warehouseCode: number;
+  batchNo: string;
+  expireDate: string | null;
+  availableQty: number;
+}
+
+/** GET /inventory/{code} → item + per-warehouse breakdown. */
+export interface InventoryDetail extends InventoryItem {
+  stock: InventoryStockLine[];
+}
+
+// ---- Admin (GET /admin/machines, /admin/users, /admin/sessions) ----
+export interface AdminMachine {
+  machineNo: number;
+  terminal: string | null;
+  inactive: boolean;
+  defWarehouse: number | null;
+  defBranch: number | null;
+  ipAddress: string | null;
+  lastBillDate: string | null;
+  useVat: boolean;
+  priceLevel: number | null;
+}
+
+export interface AdminUser {
+  userId: number;
+  arabicName: string | null;
+  englishName: string | null;
+  code: string | null;
+  inactive: boolean;
+  isAdmin: boolean;
+  userType: number | null;
+  loggedOn: boolean;
+  locked: boolean;
+  email: string | null;
+}
+
+export interface AdminSession {
+  userId: number;
+  terminal: string | null;
+  loginType: number; // 0 = login, 1 = logout
+  eventAt: string;
+  branchNo: number | null;
+}
+
+// ---- E-invoice (POST /einvoice/generate/{billId}, GET /einvoice/{billId}) ----
+export interface EInvoice {
+  id: string;
+  billId: string;
+  billNo: string;
+  sellerName: string;
+  vatNumber: string;
+  invoiceTs: string;
+  totalAmount: number;
+  vatAmount: number;
+  qrTlvBase64: string;
+  docHash: string;
+  docJson: string;
+}
+
+// ---- Sync (GET /sync/status, /sync/queue, POST /sync/run) ----
+export interface SyncStatus {
+  pending: number;
+  synced: number;
+  failed: number;
+  total: number;
+}
+
+export type SyncEntryStatus = 'pending' | 'synced' | 'failed';
+
+export interface SyncQueueEntry {
+  id: string;
+  billId: string;
+  billNo: string;
+  status: SyncEntryStatus;
+  rtryCnt: number;
+  allwdRtryCnt: number;
+  lastError: string | null;
+  enqueuedAt: string;
+  syncedAt: string | null;
+  createdAt: string;
+}
+
+export interface SyncRunResult {
+  processed: number;
+  synced: number;
+  blocked: number;
+  counts: SyncStatus;
+}
+
+// ---- Cards (GET /cards) ----
+export interface PaymentCard {
+  cardNo: number;
+  cardName: string | null;
+  cardEName: string | null;
+  commissionPct: number;
+  cardType: number;
+  bankNo: number | null;
+}
+
+// ---- New reports ----
+/** GET /reports/tax — VAT/tax report per day. */
+export interface TaxReportRow {
+  day: string;
+  billCount: number;
+  totalVat: number;
+  totalDisc: number;
+  totalAmt: number;
+  netBeforeVat: number;
+}
+
+/** GET /reports/hourly-sales — one row per hour (00..23). */
+export interface HourlySalesRow {
+  hour: string;
+  billCount: number;
+  totalAmt: number;
+  totalVat: number;
+  totalDisc: number;
+}
+
+/** GET /reports/z-report — single end-of-day close summary. */
+export interface ZReportPayment {
+  method: string;
+  billCount: number;
+  amount: number;
+}
+export interface ZReport {
+  from: string | null;
+  to: string | null;
+  machineNo: number | null;
+  billCount: number;
+  grossAmt: number;
+  totalVat: number;
+  totalDisc: number;
+  netBeforeVat: number;
+  returnAmt: number;
+  firstBillTime: string | null;
+  lastBillTime: string | null;
+  byPayment: ZReportPayment[];
+}
+
+/** GET /reports/top-customers — top customers by total sales. */
+export interface TopCustomerRow {
+  cCode: string | null;
+  cName: string | null;
+  custCode: string | null;
+  billCount: number;
+  totalAmt: number;
+  totalVat: number;
+  totalDisc: number;
+}
+
+/** GET /reports/discount — discount report per day. */
+export interface DiscountReportRow {
+  day: string;
+  billCount: number;
+  totalDisc: number;
+  totalAmt: number;
+  discPct: number;
+}
+
+/** GET /reports/sales-by-category — sales grouped by item category. */
+export interface SalesByCategoryRow {
+  categoryNo: number;
+  categoryName: string | null;
+  lineCount: number;
+  totalQty: number;
+  totalAmt: number;
 }

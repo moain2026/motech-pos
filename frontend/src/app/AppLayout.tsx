@@ -13,6 +13,9 @@ import {
   LayoutDashboard,
   Package,
   Settings2,
+  Boxes,
+  RefreshCw,
+  ShieldCheck,
 } from 'lucide-react';
 import { useSession } from '@/features/auth';
 import { OnlineBadge } from '@/shared/ui/OnlineBadge';
@@ -42,7 +45,10 @@ const NAV: NavItem[] = [
   { to: '/reconciliation', key: 'nav.reconciliation', icon: Scale, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/customers', key: 'nav.customers', icon: Users, roles: ['supervisor', 'admin'] },
   { to: '/items', key: 'nav.items', icon: Package, roles: ['supervisor', 'admin'] },
+  { to: '/inventory', key: 'nav.inventory', icon: Boxes, roles: ['supervisor', 'admin'] },
   { to: '/reports', key: 'nav.reports', icon: BarChart3, roles: ['supervisor', 'admin'] },
+  { to: '/sync', key: 'nav.sync', icon: RefreshCw, roles: ['supervisor', 'admin'] },
+  { to: '/admin', key: 'nav.admin', icon: ShieldCheck, roles: ['admin'] },
   { to: '/settings', key: 'nav.settings', icon: Settings2, roles: ['admin'] },
 ];
 

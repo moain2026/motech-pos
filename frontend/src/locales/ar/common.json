@@ -15,7 +15,10 @@
     "items": "الأصناف",
     "reports": "التقارير",
     "settings": "الإعدادات",
-    "logout": "تسجيل الخروج"
+    "logout": "تسجيل الخروج",
+    "inventory": "المخزون",
+    "sync": "المزامنة",
+    "admin": "الإدارة"
   },
   "origin": {
     "ERP": "من النظام",
@@ -191,8 +194,26 @@
       "byMachine": "حسب الجهاز",
       "byCashier": "حسب الكاشير",
       "paymentMethods": "طرق الدفع",
-      "returns": "المرتجعات"
-    }
+      "returns": "المرتجعات",
+      "tax": "ضريبي",
+      "hourly": "بالساعة",
+      "zReport": "تقرير Z",
+      "topCustomers": "أعلى العملاء",
+      "discount": "الخصومات",
+      "salesByCategory": "حسب الفئة"
+    },
+    "netBeforeVat": "الصافي قبل الضريبة",
+    "hour": "الساعة",
+    "share": "النسبة",
+    "peakHour": "ساعة الذروة",
+    "returnAmt": "المرتجعات",
+    "firstBill": "أول فاتورة",
+    "lastBill": "آخر فاتورة",
+    "customer": "العميل",
+    "customerCode": "كود العميل",
+    "walkIn": "عميل نقدي",
+    "discPct": "نسبة الخصم",
+    "category": "الفئة"
   },
   "customers": {
     "title": "العملاء",
@@ -279,7 +300,13 @@
     "save": "حفظ الإعدادات",
     "saving": "جارٍ الحفظ…",
     "saved": "تم حفظ الإعدادات",
-    "saveError": "تعذّر حفظ الإعدادات"
+    "saveError": "تعذّر حفظ الإعدادات",
+    "cardsSection": "بطاقات الدفع",
+    "cardName": "اسم البطاقة",
+    "cardType": "النوع",
+    "cardCommission": "العمولة",
+    "cardBank": "البنك",
+    "cardsError": "تعذّر تحميل البطاقات"
   },
   "vouchers": {
     "title": "السندات",
@@ -345,5 +372,93 @@
     "failed": "تعذّرت الطباعة — أعد المحاولة",
     "receipt": "الإيصال",
     "printUsb": "طباعة USB"
+  },
+  "inventory": {
+    "title": "المخزون",
+    "search": "ابحث باسم أو كود الصنف…",
+    "code": "الكود",
+    "name": "الصنف",
+    "qty": "الكمية المتاحة",
+    "warehouses": "عدد المخازن",
+    "detailTitle": "تفاصيل المخزون",
+    "byWarehouse": "المخزون حسب المخزن",
+    "warehouse": "المخزن",
+    "batch": "الدفعة",
+    "expiry": "تاريخ الانتهاء",
+    "lowHint": "الأصناف بكمية أقل من أو تساوي {{threshold}}",
+    "tab": {
+      "all": "كل الأصناف",
+      "low": "منخفض المخزون"
+    }
+  },
+  "admin": {
+    "title": "الإدارة",
+    "machineNo": "رقم الجهاز",
+    "terminal": "الطرفية",
+    "active": "مفعّل",
+    "warehouse": "المخزن",
+    "branch": "الفرع",
+    "ip": "العنوان",
+    "lastBill": "آخر فاتورة",
+    "useVat": "ضريبة",
+    "userId": "المعرّف",
+    "userName": "الاسم",
+    "isAdmin": "مدير",
+    "loggedOn": "متصل",
+    "locked": "مقفل",
+    "email": "البريد",
+    "event": "الحدث",
+    "eventAt": "الوقت",
+    "login": "دخول",
+    "logout": "خروج",
+    "tab": {
+      "machines": "الأجهزة",
+      "users": "المستخدمون",
+      "sessions": "سجل الدخول"
+    }
+  },
+  "sync": {
+    "title": "حالة المزامنة",
+    "run": "تشغيل المزامنة",
+    "running": "جارٍ التشغيل…",
+    "runDone": "تمّت المعالجة: {{processed}} — مُزامَن {{synced}} — محجوب {{blocked}}",
+    "runError": "تعذّر تشغيل المزامنة",
+    "pending": "قيد الانتظار",
+    "synced": "تمّت",
+    "failed": "فشلت",
+    "total": "الإجمالي",
+    "billNo": "رقم الفاتورة",
+    "status": "الحالة",
+    "retries": "المحاولات",
+    "enqueuedAt": "وقت الإدراج",
+    "lastError": "آخر خطأ",
+    "st": {
+      "pending": "قيد الانتظار",
+      "synced": "تمّت",
+      "failed": "فشلت"
+    },
+    "filter": {
+      "all": "الكل",
+      "pending": "قيد الانتظار",
+      "failed": "فشلت",
+      "synced": "تمّت"
+    }
+  },
+  "einvoice": {
+    "title": "فاتورة إلكترونية",
+    "button": "فاتورة إلكترونية",
+    "generate": "إصدار الفاتورة الإلكترونية",
+    "generating": "جارٍ الإصدار…",
+    "genError": "تعذّر إصدار الفاتورة الإلكترونية",
+    "notGenerated": "لم تُصدَر فاتورة إلكترونية للفاتورة {{billNo}} بعد.",
+    "submitted": "تمّ الإرسال لهيئة الضرائب (محاكاة)",
+    "qrAlt": "رمز QR للفاتورة الإلكترونية",
+    "qrRendering": "جارٍ رسم رمز QR…",
+    "billNo": "رقم الفاتورة",
+    "seller": "البائع",
+    "vatNumber": "الرقم الضريبي",
+    "total": "الإجمالي",
+    "vat": "الضريبة",
+    "hash": "بصمة المستند"
   }
 }
