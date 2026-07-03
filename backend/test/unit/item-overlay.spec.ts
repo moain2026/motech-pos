@@ -40,6 +40,21 @@ class FakeErp implements ItemRepository {
   findByBarcode(): Promise<ItemDetail | null> {
     return Promise.resolve(null);
   }
+  listPrices() {
+    return Promise.resolve([]);
+  }
+  listUnits() {
+    return Promise.resolve([]);
+  }
+  listCategories() {
+    return Promise.resolve([]);
+  }
+  listItemTypes() {
+    return Promise.resolve([]);
+  }
+  findPriceAtLevel() {
+    return Promise.resolve(null);
+  }
 }
 
 class FakeOverlay implements ItemOverlayRepository {

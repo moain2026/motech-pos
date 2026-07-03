@@ -244,6 +244,149 @@
                 ]
             }
         },
+        "/api/v1/items/{code}/prices": {
+            "get": {
+                "operationId": "CatalogController_prices",
+                "summary": "All price levels for an item (IAS_ITEM_PRICE): every LEV_NO × unit combination — retail/wholesale/promo lists (POS_ITM_PRICE screen).",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "catalog"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/items/{code}/prices/{levNo}": {
+            "get": {
+                "operationId": "CatalogController_priceAtLevel",
+                "summary": "Price for a specific price level (sale-time level selection). Optional ?unit= picks the unit; defaults to the base (smallest) unit.",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "levNo",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "unit",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "catalog"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/items/{code}/units": {
+            "get": {
+                "operationId": "CatalogController_units",
+                "summary": "All units of measure for an item (IAS_ITM_DTL) with conversion factors (P_SIZE), per-unit barcode and price — e.g. حبة/كرتون.",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "catalog"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/categories": {
+            "get": {
+                "operationId": "CategoriesController_tree",
+                "summary": "Category tree: main item groups (GROUP_DETAILS) with sub-groups (IAS_MAINSUB_GRP_DTL) and item counts. Use ?category= on GET /items.",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "catalog"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/categories/item-types": {
+            "get": {
+                "operationId": "CategoriesController_itemTypes",
+                "summary": "Item nature types (ITEM_TYPES: stocked/service)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "catalog"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
         "/api/v1/shifts/current": {
             "get": {
                 "operationId": "ShiftsController_current",
@@ -1205,6 +1348,126 @@
             "get": {
                 "operationId": "ReportsController_zReport",
                 "summary": "Z-report: full end-of-shift/day close (single summary object)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/slow-moving": {
+            "get": {
+                "operationId": "ReportsController_slowMoving",
+                "summary": "Slow-moving items: least/zero-sold items in the period",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/profit": {
+            "get": {
+                "operationId": "ReportsController_profit",
+                "summary": "Profit per item: revenue vs PRIMARY_COST (item master)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/comparison": {
+            "get": {
+                "operationId": "ReportsController_comparison",
+                "summary": "Two-period sales comparison (A vs B) with absolute + % deltas",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/item-movement": {
+            "get": {
+                "operationId": "ReportsController_itemMovement",
+                "summary": "Full movement history of one item (sales + returns) in a period",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/audit": {
+            "get": {
+                "operationId": "ReportsController_audit",
+                "summary": "Deleted-lines audit trail (IAS_POS_AUD_ITEM; POSR005 domain)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/vat-detailed": {
+            "get": {
+                "operationId": "ReportsController_vatDetailed",
+                "summary": "Detailed VAT report grouped by effective rate x item category",
                 "parameters": [],
                 "responses": {
                     "200": {

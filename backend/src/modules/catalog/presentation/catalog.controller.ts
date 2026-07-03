@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -33,6 +34,12 @@ export class CatalogController {
       search: q.search,
       cursor: q.cursor,
       limit: q.limit ?? 50,
+      category: q.category,
+      subCategory: q.subCategory,
+      weighted: q.weighted,
+      active: q.active,
+      minPrice: q.minPrice,
+      maxPrice: q.maxPrice,
     });
     return {
       data: items,
@@ -75,10 +82,80 @@ export class CatalogController {
     return { data };
   }
 
+  @Get(':code/prices')
+  @ApiOperation({
+    summary:
+      'All price levels for an item (IAS_ITEM_PRICE): every LEV_NO × unit ' +
+      'combination — retail/wholesale/promo lists (POS_ITM_PRICE screen).',
+  })
+  async prices(@Param('code') code: string) {
+    const data = await this.catalog.listPrices(code);
+    return { data, meta: { levels: data.levels.length, rows: data.prices.length } };
+  }
+
+  @Get(':code/prices/:levNo')
+  @ApiOperation({
+    summary:
+      'Price for a specific price level (sale-time level selection). ' +
+      'Optional ?unit= picks the unit; defaults to the base (smallest) unit.',
+  })
+  async priceAtLevel(
+    @Param('code') code: string,
+    @Param('levNo', ParseIntPipe) levNo: number,
+    @Query('unit') unit?: string,
+  ) {
+    const data = await this.catalog.getPriceAtLevel(code, levNo, unit ?? null);
+    return { data };
+  }
+
+  @Get(':code/units')
+  @ApiOperation({
+    summary:
+      'All units of measure for an item (IAS_ITM_DTL) with conversion ' +
+      'factors (P_SIZE), per-unit barcode and price — e.g. حبة/كرتون.',
+  })
+  async units(@Param('code') code: string) {
+    const data = await this.catalog.listUnits(code);
+    return { data, meta: { count: data.units.length } };
+  }
+
   @Get(':code')
   @ApiOperation({ summary: 'Item detail: price + per-warehouse available quantity' })
   async byCode(@Param('code') code: string) {
     const data = await this.catalog.getByCode(code);
     return { data };
+  }
+}
+
+@ApiTags('catalog')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('cashier', 'supervisor', 'admin')
+@Controller('categories')
+export class CategoriesController {
+  constructor(private readonly catalog: CatalogService) {}
+
+  @Get()
+  @ApiOperation({
+    summary:
+      'Category tree: main item groups (GROUP_DETAILS) with sub-groups ' +
+      '(IAS_MAINSUB_GRP_DTL) and item counts. Use ?category= on GET /items.',
+  })
+  async tree() {
+    const data = await this.catalog.listCategories();
+    return {
+      data,
+      meta: {
+        groups: data.length,
+        items: data.reduce((a, g) => a + g.itemCount, 0),
+      },
+    };
+  }
+
+  @Get('item-types')
+  @ApiOperation({ summary: 'Item nature types (ITEM_TYPES: stocked/service)' })
+  async itemTypes() {
+    const data = await this.catalog.listItemTypes();
+    return { data, meta: { count: data.length } };
   }
 }

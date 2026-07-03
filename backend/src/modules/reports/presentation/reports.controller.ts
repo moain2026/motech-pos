@@ -8,9 +8,14 @@ import {
 import { JwtAuthGuard } from '../../auth/presentation/jwt-auth.guard';
 import { ReportsService } from '../application/reports.service';
 import {
+  AuditQuery,
   ByItemQuery,
+  ComparisonQuery,
   DateRangeQuery,
+  ItemMovementQuery,
   PosReportQuery,
+  ProfitQuery,
+  SlowMovingQuery,
   TopCustomersQuery,
   ZReportQuery,
 } from './reports.query';
@@ -119,6 +124,94 @@ export class ReportsController {
       machineNo: q.machine,
     });
     return { data, meta: { count: 1 } };
+  }
+
+  //==========================================================================
+  // Historical / advanced YSPOS23 reports
+  //==========================================================================
+
+  @Get('slow-moving')
+  @ApiOperation({
+    summary: 'Slow-moving items: least/zero-sold items in the period',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async slowMoving(@Query() q: SlowMovingQuery) {
+    const data = await this.reports.slowMoving({
+      from: q.from,
+      to: q.to,
+      limit: q.limit ?? 50,
+      maxQty: q.maxQty ?? 5,
+    });
+    return { data, meta: { count: data.length } };
+  }
+
+  @Get('profit')
+  @ApiOperation({
+    summary: 'Profit per item: revenue vs PRIMARY_COST (item master)',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async profit(@Query() q: ProfitQuery) {
+    const data = await this.reports.profitReport({
+      from: q.from,
+      to: q.to,
+      limit: q.limit ?? 50,
+    });
+    return { data, meta: { count: data.length } };
+  }
+
+  @Get('comparison')
+  @ApiOperation({
+    summary: 'Two-period sales comparison (A vs B) with absolute + % deltas',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async comparison(@Query() q: ComparisonQuery) {
+    const data = await this.reports.comparison({
+      fromA: q.fromA,
+      toA: q.toA,
+      fromB: q.fromB,
+      toB: q.toB,
+    });
+    return { data, meta: { count: 1 } };
+  }
+
+  @Get('item-movement')
+  @ApiOperation({
+    summary: 'Full movement history of one item (sales + returns) in a period',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async itemMovement(@Query() q: ItemMovementQuery) {
+    const data = await this.reports.itemMovement({
+      from: q.from,
+      to: q.to,
+      iCode: q.item,
+      limit: q.limit ?? 200,
+    });
+    return { data, meta: { count: data.movements.length } };
+  }
+
+  @Get('audit')
+  @ApiOperation({
+    summary:
+      'Deleted-lines audit trail (IAS_POS_AUD_ITEM; POSR005 domain)',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async audit(@Query() q: AuditQuery) {
+    const data = await this.reports.auditReport({
+      from: q.from,
+      to: q.to,
+      limit: q.limit ?? 100,
+    });
+    return { data, meta: { count: data.length } };
+  }
+
+  @Get('vat-detailed')
+  @ApiOperation({
+    summary: 'Detailed VAT report grouped by effective rate x item category',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async vatDetailed(@Query() q: DateRangeQuery) {
+    const data = await this.reports.vatDetailed({ from: q.from, to: q.to });
+    return { data, meta: { count: data.length } };
   }
 
   //==========================================================================

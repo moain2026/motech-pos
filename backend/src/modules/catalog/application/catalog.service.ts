@@ -59,6 +59,61 @@ export class CatalogService {
     return { items: merged.slice(0, filter.limit), nextCursor };
   }
 
+  /** All price levels for an item (IAS_ITEM_PRICE — POS_ITM_PRICE screen). */
+  async listPrices(code: string) {
+    const prices = await this.repo.listPrices(code);
+    if (prices.length === 0) {
+      // Distinguish "item unknown" from "item has no price list rows".
+      const exists =
+        (await this.repo.findByCode(code)) ??
+        (await this.overlay.findByCode(code));
+      if (!exists) {
+        throw new ItemNotFoundError(`Item ${code} not found`, { code });
+      }
+    }
+    const levels = [...new Set(prices.map((p) => p.levNo))].sort(
+      (a, b) => a - b,
+    );
+    return { code, levels, prices };
+  }
+
+  /** Price for a chosen level (sale-time price-level selection). */
+  async getPriceAtLevel(code: string, levNo: number, unit?: string | null) {
+    const price = await this.repo.findPriceAtLevel(code, levNo, unit);
+    if (!price) {
+      throw new ItemNotFoundError(
+        `No price for item ${code} at level ${levNo}${unit ? ` unit ${unit}` : ''}`,
+        { code, levNo, unit: unit ?? null },
+      );
+    }
+    return { code, ...price };
+  }
+
+  /** All units of measure for an item, with conversion factors + barcodes. */
+  async listUnits(code: string) {
+    const units = await this.repo.listUnits(code);
+    if (units.length === 0) {
+      const exists =
+        (await this.repo.findByCode(code)) ??
+        (await this.overlay.findByCode(code));
+      if (!exists) {
+        throw new ItemNotFoundError(`Item ${code} not found`, { code });
+      }
+    }
+    const base = units.find((u) => u.isMainUnit) ?? units[0] ?? null;
+    return { code, baseUnit: base?.unit ?? null, units };
+  }
+
+  /** Category tree (main groups → sub groups) with item counts. */
+  async listCategories() {
+    return this.repo.listCategories();
+  }
+
+  /** Item nature types (ITEM_TYPES: stocked / service …). */
+  async listItemTypes() {
+    return this.repo.listItemTypes();
+  }
+
   async getByCode(code: string) {
     const found = await this.repo.findByCode(code);
     const ov = await this.overlay.findByCode(code);

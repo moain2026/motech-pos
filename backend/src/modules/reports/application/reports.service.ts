@@ -68,6 +68,41 @@ export class ReportsService {
     return this.repo.zReport(filter);
   }
 
+  /** Slow-moving items (least/zero sold in the period). */
+  slowMoving(filter: DateRangeFilter & { limit: number; maxQty: number }) {
+    return this.repo.slowMoving(filter);
+  }
+
+  /** Profit per item (revenue vs PRIMARY_COST). */
+  profitReport(filter: DateRangeFilter & { limit: number }) {
+    return this.repo.profitReport(filter);
+  }
+
+  /** Two-period sales comparison with deltas. */
+  comparison(periods: {
+    fromA: string;
+    toA: string;
+    fromB: string;
+    toB: string;
+  }) {
+    return this.repo.comparison(periods);
+  }
+
+  /** Full movement history of one item (sales + returns). */
+  itemMovement(filter: DateRangeFilter & { iCode: string; limit: number }) {
+    return this.repo.itemMovement(filter);
+  }
+
+  /** Deleted-lines audit trail (IAS_POS_AUD_ITEM). */
+  auditReport(filter: DateRangeFilter & { limit: number }) {
+    return this.repo.auditReport(filter);
+  }
+
+  /** Detailed VAT report (rate x category). */
+  vatDetailed(filter: DateRangeFilter) {
+    return this.repo.vatDetailed(filter);
+  }
+
   //==========================================================================
   // MOTECH_POS reports (our own recorded sales)
   //==========================================================================

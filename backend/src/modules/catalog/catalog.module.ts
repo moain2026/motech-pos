@@ -5,11 +5,14 @@ import { ITEM_OVERLAY_REPOSITORY } from './domain/ports/item-overlay.port';
 import { ITEM_REPOSITORY } from './domain/ports/item-repository.port';
 import { OracleItemOverlayRepository } from './infrastructure/oracle-item-overlay.repository';
 import { OracleItemRepository } from './infrastructure/oracle-item.repository';
-import { CatalogController } from './presentation/catalog.controller';
+import {
+  CatalogController,
+  CategoriesController,
+} from './presentation/catalog.controller';
 
 @Module({
   imports: [AuthModule],
-  controllers: [CatalogController],
+  controllers: [CatalogController, CategoriesController],
   providers: [
     CatalogService,
     { provide: ITEM_REPOSITORY, useClass: OracleItemRepository },

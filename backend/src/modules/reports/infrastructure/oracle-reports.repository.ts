@@ -2,17 +2,25 @@ import { Injectable } from '@nestjs/common';
 import type { BindParameters } from 'oracledb';
 import { OracleService } from '../../../infrastructure/oracle/oracle.service';
 import {
+  AuditReportRow,
   CategoryReportRow,
+  ComparisonPeriod,
+  ComparisonReport,
   CustomerReportRow,
   DailyReportRow,
   DateRangeFilter,
   DiscountReportRow,
   HourlyReportRow,
+  ItemMovementReport,
+  ItemMovementRow,
   ItemReportRow,
   MachineReportRow,
   MonthlyReportRow,
+  ProfitReportRow,
   ReportsRepository,
+  SlowMovingRow,
   TaxReportRow,
+  VatDetailedRow,
   ZPaymentSlice,
   ZReportSummary,
 } from '../domain/ports/reports-repository.port';
@@ -426,5 +434,384 @@ export class OracleReportsRepository implements ReportsRepository {
       lastBillTime: row?.LAST_TIME ?? null,
       byPayment,
     };
+  }
+
+  //==========================================================================
+  // Historical / advanced reports (slow-moving, profit, comparison,
+  // item-movement, audit trail, detailed VAT). All READ-ONLY,
+  // schema-qualified, bind variables only.
+  //==========================================================================
+
+  async slowMoving(
+    filter: DateRangeFilter & { limit: number; maxQty: number },
+  ): Promise<SlowMovingRow[]> {
+    // LEFT JOIN the item master against the period's sales so items with ZERO
+    // sales also appear (totalQty = 0), sorted slowest-first.
+    const { where, binds } = this.range(filter, 'm');
+    binds.lim = filter.limit;
+    binds.maxQty = filter.maxQty;
+    type Row = {
+      I_CODE: string;
+      I_NAME: string | null;
+      TOTAL_QTY: number | null;
+      TOTAL_AMT: number | null;
+      LINE_COUNT: number | null;
+      LAST_SOLD: string | null;
+    };
+    const rows = await this.oracle.query<Row>(
+      `SELECT * FROM (
+         SELECT im.I_CODE                             AS I_CODE,
+                im.I_NAME                             AS I_NAME,
+                NVL(s.TOTAL_QTY, 0)                   AS TOTAL_QTY,
+                NVL(s.TOTAL_AMT, 0)                   AS TOTAL_AMT,
+                NVL(s.LINE_COUNT, 0)                  AS LINE_COUNT,
+                s.LAST_SOLD                           AS LAST_SOLD
+         FROM ${this.masterSchema}.IAS_ITM_MST im
+         LEFT JOIN (
+           SELECT d.I_CODE,
+                  SUM(d.I_QTY)                             AS TOTAL_QTY,
+                  SUM(d.I_QTY * NVL(d.I_PRICE, 0))         AS TOTAL_AMT,
+                  COUNT(*)                                 AS LINE_COUNT,
+                  TO_CHAR(MAX(m.BILL_DATE), 'YYYY-MM-DD')  AS LAST_SOLD
+           FROM ${this.schema}.IAS_POS_BILL_DTL d
+           JOIN ${this.schema}.IAS_POS_BILL_MST m ON m.BILL_NO = d.BILL_NO
+           WHERE ${where.join(' AND ')}
+           GROUP BY d.I_CODE
+         ) s ON s.I_CODE = im.I_CODE
+         WHERE NVL(s.TOTAL_QTY, 0) <= :maxQty
+         ORDER BY NVL(s.TOTAL_QTY, 0) ASC, im.I_CODE
+       ) WHERE ROWNUM <= :lim`,
+      binds as BindParameters,
+    );
+    return rows.map((r) => ({
+      iCode: r.I_CODE,
+      iName: r.I_NAME,
+      totalQty: Number(r.TOTAL_QTY ?? 0),
+      totalAmt: Number(r.TOTAL_AMT ?? 0),
+      lineCount: Number(r.LINE_COUNT ?? 0),
+      lastSoldDay: r.LAST_SOLD ?? null,
+    }));
+  }
+
+  async profitReport(
+    filter: DateRangeFilter & { limit: number },
+  ): Promise<ProfitReportRow[]> {
+    // Cost source: IAS202623.IAS_ITM_MST.PRIMARY_COST. Items with no recorded
+    // cost (0/NULL) still appear with costAvailable=false so the caller can
+    // distinguish "no profit" from "no cost data".
+    const { where, binds } = this.range(filter, 'm');
+    binds.lim = filter.limit;
+    type Row = {
+      I_CODE: string;
+      I_NAME: string | null;
+      TOTAL_QTY: number;
+      REVENUE: number;
+      COST: number;
+      HAS_COST: number;
+    };
+    const rows = await this.oracle.query<Row>(
+      `SELECT * FROM (
+         SELECT d.I_CODE                                          AS I_CODE,
+                MAX(im.I_NAME)                                    AS I_NAME,
+                SUM(d.I_QTY)                                      AS TOTAL_QTY,
+                SUM(d.I_QTY * NVL(d.I_PRICE, 0))                  AS REVENUE,
+                SUM(d.I_QTY * NVL(im.PRIMARY_COST, 0))            AS COST,
+                MAX(CASE WHEN NVL(im.PRIMARY_COST, 0) > 0 THEN 1 ELSE 0 END)
+                                                                  AS HAS_COST
+         FROM ${this.schema}.IAS_POS_BILL_DTL d
+         JOIN ${this.schema}.IAS_POS_BILL_MST m ON m.BILL_NO = d.BILL_NO
+         LEFT JOIN ${this.masterSchema}.IAS_ITM_MST im ON im.I_CODE = d.I_CODE
+         WHERE ${where.join(' AND ')}
+         GROUP BY d.I_CODE
+         ORDER BY SUM(d.I_QTY * NVL(d.I_PRICE, 0))
+                  - SUM(d.I_QTY * NVL(im.PRIMARY_COST, 0)) DESC
+       ) WHERE ROWNUM <= :lim`,
+      binds as BindParameters,
+    );
+    return rows.map((r) => {
+      const revenue = Number(r.REVENUE ?? 0);
+      const cost = Number(r.COST ?? 0);
+      const profit = revenue - cost;
+      return {
+        iCode: r.I_CODE,
+        iName: r.I_NAME,
+        totalQty: Number(r.TOTAL_QTY ?? 0),
+        revenue,
+        cost,
+        profit,
+        marginPct: revenue > 0 ? (profit / revenue) * 100 : 0,
+        costAvailable: Number(r.HAS_COST) === 1,
+      };
+    });
+  }
+
+  /** Aggregate one comparison side ([from, to] inclusive). */
+  private async comparisonSlice(
+    from: string,
+    to: string,
+  ): Promise<ComparisonPeriod> {
+    type Row = {
+      BILL_COUNT: number;
+      TOTAL_AMT: number;
+      TOTAL_VAT: number;
+      TOTAL_DISC: number;
+    };
+    const [row] = await this.oracle.query<Row>(
+      `SELECT COUNT(*)              AS BILL_COUNT,
+              NVL(SUM(BILL_AMT), 0) AS TOTAL_AMT,
+              SUM(NVL(VAT_AMT, 0))  AS TOTAL_VAT,
+              SUM(NVL(DISC_AMT, 0)) AS TOTAL_DISC
+       FROM ${this.schema}.IAS_POS_BILL_MST
+       WHERE HUNG = 0
+         AND BILL_DATE >= TO_DATE(:fromD, 'YYYY-MM-DD')
+         AND BILL_DATE < TO_DATE(:toD, 'YYYY-MM-DD') + 1`,
+      { fromD: from, toD: to } as BindParameters,
+    );
+    const billCount = Number(row?.BILL_COUNT ?? 0);
+    const totalAmt = Number(row?.TOTAL_AMT ?? 0);
+    return {
+      from,
+      to,
+      billCount,
+      totalAmt,
+      totalVat: Number(row?.TOTAL_VAT ?? 0),
+      totalDisc: Number(row?.TOTAL_DISC ?? 0),
+      avgBill: billCount > 0 ? totalAmt / billCount : 0,
+    };
+  }
+
+  async comparison(periods: {
+    fromA: string;
+    toA: string;
+    fromB: string;
+    toB: string;
+  }): Promise<ComparisonReport> {
+    const [periodA, periodB] = await Promise.all([
+      this.comparisonSlice(periods.fromA, periods.toA),
+      this.comparisonSlice(periods.fromB, periods.toB),
+    ]);
+    const deltaAmt = periodA.totalAmt - periodB.totalAmt;
+    const deltaBills = periodA.billCount - periodB.billCount;
+    return {
+      periodA,
+      periodB,
+      deltaAmt,
+      deltaAmtPct:
+        periodB.totalAmt !== 0 ? (deltaAmt / periodB.totalAmt) * 100 : 0,
+      deltaBills,
+      deltaBillsPct:
+        periodB.billCount !== 0 ? (deltaBills / periodB.billCount) * 100 : 0,
+    };
+  }
+
+  async itemMovement(
+    filter: DateRangeFilter & { iCode: string; limit: number },
+  ): Promise<ItemMovementReport> {
+    // Sales come from IAS_POS_BILL_DTL/MST, returns from IAS_POS_RT_BILL_DTL/
+    // MST (qty negated). UNION ALL keeps both legs schema-qualified + bound.
+    const binds: Record<string, unknown> = {
+      iCode: filter.iCode,
+      lim: filter.limit,
+    };
+    const saleWhere = ['m.HUNG = 0', 'd.I_CODE = :iCode'];
+    const retWhere = ['rm.HUNG = 0', 'rd.I_CODE = :iCode'];
+    if (filter.from) {
+      saleWhere.push(`m.BILL_DATE >= TO_DATE(:fromD, 'YYYY-MM-DD')`);
+      retWhere.push(`rm.RT_BILL_DATE >= TO_DATE(:fromD, 'YYYY-MM-DD')`);
+      binds.fromD = filter.from;
+    }
+    if (filter.to) {
+      saleWhere.push(`m.BILL_DATE < TO_DATE(:toD, 'YYYY-MM-DD') + 1`);
+      retWhere.push(`rm.RT_BILL_DATE < TO_DATE(:toD, 'YYYY-MM-DD') + 1`);
+      binds.toD = filter.to;
+    }
+    type Row = {
+      MOVE_TYPE: string;
+      BILL_NO: number;
+      DAY: string;
+      BILL_TIME: string | null;
+      QTY: number;
+      PRICE: number;
+      MACHINE_NO: number | null;
+    };
+    const rows = await this.oracle.query<Row>(
+      `SELECT * FROM (
+         SELECT 'SALE'                                   AS MOVE_TYPE,
+                m.BILL_NO                                AS BILL_NO,
+                TO_CHAR(m.BILL_DATE, 'YYYY-MM-DD')       AS DAY,
+                m.BILL_TIME                              AS BILL_TIME,
+                d.I_QTY                                  AS QTY,
+                NVL(d.I_PRICE, 0)                        AS PRICE,
+                m.MACHINE_NO                             AS MACHINE_NO
+         FROM ${this.schema}.IAS_POS_BILL_DTL d
+         JOIN ${this.schema}.IAS_POS_BILL_MST m ON m.BILL_NO = d.BILL_NO
+         WHERE ${saleWhere.join(' AND ')}
+         UNION ALL
+         SELECT 'RETURN'                                 AS MOVE_TYPE,
+                rm.RT_BILL_NO                            AS BILL_NO,
+                TO_CHAR(rm.RT_BILL_DATE, 'YYYY-MM-DD')   AS DAY,
+                rm.RT_BILL_TIME                          AS BILL_TIME,
+                -rd.I_QTY                                AS QTY,
+                NVL(rd.I_PRICE, 0)                       AS PRICE,
+                rm.MACHINE_NO                            AS MACHINE_NO
+         FROM ${this.schema}.IAS_POS_RT_BILL_DTL rd
+         JOIN ${this.schema}.IAS_POS_RT_BILL_MST rm
+           ON rm.RT_BILL_NO = rd.RT_BILL_NO
+         WHERE ${retWhere.join(' AND ')}
+         ORDER BY DAY DESC, BILL_TIME DESC
+       ) WHERE ROWNUM <= :lim`,
+      binds as BindParameters,
+    );
+    // Arabic item name from the master schema.
+    type NameRow = { I_NAME: string | null };
+    const [nameRow] = await this.oracle.query<NameRow>(
+      `SELECT I_NAME FROM ${this.masterSchema}.IAS_ITM_MST WHERE I_CODE = :iCode`,
+      { iCode: filter.iCode } as BindParameters,
+    );
+    const movements: ItemMovementRow[] = rows.map((r) => {
+      const qty = Number(r.QTY ?? 0);
+      const price = Number(r.PRICE ?? 0);
+      return {
+        moveType: r.MOVE_TYPE === 'RETURN' ? 'RETURN' : 'SALE',
+        billNo: Number(r.BILL_NO),
+        day: r.DAY,
+        time: r.BILL_TIME ?? null,
+        qty,
+        price,
+        amount: qty * price,
+        machineNo: r.MACHINE_NO == null ? null : Number(r.MACHINE_NO),
+      };
+    });
+    const totalSoldQty = movements
+      .filter((mv) => mv.moveType === 'SALE')
+      .reduce((s, mv) => s + mv.qty, 0);
+    const totalReturnedQty = movements
+      .filter((mv) => mv.moveType === 'RETURN')
+      .reduce((s, mv) => s + Math.abs(mv.qty), 0);
+    return {
+      iCode: filter.iCode,
+      iName: nameRow?.I_NAME ?? null,
+      totalSoldQty,
+      totalReturnedQty,
+      netQty: totalSoldQty - totalReturnedQty,
+      netAmt: movements.reduce((s, mv) => s + mv.amount, 0),
+      movements,
+    };
+  }
+
+  async auditReport(
+    filter: DateRangeFilter & { limit: number },
+  ): Promise<AuditReportRow[]> {
+    // IAS_POS_AUD_ITEM records every line DELETED off a bill at the POS
+    // (deleted-item audit trail; POSR005 domain). Filter on AUD_DATE (when
+    // the deletion happened) and resolve the deleting user's Arabic name.
+    const where: string[] = ['1 = 1'];
+    const binds: Record<string, unknown> = { lim: filter.limit };
+    if (filter.from) {
+      where.push(`a.AUD_DATE >= TO_DATE(:fromD, 'YYYY-MM-DD')`);
+      binds.fromD = filter.from;
+    }
+    if (filter.to) {
+      where.push(`a.AUD_DATE < TO_DATE(:toD, 'YYYY-MM-DD') + 1`);
+      binds.toD = filter.to;
+    }
+    type Row = {
+      BILL_NO: number;
+      BILL_DAY: string | null;
+      BILL_TIME: string | null;
+      I_CODE: string;
+      I_NAME: string | null;
+      I_QTY: number;
+      I_PRICE: number;
+      MACHINE_NO: number | null;
+      HUNG_BILL: number | null;
+      AUD_U_ID: number | null;
+      U_A_NAME: string | null;
+      AUDITED_AT: string | null;
+    };
+    const rows = await this.oracle.query<Row>(
+      `SELECT * FROM (
+         SELECT a.BILL_NO                                    AS BILL_NO,
+                TO_CHAR(a.BILL_DATE, 'YYYY-MM-DD')           AS BILL_DAY,
+                a.BILL_TIME                                  AS BILL_TIME,
+                a.I_CODE                                     AS I_CODE,
+                im.I_NAME                                    AS I_NAME,
+                a.I_QTY                                      AS I_QTY,
+                NVL(a.I_PRICE, 0)                            AS I_PRICE,
+                a.MACHINE_NO                                 AS MACHINE_NO,
+                a.HUNG_BILL                                  AS HUNG_BILL,
+                a.AUD_U_ID                                   AS AUD_U_ID,
+                u.U_A_NAME                                   AS U_A_NAME,
+                TO_CHAR(a.AUD_DATE, 'YYYY-MM-DD HH24:MI:SS') AS AUDITED_AT
+         FROM ${this.schema}.IAS_POS_AUD_ITEM a
+         LEFT JOIN ${this.masterSchema}.IAS_ITM_MST im ON im.I_CODE = a.I_CODE
+         LEFT JOIN ${this.masterSchema}.USER_R u ON u.U_ID = a.AUD_U_ID
+         WHERE ${where.join(' AND ')}
+         ORDER BY a.AUD_DATE DESC
+       ) WHERE ROWNUM <= :lim`,
+      binds as BindParameters,
+    );
+    return rows.map((r) => {
+      const qty = Number(r.I_QTY ?? 0);
+      const price = Number(r.I_PRICE ?? 0);
+      return {
+        billNo: Number(r.BILL_NO),
+        billDay: r.BILL_DAY ?? null,
+        billTime: r.BILL_TIME ?? null,
+        iCode: r.I_CODE,
+        iName: r.I_NAME,
+        qty,
+        price,
+        amount: qty * price,
+        machineNo: r.MACHINE_NO == null ? null : Number(r.MACHINE_NO),
+        fromHungBill: Number(r.HUNG_BILL ?? 0) === 1,
+        auditUserId: r.AUD_U_ID == null ? null : Number(r.AUD_U_ID),
+        auditUserName: r.U_A_NAME ?? null,
+        auditedAt: r.AUDITED_AT ?? null,
+      };
+    });
+  }
+
+  async vatDetailed(filter: DateRangeFilter): Promise<VatDetailedRow[]> {
+    // Effective VAT rate: the line's VAT_PER when recorded, else the item
+    // master's VAT_PER, else 0. Grouped by rate x item category (ITEM_TYPES).
+    const { where, binds } = this.range(filter, 'm');
+    type Row = {
+      VAT_RATE: number;
+      CATEGORY_NO: number | null;
+      CATEGORY_NAME: string | null;
+      LINE_COUNT: number;
+      TOTAL_QTY: number;
+      GROSS_AMT: number;
+      VAT_AMT: number;
+    };
+    const rows = await this.oracle.query<Row>(
+      `SELECT NVL(d.VAT_PER, NVL(im.VAT_PER, 0))     AS VAT_RATE,
+              im.ITEM_TYPE                           AS CATEGORY_NO,
+              MAX(it.IT_A_NAME)                      AS CATEGORY_NAME,
+              COUNT(*)                               AS LINE_COUNT,
+              SUM(d.I_QTY)                           AS TOTAL_QTY,
+              SUM(d.I_QTY * NVL(d.I_PRICE, 0))       AS GROSS_AMT,
+              SUM(NVL(d.VAT_AMT, 0))                 AS VAT_AMT
+       FROM ${this.schema}.IAS_POS_BILL_DTL d
+       JOIN ${this.schema}.IAS_POS_BILL_MST m ON m.BILL_NO = d.BILL_NO
+       LEFT JOIN ${this.masterSchema}.IAS_ITM_MST im ON im.I_CODE = d.I_CODE
+       LEFT JOIN ${this.masterSchema}.ITEM_TYPES it
+              ON it.TYPE_OF_ITEM = im.ITEM_TYPE
+       WHERE ${where.join(' AND ')}
+       GROUP BY NVL(d.VAT_PER, NVL(im.VAT_PER, 0)), im.ITEM_TYPE
+       ORDER BY NVL(d.VAT_PER, NVL(im.VAT_PER, 0)) DESC,
+                SUM(d.I_QTY * NVL(d.I_PRICE, 0)) DESC`,
+      binds as BindParameters,
+    );
+    return rows.map((r) => ({
+      vatRate: Number(r.VAT_RATE ?? 0),
+      categoryNo: r.CATEGORY_NO == null ? null : Number(r.CATEGORY_NO),
+      categoryName: r.CATEGORY_NAME,
+      lineCount: Number(r.LINE_COUNT),
+      totalQty: Number(r.TOTAL_QTY ?? 0),
+      grossAmt: Number(r.GROSS_AMT ?? 0),
+      vatAmt: Number(r.VAT_AMT ?? 0),
+    }));
   }
 }

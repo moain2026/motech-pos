@@ -117,3 +117,98 @@ describe('Catalog — OracleItemRepository against real data', () => {
     );
   });
 });
+
+describe('Catalog — advanced (prices / units / categories / filters)', () => {
+  it('lists ALL price-list rows for a real item (IAS_ITEM_PRICE)', async () => {
+    // 1010010013 has two price rows: كيس (base, 850) and قطمه (20-pack, 17000)
+    const prices = await repo.listPrices('1010010013');
+    expect(prices.length).toBeGreaterThanOrEqual(2);
+    expect(prices.every((p) => p.levNo >= 1 && p.price > 0)).toBe(true);
+    const base = prices.find((p) => p.packSize === 1);
+    const pack = prices.find((p) => (p.packSize ?? 0) > 1);
+    expect(base?.price).toBe(850);
+    expect(pack?.price).toBe(17000);
+  });
+
+  it('resolves the price for a chosen level (base unit by default)', async () => {
+    const p = await repo.findPriceAtLevel('1010010013', 1);
+    expect(p).not.toBeNull();
+    expect(p?.levNo).toBe(1);
+    expect(p?.packSize).toBe(1); // smallest pack → base unit
+    expect(p?.price).toBe(850);
+  });
+
+  it('resolves the price for a chosen level + explicit unit', async () => {
+    const all = await repo.listPrices('1010010013');
+    const pack = all.find((r) => (r.packSize ?? 0) > 1);
+    expect(pack).toBeTruthy();
+    const p = await repo.findPriceAtLevel('1010010013', 1, pack?.unit);
+    expect(p?.unit).toBe(pack?.unit);
+    expect(p?.price).toBe(pack?.price);
+  });
+
+  it('returns null for a price level that does not exist', async () => {
+    const p = await repo.findPriceAtLevel('1010010013', 99);
+    expect(p).toBeNull();
+  });
+
+  it('lists units of measure with conversion factors (IAS_ITM_DTL)', async () => {
+    const units = await repo.listUnits('1010010013');
+    expect(units.length).toBeGreaterThanOrEqual(2);
+    const main = units.find((u) => u.isMainUnit);
+    expect(main).toBeTruthy();
+    expect(main?.packSize).toBe(1);
+    expect(main?.barcode).toBe('6287002861172');
+    const pack = units.find((u) => u.packSize > 1);
+    expect(pack?.packSize).toBe(20); // 1 قطمه = 20 كيس
+    // ordered ascending by pack size (base first)
+    const sizes = units.map((u) => u.packSize);
+    expect([...sizes].sort((a, b) => a - b)).toEqual(sizes);
+  });
+
+  it('builds the category tree with item counts (GROUP_DETAILS)', async () => {
+    const tree = await repo.listCategories();
+    expect(tree.length).toBeGreaterThan(0);
+    const total = tree.reduce((a, g) => a + g.itemCount, 0);
+    expect(total).toBeGreaterThan(2000); // 2,391 items in the master
+    const withChildren = tree.find((g) => g.children.length > 0);
+    expect(withChildren).toBeTruthy();
+    expect(withChildren?.name).toBeTruthy(); // Arabic names present
+  });
+
+  it('lists item nature types (ITEM_TYPES)', async () => {
+    const types = await repo.listItemTypes();
+    expect(types.length).toBe(2); // موزونة / غير موزونة
+    expect(types.every((t) => t.name)).toBe(true);
+  });
+
+  it('filters the item list by category (G_CODE)', async () => {
+    const tree = await repo.listCategories();
+    const g = tree.find((x) => x.itemCount > 0);
+    expect(g).toBeTruthy();
+    const res = await repo.list({ limit: 10, category: g?.code });
+    expect(res.items.length).toBeGreaterThan(0);
+  });
+
+  it('filters weighted (scale) items only', async () => {
+    const res = await repo.list({ limit: 10, weighted: true });
+    expect(res.items.length).toBeGreaterThan(0); // 18 weighted items exist
+    expect(res.items.length).toBeLessThanOrEqual(10);
+  });
+
+  it('filters by price range using the live price list', async () => {
+    const res = await repo.list({ limit: 10, minPrice: 500, maxPrice: 1000 });
+    expect(res.items.length).toBeGreaterThan(0);
+    for (const i of res.items) {
+      const p = i.lastPrice()?.toNumber();
+      expect(p).not.toBeNull();
+      expect(p!).toBeGreaterThanOrEqual(500);
+      expect(p!).toBeLessThanOrEqual(1000);
+    }
+  });
+
+  it('item detail prefers the LIVE price list over last-sale price', async () => {
+    const detail = await repo.findByCode('1010010013');
+    expect(detail?.item.lastPrice()?.toNumber()).toBe(850); // IAS_ITEM_PRICE LEV 1
+  });
+});
