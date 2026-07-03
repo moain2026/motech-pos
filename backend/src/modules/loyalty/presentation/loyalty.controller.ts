@@ -40,4 +40,28 @@ export class LoyaltyController {
     ]);
     return { data: { balance, ledger }, meta: { count: ledger.length } };
   }
+
+  @Get('customers/:code/ledger')
+  @ApiOperation({
+    summary:
+      'Full points movement history with running balance per row (POST021)',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async ledger(@Param('code') code: string, @Query() q: LedgerQuery) {
+    const view = await this.loyalty.customerLedger(code, q.limit ?? 100);
+    return {
+      data: view,
+      meta: { count: view.entries.length },
+    };
+  }
+
+  @Get('summary')
+  @ApiOperation({
+    summary: 'Chain-wide loyalty totals: granted vs redeemed points (POST021)',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async summary() {
+    const data = await this.loyalty.summary();
+    return { data, meta: {} };
+  }
 }

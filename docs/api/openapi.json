@@ -420,6 +420,113 @@
                 ]
             }
         },
+        "/api/v1/shifts/{id}/count": {
+            "post": {
+                "operationId": "ShiftsController_count",
+                "summary": "Save counted cash by denominations (POST013); sum = actual cash. Replaces a previous count.",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ShiftCountDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "shifts"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/shifts/{id}/settle": {
+            "post": {
+                "operationId": "ShiftsController_settle",
+                "summary": "Approve the settlement (POST013): expected vs counted denominations → over/short, status SETTLED (irreversible)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SettleShiftDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "shifts"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/shifts/{id}/settlement": {
+            "get": {
+                "operationId": "ShiftsController_settlement",
+                "summary": "Final settlement view: expected, counted by denominations, difference, status",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "shifts"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
         "/api/v1/shifts/{id}/summary": {
             "get": {
                 "operationId": "ShiftsController_summary",
@@ -1317,6 +1424,91 @@
                 ]
             }
         },
+        "/api/v1/customers/{code}/credit-bills": {
+            "get": {
+                "operationId": "CustomersController_creditBills",
+                "summary": "Customer's credit (آجل) bills + outstanding debtor balance (POST010/011)",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "customers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/customers/{code}/collect": {
+            "post": {
+                "operationId": "CustomersController_collect",
+                "summary": "Record a collection receipt against a credit bill (POST010/011)",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "idempotency-key",
+                        "required": true,
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "description": "uuid — mandatory; replays return the same receipt (no dup)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CollectDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "customers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
         "/api/v1/loyalty/customers/{code}/points": {
             "get": {
                 "operationId": "LoyaltyController_points",
@@ -1331,6 +1523,55 @@
                         }
                     }
                 ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "loyalty"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/loyalty/customers/{code}/ledger": {
+            "get": {
+                "operationId": "LoyaltyController_ledger",
+                "summary": "Full points movement history with running balance per row (POST021)",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "loyalty"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/loyalty/summary": {
+            "get": {
+                "operationId": "LoyaltyController_summary",
+                "summary": "Chain-wide loyalty totals: granted vs redeemed points (POST021)",
+                "parameters": [],
                 "responses": {
                     "200": {
                         "description": "Envelope { data, meta }"
@@ -1418,8 +1659,75 @@
         "/api/v1/admin/machines": {
             "get": {
                 "operationId": "AdminController_machines",
-                "summary": "POS cashier machines + status (IAS_POS_MACHINE)",
+                "summary": "POS cashier machines + status (IAS_POS_MACHINE merged with overlay)",
                 "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "admin"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "AdminController_createMachine",
+                "summary": "Add a cashier machine (LOCAL overlay in MOTECH_POS) — admin only",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAdminMachineDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "admin"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/machines/{no}": {
+            "put": {
+                "operationId": "AdminController_updateMachine",
+                "summary": "Edit a cashier machine (overlay of ERP/local row) — admin only",
+                "parameters": [
+                    {
+                        "name": "no",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateAdminMachineDto"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Envelope { data, meta }"
@@ -1438,8 +1746,114 @@
         "/api/v1/admin/users": {
             "get": {
                 "operationId": "AdminController_users",
-                "summary": "System users with Arabic names (USER_R)",
+                "summary": "System users (USER_R merged with local overlay, Arabic names)",
                 "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "admin"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "AdminController_createUser",
+                "summary": "Create a POS user (LOCAL overlay in MOTECH_POS) — admin only",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateAdminUserDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "admin"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/users/{id}": {
+            "put": {
+                "operationId": "AdminController_updateUser",
+                "summary": "Edit a POS user (overlay of ERP/local row) — admin only",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateAdminUserDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "admin"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/users/{id}/status": {
+            "put": {
+                "operationId": "AdminController_setUserStatus",
+                "summary": "Enable/disable a POS user — admin only",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/SetUserStatusDto"
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Envelope { data, meta }"
@@ -1463,6 +1877,54 @@
                 "responses": {
                     "200": {
                         "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "admin"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/permissions": {
+            "get": {
+                "operationId": "AdminController_permissions",
+                "summary": "Role → action permission matrix (MOTECH_POS.ROLE_PERMISSIONS)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "admin"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "put": {
+                "operationId": "AdminController_setPermissions",
+                "summary": "Update role permissions (MERGE into ROLE_PERMISSIONS) — admin only",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdatePermissionsDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta } with refreshed matrix"
                     }
                 },
                 "tags": [
@@ -1987,6 +2449,82 @@
                     }
                 }
             },
+            "DenominationLineDto": {
+                "type": "object",
+                "properties": {
+                    "value": {
+                        "type": "number",
+                        "example": 1000,
+                        "description": "Denomination face value"
+                    },
+                    "count": {
+                        "type": "number",
+                        "example": 5,
+                        "description": "How many notes/coins counted"
+                    }
+                },
+                "required": [
+                    "value",
+                    "count"
+                ]
+            },
+            "ShiftCountDto": {
+                "type": "object",
+                "properties": {
+                    "currency": {
+                        "type": "string",
+                        "example": "YER",
+                        "description": "Currency of the count (defaults to shift currency)"
+                    },
+                    "denominations": {
+                        "example": [
+                            {
+                                "value": 1000,
+                                "count": 5
+                            },
+                            {
+                                "value": 500,
+                                "count": 10
+                            },
+                            {
+                                "value": 250,
+                                "count": 8
+                            },
+                            {
+                                "value": 100,
+                                "count": 20
+                            }
+                        ],
+                        "description": "Counted cash by denomination; the sum is the actual cash",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DenominationLineDto"
+                        }
+                    }
+                },
+                "required": [
+                    "denominations"
+                ]
+            },
+            "SettleShiftDto": {
+                "type": "object",
+                "properties": {
+                    "settledBy": {
+                        "type": "number",
+                        "example": 12,
+                        "description": "Approving user/cashier number"
+                    },
+                    "note": {
+                        "type": "string",
+                        "example": "End-of-day settlement"
+                    },
+                    "cashExpenses": {
+                        "type": "number",
+                        "example": 0,
+                        "description": "Override cash expenses when computing expected cash"
+                    }
+                }
+            },
             "PostBillLineDto": {
                 "type": "object",
                 "properties": {
@@ -2427,6 +2965,208 @@
                         "type": "boolean"
                     }
                 }
+            },
+            "CollectDto": {
+                "type": "object",
+                "properties": {}
+            },
+            "CreateAdminMachineDto": {
+                "type": "object",
+                "properties": {
+                    "machineNo": {
+                        "type": "number",
+                        "description": "Machine number (MACHINE_NO) — business key"
+                    },
+                    "terminal": {
+                        "type": "string",
+                        "description": "Terminal name (TERMINAL)"
+                    },
+                    "branchNo": {
+                        "type": "number",
+                        "description": "Default branch (DEF_BRN_NO)"
+                    },
+                    "warehouse": {
+                        "type": "number",
+                        "description": "Default warehouse (DEF_WCODE)"
+                    },
+                    "ipAddress": {
+                        "type": "string"
+                    },
+                    "priceLevel": {
+                        "type": "number"
+                    },
+                    "useVat": {
+                        "type": "boolean"
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "Default currency (CURR_DFLT)"
+                    },
+                    "inactive": {
+                        "type": "boolean",
+                        "description": "true = disabled"
+                    }
+                },
+                "required": [
+                    "machineNo"
+                ]
+            },
+            "UpdateAdminMachineDto": {
+                "type": "object",
+                "properties": {
+                    "terminal": {
+                        "type": "string"
+                    },
+                    "branchNo": {
+                        "type": "number"
+                    },
+                    "warehouse": {
+                        "type": "number"
+                    },
+                    "ipAddress": {
+                        "type": "string"
+                    },
+                    "priceLevel": {
+                        "type": "number"
+                    },
+                    "useVat": {
+                        "type": "boolean"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "inactive": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "CreateAdminUserDto": {
+                "type": "object",
+                "properties": {
+                    "userId": {
+                        "type": "number",
+                        "description": "Business user id (U_ID). Omit to auto-assign a local id (>= 9000)."
+                    },
+                    "arName": {
+                        "type": "string",
+                        "description": "Arabic name (U_A_NAME)"
+                    },
+                    "enName": {
+                        "type": "string",
+                        "description": "English name (U_E_NAME)"
+                    },
+                    "code": {
+                        "type": "string",
+                        "description": "User code (U_CODE)"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "cashier",
+                            "supervisor",
+                            "admin"
+                        ],
+                        "description": "RBAC role for the user"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "authUsername": {
+                        "type": "string",
+                        "description": "Linked auth-users.json username (login account)"
+                    },
+                    "inactive": {
+                        "type": "boolean",
+                        "description": "true = disabled"
+                    }
+                },
+                "required": [
+                    "role"
+                ]
+            },
+            "UpdateAdminUserDto": {
+                "type": "object",
+                "properties": {
+                    "arName": {
+                        "type": "string"
+                    },
+                    "enName": {
+                        "type": "string"
+                    },
+                    "code": {
+                        "type": "string"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "cashier",
+                            "supervisor",
+                            "admin"
+                        ]
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "authUsername": {
+                        "type": "string"
+                    },
+                    "inactive": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "SetUserStatusDto": {
+                "type": "object",
+                "properties": {
+                    "active": {
+                        "type": "boolean",
+                        "description": "true = active (enabled), false = disabled"
+                    }
+                },
+                "required": [
+                    "active"
+                ]
+            },
+            "PermissionEntryDto": {
+                "type": "object",
+                "properties": {
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "cashier",
+                            "supervisor",
+                            "admin"
+                        ]
+                    },
+                    "permission": {
+                        "type": "string",
+                        "description": "Permission code (SALE, RETURN, DISCOUNT, VOID, HOLD, REPORTS, SETTINGS, SHIFT_OPEN, SHIFT_CLOSE, PRICE_OVERRIDE, VOUCHERS, EINVOICE)",
+                        "example": "DISCOUNT"
+                    },
+                    "allowed": {
+                        "type": "boolean",
+                        "description": "true = role may perform the action"
+                    }
+                },
+                "required": [
+                    "role",
+                    "permission",
+                    "allowed"
+                ]
+            },
+            "UpdatePermissionsDto": {
+                "type": "object",
+                "properties": {
+                    "entries": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PermissionEntryDto"
+                        }
+                    }
+                },
+                "required": [
+                    "entries"
+                ]
             },
             "CreateVoucherDto": {
                 "type": "object",

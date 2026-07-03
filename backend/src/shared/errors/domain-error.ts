@@ -239,3 +239,24 @@ export class SyncBillNotFoundError extends DomainError {
   readonly httpStatus = 404;
   readonly title = 'Bill not found for sync';
 }
+
+/** The requested credit (آجل) bill does not exist / has no CREDIT debt. */
+export class CreditBillNotFoundError extends DomainError {
+  readonly typeSlug = 'credit-bill-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Credit bill not found for customer';
+}
+
+/** A collection receipt would exceed the remaining credit debt. */
+export class CollectionExceedsDebtError extends DomainError {
+  readonly typeSlug = 'collection-exceeds-debt';
+  readonly httpStatus = 422;
+  readonly title = 'Collection exceeds outstanding credit debt';
+}
+
+/** Invalid collection input (amount/rate/method). */
+export class InvalidCollectionError extends DomainError {
+  readonly typeSlug = 'invalid-collection';
+  readonly httpStatus = 422;
+  readonly title = 'Invalid collection';
+}

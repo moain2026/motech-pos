@@ -1,5 +1,13 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
+import {
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+} from 'class-validator';
 
 export class CustomerSearchQuery {
   @IsOptional()
@@ -22,4 +30,11 @@ export class PointsQuery {
   @Min(1)
   @Max(500)
   limit?: number = 100;
+}
+
+/** ?status=open (default — unsettled only) | all (settled included). */
+export class CreditBillsQuery {
+  @IsOptional()
+  @IsIn(['open', 'all'])
+  status?: 'open' | 'all' = 'open';
 }

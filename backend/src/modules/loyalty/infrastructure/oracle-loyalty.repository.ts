@@ -7,6 +7,7 @@ import {
   InsertEarnInput,
   InsertRedeemInput,
   LoyaltyRepository,
+  LoyaltySummary,
   PointsLedgerRow,
 } from '../domain/ports/loyalty-repository.port';
 
@@ -171,6 +172,40 @@ export class OracleLoyaltyRepository implements LoyaltyRepository {
       { c: customerCode, lim: limit },
     );
     return rows.map((r) => this.map(r));
+  }
+
+  async summary(): Promise<LoyaltySummary> {
+    const row = await this.db.queryOne<{
+      EARNED: number;
+      REDEEMED: number;
+      NET: number;
+      EARNED_AMT: number;
+      REDEEMED_AMT: number;
+      EARN_CNT: number;
+      REDEEM_CNT: number;
+      CUST_CNT: number;
+    }>(
+      `SELECT
+         NVL(SUM(CASE WHEN TRNS_TYPE = 1 THEN POINT_CNT END), 0)      AS EARNED,
+         NVL(SUM(CASE WHEN TRNS_TYPE = 2 THEN -POINT_CNT END), 0)    AS REDEEMED,
+         NVL(SUM(POINT_CNT), 0)                                       AS NET,
+         NVL(SUM(CASE WHEN TRNS_TYPE = 1 THEN POINT_AMT END), 0)     AS EARNED_AMT,
+         NVL(SUM(CASE WHEN TRNS_TYPE = 2 THEN POINT_AMT END), 0)     AS REDEEMED_AMT,
+         COUNT(CASE WHEN TRNS_TYPE = 1 THEN 1 END)                   AS EARN_CNT,
+         COUNT(CASE WHEN TRNS_TYPE = 2 THEN 1 END)                   AS REDEEM_CNT,
+         COUNT(DISTINCT CUSTOMER_CODE)                                AS CUST_CNT
+       FROM ${this.schema}.POINTS_LEDGER`,
+    );
+    return {
+      totalEarned: Number(row?.EARNED ?? 0),
+      totalRedeemed: Number(row?.REDEEMED ?? 0),
+      netOutstanding: Number(row?.NET ?? 0),
+      totalEarnedAmt: Number(row?.EARNED_AMT ?? 0),
+      totalRedeemedAmt: Number(row?.REDEEMED_AMT ?? 0),
+      earnCount: Number(row?.EARN_CNT ?? 0),
+      redeemCount: Number(row?.REDEEM_CNT ?? 0),
+      customerCount: Number(row?.CUST_CNT ?? 0),
+    };
   }
 
   private map(r: LedgerRow): PointsLedgerRow {

@@ -3,6 +3,7 @@ import {
   EarnedPointsBalance,
   LoyaltyRepository,
   LOYALTY_REPOSITORY,
+  LoyaltySummary,
   PointsLedgerRow,
 } from '../domain/ports/loyalty-repository.port';
 import { earnPoints } from '../domain/points-policy';
@@ -27,6 +28,19 @@ export interface RedeemForPaymentInput {
   shiftId?: string | null;
   cashierNo?: number | null;
   pointTypNo?: number;
+}
+
+/** A ledger movement + the customer's running balance AFTER it (POST021). */
+export type LedgerEntryWithBalance = PointsLedgerRow & {
+  /** نوع الحركة — human-readable kind derived from TRNS_TYPE. */
+  kind: 'EARN' | 'REDEEM' | 'EXPIRE' | 'ADJUST';
+  /** Customer balance after this movement (running balance, newest-first). */
+  balanceAfter: number;
+};
+
+export interface CustomerLedgerView {
+  balance: EarnedPointsBalance;
+  entries: LedgerEntryWithBalance[];
 }
 
 export interface RedeemResult {
@@ -133,6 +147,51 @@ export class LoyaltyService {
 
   ledger(customerCode: string, limit: number): Promise<PointsLedgerRow[]> {
     return this.repo.ledger(customerCode, limit);
+  }
+
+  /**
+   * POST021 — full movement history (earn + redeem/expire/adjust) with a
+   * running balance per row. Rows come newest-first; the running balance is
+   * derived by walking DOWN from the current total (exact even when the page
+   * is limited — older, unfetched rows are already baked into the total).
+   */
+  async customerLedger(
+    customerCode: string,
+    limit: number,
+  ): Promise<CustomerLedgerView> {
+    const [balance, rows] = await Promise.all([
+      this.repo.earnedBalance(customerCode),
+      this.repo.ledger(customerCode, limit),
+    ]);
+    let running = balance.earnedPoints;
+    const entries: LedgerEntryWithBalance[] = rows.map((r) => {
+      const entry: LedgerEntryWithBalance = {
+        ...r,
+        kind: kindOf(r.trnsType),
+        balanceAfter: running,
+      };
+      running = round4(running - r.pointCnt);
+      return entry;
+    });
+    return { balance, entries };
+  }
+
+  /** POST021 — chain-wide granted/redeemed totals. */
+  summary(): Promise<LoyaltySummary> {
+    return this.repo.summary();
+  }
+}
+
+function kindOf(trnsType: number): LedgerEntryWithBalance['kind'] {
+  switch (trnsType) {
+    case 1:
+      return 'EARN';
+    case 2:
+      return 'REDEEM';
+    case 3:
+      return 'EXPIRE';
+    default:
+      return 'ADJUST';
   }
 }
 

@@ -2,6 +2,19 @@
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
 ## 2026-07-03
+### الولاء الكامل (POST021) + تحصيل الفواتير الآجلة (POST010/011) — حيّ ومُختبَر (subagent waveB-loyalty-credit)
+**1. سجل حركة النقاط التفصيلي (POST021) ✅**
+- `GET /api/v1/loyalty/customers/{code}/ledger` — كل حركات POINTS_LEDGER (كسب/استبدال/انتهاء/تسوية) الأحدث أولاً، كل صف مع `kind` (EARN/REDEEM/EXPIRE/ADJUST) + **رصيد جارٍ `balanceAfter`** محسوب نزولاً من الإجمالي (دقيق حتى مع limit — الصفوف الأقدم غير المجلوبة مدموجة في الرصيد الكلي). مع التاريخ والفاتورة (billNo/billId) والوردية والكاشير.
+- `GET /api/v1/loyalty/summary` — إجماليات السلسلة: ممنوح/مستبدَل/صافٍ + قيمها النقدية + عدد الحركات والعملاء (تجميع SQL واحد).
+- **proof حي:** عميل 1 → ledger صفّان: REDEEM −20 (balanceAfter=214) ثم EARN +234 (balanceAfter=234)، الرصيد 214 ✓ · summary: ممنوح 614 / مستبدَل 20 / صافٍ 594، عميلان ✓ · بلا توكن → 401.
+
+**2. تحصيل الفواتير الآجلة (POST010/011) ✅**
+- **جدول جديد `MOTECH_POS.CREDIT_COLLECTIONS`** (migration `V014`، مُطبّق حياً + GRANT لـMOTECH_RW): سند تحصيل لكل دفعة (CASH/CARD، عملة+rate، IDEMPOTENCY_KEY UNIQUE). الدين = مجموع تندرات CREDIT من PAYMENTS، والمتبقي مُشتق دوماً (لا رصيد مُكرّر ينحرف).
+- `GET /api/v1/customers/{code}/credit-bills[?status=all]` — فواتير العميل الآجلة (افتراضياً غير المسدّدة فقط) مع creditAmt/collectedAmt/outstanding/status لكل فاتورة + `totalOutstanding` (الرصيد المدين). تجميع بـjoin واحد (لا N+1).
+- `POST /api/v1/customers/{code}/collect` (Idempotency-Key إلزامي) — تسجيل دفعة تحصيل على فاتورة آجلة: حارس **لا تتجاوز المدين** (422 `collection-exceeds-debt` مع تفاصيل RFC9457)، 404 `credit-bill-not-found` لفاتورة بلا دين لهذا العميل، دعم عملات (amountInBill=amount×rate)، replay بنفس المفتاح يرجع السند الأصلي. الحالة تنقلب SETTLED عند اكتمال السداد وتختفي من قائمة open.
+- **proof حي (فاتورة 260700100000014، عميل C001، دين 30):** credit-bills → outstanding 30 · collect 10 → outstanding 20 · replay نفس المفتاح → replayed:true نفس السند · collect 25 → **422 collection-exceeds-debt** · collect 20 → SETTLED، collected 30، outstanding 0 · قائمة open فاضية و`?status=all` تُظهرها SETTLED · السندان في CREDIT_COLLECTIONS بـSELECT ✓
+- build ✅ · pm2 restart ✅ · **138/138 اختبار وحدة** (+12 جديدة: ledger رصيد جارٍ/limit/فاضي، summary، تحصيل: جزئي/سداد/تجاوز/عملات/idempotency/404/422) · OpenAPI مُعاد توليده · lint: خطآن مسبقان في einvoice فقط (ليسا من هذا العمل).
+
 ### طرق دفع جديدة: نقاط الولاء (POINTS) + كوبون (COUPON) — حيّ ومُختبَر (subagent payments-points-coupon)
 تكامل كامل مع `AddPaymentUseCase` الموجود (لم يُعَد بناؤه) — تندران جديدان يعملان منفردَين أو ضمن multi مع نقد/بطاقة/آجل:
 

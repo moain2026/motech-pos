@@ -19,6 +19,23 @@ export interface PointsLedgerRow {
   createdAt: string;
 }
 
+/** Chain-wide loyalty totals (POST021 — إجماليات النقاط). */
+export interface LoyaltySummary {
+  /** Total points granted (TRNS_TYPE=1). */
+  totalEarned: number;
+  /** Total points redeemed, as a positive number (TRNS_TYPE=2). */
+  totalRedeemed: number;
+  /** Net outstanding points across all customers (SUM(POINT_CNT)). */
+  netOutstanding: number;
+  /** Monetary value granted (SUM(POINT_AMT) of earns). */
+  totalEarnedAmt: number;
+  /** Monetary value redeemed (SUM(POINT_AMT) of redeems). */
+  totalRedeemedAmt: number;
+  earnCount: number;
+  redeemCount: number;
+  customerCount: number;
+}
+
 /** Aggregated earned-points balance for a customer (from MOTECH_POS). */
 export interface EarnedPointsBalance {
   customerCode: string;
@@ -76,4 +93,7 @@ export interface LoyaltyRepository {
 
   /** Ledger movements for a customer (newest first). */
   ledger(customerCode: string, limit: number): Promise<PointsLedgerRow[]>;
+
+  /** Chain-wide granted/redeemed totals over the whole ledger. */
+  summary(): Promise<LoyaltySummary>;
 }
