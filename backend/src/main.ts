@@ -45,7 +45,9 @@ async function bootstrap(): Promise<void> {
   SwaggerModule.setup(`${prefix}/docs`, app, doc);
 
   const port = config.get('PORT');
-  await app.listen(port, '0.0.0.0');
+  // SECURITY: bind loopback by default — public access goes through Caddy
+  // (TLS + domain) only; the raw port must not be internet-reachable.
+  await app.listen(port, config.get('HOST'));
 }
 
 void bootstrap();

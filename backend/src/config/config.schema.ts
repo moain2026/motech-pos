@@ -7,6 +7,9 @@ import { z } from 'zod';
 export const configSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(3000),
+  // Bind address. SECURITY: default loopback — the API must only be reachable
+  // through the TLS reverse proxy (Caddy), never directly on the public IP.
+  HOST: z.string().default('127.0.0.1'),
   API_PREFIX: z.string().default('api/v1'),
   CORS_ORIGINS: z.string().default('http://localhost:5173'),
 
