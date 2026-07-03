@@ -47,6 +47,18 @@ export class ItemNotFoundError extends DomainError {
   readonly title = 'Item not found';
 }
 
+/**
+ * A client-supplied unitPrice/vatPercent deviates from the server-side
+ * reference price and the actor's role lacks the PRICE_OVERRIDE permission
+ * (ROLE_PERMISSIONS matrix). Prices are ALWAYS resolved server-side; client
+ * values are only honoured for explicitly authorized overrides.
+ */
+export class PriceOverrideForbiddenError extends DomainError {
+  readonly typeSlug = 'price-override-forbidden';
+  readonly httpStatus = 403;
+  readonly title = 'Price override requires PRICE_OVERRIDE permission';
+}
+
 export class InvalidCredentialsError extends DomainError {
   readonly typeSlug = 'invalid-credentials';
   readonly httpStatus = 401;

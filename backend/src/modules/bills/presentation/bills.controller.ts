@@ -7,6 +7,7 @@ import {
   Param,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -18,7 +19,10 @@ import {
 } from '@nestjs/swagger';
 import { isUuid, uuidv7 } from '../../../shared/domain/uuid';
 import { IdempotencyKeyRequiredError } from '../../../shared/errors/domain-error';
-import { JwtAuthGuard } from '../../auth/presentation/jwt-auth.guard';
+import {
+  AuthenticatedRequest,
+  JwtAuthGuard,
+} from '../../auth/presentation/jwt-auth.guard';
 import { Roles } from '../../auth/presentation/roles.decorator';
 import { RolesGuard } from '../../auth/presentation/roles.guard';
 import { AddPaymentUseCase } from '../application/add-payment.usecase';
@@ -62,6 +66,7 @@ export class BillsController {
   @ApiOperation({ summary: 'Create a sale bill (open shift required, idempotent)' })
   async create(
     @Body() body: PostBillDto,
+    @Req() req: AuthenticatedRequest,
     @Headers('idempotency-key') idempotencyKey?: string,
   ) {
     if (!idempotencyKey || !isUuid(idempotencyKey)) {
@@ -80,6 +85,9 @@ export class BillsController {
       taxCalcType: body.taxCalcType,
       headerDiscount: body.headerDiscount,
       clientOperationId: body.clientOperationId ?? uuidv7(),
+      // SECURITY: role comes from the VERIFIED JWT, never the body — gates
+      // price/VAT overrides (PRICE_OVERRIDE permission).
+      actorRole: req.user?.role,
       lines: body.lines,
     });
     return { data: bill, meta: { replayed } };
@@ -190,6 +198,7 @@ export class BillsController {
   async resume(
     @Param('id') id: string,
     @Body() body: ResumeBillDto,
+    @Req() req: AuthenticatedRequest,
     @Headers('idempotency-key') idempotencyKey?: string,
   ) {
     if (!idempotencyKey || !isUuid(idempotencyKey)) {
@@ -202,6 +211,7 @@ export class BillsController {
       heldId: id,
       cashierNo: body.cashierNo,
       idempotencyKey,
+      actorRole: req.user?.role,
     });
     return { data: { bill, held }, meta: { replayed } };
   }

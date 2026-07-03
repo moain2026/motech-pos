@@ -96,9 +96,16 @@ beforeAll(async () => {
   await dbExec(`DELETE FROM ${writeSchema}.SHIFTS WHERE CASHIER_NO = :c`, { c: CASHIER });
 
   // Log in (dev seed cashier) to obtain a JWT for protected write routes.
+  // Login as SUPERVISOR: since the free-price security fix, explicit
+  // unitPrice/vatPercent values that differ from the server reference
+  // require the PRICE_OVERRIDE permission (cashier role lacks it).
+  // Credentials come from env (secrets are no longer hardcoded/committed).
   const login = await request(httpServer)
     .post('/api/v1/auth/login')
-    .send({ username: 'cashier1', password: 'cashier123' });
+    .send({
+      username: process.env.TEST_SUPERVISOR_USER ?? 'supervisor1',
+      password: process.env.TEST_SUPERVISOR_PASSWORD ?? 'super123',
+    });
   expect(login.status).toBe(200);
   token = login.body.data?.accessToken ?? login.body.accessToken;
   expect(typeof token).toBe('string');

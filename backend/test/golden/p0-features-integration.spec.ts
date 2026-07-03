@@ -81,9 +81,15 @@ beforeAll(async () => {
   await dbExec(`DELETE FROM ${writeSchema}.HELD_BILLS WHERE CASHIER_NO = :c`, { c: CASHIER });
   await dbExec(`DELETE FROM ${writeSchema}.SHIFTS WHERE CASHIER_NO = :c`, { c: CASHIER });
 
+  // Login as SUPERVISOR: explicit unitPrice/vatPercent overrides in this
+  // suite require PRICE_OVERRIDE since the free-price security fix.
+  // Credentials come from env (secrets are no longer hardcoded/committed).
   const login = await request(httpServer)
     .post('/api/v1/auth/login')
-    .send({ username: 'cashier1', password: 'cashier123' });
+    .send({
+      username: process.env.TEST_SUPERVISOR_USER ?? 'supervisor1',
+      password: process.env.TEST_SUPERVISOR_PASSWORD ?? 'super123',
+    });
   expect(login.status).toBe(200);
   token = login.body.data?.accessToken ?? login.body.accessToken;
 }, 60_000);
@@ -269,6 +275,45 @@ describe('P0 features (live)', () => {
     expect(pay.status).toBe(201);
     expect(pay.body.data.payments[0].amountInBill).toBeCloseTo(250, 4);
     expect(pay.body.data.fullyPaid).toBe(true);
+  });
+
+  it('SECURITY: cashier CANNOT post a fake price (403 price-override-forbidden)', async () => {
+    // Regression for the free-price exploit (FINAL_AUDIT_FABLE5 P0-5):
+    // a cashier could sell any item at 0.01 by sending unitPrice.
+    const cashierLogin = await request(httpServer)
+      .post('/api/v1/auth/login')
+      .send({
+        username: process.env.TEST_CASHIER_USER ?? 'cashier1',
+        password: process.env.TEST_CASHIER_PASSWORD ?? 'cashier123',
+      });
+    expect(cashierLogin.status).toBe(200);
+    const cashierToken =
+      cashierLogin.body.data?.accessToken ?? cashierLogin.body.accessToken;
+
+    const res = await request(httpServer)
+      .post('/api/v1/bills')
+      .set('Authorization', `Bearer ${cashierToken}`)
+      .set('Idempotency-Key', uuidv7())
+      .send({
+        cashierNo: CASHIER,
+        machineNo: 1,
+        lines: [{ itemCode: ITEM_CODE, qty: 1, unitPrice: 0.01 }],
+      });
+    expect(res.status).toBe(403);
+    expect(res.body.type).toContain('price-override-forbidden');
+
+    // Fake VAT% is gated the same way (also changes the net).
+    const vatRes = await request(httpServer)
+      .post('/api/v1/bills')
+      .set('Authorization', `Bearer ${cashierToken}`)
+      .set('Idempotency-Key', uuidv7())
+      .send({
+        cashierNo: CASHIER,
+        machineNo: 1,
+        lines: [{ itemCode: ITEM_CODE, qty: 1, vatPercent: 99 }],
+      });
+    expect(vatRes.status).toBe(403);
+    expect(vatRes.body.type).toContain('price-override-forbidden');
   });
 
   it('X-report reconciliation on the OPEN shift (expected vs actual, over/short)', async () => {

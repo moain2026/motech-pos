@@ -56,6 +56,8 @@ export interface ResumeBillInput {
   cashierNo: number;
   /** Idempotency-Key for the resulting POSTED bill. */
   idempotencyKey: string;
+  /** Verified JWT role of the actor — gates price overrides on resume. */
+  actorRole?: import('../../auth/domain/user.entity').Role;
 }
 
 /**
@@ -192,6 +194,7 @@ export class HoldBillUseCase {
     const { bill, replayed } = await this.postBill.execute({
       idempotencyKey: input.idempotencyKey,
       cashierNo: input.cashierNo,
+      actorRole: input.actorRole,
       machineNo: held.machineNo ?? undefined,
       customerCode: held.customerCode ?? undefined,
       customerName: held.customerName ?? undefined,

@@ -4,7 +4,9 @@ import {
   IdempotencyConflictError,
   InvalidBillError,
   ItemNotFoundError,
+  PriceOverrideForbiddenError,
 } from '../../../shared/errors/domain-error';
+import { Role } from '../../auth/domain/user.entity';
 import { LoyaltyService } from '../../loyalty/application/loyalty.service';
 import { ShiftsService } from '../../shifts/application/shifts.service';
 import { Bill } from '../domain/entities/bill.entity';
@@ -20,17 +22,26 @@ import {
   ItemReferenceReader,
   ITEM_REFERENCE,
 } from '../domain/ports/item-reference.port';
+import { PricePolicyService } from './price-policy.service';
+
+/** Tolerance when comparing a client-echoed price to the reference (4 dp). */
+const PRICE_EPSILON = 0.005;
 
 /** One requested sale line (from the client). */
 export interface PostBillLineInput {
   itemCode: string;
   qty: number;
-  /** Optional override price; when omitted, the YSPOS23 reference price is used. */
+  /**
+   * SECURITY: the server-side reference price is ALWAYS authoritative.
+   * A client-sent unitPrice that matches the reference is accepted (echo);
+   * any DIFFERENT value is an override and requires the actor's role to hold
+   * the PRICE_OVERRIDE permission (ROLE_PERMISSIONS matrix) — otherwise 403.
+   */
   unitPrice?: number;
   /** Per-unit detail discount (DIS_AMT_DTL). */
   discDtl?: number;
   freeQty?: number;
-  /** Optional override VAT% (else taken from reference). */
+  /** VAT% override — same PRICE_OVERRIDE gate as unitPrice. */
   vatPercent?: number;
 }
 
@@ -46,6 +57,11 @@ export interface PostBillInput {
   /** Header discount amount to allocate proportionally across lines. */
   headerDiscount?: number;
   clientOperationId?: string;
+  /**
+   * Role of the AUTHENTICATED actor (from the verified JWT — never from the
+   * request body). Gates price/VAT overrides. Undefined → no override rights.
+   */
+  actorRole?: Role;
   lines: PostBillLineInput[];
 }
 
@@ -71,6 +87,7 @@ export class PostBillUseCase {
     @Inject(BILL_WRITE_REPOSITORY) private readonly repo: BillWriteRepository,
     @Inject(ITEM_REFERENCE) private readonly items: ItemReferenceReader,
     private readonly shifts: ShiftsService,
+    private readonly pricePolicy: PricePolicyService,
     @Optional() private readonly loyalty?: LoyaltyService,
   ) {}
 
@@ -101,36 +118,74 @@ export class PostBillUseCase {
     const taxCalcType = input.taxCalcType ?? VatCalcType.AFTER_DISCOUNT;
     const currency = input.currency ?? shift.currency ?? 'YER';
 
-    // (3) Resolve prices/tax from YSPOS23 + build domain lines.
+    // (3) Resolve prices/tax SERVER-SIDE (security: the client can never set
+    // the price of a sale line — see docs/FINAL_AUDIT_FABLE5.md P0-5).
+    // The reference is ALWAYS read for every line; a client-sent unitPrice/
+    // vatPercent is honoured only when it matches the reference (UI echo) or
+    // when the authenticated actor's role holds PRICE_OVERRIDE.
+    let canOverride: boolean | null = null; // lazy — one lookup per request
+    const mayOverride = async (): Promise<boolean> => {
+      if (canOverride == null) {
+        canOverride = await this.pricePolicy.canOverridePrice(input.actorRole);
+      }
+      return canOverride;
+    };
+
     const resolved: Array<{ ref: PostBillLineInput; price: number; vat: number; name: string | null; unit: string | null }> = [];
     for (const line of input.lines) {
-      let price = line.unitPrice;
-      let vat = line.vatPercent;
-      let name: string | null = null;
-      let unit: string | null = null;
+      const ref = await this.items.findByCode(line.itemCode);
+      if (!ref) {
+        throw new ItemNotFoundError(
+          `Item ${line.itemCode} not found in reference catalog`,
+          { itemCode: line.itemCode },
+        );
+      }
 
-      if (price == null || vat == null) {
-        const ref = await this.items.findByCode(line.itemCode);
-        if (!ref) {
-          throw new ItemNotFoundError(
-            `Item ${line.itemCode} not found in reference catalog`,
-            { itemCode: line.itemCode },
-          );
-        }
-        if (price == null) {
-          if (ref.unitPrice == null) {
-            throw new InvalidBillError(
-              `No reference price for item ${line.itemCode}; supply unitPrice`,
-              { itemCode: line.itemCode },
+      // --- Price: reference is authoritative ---
+      let price = ref.unitPrice;
+      if (line.unitPrice != null) {
+        const matchesRef =
+          price != null && Math.abs(line.unitPrice - price) < PRICE_EPSILON;
+        if (!matchesRef) {
+          if (!(await mayOverride())) {
+            throw new PriceOverrideForbiddenError(
+              `unitPrice ${line.unitPrice} for item ${line.itemCode} differs from the server reference price` +
+                (price == null ? ' (none on file)' : ` ${price}`) +
+                ' — overriding prices requires the PRICE_OVERRIDE permission',
+              {
+                itemCode: line.itemCode,
+                suppliedPrice: line.unitPrice,
+                referencePrice: price,
+              },
             );
           }
-          price = ref.unitPrice;
+          price = line.unitPrice; // authorized override
         }
-        if (vat == null) vat = ref.vatPercent;
-        name = ref.name;
-        unit = ref.unit;
       }
-      resolved.push({ ref: line, price, vat: vat ?? 0, name, unit });
+      if (price == null) {
+        throw new InvalidBillError(
+          `No reference price for item ${line.itemCode}; a PRICE_OVERRIDE-authorized user must supply unitPrice`,
+          { itemCode: line.itemCode },
+        );
+      }
+
+      // --- VAT%: same gate (a fake 0% VAT also changes the net) ---
+      let vat = ref.vatPercent ?? 0;
+      if (line.vatPercent != null && Math.abs(line.vatPercent - vat) >= PRICE_EPSILON) {
+        if (!(await mayOverride())) {
+          throw new PriceOverrideForbiddenError(
+            `vatPercent ${line.vatPercent} for item ${line.itemCode} differs from the reference ${vat} — requires PRICE_OVERRIDE`,
+            {
+              itemCode: line.itemCode,
+              suppliedVat: line.vatPercent,
+              referenceVat: vat,
+            },
+          );
+        }
+        vat = line.vatPercent;
+      }
+
+      resolved.push({ ref: line, price, vat, name: ref.name, unit: ref.unit });
     }
 
     // (4a) Allocate header discount proportionally (if any), then build lines.

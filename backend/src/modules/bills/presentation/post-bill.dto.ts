@@ -25,7 +25,11 @@ export class PostBillLineDto {
   @IsPositive()
   qty!: number;
 
-  @ApiPropertyOptional({ example: 150, description: 'Override price (else reference)' })
+  @ApiPropertyOptional({
+    example: 150,
+    description:
+      'Echo of the displayed price. The SERVER reference price is always authoritative; a differing value requires the PRICE_OVERRIDE permission (else 403).',
+  })
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 4 })
   @Min(0)
@@ -43,7 +47,11 @@ export class PostBillLineDto {
   @Min(0)
   freeQty?: number;
 
-  @ApiPropertyOptional({ example: 15, description: 'Override VAT% (else reference)' })
+  @ApiPropertyOptional({
+    example: 15,
+    description:
+      'VAT% — server reference is authoritative; differing value requires PRICE_OVERRIDE.',
+  })
   @IsOptional()
   @IsNumber({ maxDecimalPlaces: 4 })
   @Min(0)

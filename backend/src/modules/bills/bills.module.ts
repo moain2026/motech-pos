@@ -6,6 +6,7 @@ import { AddPaymentUseCase } from './application/add-payment.usecase';
 import { BillsService } from './application/bills.service';
 import { HoldBillUseCase } from './application/hold-bill.usecase';
 import { PostBillUseCase } from './application/post-bill.usecase';
+import { PricePolicyService } from './application/price-policy.service';
 import { BILL_REPOSITORY } from './domain/ports/bill-repository.port';
 import { BILL_WRITE_REPOSITORY } from './domain/ports/bill-write-repository.port';
 import { HELD_BILL_REPOSITORY } from './domain/ports/held-bill-repository.port';
@@ -22,6 +23,7 @@ import { BillsController } from './presentation/bills.controller';
   providers: [
     BillsService,
     PostBillUseCase,
+    PricePolicyService,
     AddPaymentUseCase,
     HoldBillUseCase,
     { provide: BILL_REPOSITORY, useClass: OracleBillRepository },
