@@ -50,7 +50,7 @@
 
 ## 2) تقارير — POSR (16 شاشة)
 
-> المبني فعلياً: **13 endpoint تقارير** (`daily, monthly, by-item, by-machine, by-cashier, payment-methods, returns, tax, hourly-sales, z-report, top-customers, discount, sales-by-category`) + ReportsPage بـ13 تبويباً.
+> المبني فعلياً: **19 endpoint تقارير** (`daily, monthly, by-item, by-machine, by-cashier, payment-methods, returns, tax, hourly-sales, z-report, top-customers, discount, sales-by-category` + الجديدة 2026-07-03: `slow-moving, profit, comparison, item-movement, audit, vat-detailed`) + ReportsPage بـ13 تبويباً (التبويبات الست الجديدة لم تُربط بالواجهة بعد).
 
 | الشاشة | الوظيفة الدقيقة (من الجداول/SQL) | الحالة | Backend | Frontend | أولوية | المطلوب |
 |---|---|:---:|---|---|:---:|---|
@@ -58,20 +58,20 @@
 | POSR002 | تقرير العملاء النقديين (مبيعات/أرصدة IAS_CASH_CUSTMR) | 🟡 | 🟡 `top-customers` فقط | ✅ تبويب topCustomers | P1 | تقرير كشف عميل كامل (فواتيره/مردوداته/نقاطه لفترة) |
 | POSR003 | تقارير بقوالب مستخدم (S_RPRT_USR_TMPLT) | ❌ | ❌ | ❌ | P2 | آلية قوالب تقارير قابلة للحفظ — رفاهية، أو تُستبدل بتصدير CSV |
 | POSR004 | تقرير ورديات الكاشيرات (تفصيلي بالوردية) | 🟡 | 🟡 `by-cashier` (بالكاشير لا بالوردية) | ✅ تبويب byCashier | P1 | فلتر/تجميع بالوردية (shift-by-shift) + الفرق النقدي لكل وردية |
-| POSR005 | تقرير الفواتير المحذوفة/المعلقة تاريخياً (AUDIT_DEL_ITM, HST_HUNG) | ❌ | ❌ | ❌ | P1 | سجل audit لحذف الأسطر/الفواتير المعلقة + تقرير (رقابة مهمّة) |
+| POSR005 | تقرير الفواتير المحذوفة/المعلقة تاريخياً (AUDIT_DEL_ITM, HST_HUNG) | 🟡 | ✅ `reports/audit` (IAS_POS_AUD_ITEM حي: 4,115 سطراً محذوفاً + اسم المستخدم العربي + AUD_DATE + fromHungBill) | ❌ | P1 | تبويب واجهة (جداول HST/HUNG التاريخية فاضية في بيئتنا — AUD_ITEM هو المصدر الفعلي) |
 | POSR006 | تقرير مبيعات حسب نوع الصنف/الآلة (ITEM_TYPES) | 🟡 | ✅ `sales-by-category` | ✅ تبويب salesByCategory | P2 | مطابقة التصنيف مع أنواع أصناف Onyx (ITEM_TYPES) إن اختلف |
-| POSR007 | تقرير نشاط الأصناف بصلاحيات الفروع (IAS_ITEMS_ACTIVITY) | ❌ | ❌ | ❌ | P2 | تقرير حركة صنف عبر الفروع — يعتمد على بيانات Onyx |
+| POSR007 | تقرير نشاط الأصناف بصلاحيات الفروع (IAS_ITEMS_ACTIVITY) | 🟡 | ✅ `reports/item-movement` (حركة صنف تفصيلية بيع+مرتجع زمنياً + net) و`reports/slow-moving` (الأبطأ/عديمة البيع) — فرع واحد | ❌ | P2 | تعدد الفروع يبقى في Onyx؛ تبويب واجهة |
 | POSR008 | تقرير عملاء/ذمم AR (IAS_PARA_AR, CUSTOMER) | ❌ | ❌ | ❌ | P2 | كشف ذمم آجلة — يبقى غالباً في Onyx |
 | POSR009 | تقرير الآلات/السندات بالعملات (IAS_POS_MACHINE, VAOUCHER, EX_RATE) | 🟡 | ✅ `by-machine` + vouchers list | ✅ تبويب byMachine + VouchersPage | P2 | دمج السندات بالعملات في تقرير الآلة |
 | POSR010 | تقرير نقاط الولاء (IAS_POINT_TYP_MST) | ❌ | ❌ (رصيد فردي فقط) | ❌ | P1 | `reports/loyalty` (نقاط مكتسبة/مستبدلة/منتهية لفترة) + تبويب |
 | POSR011 | تقرير المردودات والدفع النقدي للمرتجعات (PRD_BACK_HOUR) | 🟡 | ✅ `reports/returns` | ✅ تبويب returns | P1 | إضافة بُعد "مرتجعات خارج المهلة/بلا فاتورة" إن فُعّل |
 | POSR012 | تقرير مجموعات العملاء/المناديب/المناطق (CUSTMR_GRP, SALES_MAN) | ❌ | ❌ | ❌ | P2 | يتطلب أولاً بناء مجموعات العملاء (POSI009) |
-| POSR013 | تقرير مبيعات الأصناف (IAS_ITM_MST تفصيلي) | ✅ | ✅ `by-item` + `discount` | ✅ تبويبا byItem/discount | P1 | مكتمل الجوهر |
+| POSR013 | تقرير مبيعات الأصناف (IAS_ITM_MST تفصيلي) | ✅ | ✅ `by-item` + `discount` + الجديدة: `profit` (ربح/تكلفة PRIMARY_COST + costAvailable) و`comparison` (فترتان + دلتا) | ✅ تبويبا byItem/discount | P1 | مكتمل الجوهر + أرباح ومقارنة |
 | POSR014 | تقرير الورديات والتصفية (POS_WRK_SHFT_CSHR, CASHER) | 🟡 | ✅ `z-report` + `shifts/{id}/summary` | ✅ ReconciliationPage | P1 | قائمة ورديات تاريخية (كل الورديات المقفلة + فروقها) — الحالي وردية حالية فقط |
 | POSR015 | تقرير أوامر البيع (SALES_ORDER) | ❌ | ❌ | ❌ | P2 | يتطلب أولاً POST024 |
 | POSR016 | تقرير السندات/الحسابات (ACCOUNT, PRIV_ACC) | 🟡 | ✅ `GET /vouchers` (فلاتر: وردية/نوع/كاشير/تاريخ) | ✅ VouchersPage | P2 | تقرير سندات مجمّع لفترة (إجماليات) داخل ReportsPage |
 
-**POSR: ✅ 2 · 🟡 7 · ❌ 7**
+**POSR: ✅ 2 · 🟡 9 · ❌ 5** _(2026-07-03: +6 endpoints تاريخية/متقدمة — POSR005 و POSR007 صارتا 🟡 backend-مكتمل، وتعزّز POSR013 بالأرباح والمقارنة، و`vat-detailed` يعمّق التقرير الضريبي)_
 
 ---
 
@@ -141,7 +141,7 @@
 | الفئة | العدد | ✅ كاملة | 🟡 جزئية | ❌ غير مبنية |
 |---|:---:|:---:|:---:|:---:|
 | حركات POST | 30 | **8** | 13 | 9 |
-| تقارير POSR | 16 | **2** | 7 | 7 |
+| تقارير POSR | 16 | **2** | 9 | 5 |
 | إدخال POSI | 15 | **1** | 6 | 8 |
 | إعدادات POSS | 9 | **0** | 3 | 6 |
 | أخرى | 10 | **3** | 3 | 4 |
@@ -185,7 +185,7 @@
 | 19 | POSI002+003 | ❌ | تكوين لوحات المفاتيح اللمسية وربط ItemGrid بها |
 | 20 | POSS004 | ❌ | تغيير كلمة السر (جهد ساعة) |
 | 21 | POSS002 | 🟡 | ✅ backend مصفوفة صلاحيات جاهزة (GET/PUT /admin/permissions) — يتبقى واجهة + فرض ديناميكي |
-| 22 | POSR005 | ❌ | تقرير audit للفواتير/الأسطر المحذوفة والمعلقة تاريخياً |
+| 22 | POSR005 | 🟡 | ✅ backend `reports/audit` جاهز (أسطر محذوفة + مستخدم + وقت) — يتبقى تبويب واجهة |
 | 23 | POSR010 | ❌ | تقرير نقاط الولاء لفترة |
 | 24 | POSR002 | 🟡 | كشف عميل كامل · POSR004 🟡 تجميع بالوردية · POSR014 🟡 قائمة ورديات تاريخية · POSR011 🟡 بُعد المهلة |
 | 25 | POS_ITM_PRICE | ✅ | مستويات الأسعار — endpoints جاهزة (يتبقى UI اختيار المستوى) |

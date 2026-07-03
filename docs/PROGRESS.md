@@ -2,6 +2,17 @@
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
 ## 2026-07-03
+### 6 تقارير تاريخية/متقدمة جديدة (reports 13→19 endpoint) — حيّة ومُختبَرة (subagent waveC-reports)
+كلها READ-ONLY على YSPOS23/IAS202623 (bind variables، schema-qualified، JWT، RFC9457، envelope `{data,meta}`) — نفس نمط الـ13 الموجودة:
+1. **`GET /reports/slow-moving?from=&to=&limit=&maxQty=`** — الأصناف الأبطأ حركة: LEFT JOIN من IAS_ITM_MST على مبيعات الفترة فتظهر الأصناف **عديمة البيع تماماً** (totalQty=0, lastSoldDay=null) + قليلة الحركة (SUM(qty)≤maxQty، افتراضي 5). **proof حي:** «ارز التيسير (5 كجم) 8قطم» وغيرها totalQty=0 ✓
+2. **`GET /reports/profit?from=&to=&limit=`** — أرباح الأصناف: revenue − cost حيث cost = `IAS202623.IAS_ITM_MST.PRIMARY_COST` (متاح لكنه 0 لكل الأصناف تقريباً في بيئتنا — 7 أصناف فقط لها تكلفة>0)، لذا كل صف يحمل **`costAvailable`** ليميّز «لا ربح» عن «لا بيانات تكلفة». **proof حي:** «جبنة سالم مثلث» revenue 262,350، costAvailable=false ✓
+3. **`GET /reports/comparison?fromA=&toA=&fromB=&toB=`** — مقارنة فترتين (كل الباراميترات إلزامية): billCount/totalAmt/vat/disc/avgBill لكل فترة + **deltaAmt/deltaAmtPct/deltaBills/deltaBillsPct**. **proof حي:** يونيو (10,514 فاتورة / 4.21م) vs مايو (10,055 / 4.28م) → deltaAmt −74,155 (−1.73%)، فواتير +459 (+4.56%) ✓
+4. **`GET /reports/item-movement?item=&from=&to=&limit=`** — حركة صنف تفصيلية: UNION ALL مبيعات (BILL_DTL/MST) + مرتجعات (RT_BILL_DTL/MST بكمية سالبة) مرتّبة زمنياً تنازلياً + ملخص totalSold/totalReturned/netQty/netAmt + الاسم العربي. **proof حي:** «ارز الديوان (10 كجم) 4قطم» — بيعات 2026-07-03 (فاتورة 260700100000347 ×2 ×7800) ✓
+5. **`GET /reports/audit?from=&to=&limit=`** — سجل الأسطر المحذوفة (نطاق POSR005): `YSPOS23.IAS_POS_AUD_ITEM` (4,115 صف حي) — كل سطر حُذف من فاتورة مع **اسم المستخدم العربي** (JOIN USER_R) ووقت الحذف AUD_DATE وعلم fromHungBill. الفلتر على AUD_DATE. **proof حي:** «فانيليا بودر فلورا» حذفها «طارق العباسي» 2026-06-25 18:02:25 ✓ (جداول HST_BILL_MST/HISTORY_HUNG فاضية في بيئتنا — AUD_ITEM هو مصدر الرقابة الفعلي)
+6. **`GET /reports/vat-detailed?from=&to=`** — ضريبي تفصيلي: تجميع حسب **النسبة الفعلية** `NVL(DTL.VAT_PER, NVL(ITM_MST.VAT_PER, 0))` × فئة الصنف (ITEM_TYPES بالاسم العربي) مع gross/vatAmt/qty/lineCount. **proof حي:** شريحة 15% (16 سطراً، vat 216) + شريحة 0% «الاصناف الغير موزونه» (40,934 سطراً / 8.43م) ✓
+- تحقّق أمني حي: بلا توكن → 401 RFC9457 ✓ · `fromA=bad` → 400 برسائل تحقق واضحة ✓
+- build ✅ · pm2 restart ✅ · **175/175 اختبار وحدة** (+6 جديدة في reports-extended: slow-moving/profit/comparison/item-movement/audit/vat-detailed) · OpenAPI مُعاد توليده (reports: 19 مساراً) · لم تُلمس بقية الوحدات.
+
 ### الولاء الكامل (POST021) + تحصيل الفواتير الآجلة (POST010/011) — حيّ ومُختبَر (subagent waveB-loyalty-credit)
 **1. سجل حركة النقاط التفصيلي (POST021) ✅**
 - `GET /api/v1/loyalty/customers/{code}/ledger` — كل حركات POINTS_LEDGER (كسب/استبدال/انتهاء/تسوية) الأحدث أولاً، كل صف مع `kind` (EARN/REDEEM/EXPIRE/ADJUST) + **رصيد جارٍ `balanceAfter`** محسوب نزولاً من الإجمالي (دقيق حتى مع limit — الصفوف الأقدم غير المجلوبة مدموجة في الرصيد الكلي). مع التاريخ والفاتورة (billNo/billId) والوردية والكاشير.
