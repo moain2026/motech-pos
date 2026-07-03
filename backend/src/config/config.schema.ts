@@ -30,6 +30,9 @@ export const configSchema = z.object({
   ORACLE_WRITE_USER: z.string().min(1).default('MOTECH_POS'),
   ORACLE_WRITE_PASSWORD: z.string().min(1),
   ORACLE_WRITE_SCHEMA: z.string().min(1).default('MOTECH_POS'),
+  // Real Onyx POS schema that receives the actual bills (IAS_POS_BILL_MST/DTL).
+  // The write user (MOTECH_RW) has INSERT/UPDATE on those two tables only.
+  ORACLE_ONYX_SCHEMA: z.string().min(1).default('YSPOS23'),
 
   // --- Auth / JWT (STANDARDS/07 §A02, §A07) ---
   // Secret MUST be provided via env in any non-test run; long random string.

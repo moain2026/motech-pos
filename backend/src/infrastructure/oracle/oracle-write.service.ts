@@ -177,6 +177,11 @@ export class OracleWriteService implements OnModuleInit, OnApplicationShutdown {
   schema(): string {
     return this.config.get('ORACLE_WRITE_SCHEMA');
   }
+
+  /** Real Onyx POS schema (YSPOS23) — target of the actual bill rows. */
+  onyxSchema(): string {
+    return this.config.get('ORACLE_ONYX_SCHEMA');
+  }
 }
 
 function sleep(ms: number): Promise<void> {

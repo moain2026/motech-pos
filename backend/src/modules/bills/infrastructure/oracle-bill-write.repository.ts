@@ -65,10 +65,16 @@ interface PaymentRow {
 }
 
 /**
- * OracleBillWriteRepository — writes invoices into MOTECH_POS (our own schema).
- * Never writes to YSPOS23. The whole sale (header + lines) is one transaction.
- * Bill numbering is server-side from SEQ_BILL_NO under SERIALIZABLE isolation;
- * the UNIQUE idempotency_key is the final anti-duplicate backstop.
+ * OracleBillWriteRepository — writes invoices into the REAL Onyx tables
+ * (YSPOS23.IAS_POS_BILL_MST / IAS_POS_BILL_DTL) plus a tracking row in
+ * MOTECH_POS.BILLS (+BILL_LINES) that links idempotency_key → BILL_NO and
+ * feeds our read-model/reports. All of it is ONE transaction: either the
+ * bill lands in both places or nowhere.
+ *
+ * Bill numbering is server-side: YSPOS23.POS_BILLS_SEQ under SERIALIZABLE
+ * isolation, formatted YYMM+machine(3)+seq(8) — numeric, collision-free
+ * with legacy Onyx numbers (different length/prefix). The UNIQUE
+ * idempotency_key on MOTECH_POS.BILLS is the final anti-duplicate backstop.
  */
 @Injectable()
 export class OracleBillWriteRepository implements BillWriteRepository {
@@ -76,6 +82,11 @@ export class OracleBillWriteRepository implements BillWriteRepository {
 
   private get schema(): string {
     return this.db.schema();
+  }
+
+  /** Real Onyx POS schema (YSPOS23). */
+  private get onyx(): string {
+    return this.db.onyxSchema();
   }
 
   async findByIdempotencyKey(key: string): Promise<PersistedBill | null> {
@@ -96,16 +107,29 @@ export class OracleBillWriteRepository implements BillWriteRepository {
 
   async insertBill(input: InsertBillInput): Promise<PersistedBill> {
     const id = uuidv7();
+    // Sequence NEXTVAL is non-transactional; fetch it OUTSIDE the serializable
+    // transaction (inside it, the recursive SEQ$ cache update raises ORA-08177).
+    const seqRow = await this.db.queryOne<{ N: number }>(
+      `SELECT ${this.onyx}.POS_BILLS_SEQ.NEXTVAL AS N FROM DUAL`,
+    );
+    if (!seqRow) throw new Error('insertBill: POS_BILLS_SEQ returned no value');
+    const n = Number(seqRow.N);
+    const billNo = this.formatBillNo(input.machineNo, n);
+    // Same reason: prefetch one DOC_D_SEQ per line outside the transaction.
+    const dtlSeqs: number[] = [];
+    for (let i = 0; i < input.lines.length; i++) {
+      const r = await this.db.queryOne<{ N: number }>(
+        `SELECT ${this.onyx}.POS_BILL_DTL_SEQ.NEXTVAL AS N FROM DUAL`,
+      );
+      if (!r) throw new Error('insertBill: POS_BILL_DTL_SEQ returned no value');
+      dtlSeqs.push(Number(r.N));
+    }
     try {
       await this.db.withTransaction(async (conn) => {
-        const seq = await conn.execute<{ N: number }>(
-          `SELECT ${this.schema}.SEQ_BILL_NO.NEXTVAL AS N FROM DUAL`,
-          {},
-          { outFormat: oracledb.OUT_FORMAT_OBJECT },
-        );
-        const n = (seq.rows as { N: number }[])[0].N;
-        const billNo = this.formatBillNo(input.machineNo, n);
 
+        // 1) Tracking / idempotency row first — the UNIQUE idempotency_key
+        //    makes a duplicate POST fail fast (ORA-00001) and roll back
+        //    everything, including the Onyx rows below.
         await conn.execute(
           `INSERT INTO ${this.schema}.BILLS
              (ID, BILL_NO, SHIFT_ID, CASHIER_NO, MACHINE_NO, BILL_TYPE,
@@ -136,6 +160,83 @@ export class OracleBillWriteRepository implements BillWriteRepository {
           },
         );
 
+        // 2) REAL Onyx header — YSPOS23.IAS_POS_BILL_MST.
+        //    NOT NULL columns are all filled; optional columns stay NULL.
+        //    BILL_SRL (unique) mirrors BILL_NO; DOC_MCHN_SQ carries the raw seq.
+        await conn.execute(
+          `INSERT INTO ${this.onyx}.IAS_POS_BILL_MST
+             (BILL_NO, BILL_SRL, BILL_DATE, BILL_TIME, BILL_TYPE, SI_TYPE,
+              C_CODE, C_NAME, A_CY, BILL_RATE, BILL_AMT, POSTED, BILL_NOTE,
+              MACHINE_NO, HUNG, PAYED_AMT, VAT_AMT, DISC_AMT, DISC_AMT_MST,
+              DISC_AMT_DTL, CASH_NO, W_CODE, AD_U_ID, AD_DATE, AD_TRMNL_NM,
+              CMP_NO, BRN_NO, BRN_YEAR, BRN_USR, DOC_MCHN_SQ, CLC_TYP_NO_TAX)
+           VALUES
+             (TO_NUMBER(:billNo), TO_NUMBER(:billNo), SYSDATE,
+              TO_CHAR(SYSDATE,'HH24:MI:SS'), :billType, 1,
+              :customerCode, :customerName, :currency, 1, :netAmt, 0, :note,
+              :machineNo, 0, 0, :vatAmt, :discountAmt, :discountAmt,
+              0, :cashierNo, :wCode, :cashierNo, SYSDATE, :terminal,
+              :cmpNo, :brnNo, EXTRACT(YEAR FROM SYSDATE), :cashierNo, :seqNo,
+              :taxCalcType)`,
+          {
+            billNo,
+            billType: input.billType,
+            customerCode: input.customerCode,
+            customerName: input.customerName,
+            currency: input.currency,
+            netAmt: input.netAmt,
+            note: `MOTECH-POS ${input.idempotencyKey}`.slice(0, 250),
+            machineNo: input.machineNo ?? ONYX_DEFAULT_MACHINE_NO,
+            vatAmt: input.vatAmt,
+            discountAmt: input.discountAmt,
+            cashierNo: input.cashierNo,
+            wCode: ONYX_DEFAULT_W_CODE,
+            terminal: ONYX_TERMINAL_NAME,
+            cmpNo: ONYX_CMP_NO,
+            brnNo: ONYX_BRN_NO,
+            seqNo: n,
+            taxCalcType: input.taxCalcType,
+          },
+        );
+
+        // 3) REAL Onyx lines — YSPOS23.IAS_POS_BILL_DTL.
+        //    DOC_D_SEQ comes from POS_BILL_DTL_SEQ (part of POSBILLDTL_UQ),
+        //    RCRD_NO is the visual line number, W_CODE/P_SIZE/P_QTY are NOT NULL.
+        for (const [li, l] of input.lines.entries()) {
+          await conn.execute(
+            `INSERT INTO ${this.onyx}.IAS_POS_BILL_DTL
+               (BILL_NO, BILL_SRL, I_CODE, I_QTY, I_PRICE, DIS_PER, DIS_AMT,
+                DIS_AMT_MST, DIS_AMT_DTL, ITM_UNT, P_SIZE, P_QTY, VAT_PER,
+                VAT_AMT, W_CODE, FREE_QTY, RCRD_NO, BRN_NO, BRN_YEAR, BRN_USR,
+                DOC_D_SEQ)
+             VALUES
+               (TO_NUMBER(:billNo), TO_NUMBER(:billNo), :itemCode, :qty,
+                :unitPrice, 0, :lineDiscount, :discMst, :discDtl, :itemUnit,
+                1, :qty2, :vatPercent, :lineVat, :wCode, :freeQty, :lineNo,
+                :brnNo, EXTRACT(YEAR FROM SYSDATE), :cashierNo, :docDSeq)`,
+            {
+              docDSeq: dtlSeqs[li],
+              billNo,
+              itemCode: l.itemCode,
+              qty: l.qty,
+              unitPrice: l.unitPrice,
+              lineDiscount: l.lineDiscount,
+              discMst: l.discMst,
+              discDtl: l.discDtl,
+              itemUnit: l.itemUnit ?? ONYX_DEFAULT_ITM_UNT,
+              qty2: l.qty,
+              vatPercent: l.vatPercent,
+              lineVat: l.lineVat,
+              wCode: ONYX_DEFAULT_W_CODE,
+              freeQty: l.freeQty,
+              lineNo: l.lineNo,
+              brnNo: ONYX_BRN_NO,
+              cashierNo: input.cashierNo,
+            },
+          );
+        }
+
+        // 4) Our read-model lines (reports/assemble read these).
         for (const l of input.lines) {
           await conn.execute(
             `INSERT INTO ${this.schema}.BILL_LINES
@@ -209,6 +310,17 @@ export class OracleBillWriteRepository implements BillWriteRepository {
              SELECT NVL(SUM(AMOUNT_IN_BILL),0) FROM ${this.schema}.PAYMENTS
              WHERE BILL_ID = :billId)
          WHERE ID = :billId`,
+        { billId: input.billId },
+      );
+      // Mirror the paid amount onto the real Onyx header (PAYED_AMT).
+      await conn.execute(
+        `UPDATE ${this.onyx}.IAS_POS_BILL_MST
+           SET PAYED_AMT = (
+             SELECT NVL(SUM(AMOUNT_IN_BILL),0) FROM ${this.schema}.PAYMENTS
+             WHERE BILL_ID = :billId)
+         WHERE BILL_NO = (
+             SELECT TO_NUMBER(BILL_NO) FROM ${this.schema}.BILLS
+             WHERE ID = :billId)`,
         { billId: input.billId },
       );
     });
@@ -310,3 +422,12 @@ export class OracleBillWriteRepository implements BillWriteRepository {
 function round4(n: number): number {
   return Math.round(n * 10000) / 10000;
 }
+
+// --- Onyx (YSPOS23) NOT NULL defaults, mirrored from the live dataset ---
+// Live rows: CMP_NO=1, BRN_NO=1, W_CODE=2 (main warehouse), machines 2/3.
+const ONYX_CMP_NO = 1;
+const ONYX_BRN_NO = 1;
+const ONYX_DEFAULT_W_CODE = 2;
+const ONYX_DEFAULT_MACHINE_NO = 3;
+const ONYX_DEFAULT_ITM_UNT = 'NO';
+const ONYX_TERMINAL_NAME = 'MOTECH-POS';
