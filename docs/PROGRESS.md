@@ -1,6 +1,26 @@
 # 📈 سجل تقدّم Motech POS
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
+## 2026-07-03
+### توأمة Onyx مكتملة: المخزون ينقص عند البيع + المرتجعات تُكتب في YSPOS23 (subagent reroute-inventory-returns)
+**الدورة الكاملة بيع←مخزون←مرتجع←مخزون تعمل على جداول Onyx الحقيقية. proof حي موثّق أدناه.**
+
+1. **المخزون ينقص عند البيع ✅** — اكتشاف مفصلي: `MV_ITEM_AVL_QTY` محسوبة من (ITEM_MOVEMENT − فواتير غير مُرحّلة POSTED=0 + مرتجعات غير مُرحّلة) — لا تُحدّث مباشرة (ORA-01732)، بل بـ `DBMS_MVIEW.REFRESH` (نفس منطق Onyx `MVIEW_REFRESH`). التنفيذ:
+   - proc جديد `YSPOS23.MOTECH_REFRESH_AVL_QTY` (definer-rights) + `GRANT EXECUTE` لـ MOTECH_RW فقط (لا صلاحية DBMS_MVIEW مباشرة).
+   - `OracleWriteService.refreshOnyxAvailability()` تُستدعى **بعد commit** الفاتورة/المرتجع (best-effort — فشل الـrefresh لا يلغي بيعاً مُرتكباً). زمن الـrefresh ~0.16s.
+   - **إصلاح حرج:** الـMV container فيه EXPIRE_DATE/BATCH_NO NOT NULL — فواتير Motech كانت تكتب NULL فتكسر الـrefresh (ORA-01400). الآن كل الأسطر تكتب العُرف القديم `BATCH_NO='0'` + `EXPIRE_DATE=1900-01-01` (+backfill للقديم).
+   - **إصلاح ثانٍ:** retry الـORA-08177 كان يفوّت الحالة المغلفة بـORA-00604 (delayed block cleanout بعد الـrefresh) — صار يفحص نص الرسالة أيضاً.
+2. **المرتجعات تُكتب في Onyx الحقيقي ✅** — `oracle-return-write.repository` صار يكتب (بنفس نمط الفواتير، معاملة واحدة):
+   - `YSPOS23.IAS_POS_RT_BILL_MST` (الرأس: RT_BILL_TYPE=1, RETURN_TYPE, BILL_NO=الفاتورة الأصلية, POSTED=0, CLC_VAT_AMT_TYP) + `IAS_POS_RT_BILL_DTL` (الأسطر: DOC_D_SEQ من `POS_RT_BILL_DTL_SEQ` الموجود، RT_RPLC_AMT، batch/expire بالعُرف القديم) + tracking في MOTECH_POS.RETURNS.
+   - ترقيم RT رقمي خالص `YYMM+machine(3)+seq(8)` من sequence جديد `YSPOS23.POS_RT_BILLS_SEQ` (العمود NUMBER — أسقطنا بادئة 'R' القديمة)، بلا تصادم مع أرقام legacy (13 خانة مقابل 15).
+   - المرتجع على فواتير Motech الجديدة يعمل تلقائياً (قارئ الفاتورة الأصلية يقرأ من YSPOS23 وفواتيرنا صارت هناك) + حارس over-return ما زال يعمل.
+   - ملف هجرة `V010__onyx_returns_and_stock.sql` (proc + sequence + grants + backfill) — مُطبّق حياً.
+3. **proof حي (curl + SELECT قبل/بعد):**
+   - صنف 1020010006: المخزون 156 ← بيع 3 (BILL_NO=260700100000286) ← **153** ← مرتجع 2 (RT_BILL_NO=260700100000001، موجود فعلاً في IAS_POS_RT_BILL_MST/DTL بـSELECT) ← **155** ✅
+   - صنف 1020010009: −2044 ← بيع 5 (260700100000287) ← **−2049** ← مرتجع 5 (260700100000002، refund 250) ← **−2044** ✅
+   - over-return: محاولة إرجاع 2 إضافية ← 422 return-qty-exceeded ("sold 3, already returned 2, remaining 1") ✅ · GET /returns/260700100000001 يقرأه من YSPOS23 ✅
+   - build ✅ · **99/99 اختبار** ✅ · pm2 restart ✅ (lint: 3 أخطاء مسبقة في einvoice ليست من هذا التغيير)
+
 ## 2026-07-01
 ### الموجة 4 (backend): module المخزون + إدارة الأجهزة/المستخدمين — حيّ ومُختبَر (subagent wave4-inventory-admin)
 موديولان جديدان بنمط catalog/reports (Clean/Hexagonal: port/service/repo/controller)، قراءة فقط على Onyx عبر MOTECH_RO (يملك SELECT ANY TABLE — لا حاجة GRANT إضافي، مثبت)، JWT، RFC9457، bind variables، schema-qualified. لم يُمس أي module قائم — إضافة موديولين + سطرين في app.module فقط. **proof-not-assumption: كل endpoint curl حيّ ببيانات حقيقية.**

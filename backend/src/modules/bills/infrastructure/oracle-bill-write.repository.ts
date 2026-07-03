@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import oracledb from 'oracledb';
 import { OracleWriteService } from '../../../infrastructure/oracle/oracle-write.service';
 import { uuidv7 } from '../../../shared/domain/uuid';
 import {
@@ -169,7 +168,8 @@ export class OracleBillWriteRepository implements BillWriteRepository {
               C_CODE, C_NAME, A_CY, BILL_RATE, BILL_AMT, POSTED, BILL_NOTE,
               MACHINE_NO, HUNG, PAYED_AMT, VAT_AMT, DISC_AMT, DISC_AMT_MST,
               DISC_AMT_DTL, CASH_NO, W_CODE, AD_U_ID, AD_DATE, AD_TRMNL_NM,
-              CMP_NO, BRN_NO, BRN_YEAR, BRN_USR, DOC_MCHN_SQ, CLC_TYP_NO_TAX)
+              CMP_NO, BRN_NO, BRN_YEAR, BRN_USR, DOC_MCHN_SQ, CLC_TYP_NO_TAX,
+              CLC_VAT_AMT_TYP)
            VALUES
              (TO_NUMBER(:billNo), TO_NUMBER(:billNo), SYSDATE,
               TO_CHAR(SYSDATE,'HH24:MI:SS'), :billType, 1,
@@ -177,7 +177,7 @@ export class OracleBillWriteRepository implements BillWriteRepository {
               :machineNo, 0, 0, :vatAmt, :discountAmt, :discountAmt,
               0, :cashierNo, :wCode, :cashierNo, SYSDATE, :terminal,
               :cmpNo, :brnNo, EXTRACT(YEAR FROM SYSDATE), :cashierNo, :seqNo,
-              :taxCalcType)`,
+              :taxCalcType, :taxCalcType)`,
           {
             billNo,
             billType: input.billType,
@@ -202,18 +202,22 @@ export class OracleBillWriteRepository implements BillWriteRepository {
         // 3) REAL Onyx lines — YSPOS23.IAS_POS_BILL_DTL.
         //    DOC_D_SEQ comes from POS_BILL_DTL_SEQ (part of POSBILLDTL_UQ),
         //    RCRD_NO is the visual line number, W_CODE/P_SIZE/P_QTY are NOT NULL.
+        //    BATCH_NO='0' + EXPIRE_DATE=1900-01-01 mirror the legacy "no batch"
+        //    convention — MV_ITEM_AVL_QTY's container has them NOT NULL, so a
+        //    NULL here breaks the availability refresh (ORA-01400).
         for (const [li, l] of input.lines.entries()) {
           await conn.execute(
             `INSERT INTO ${this.onyx}.IAS_POS_BILL_DTL
                (BILL_NO, BILL_SRL, I_CODE, I_QTY, I_PRICE, DIS_PER, DIS_AMT,
                 DIS_AMT_MST, DIS_AMT_DTL, ITM_UNT, P_SIZE, P_QTY, VAT_PER,
                 VAT_AMT, W_CODE, FREE_QTY, RCRD_NO, BRN_NO, BRN_YEAR, BRN_USR,
-                DOC_D_SEQ)
+                DOC_D_SEQ, BATCH_NO, EXPIRE_DATE)
              VALUES
                (TO_NUMBER(:billNo), TO_NUMBER(:billNo), :itemCode, :qty,
                 :unitPrice, 0, :lineDiscount, :discMst, :discDtl, :itemUnit,
                 1, :qty2, :vatPercent, :lineVat, :wCode, :freeQty, :lineNo,
-                :brnNo, EXTRACT(YEAR FROM SYSDATE), :cashierNo, :docDSeq)`,
+                :brnNo, EXTRACT(YEAR FROM SYSDATE), :cashierNo, :docDSeq,
+                '0', DATE '1900-01-01')`,
             {
               docDSeq: dtlSeqs[li],
               billNo,
@@ -273,6 +277,12 @@ export class OracleBillWriteRepository implements BillWriteRepository {
       }
       throw err;
     }
+
+    // Post-commit: refresh Onyx availability (MV_ITEM_AVL_QTY) so the sold
+    // qty is deducted immediately. Outside the transaction on purpose —
+    // DBMS_MVIEW.REFRESH issues its own commit. Best-effort: a refresh
+    // failure must never undo a committed sale.
+    await this.db.refreshOnyxAvailability();
 
     const persisted = await this.findById(id);
     if (!persisted) {

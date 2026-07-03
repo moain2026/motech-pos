@@ -160,12 +160,40 @@ export class OracleWriteService implements OnModuleInit, OnApplicationShutdown {
   }
 
   private isSerializationFailure(err: unknown): boolean {
+    if (typeof err !== 'object' || err === null) return false;
+    const e = err as { errorNum?: number; message?: string };
+    // Direct ORA-08177, or wrapped in ORA-00604 (recursive SQL — e.g. delayed
+    // block cleanout after another session touched the same blocks).
     return (
-      typeof err === 'object' &&
-      err !== null &&
-      'errorNum' in err &&
-      (err as { errorNum?: number }).errorNum === 8177
+      e.errorNum === 8177 ||
+      (typeof e.message === 'string' && e.message.includes('ORA-08177'))
     );
+  }
+
+  /**
+   * Refresh Onyx's availability MV (YSPOS23.MV_ITEM_AVL_QTY) after a sale or
+   * return so stock quantities reflect the new document immediately — exactly
+   * how Onyx keeps its الكميات المتاحة current (MVIEW_REFRESH in
+   * PKG_GNRL_FUNC_PKG). Runs the definer-rights helper proc
+   * YSPOS23.MOTECH_REFRESH_AVL_QTY (MOTECH_RW has EXECUTE only). Best-effort:
+   * failures are logged, never thrown — a committed bill must not be undone
+   * by a stock-view refresh problem.
+   */
+  async refreshOnyxAvailability(): Promise<void> {
+    try {
+      const conn = await this.getPool().getConnection();
+      try {
+        await conn.execute(
+          `BEGIN ${this.onyxSchema()}.MOTECH_REFRESH_AVL_QTY; END;`,
+        );
+      } finally {
+        await conn.close();
+      }
+    } catch (err) {
+      this.logger.warn(
+        `MV_ITEM_AVL_QTY refresh failed (stock view may lag): ${String(err)}`,
+      );
+    }
   }
 
   /** Liveness probe for the write DB. */

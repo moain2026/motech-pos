@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import oracledb from 'oracledb';
 import { OracleWriteService } from '../../../infrastructure/oracle/oracle-write.service';
 import { uuidv7 } from '../../../shared/domain/uuid';
 import {
@@ -54,10 +53,18 @@ interface LineRow {
 }
 
 /**
- * OracleReturnWriteRepository — writes returns (مردود مبيعات) into MOTECH_POS
- * (our own schema). Never writes to YSPOS23. The whole return (header + lines)
- * is one transaction. RT numbering is server-side from SEQ_RETURN_NO;
- * the UNIQUE idempotency_key is the anti-duplicate backstop.
+ * OracleReturnWriteRepository — writes returns (مردود مبيعات) into the REAL
+ * Onyx tables (YSPOS23.IAS_POS_RT_BILL_MST / IAS_POS_RT_BILL_DTL — the same
+ * tables EXTRCT_POS_RT_BILL_PRC fills) plus a tracking row in
+ * MOTECH_POS.RETURNS (+RETURN_LINES) that links idempotency_key → RT_BILL_NO
+ * and feeds our read-model. ONE transaction — the return lands in both places
+ * or nowhere. After commit, MV_ITEM_AVL_QTY is refreshed so returned qty goes
+ * back into stock (the MV adds RT bill qty with a + sign).
+ *
+ * RT numbering is server-side: YSPOS23.POS_RT_BILLS_SEQ, formatted
+ * YYMM+machine(3)+seq(8) — numeric, collision-free with legacy RT numbers
+ * (13 digits vs our 15). The UNIQUE idempotency_key on MOTECH_POS.RETURNS is
+ * the final anti-duplicate backstop.
  */
 @Injectable()
 export class OracleReturnWriteRepository implements ReturnWriteRepository {
@@ -65,6 +72,11 @@ export class OracleReturnWriteRepository implements ReturnWriteRepository {
 
   private get schema(): string {
     return this.db.schema();
+  }
+
+  /** Real Onyx POS schema (YSPOS23). */
+  private get onyx(): string {
+    return this.db.onyxSchema();
   }
 
   async findByIdempotencyKey(key: string): Promise<PersistedReturn | null> {
@@ -102,16 +114,30 @@ export class OracleReturnWriteRepository implements ReturnWriteRepository {
 
   async insertReturn(input: InsertReturnInput): Promise<PersistedReturn> {
     const id = uuidv7();
+    // Sequence NEXTVAL is non-transactional; fetch it OUTSIDE the serializable
+    // transaction (inside it, the recursive SEQ$ update raises ORA-08177).
+    const seqRow = await this.db.queryOne<{ N: number }>(
+      `SELECT ${this.onyx}.POS_RT_BILLS_SEQ.NEXTVAL AS N FROM DUAL`,
+    );
+    if (!seqRow) {
+      throw new Error('insertReturn: POS_RT_BILLS_SEQ returned no value');
+    }
+    const rtBillNo = this.formatRtBillNo(input.machineNo, Number(seqRow.N));
+    // One DOC_D_SEQ per line (part of POSRTBILLDTL_UQ), also prefetched.
+    const dtlSeqs: number[] = [];
+    for (let i = 0; i < input.lines.length; i++) {
+      const r = await this.db.queryOne<{ N: number }>(
+        `SELECT ${this.onyx}.POS_RT_BILL_DTL_SEQ.NEXTVAL AS N FROM DUAL`,
+      );
+      if (!r) {
+        throw new Error('insertReturn: POS_RT_BILL_DTL_SEQ returned no value');
+      }
+      dtlSeqs.push(Number(r.N));
+    }
     try {
       await this.db.withTransaction(async (conn) => {
-        const seq = await conn.execute<{ N: number }>(
-          `SELECT ${this.schema}.SEQ_RETURN_NO.NEXTVAL AS N FROM DUAL`,
-          {},
-          { outFormat: oracledb.OUT_FORMAT_OBJECT },
-        );
-        const n = (seq.rows as { N: number }[])[0].N;
-        const rtBillNo = this.formatRtBillNo(input.machineNo, n);
-
+        // 1) Tracking / idempotency row first — UNIQUE idempotency_key makes
+        //    a duplicate POST fail fast and roll back the Onyx rows below.
         await conn.execute(
           `INSERT INTO ${this.schema}.RETURNS
              (ID, RT_BILL_NO, ORIGINAL_BILL_NO, ORIGINAL_BILL_ID, SHIFT_ID,
@@ -176,6 +202,86 @@ export class OracleReturnWriteRepository implements ReturnWriteRepository {
             },
           );
         }
+
+        // 2) REAL Onyx RT header — YSPOS23.IAS_POS_RT_BILL_MST.
+        //    RT_BILL_TYPE=1 / RETURN_TYPE mirror the live dataset; BILL_NO
+        //    carries the original sale; POSTED=0 so the availability MV
+        //    counts the returned qty back into stock.
+        await conn.execute(
+          `INSERT INTO ${this.onyx}.IAS_POS_RT_BILL_MST
+             (RT_BILL_NO, RT_BILL_SRL, RT_BILL_DATE, RT_BILL_TIME, RT_BILL_TYPE,
+              BILL_NO, C_CODE, C_NAME, A_CY, RT_BILL_RATE, RT_BILL_AMT, POSTED,
+              RT_BILL_NOTE, MACHINE_NO, HUNG, PAYED_AMT, VAT_AMT, DISC_AMT,
+              DISC_AMT_MST, DISC_AMT_DTL, CASH_NO, W_CODE, RETURN_TYPE,
+              AD_U_ID, AD_DATE, AD_TRMNL_NM, CMP_NO, BRN_NO, BRN_YEAR, BRN_USR,
+              CLC_TYP_NO_TAX, CLC_VAT_AMT_TYP)
+           VALUES
+             (TO_NUMBER(:rtBillNo), TO_NUMBER(:rtBillNo), SYSDATE,
+              TO_CHAR(SYSDATE,'HH24:MI:SS'), 1,
+              TO_NUMBER(:originalBillNo), :customerCode, :customerName,
+              :currency, 1, :netAmt, 0, :note, :machineNo, 0, 0, :vatAmt,
+              :discountAmt, :discountAmt, 0, :cashierNo, :wCode, :returnType,
+              :cashierNo, SYSDATE, :terminal, :cmpNo, :brnNo,
+              EXTRACT(YEAR FROM SYSDATE), :cashierNo, :taxCalcType,
+              :taxCalcType)`,
+          {
+            rtBillNo,
+            originalBillNo: input.originalBillNo,
+            customerCode: input.customerCode,
+            customerName: input.customerName,
+            currency: input.currency,
+            netAmt: input.netAmt,
+            note: `MOTECH-POS ${input.idempotencyKey}`.slice(0, 250),
+            machineNo: input.machineNo ?? ONYX_DEFAULT_MACHINE_NO,
+            vatAmt: input.vatAmt,
+            discountAmt: input.discountAmt,
+            cashierNo: input.cashierNo,
+            wCode: ONYX_DEFAULT_W_CODE,
+            returnType: input.returnType,
+            terminal: ONYX_TERMINAL_NAME,
+            cmpNo: ONYX_CMP_NO,
+            brnNo: ONYX_BRN_NO,
+            taxCalcType: input.taxCalcType,
+          },
+        );
+
+        // 3) REAL Onyx RT lines — YSPOS23.IAS_POS_RT_BILL_DTL.
+        //    BATCH_NO='0' + EXPIRE_DATE=1900-01-01 mirror the legacy "no
+        //    batch" convention (NOT NULL in the MV container).
+        for (const [li, l] of input.lines.entries()) {
+          await conn.execute(
+            `INSERT INTO ${this.onyx}.IAS_POS_RT_BILL_DTL
+               (RT_BILL_NO, RT_BILL_SRL, I_CODE, I_QTY, I_PRICE, DIS_PER,
+                DIS_AMT, DIS_AMT_MST, DIS_AMT_DTL, ITM_UNT, P_SIZE, P_QTY,
+                VAT_PER, VAT_AMT, W_CODE, FREE_QTY, RCRD_NO, BRN_NO, BRN_YEAR,
+                BRN_USR, DOC_D_SEQ, RT_RPLC_AMT, BATCH_NO, EXPIRE_DATE)
+             VALUES
+               (TO_NUMBER(:rtBillNo), TO_NUMBER(:rtBillNo), :itemCode, :qty,
+                :unitPrice, 0, :lineDiscount, :discMst, :discDtl, :itemUnit,
+                1, :qty2, :vatPercent, :lineVat, :wCode, 0, :lineNo, :brnNo,
+                EXTRACT(YEAR FROM SYSDATE), :cashierNo, :docDSeq, :replaceAmt,
+                '0', DATE '1900-01-01')`,
+            {
+              docDSeq: dtlSeqs[li],
+              rtBillNo,
+              itemCode: l.itemCode,
+              qty: l.qty,
+              unitPrice: l.unitPrice,
+              lineDiscount: l.lineDiscount,
+              discMst: l.discMst,
+              discDtl: l.discDtl,
+              itemUnit: l.itemUnit ?? ONYX_DEFAULT_ITM_UNT,
+              qty2: l.qty,
+              vatPercent: l.vatPercent,
+              lineVat: l.lineVat,
+              wCode: ONYX_DEFAULT_W_CODE,
+              lineNo: l.lineNo,
+              brnNo: ONYX_BRN_NO,
+              cashierNo: input.cashierNo,
+              replaceAmt: l.replaceAmount,
+            },
+          );
+        }
       });
     } catch (err) {
       if (this.isUniqueViolation(err)) {
@@ -184,6 +290,10 @@ export class OracleReturnWriteRepository implements ReturnWriteRepository {
       throw err;
     }
 
+    // Post-commit: refresh MV_ITEM_AVL_QTY so the returned qty is back in
+    // stock immediately. Best-effort — never undoes a committed return.
+    await this.db.refreshOnyxAvailability();
+
     const persisted = await this.findById(id);
     if (!persisted) {
       throw new Error('insertReturn: return vanished after commit');
@@ -191,14 +301,15 @@ export class OracleReturnWriteRepository implements ReturnWriteRepository {
     return persisted;
   }
 
-  // RT_BILL_NO = 'R' + YYMM + machine(3) + seq(8). Compact, sortable, scoped.
+  // RT_BILL_NO = YYMM + machine(3) + seq(8) — numeric (YSPOS23 column is
+  // NUMBER), collision-free with legacy 13-digit RT numbers.
   private formatRtBillNo(machineNo: number | null, seq: number): string {
     const d = new Date();
     const yy = String(d.getFullYear()).slice(2);
     const mm = String(d.getMonth() + 1).padStart(2, '0');
     const mc = String(machineNo ?? 0).padStart(3, '0');
     const sq = String(seq).padStart(8, '0');
-    return `R${yy}${mm}${mc}${sq}`;
+    return `${yy}${mm}${mc}${sq}`;
   }
 
   private async assemble(head: RetRow): Promise<PersistedReturn> {
@@ -263,3 +374,12 @@ export class OracleReturnWriteRepository implements ReturnWriteRepository {
     );
   }
 }
+
+// --- Onyx (YSPOS23) NOT NULL defaults, mirrored from the live dataset ---
+// Live RT rows: CMP_NO=1, BRN_NO=1, W_CODE=2 (main warehouse), machines 2/3.
+const ONYX_CMP_NO = 1;
+const ONYX_BRN_NO = 1;
+const ONYX_DEFAULT_W_CODE = 2;
+const ONYX_DEFAULT_MACHINE_NO = 3;
+const ONYX_DEFAULT_ITM_UNT = 'NO';
+const ONYX_TERMINAL_NAME = 'MOTECH-POS';
