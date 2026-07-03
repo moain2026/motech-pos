@@ -28,8 +28,18 @@ export function useScannerToCart(disabled = false) {
           packSize: detail.packSize,
           lastPrice: detail.lastPrice,
         };
-        addItem(item);
-        setFeedback({ kind: 'added', label: detail.name?.trim() || detail.code });
+        // Weighted (scale) barcode → the backend decodes the embedded weight
+        // (kg) into scanned.quantity; the cart line is pre-filled with it.
+        const qty =
+          detail.scanned?.isWeighted && detail.scanned.quantity > 0
+            ? detail.scanned.quantity
+            : 1;
+        addItem(item, qty);
+        const name = detail.name?.trim() || detail.code;
+        setFeedback({
+          kind: 'added',
+          label: detail.scanned?.isWeighted ? `${name} × ${qty}` : name,
+        });
       } else {
         setFeedback({ kind: 'notfound', label: bc });
       }

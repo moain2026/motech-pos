@@ -17,8 +17,17 @@ import {
   Crown,
   Tags,
   Landmark,
+  Turtle,
+  TrendingUp,
+  GitCompareArrows,
+  Activity,
+  ShieldAlert,
+  ReceiptText,
+  Search,
 } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
+import { Button } from '@/shared/ui/Button';
+import { Input } from '@/shared/ui/Input';
 import { LoadingView, ErrorView, EmptyView } from '@/shared/ui/StateView';
 import { formatMoney, formatNumber } from '@/shared/lib/format';
 import {
@@ -35,6 +44,12 @@ import {
   useTopCustomersReport,
   useDiscountReport,
   useSalesByCategoryReport,
+  useSlowMovingReport,
+  useProfitReport,
+  useComparisonReport,
+  useItemMovementReport,
+  useAuditReport,
+  useVatDetailedReport,
 } from '../api/reports.api';
 import type { UseQueryResult } from '@tanstack/react-query';
 
@@ -51,7 +66,13 @@ type Tab =
   | 'zReport'
   | 'topCustomers'
   | 'discount'
-  | 'salesByCategory';
+  | 'salesByCategory'
+  | 'slowMoving'
+  | 'profit'
+  | 'comparison'
+  | 'itemMovement'
+  | 'audit'
+  | 'vatDetailed';
 
 const TABS: { key: Tab; icon: typeof CalendarDays }[] = [
   { key: 'daily', icon: CalendarDays },
@@ -67,6 +88,12 @@ const TABS: { key: Tab; icon: typeof CalendarDays }[] = [
   { key: 'topCustomers', icon: Crown },
   { key: 'discount', icon: Percent },
   { key: 'salesByCategory', icon: Tags },
+  { key: 'slowMoving', icon: Turtle },
+  { key: 'profit', icon: TrendingUp },
+  { key: 'comparison', icon: GitCompareArrows },
+  { key: 'itemMovement', icon: Activity },
+  { key: 'audit', icon: ShieldAlert },
+  { key: 'vatDetailed', icon: ReceiptText },
 ];
 
 /**
@@ -133,6 +160,12 @@ export function ReportsPage() {
         {tab === 'topCustomers' && <TopCustomersReport query={topCustomers} />}
         {tab === 'discount' && <DiscountReport query={discount} />}
         {tab === 'salesByCategory' && <SalesByCategoryReport query={salesByCategory} />}
+        {tab === 'slowMoving' && <SlowMovingReport />}
+        {tab === 'profit' && <ProfitReport />}
+        {tab === 'comparison' && <ComparisonReportView />}
+        {tab === 'itemMovement' && <ItemMovementReportView />}
+        {tab === 'audit' && <AuditReport />}
+        {tab === 'vatDetailed' && <VatDetailedReport />}
       </div>
     </div>
   );
@@ -169,9 +202,21 @@ function ReportShell<T>({
   return <div className="flex h-full flex-col gap-4">{children}</div>;
 }
 
-function Th({ children, end }: { children: React.ReactNode; end?: boolean }) {
+function Th({
+  children,
+  end,
+  center,
+}: {
+  children: React.ReactNode;
+  end?: boolean;
+  center?: boolean;
+}) {
   return (
-    <th className={`px-3 py-2 font-semibold ${end ? 'text-end' : 'text-start'}`}>{children}</th>
+    <th
+      className={`px-3 py-2 font-semibold ${end ? 'text-end' : center ? 'text-center' : 'text-start'}`}
+    >
+      {children}
+    </th>
   );
 }
 
@@ -777,5 +822,451 @@ function SalesByCategoryReport({ query }: { query: ReturnType<typeof useSalesByC
         </tbody>
       </TableCard>
     </ReportShell>
+  );
+}
+
+/* ==========================================================================
+ * Fable-5 wave — historical / advanced reports (2026-07-03 endpoints):
+ * slow-moving · profit · comparison · item-movement · audit · vat-detailed.
+ * ========================================================================== */
+
+/** Shared date-range picker row (from/to → apply). */
+function RangeBar({
+  onApply,
+  extra,
+}: {
+  onApply: (from?: string, to?: string) => void;
+  extra?: React.ReactNode;
+}) {
+  const { t } = useTranslation();
+  const [from, setFrom] = useState('');
+  const [to, setTo] = useState('');
+  return (
+    <div className="flex flex-wrap items-end gap-2">
+      <label className="flex flex-col gap-1">
+        <span className="text-xs text-[var(--color-muted)]">{t('reports2.from')}</span>
+        <Input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className="h-9 w-40" />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className="text-xs text-[var(--color-muted)]">{t('reports2.to')}</span>
+        <Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-9 w-40" />
+      </label>
+      {extra}
+      <Button
+        variant="primary"
+        className="h-9"
+        onClick={() => onApply(from || undefined, to || undefined)}
+      >
+        {t('reports2.apply')}
+      </Button>
+    </div>
+  );
+}
+
+/* ---------- slow-moving (POSR007) ---------- */
+
+function SlowMovingReport() {
+  const { t } = useTranslation();
+  const [range, setRange] = useState<{ from?: string; to?: string }>({});
+  const query = useSlowMovingReport(range.from, range.to);
+  const rows = query.data ?? [];
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <RangeBar onApply={(from, to) => setRange({ from, to })} />
+      <p className="text-xs text-[var(--color-muted)]">{t('reports2.slowMoving.hint')}</p>
+      <ReportShell query={query} empty={rows.length === 0}>
+        <TableCard>
+          <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+            <tr>
+              <Th>{t('reports.itemName')}</Th>
+              <Th>{t('reports.itemCode')}</Th>
+              <Th end>{t('reports.qty')}</Th>
+              <Th end>{t('reports.totalAmt')}</Th>
+              <Th>{t('reports2.slowMoving.lastSold')}</Th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {rows.map((r) => (
+              <tr key={r.iCode} className="hover:bg-[var(--color-surface-2)]">
+                <td className="px-3 py-2 font-medium">{r.iName?.trim() || r.iCode}</td>
+                <td className="tnum px-3 py-2 text-[var(--color-muted)]">{r.iCode}</td>
+                <td
+                  className={`tnum px-3 py-2 text-end font-bold ${
+                    r.totalQty === 0 ? 'text-[var(--color-danger)]' : ''
+                  }`}
+                >
+                  {formatNumber(r.totalQty)}
+                </td>
+                <td className="tnum px-3 py-2 text-end">{formatMoney(r.totalAmt)}</td>
+                <td className="tnum px-3 py-2 text-[var(--color-muted)]">
+                  {r.lastSoldDay ?? t('reports2.slowMoving.neverSold')}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </TableCard>
+      </ReportShell>
+    </div>
+  );
+}
+
+/* ---------- profit (POSR013) ---------- */
+
+function ProfitReport() {
+  const { t } = useTranslation();
+  const [range, setRange] = useState<{ from?: string; to?: string }>({});
+  const query = useProfitReport(range.from, range.to);
+  const rows = query.data ?? [];
+  const kpis = useMemo(
+    () => ({
+      revenue: rows.reduce((n, r) => n + r.revenue, 0),
+      profit: rows.reduce((n, r) => n + (r.costAvailable ? r.profit : 0), 0),
+    }),
+    [rows],
+  );
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <RangeBar onApply={(from, to) => setRange({ from, to })} />
+      <ReportShell query={query} empty={rows.length === 0}>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Kpi icon={<Coins className="size-6" />} label={t('reports2.profit.revenue')} value={formatMoney(kpis.revenue)} />
+          <Kpi icon={<TrendingUp className="size-6" />} label={t('reports2.profit.profit')} value={formatMoney(kpis.profit)} />
+        </div>
+        <TableCard>
+          <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+            <tr>
+              <Th>{t('reports.itemName')}</Th>
+              <Th end>{t('reports.qty')}</Th>
+              <Th end>{t('reports2.profit.revenue')}</Th>
+              <Th end>{t('reports2.profit.cost')}</Th>
+              <Th end>{t('reports2.profit.profit')}</Th>
+              <Th end>{t('reports2.profit.margin')}</Th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {rows.map((r) => (
+              <tr key={r.iCode} className="hover:bg-[var(--color-surface-2)]">
+                <td className="px-3 py-2 font-medium">
+                  {r.iName?.trim() || r.iCode}
+                  {!r.costAvailable ? (
+                    <span className="ms-2 rounded-full bg-[var(--color-warning)]/15 px-2 py-0.5 text-[10px] text-[var(--color-warning)]">
+                      {t('reports2.profit.noCost')}
+                    </span>
+                  ) : null}
+                </td>
+                <td className="tnum px-3 py-2 text-end">{formatNumber(r.totalQty)}</td>
+                <td className="tnum px-3 py-2 text-end">{formatMoney(r.revenue)}</td>
+                <td className="tnum px-3 py-2 text-end">{r.costAvailable ? formatMoney(r.cost) : '—'}</td>
+                <td
+                  className={`tnum px-3 py-2 text-end font-bold ${
+                    r.costAvailable && r.profit < 0 ? 'text-[var(--color-danger)]' : ''
+                  }`}
+                >
+                  {r.costAvailable ? formatMoney(r.profit) : '—'}
+                </td>
+                <td className="tnum px-3 py-2 text-end">
+                  {r.costAvailable ? `${formatNumber(r.marginPct)}%` : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </TableCard>
+      </ReportShell>
+    </div>
+  );
+}
+
+/* ---------- comparison (A vs B) ---------- */
+
+function ComparisonReportView() {
+  const { t } = useTranslation();
+  const [fromA, setFromA] = useState('');
+  const [toA, setToA] = useState('');
+  const [fromB, setFromB] = useState('');
+  const [toB, setToB] = useState('');
+  const [applied, setApplied] = useState<{
+    fromA?: string;
+    toA?: string;
+    fromB?: string;
+    toB?: string;
+  }>({});
+  const query = useComparisonReport(applied);
+  const r = query.data;
+
+  const dateField = (label: string, value: string, set: (v: string) => void) => (
+    <label className="flex flex-col gap-1">
+      <span className="text-xs text-[var(--color-muted)]">{label}</span>
+      <Input type="date" value={value} onChange={(e) => set(e.target.value)} className="h-9 w-40" />
+    </label>
+  );
+
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <div className="flex flex-wrap items-end gap-2">
+        {dateField(`${t('reports2.comparison.periodA')} — ${t('reports2.from')}`, fromA, setFromA)}
+        {dateField(t('reports2.to'), toA, setToA)}
+        {dateField(`${t('reports2.comparison.periodB')} — ${t('reports2.from')}`, fromB, setFromB)}
+        {dateField(t('reports2.to'), toB, setToB)}
+        <Button
+          variant="primary"
+          className="h-9"
+          disabled={!(fromA && toA && fromB && toB)}
+          onClick={() => setApplied({ fromA, toA, fromB, toB })}
+        >
+          {t('reports2.apply')}
+        </Button>
+      </div>
+
+      {!applied.fromA ? (
+        <EmptyView label={t('reports2.comparison.needDates')} />
+      ) : query.isLoading ? (
+        <LoadingView />
+      ) : query.isError ? (
+        <ErrorView error={query.error} onRetry={() => query.refetch()} />
+      ) : r ? (
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Kpi
+              icon={<Coins className="size-6" />}
+              label={`${t('reports2.comparison.delta')} (${t('reports2.comparison.sales')})`}
+              value={`${formatMoney(r.deltaAmt)} (${formatNumber(r.deltaAmtPct)}%)`}
+            />
+            <Kpi
+              icon={<Receipt className="size-6" />}
+              label={`${t('reports2.comparison.delta')} (${t('reports2.comparison.bills')})`}
+              value={`${formatNumber(r.deltaBills)} (${formatNumber(r.deltaBillsPct)}%)`}
+            />
+          </div>
+          <TableCard>
+            <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+              <tr>
+                <Th>{t('reports2.comparison.metric')}</Th>
+                <Th end>{`${t('reports2.comparison.periodA')} (${r.periodA.from} → ${r.periodA.to})`}</Th>
+                <Th end>{`${t('reports2.comparison.periodB')} (${r.periodB.from} → ${r.periodB.to})`}</Th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {(
+                [
+                  [t('reports2.comparison.sales'), formatMoney(r.periodA.totalAmt), formatMoney(r.periodB.totalAmt)],
+                  [t('reports2.comparison.bills'), formatNumber(r.periodA.billCount), formatNumber(r.periodB.billCount)],
+                  [t('reports2.comparison.avgBill'), formatMoney(r.periodA.avgBill), formatMoney(r.periodB.avgBill)],
+                  [t('reports2.comparison.vat'), formatMoney(r.periodA.totalVat), formatMoney(r.periodB.totalVat)],
+                  [t('reports2.comparison.discount'), formatMoney(r.periodA.totalDisc), formatMoney(r.periodB.totalDisc)],
+                ] as [string, string, string][]
+              ).map(([label, a, b]) => (
+                <tr key={label} className="hover:bg-[var(--color-surface-2)]">
+                  <td className="px-3 py-2 font-medium">{label}</td>
+                  <td className="tnum px-3 py-2 text-end font-bold">{a}</td>
+                  <td className="tnum px-3 py-2 text-end">{b}</td>
+                </tr>
+              ))}
+            </tbody>
+          </TableCard>
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+/* ---------- item movement (POSR007) ---------- */
+
+function ItemMovementReportView() {
+  const { t } = useTranslation();
+  const [itemInput, setItemInput] = useState('');
+  const [range, setRange] = useState<{ item: string; from?: string; to?: string }>({ item: '' });
+  const query = useItemMovementReport(range.item, range.from, range.to);
+  const r = query.data;
+
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <RangeBar
+        extra={
+          <label className="flex flex-col gap-1">
+            <span className="text-xs text-[var(--color-muted)]">{t('reports2.itemMovement.itemCode')}</span>
+            <div className="relative">
+              <Search className="pointer-events-none absolute inset-y-0 end-2 my-auto size-4 text-[var(--color-muted)]" aria-hidden />
+              <Input
+                value={itemInput}
+                onChange={(e) => setItemInput(e.target.value)}
+                placeholder={t('reports2.itemMovement.itemPlaceholder')}
+                className="tnum h-9 w-48 pe-8"
+              />
+            </div>
+          </label>
+        }
+        onApply={(from, to) => setRange({ item: itemInput.trim(), from, to })}
+      />
+
+      {!range.item ? (
+        <EmptyView label={t('reports2.itemMovement.needItem')} />
+      ) : query.isLoading ? (
+        <LoadingView />
+      ) : query.isError ? (
+        <ErrorView error={query.error} onRetry={() => query.refetch()} />
+      ) : r ? (
+        <>
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <Kpi icon={<Package className="size-6" />} label={t('reports2.itemMovement.sold')} value={formatNumber(r.totalSoldQty)} />
+            <Kpi icon={<Undo2 className="size-6" />} label={t('reports2.itemMovement.returned')} value={formatNumber(r.totalReturnedQty)} />
+            <Kpi icon={<Activity className="size-6" />} label={t('reports2.itemMovement.netQty')} value={formatNumber(r.netQty)} />
+            <Kpi icon={<Coins className="size-6" />} label={t('reports2.itemMovement.netAmt')} value={formatMoney(r.netAmt)} />
+          </div>
+          <p className="text-sm font-bold">{r.iName?.trim() || r.iCode}</p>
+          {r.movements.length === 0 ? (
+            <EmptyView />
+          ) : (
+            <TableCard>
+              <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+                <tr>
+                  <Th>{t('reports2.itemMovement.moveType')}</Th>
+                  <Th>{t('bills.billNo')}</Th>
+                  <Th>{t('reports.day')}</Th>
+                  <Th>{t('reports2.itemMovement.time')}</Th>
+                  <Th end>{t('reports.qty')}</Th>
+                  <Th end>{t('pos.price')}</Th>
+                  <Th end>{t('reports.totalAmt')}</Th>
+                  <Th end>{t('reports.machineNo')}</Th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {r.movements.map((m, i) => (
+                  <tr key={`${m.billNo}-${i}`} className="hover:bg-[var(--color-surface-2)]">
+                    <td className="px-3 py-2">
+                      <span
+                        className={
+                          'rounded-full px-2 py-0.5 text-xs font-medium ' +
+                          (m.moveType === 'SALE'
+                            ? 'bg-[var(--color-success)]/15 text-[var(--color-success)]'
+                            : 'bg-[var(--color-danger)]/15 text-[var(--color-danger)]')
+                        }
+                      >
+                        {m.moveType === 'SALE' ? t('reports2.itemMovement.sale') : t('reports2.itemMovement.return')}
+                      </span>
+                    </td>
+                    <td className="tnum px-3 py-2">{m.billNo}</td>
+                    <td className="tnum px-3 py-2">{m.day}</td>
+                    <td className="tnum px-3 py-2 text-[var(--color-muted)]">{m.time ?? '—'}</td>
+                    <td className="tnum px-3 py-2 text-end font-bold">{formatNumber(m.qty)}</td>
+                    <td className="tnum px-3 py-2 text-end">{formatMoney(m.price)}</td>
+                    <td className="tnum px-3 py-2 text-end">{formatMoney(m.amount)}</td>
+                    <td className="tnum px-3 py-2 text-end text-[var(--color-muted)]">{m.machineNo ?? '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </TableCard>
+          )}
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+/* ---------- audit — deleted lines (POSR005) ---------- */
+
+function AuditReport() {
+  const { t } = useTranslation();
+  const [range, setRange] = useState<{ from?: string; to?: string }>({});
+  const query = useAuditReport(range.from, range.to);
+  const rows = query.data ?? [];
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <RangeBar onApply={(from, to) => setRange({ from, to })} />
+      <p className="text-xs text-[var(--color-muted)]">{t('reports2.audit.hint')}</p>
+      <ReportShell query={query} empty={rows.length === 0}>
+        <TableCard>
+          <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+            <tr>
+              <Th>{t('bills.billNo')}</Th>
+              <Th>{t('reports.itemName')}</Th>
+              <Th end>{t('reports.qty')}</Th>
+              <Th end>{t('pos.price')}</Th>
+              <Th end>{t('reports.totalAmt')}</Th>
+              <Th>{t('reports2.audit.byUser')}</Th>
+              <Th>{t('reports2.audit.deletedAt')}</Th>
+              <Th center>{t('reports2.audit.fromHung')}</Th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {rows.map((r, i) => (
+              <tr key={`${r.billNo}-${r.iCode}-${i}`} className="hover:bg-[var(--color-surface-2)]">
+                <td className="tnum px-3 py-2">{r.billNo}</td>
+                <td className="px-3 py-2 font-medium">{r.iName?.trim() || r.iCode}</td>
+                <td className="tnum px-3 py-2 text-end">{formatNumber(r.qty)}</td>
+                <td className="tnum px-3 py-2 text-end">{formatMoney(r.price)}</td>
+                <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.amount)}</td>
+                <td className="px-3 py-2 text-[var(--color-muted)]">
+                  {r.auditUserName?.trim() || (r.auditUserId != null ? `#${r.auditUserId}` : '—')}
+                </td>
+                <td className="tnum px-3 py-2 text-[var(--color-muted)]">{r.auditedAt ?? '—'}</td>
+                <td className="px-3 py-2 text-center">
+                  {r.fromHungBill ? (
+                    <span className="rounded-full bg-[var(--color-warning)]/15 px-2 py-0.5 text-xs text-[var(--color-warning)]">
+                      {t('reports2.audit.fromHung')}
+                    </span>
+                  ) : (
+                    '—'
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </TableCard>
+      </ReportShell>
+    </div>
+  );
+}
+
+/* ---------- VAT detailed (rate × category) ---------- */
+
+function VatDetailedReport() {
+  const { t } = useTranslation();
+  const [range, setRange] = useState<{ from?: string; to?: string }>({});
+  const query = useVatDetailedReport(range.from, range.to);
+  const rows = query.data ?? [];
+  const kpis = useMemo(
+    () => ({
+      gross: rows.reduce((n, r) => n + r.grossAmt, 0),
+      vat: rows.reduce((n, r) => n + r.vatAmt, 0),
+    }),
+    [rows],
+  );
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <RangeBar onApply={(from, to) => setRange({ from, to })} />
+      <p className="text-xs text-[var(--color-muted)]">{t('reports2.vatDetailed.hint')}</p>
+      <ReportShell query={query} empty={rows.length === 0}>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Kpi icon={<Coins className="size-6" />} label={t('reports2.vatDetailed.gross')} value={formatMoney(kpis.gross)} />
+          <Kpi icon={<Landmark className="size-6" />} label={t('reports2.vatDetailed.vatAmt')} value={formatMoney(kpis.vat)} />
+        </div>
+        <TableCard>
+          <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+            <tr>
+              <Th end>{t('reports2.vatDetailed.rate')}</Th>
+              <Th>{t('reports2.vatDetailed.category')}</Th>
+              <Th end>{t('reports.lineCount')}</Th>
+              <Th end>{t('reports.totalQty')}</Th>
+              <Th end>{t('reports2.vatDetailed.gross')}</Th>
+              <Th end>{t('reports2.vatDetailed.vatAmt')}</Th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {rows.map((r, i) => (
+              <tr key={`${r.vatRate}-${r.categoryNo}-${i}`} className="hover:bg-[var(--color-surface-2)]">
+                <td className="tnum px-3 py-2 text-end font-bold">{formatNumber(r.vatRate)}%</td>
+                <td className="px-3 py-2 font-medium">
+                  {r.categoryName?.trim() || (r.categoryNo != null ? `#${r.categoryNo}` : '—')}
+                </td>
+                <td className="tnum px-3 py-2 text-end">{formatNumber(r.lineCount)}</td>
+                <td className="tnum px-3 py-2 text-end">{formatNumber(r.totalQty)}</td>
+                <td className="tnum px-3 py-2 text-end">{formatMoney(r.grossAmt)}</td>
+                <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.vatAmt)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </TableCard>
+      </ReportShell>
+    </div>
   );
 }

@@ -1,14 +1,34 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Scale, Banknote, CreditCard, Clock, Calculator } from 'lucide-react';
+import {
+  Scale,
+  Banknote,
+  CreditCard,
+  Clock,
+  Calculator,
+  Coins,
+  Plus,
+  Trash2,
+  BadgeCheck,
+  Star,
+  Ticket,
+} from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { LoadingView, ErrorView, EmptyView } from '@/shared/ui/StateView';
-import { formatMoney } from '@/shared/lib/format';
+import { ApiError } from '@/shared/lib/api-client';
+import { formatMoney, formatNumber } from '@/shared/lib/format';
 import { usePosSettings } from '@/features/pos-terminal/store/pos-settings.store';
+import { useSession } from '@/features/auth';
 import type { PaymentMethod } from '@/shared/lib/types';
-import { useCurrentShift, useShiftReconciliation } from '../api/shifts.api';
+import {
+  useCurrentShift,
+  useShiftReconciliation,
+  useShiftCount,
+  useSettleShift,
+  useShiftSettlement,
+} from '../api/shifts.api';
 
 /**
  * مطابقة إقفال الوردية (Cashier reconciliation / Z-X report).
@@ -19,8 +39,14 @@ import { useCurrentShift, useShiftReconciliation } from '../api/shifts.api';
 export function ReconciliationPage() {
   const { t } = useTranslation();
   const cashierNo = usePosSettings((s) => s.cashierNo);
+  const lastShiftId = usePosSettings((s) => s.lastShiftId);
+  const lastShiftNo = usePosSettings((s) => s.lastShiftNo);
   const shiftQ = useCurrentShift(cashierNo);
   const shift = shiftQ.data?.shift ?? null;
+  // After close there is no "current" shift — fall back to the last known one
+  // so the POST013 count/settle flow stays reachable.
+  const effectiveShiftId = shift?.id ?? lastShiftId;
+  const effectiveShiftNo = shift?.shiftNo ?? lastShiftNo;
 
   const [actualStr, setActualStr] = useState('');
   const [expensesStr, setExpensesStr] = useState('');
@@ -39,6 +65,8 @@ export function ReconciliationPage() {
       CASH: { icon: Banknote, label: t('pos.methodCash') },
       CARD: { icon: CreditCard, label: t('pos.methodCard') },
       CREDIT: { icon: Clock, label: t('pos.methodCredit') },
+      POINTS: { icon: Star, label: t('pos.methodPoints') },
+      COUPON: { icon: Ticket, label: t('pos.methodCoupon') },
     }),
     [t],
   );
@@ -51,10 +79,24 @@ export function ReconciliationPage() {
   };
 
   if (shiftQ.isLoading) return <LoadingView />;
-  if (!shift) {
+  if (!effectiveShiftId) {
     return (
       <div className="p-4">
         <EmptyView label={t('recon.noShift')} />
+      </div>
+    );
+  }
+
+  // Closed shift (no open one): show the settlement flow only.
+  if (!shift) {
+    return (
+      <div className="mx-auto grid max-w-3xl gap-4 p-4">
+        <h1 className="flex items-center gap-2 text-lg font-bold">
+          <Scale className="size-6 text-[var(--color-brand-500)]" aria-hidden />
+          {t('recon.title')}
+          {effectiveShiftNo != null ? <> — {t('shift.no')} #{effectiveShiftNo}</> : null}
+        </h1>
+        <DenominationSettlement shiftId={effectiveShiftId} currency="YER" />
       </div>
     );
   }
@@ -152,6 +194,9 @@ export function ReconciliationPage() {
             </div>
           </Card>
 
+          {/* POST013 — cash count by denominations + approved settlement */}
+          <DenominationSettlement shiftId={shift.id} currency={shift.currency} />
+
           {/* Per-method breakdown */}
           <Card className="p-4">
             <h2 className="mb-3 font-bold">{t('recon.breakdown')}</h2>
@@ -201,6 +246,262 @@ export function ReconciliationPage() {
         </>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * POST013 — تصفية مبيعات الكاشيرات: enter the counted cash by currency
+ * denominations (value × count → amount), save it (POST /shifts/{id}/count),
+ * then a supervisor/admin approves the final settlement
+ * (POST /shifts/{id}/settle → status SETTLED, irreversible). The live view
+ * comes from GET /shifts/{id}/settlement.
+ */
+function DenominationSettlement({ shiftId, currency }: { shiftId: string; currency: string }) {
+  const { t } = useTranslation();
+  const role = useSession((s) => s.user?.role);
+  const canSettle = role === 'supervisor' || role === 'admin';
+
+  const settlement = useShiftSettlement(shiftId);
+  const saveCount = useShiftCount();
+  const settle = useSettleShift();
+
+  const [rows, setRows] = useState<{ value: string; count: string }[]>([
+    { value: '1000', count: '' },
+    { value: '500', count: '' },
+    { value: '250', count: '' },
+    { value: '100', count: '' },
+    { value: '50', count: '' },
+  ]);
+  const [note, setNote] = useState('');
+  const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
+
+  const s = settlement.data;
+  const settled = s?.status === 'SETTLED';
+
+  const countedTotal = useMemo(
+    () =>
+      rows.reduce((sum, r) => {
+        const v = Number(r.value) || 0;
+        const c = Number(r.count) || 0;
+        return sum + v * c;
+      }, 0),
+    [rows],
+  );
+
+  const setRow = (i: number, patch: Partial<{ value: string; count: string }>) =>
+    setRows((rs) => rs.map((r, idx) => (idx === i ? { ...r, ...patch } : r)));
+
+  const onSaveCount = async () => {
+    setMsg(null);
+    const denominations = rows
+      .map((r) => ({ value: Number(r.value) || 0, count: Number(r.count) || 0 }))
+      .filter((d) => d.value > 0 && d.count > 0);
+    if (denominations.length === 0) return;
+    try {
+      await saveCount.mutateAsync({ id: shiftId, dto: { currency, denominations } });
+      setMsg({ kind: 'ok', text: t('recon.countSaved') });
+    } catch (e) {
+      const detail = e instanceof ApiError ? e.problem.detail || e.problem.title : '';
+      setMsg({ kind: 'err', text: `${t('recon.countError')}${detail ? ` — ${detail}` : ''}` });
+    }
+  };
+
+  const onSettle = async () => {
+    setMsg(null);
+    try {
+      const res = await settle.mutateAsync({
+        id: shiftId,
+        dto: note.trim() ? { note: note.trim() } : {},
+      });
+      setMsg({
+        kind: 'ok',
+        text: `${t('recon.settled')} — ${t('recon.difference')}: ${formatMoney(res.difference ?? 0)}`,
+      });
+    } catch (e) {
+      const detail = e instanceof ApiError ? e.problem.detail || e.problem.title : '';
+      setMsg({ kind: 'err', text: `${t('recon.settleError')}${detail ? ` — ${detail}` : ''}` });
+    }
+  };
+
+  return (
+    <Card className="p-4">
+      <h2 className="mb-3 flex items-center gap-2 font-bold">
+        <Coins className="size-5 text-[var(--color-brand-500)]" aria-hidden />
+        {t('recon.countSection')}
+      </h2>
+
+      {settlement.isLoading ? (
+        <LoadingView />
+      ) : settled && s ? (
+        /* Frozen, approved settlement */
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2 rounded-[var(--radius)] bg-[var(--color-success)]/15 p-3 text-[var(--color-success)]">
+            <BadgeCheck className="size-5" aria-hidden />
+            <span className="font-bold">
+              {t('recon.settled')} · {t('recon.shiftStatus.SETTLED')}
+            </span>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Line label={t('recon.expectedCash')} value={formatMoney(s.expectedCash ?? 0)} />
+            <Line label={t('recon.countedTotal')} value={formatMoney(s.countedCash ?? 0)} strong />
+            <Line
+              label={`${t('recon.difference')}${s.overShort ? ` · ${t(`recon.status.${s.overShort}`)}` : ''}`}
+              value={formatMoney(s.difference ?? 0)}
+              strong
+            />
+            <Line label={t('recon.settledAt')} value={s.settledAt ?? '—'} />
+            {s.settledBy != null ? (
+              <Line label={t('recon.settledBy')} value={`#${s.settledBy}`} />
+            ) : null}
+            {s.settleNote ? <Line label={t('recon.settleNote')} value={s.settleNote} /> : null}
+          </div>
+          {s.denominations.length > 0 ? (
+            <table className="mt-2 w-full text-sm">
+              <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+                <tr>
+                  <th className="px-3 py-1.5 text-start font-semibold">{t('recon.denomValue')}</th>
+                  <th className="px-3 py-1.5 text-end font-semibold">{t('recon.denomCount')}</th>
+                  <th className="px-3 py-1.5 text-end font-semibold">{t('recon.denomAmount')}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {s.denominations.map((d) => (
+                  <tr key={`${d.currency}-${d.value}`}>
+                    <td className="tnum px-3 py-1.5">
+                      {formatNumber(d.value)} {d.currency}
+                    </td>
+                    <td className="tnum px-3 py-1.5 text-end">{formatNumber(d.count)}</td>
+                    <td className="tnum px-3 py-1.5 text-end font-bold">{formatMoney(d.amount)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : null}
+        </div>
+      ) : (
+        <>
+          {/* Denomination entry */}
+          <ul className="flex flex-col gap-2">
+            {rows.map((r, i) => {
+              const amount = (Number(r.value) || 0) * (Number(r.count) || 0);
+              return (
+                <li key={i} className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    min={0}
+                    value={r.value}
+                    onChange={(e) => setRow(i, { value: e.target.value })}
+                    className="tnum h-9 w-28 text-end"
+                    aria-label={t('recon.denomValue')}
+                  />
+                  <span className="text-xs text-[var(--color-muted)]">×</span>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={r.count}
+                    onChange={(e) => setRow(i, { count: e.target.value })}
+                    className="tnum h-9 w-24 text-end"
+                    placeholder="0"
+                    aria-label={t('recon.denomCount')}
+                  />
+                  <span className="tnum ms-auto text-sm font-semibold">
+                    {amount > 0 ? formatMoney(amount) : '—'}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-8 text-[var(--color-danger)]"
+                    onClick={() => setRows((rs) => rs.filter((_, idx) => idx !== i))}
+                    aria-label={t('pos.remove')}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="mt-2 flex items-center justify-between">
+            <Button
+              variant="ghost"
+              className="h-8 text-xs"
+              onClick={() => setRows((rs) => [...rs, { value: '', count: '' }])}
+            >
+              <Plus className="size-4" />
+              {t('recon.addDenom')}
+            </Button>
+            <p className="text-sm">
+              {t('recon.countedTotal')}:{' '}
+              <span className="tnum font-extrabold">{formatMoney(countedTotal)}</span>
+            </p>
+          </div>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <Button
+              variant="primary"
+              className="h-10"
+              disabled={countedTotal <= 0 || saveCount.isPending}
+              onClick={onSaveCount}
+            >
+              {saveCount.isPending ? t('recon.savingCount') : t('recon.saveCount')}
+            </Button>
+            {s?.countedCash != null ? (
+              <span className="text-xs text-[var(--color-muted)]">
+                {t('recon.countedTotal')} ({t('recon.statusLabel')}):{' '}
+                <span className="tnum font-bold">{formatMoney(s.countedCash)}</span>
+                {s.difference != null ? (
+                  <>
+                    {' · '}
+                    {t('recon.difference')}:{' '}
+                    <span className="tnum font-bold">{formatMoney(s.difference)}</span>
+                  </>
+                ) : null}
+              </span>
+            ) : null}
+          </div>
+
+          {/* Approved settlement (supervisor/admin, shift must be CLOSED) */}
+          {canSettle ? (
+            <div className="mt-4 border-t pt-3">
+              <h3 className="mb-2 font-bold">{t('recon.settleSection')}</h3>
+              <p className="mb-2 text-xs text-[var(--color-muted)]">{t('recon.settleHint')}</p>
+              <div className="flex flex-wrap items-end gap-2">
+                <label className="flex flex-col gap-1">
+                  <span className="text-sm text-[var(--color-muted)]">{t('recon.settleNote')}</span>
+                  <Input
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    className="h-10 w-64"
+                  />
+                </label>
+                <Button
+                  variant="success"
+                  className="h-10"
+                  disabled={settle.isPending}
+                  onClick={onSettle}
+                >
+                  <BadgeCheck className="size-4" />
+                  {settle.isPending ? t('recon.settling') : t('recon.settle')}
+                </Button>
+              </div>
+            </div>
+          ) : null}
+        </>
+      )}
+
+      {msg ? (
+        <p
+          role={msg.kind === 'err' ? 'alert' : 'status'}
+          className={`mt-3 rounded-md p-2 text-center text-xs ${
+            msg.kind === 'ok'
+              ? 'bg-[var(--color-success)]/15 text-[var(--color-success)]'
+              : 'bg-[var(--color-danger)]/15 text-[var(--color-danger)]'
+          }`}
+        >
+          {msg.text}
+        </p>
+      ) : null}
+    </Card>
   );
 }
 

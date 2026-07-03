@@ -5,11 +5,17 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { api, getData, getEnvelope } from '@/shared/lib/api-client';
+import { newIdempotencyKey } from '@/shared/lib/idempotency';
 import type {
   ApiEnvelope,
+  CollectDto,
+  CollectResult,
   CreateCustomerDto,
+  CreditBillsView,
   Customer,
+  CustomerLedgerView,
   CustomerPoints,
+  LoyaltySummary,
   UpdateCustomerDto,
 } from '@/shared/lib/types';
 
@@ -92,4 +98,70 @@ export function useUpdateCustomer() {
 /** Display helper: Arabic name first, then English, then code. */
 export function customerLabel(c: Customer, noName: string): string {
   return c.arName?.trim() || c.enName?.trim() || c.code || noName;
+}
+
+// ===========================================================================
+// Loyalty ledger (POST021) + credit collections (POST010/011)
+// Endpoints proof-verified against live :3000 (2026-07-03).
+// ===========================================================================
+
+/**
+ * GET /loyalty/customers/{code}/ledger — full points movement history with a
+ * running balance per row (newest first) + the earned balance.
+ */
+export function useCustomerLedger(code: string | null, limit = 100) {
+  return useQuery({
+    queryKey: ['loyalty', 'ledger', code, { limit }],
+    enabled: !!code,
+    queryFn: () =>
+      getData<CustomerLedgerView>(
+        `/loyalty/customers/${encodeURIComponent(code!)}/ledger?limit=${limit}`,
+      ),
+  });
+}
+
+/** GET /loyalty/summary — chain-wide granted vs redeemed points totals. */
+export function useLoyaltySummary() {
+  return useQuery({
+    queryKey: ['loyalty', 'summary'],
+    queryFn: () => getData<LoyaltySummary>('/loyalty/summary'),
+    staleTime: 30_000,
+  });
+}
+
+/**
+ * GET /customers/{code}/credit-bills — the customer's credit (آجل) bills with
+ * per-bill collected/outstanding amounts + total outstanding debt.
+ * `status: 'all'` includes settled bills; default is open-only.
+ */
+export function useCreditBills(code: string | null, status: 'open' | 'all' = 'open') {
+  return useQuery({
+    queryKey: ['customer', code, 'credit-bills', status],
+    enabled: !!code,
+    queryFn: () =>
+      getData<CreditBillsView>(
+        `/customers/${encodeURIComponent(code!)}/credit-bills${status === 'all' ? '?status=all' : ''}`,
+      ),
+  });
+}
+
+/**
+ * POST /customers/{code}/collect — record a collection receipt against one
+ * credit bill (Idempotency-Key mandatory; server guards over-collection).
+ */
+export function useCollectCredit() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: { code: string; dto: CollectDto }): Promise<CollectResult> => {
+      const res = await api.post<ApiEnvelope<CollectResult>>(
+        `/customers/${encodeURIComponent(vars.code)}/collect`,
+        vars.dto,
+        { headers: { 'Idempotency-Key': newIdempotencyKey() } },
+      );
+      return res.data.data;
+    },
+    onSuccess: (_r, vars) => {
+      qc.invalidateQueries({ queryKey: ['customer', vars.code, 'credit-bills'] });
+    },
+  });
 }

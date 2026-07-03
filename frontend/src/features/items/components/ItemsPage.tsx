@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Package, Search, Plus, Pencil } from 'lucide-react';
+import { Package, Search, Plus, Pencil, Layers } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
@@ -8,8 +8,9 @@ import { OriginBadge } from '@/shared/ui/OriginBadge';
 import { LoadingView, ErrorView, EmptyView } from '@/shared/ui/StateView';
 import { formatMoney } from '@/shared/lib/format';
 import type { Item } from '@/shared/lib/types';
-import { useItemSearch } from '@/features/pos-terminal/api/items.api';
+import { useItemSearch, useCategories } from '@/features/pos-terminal/api/items.api';
 import { ItemDialog } from './ItemDialog';
+import { ItemCatalogDialog } from './ItemCatalogDialog';
 
 function useDebounced<T>(value: T, ms: number): T {
   const [v, setV] = useState(value);
@@ -28,10 +29,13 @@ function useDebounced<T>(value: T, ms: number): T {
 export function ItemsPage() {
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('');
   const debounced = useDebounced(search, 300);
-  const query = useItemSearch(debounced);
+  const categories = useCategories();
+  const query = useItemSearch(debounced, { category });
 
   const [dialog, setDialog] = useState<{ item: Item | null } | null>(null);
+  const [catalogItem, setCatalogItem] = useState<Item | null>(null);
 
   const items = useMemo(
     () => query.data?.pages.flatMap((p) => p.data) ?? [],
@@ -51,18 +55,34 @@ export function ItemsPage() {
         </Button>
       </div>
 
-      <div className="relative max-w-lg">
-        <Search
-          className="pointer-events-none absolute inset-y-0 end-3 my-auto size-5 text-[var(--color-muted)]"
-          aria-hidden
-        />
-        <Input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('items.search')}
-          className="h-11 pe-10"
-          aria-label={t('items.search')}
-        />
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative max-w-lg flex-1">
+          <Search
+            className="pointer-events-none absolute inset-y-0 end-3 my-auto size-5 text-[var(--color-muted)]"
+            aria-hidden
+          />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('items.search')}
+            className="h-11 pe-10"
+            aria-label={t('items.search')}
+          />
+        </div>
+        {/* Category filter (GET /categories → ?category= on GET /items) */}
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="h-11 rounded-md border bg-[var(--color-surface)] px-3 text-sm"
+          aria-label={t('catalog.categories')}
+        >
+          <option value="">{t('catalog.allCategories')}</option>
+          {(categories.data ?? []).map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.name?.trim() || c.code} ({c.itemCount})
+            </option>
+          ))}
+        </select>
       </div>
 
       <Card className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -99,6 +119,15 @@ export function ItemsPage() {
                       <Button
                         variant="ghost"
                         size="icon"
+                        aria-label={t('catalog.details')}
+                        title={t('catalog.details')}
+                        onClick={() => setCatalogItem(it)}
+                      >
+                        <Layers className="size-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         aria-label={t('items.edit')}
                         onClick={() => setDialog({ item: it })}
                       >
@@ -130,6 +159,10 @@ export function ItemsPage() {
           item={dialog.item}
           onClose={() => setDialog(null)}
         />
+      ) : null}
+
+      {catalogItem ? (
+        <ItemCatalogDialog item={catalogItem} onClose={() => setCatalogItem(null)} />
       ) : null}
     </div>
   );

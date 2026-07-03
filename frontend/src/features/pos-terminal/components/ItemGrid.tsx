@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Plus, Package } from 'lucide-react';
+import { Search, Plus, Package, Tags } from 'lucide-react';
 import { Input } from '@/shared/ui/Input';
 import { Button } from '@/shared/ui/Button';
 import { LoadingView, ErrorView, EmptyView } from '@/shared/ui/StateView';
 import { formatMoney } from '@/shared/lib/format';
 import type { Item } from '@/shared/lib/types';
-import { useItemSearch } from '../api/items.api';
+import { useItemSearch, useCategories } from '../api/items.api';
 import { useCart } from '../store/cart.store';
 
 /** Debounce a value. */
@@ -26,11 +26,19 @@ function itemLabel(item: Item, noName: string): string {
 export function ItemGrid() {
   const { t } = useTranslation();
   const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('');
+  const [subCategory, setSubCategory] = useState('');
   const debounced = useDebounced(search, 300);
   const addItem = useCart((s) => s.addItem);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const query = useItemSearch(debounced);
+  const categories = useCategories();
+  const selectedGroup = useMemo(
+    () => categories.data?.find((c) => c.code === category) ?? null,
+    [categories.data, category],
+  );
+
+  const query = useItemSearch(debounced, { category, subCategory });
   const items = useMemo(
     () => query.data?.pages.flatMap((p) => p.data) ?? [],
     [query.data],
@@ -52,6 +60,32 @@ export function ItemGrid() {
     }
   };
 
+  const CategoryChip = ({
+    active,
+    label,
+    onClick,
+    icon,
+    small,
+  }: {
+    active: boolean;
+    label: string;
+    onClick: () => void;
+    icon?: boolean;
+    small?: boolean;
+  }) => (
+    <button
+      onClick={onClick}
+      className={`flex shrink-0 items-center gap-1 rounded-full border px-3 ${small ? 'py-0.5 text-[11px]' : 'py-1 text-xs'} font-medium transition-colors ${
+        active
+          ? 'border-[var(--color-brand-500)] bg-[var(--color-brand-600)] text-white'
+          : 'text-[var(--color-muted)] hover:bg-[var(--color-surface-2)]'
+      }`}
+    >
+      {icon ? <Tags className="size-3" aria-hidden /> : null}
+      {label}
+    </button>
+  );
+
   return (
     <section className="flex h-full flex-col gap-3" aria-label={t('pos.itemsGrid')}>
       <div className="relative">
@@ -69,6 +103,47 @@ export function ItemGrid() {
           aria-label={t('pos.search')}
         />
       </div>
+
+      {/* Category browsing (GROUP_DETAILS → sub-groups) */}
+      {categories.data && categories.data.length > 0 ? (
+        <div className="flex flex-col gap-1">
+          <div className="flex gap-1 overflow-x-auto scroll-thin pb-1" role="tablist" aria-label={t('catalog.categories')}>
+            <CategoryChip
+              active={!category}
+              label={t('catalog.allCategories')}
+              onClick={() => {
+                setCategory('');
+                setSubCategory('');
+              }}
+              icon
+            />
+            {categories.data.map((c) => (
+              <CategoryChip
+                key={c.code}
+                active={category === c.code}
+                label={`${c.name?.trim() || c.code} (${c.itemCount})`}
+                onClick={() => {
+                  setCategory((prev) => (prev === c.code ? '' : c.code));
+                  setSubCategory('');
+                }}
+              />
+            ))}
+          </div>
+          {selectedGroup && selectedGroup.children.length > 0 ? (
+            <div className="flex gap-1 overflow-x-auto scroll-thin pb-1" aria-label={t('catalog.subCategories')}>
+              {selectedGroup.children.map((sc) => (
+                <CategoryChip
+                  key={sc.code}
+                  active={subCategory === sc.code}
+                  label={`${sc.name?.trim() || sc.code} (${sc.itemCount})`}
+                  onClick={() => setSubCategory((prev) => (prev === sc.code ? '' : sc.code))}
+                  small
+                />
+              ))}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
 
       <div className="min-h-0 flex-1 overflow-y-auto scroll-thin">
         {query.isLoading ? (

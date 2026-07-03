@@ -188,6 +188,7 @@ export function SaleSummary() {
           billNo={payTarget.billNo}
           billCurrency="YER"
           netAmt={payTarget.net}
+          customerCode={customer?.code ?? null}
           onClose={() => setPayTarget(null)}
           onSettled={() => {
             setDone({ id: payTarget.id, billNo: payTarget.billNo, net: payTarget.net });

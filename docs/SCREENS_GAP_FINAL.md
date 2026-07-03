@@ -13,7 +13,7 @@
 
 | الشاشة | الاسم العربي | الوظيفة الدقيقة | الحالة | Backend | Frontend | أولوية | المطلوب لإكمالها |
 |---|---|---|:---:|---|---|:---:|---|
-| POST001 | فاتورة المبيعات | البيع (باركود/لمس)، خصومات، ضريبة، تعليق، دفع | 🟡 | ✅ `POST /bills` + hold + payments/multi | ✅ PosPage كاملة | **P0** | **ناقص:** دفع بكوبون/بطاقة مسبقة الدفع/استبدال نقاط (طرق الدفع = CASH/CARD/CREDIT فقط)، محرك عروض (GNR_QTN_PRM_PKG)، بطاقات خصم، باركود الموزونات (وزن مدمج) |
+| POST001 | فاتورة المبيعات | البيع (باركود/لمس)، خصومات، ضريبة، تعليق، دفع | ✅ | ✅ `POST /bills` + hold + payments/multi (POINTS/COUPON) + weighted barcode | ✅ PosPage كاملة + دفع نقاط/كوبون في PaymentDialog + باركود الموزونات (scanned.quantity → كمية تلقائية) + تصفح بالفئات في ItemGrid (2026-07-04) | **P0** | متبقٍّ: محرك عروض (GNR_QTN_PRM_PKG) + بطاقات خصم/مسبقة الدفع (POSI007) |
 | POST002 | فاتورة مردود المبيعات | إدخال مردودات نقدية/آجلة + استبدال | ✅ | ✅ `POST /returns` | ✅ ReturnsPage + CreateReturnDialog | P0 | مكتملة وظيفياً. (تحسين: عكس نقاط الولاء عند الإرجاع) |
 | POST003 | استعراض الفواتير المعلقة | عرض/استئناف/حذف الفواتير المعلقة | ✅ | ✅ `GET /bills/held` + `resume` + `hold` | ✅ HeldBills drawer | P0 | مكتملة. (تحسين: حذف معلّقة صراحةً + سجل حذف audit) |
 | POST004 | استعراض/ترحيل الفواتير | استعراض الفواتير وترحيلها للأونكس | ✅ | ✅ `GET /bills`, `GET /bills/posted/{id}` | ✅ BillsPage + BillDetailPage | P1 | مكتملة لنطاق Motech |
@@ -21,10 +21,10 @@
 | POST006 | الدفع النقدي للمرتجعات | سند إرجاع (صرف) لاسترداد قيمة المرتجع | 🟡 | 🟡 refundAmt يُحسب في return؛ vouchers EXPENSE موجود | ❌ لا ربط تلقائي مرتجع→سند صرف | P1 | ربط المرتجع بسند صرف تلقائي (voucher type=REFUND مرجعه returnId) + زر في ReturnsPage |
 | POST008 | مزامنة البيانات | نقل أصناف/أسعار من السيرفر ورفع الفواتير | 🟡 | ✅ `sync/enqueue·queue·run·status` | ✅ SyncPage (حالة+تشغيل) | P1 | **ناقص:** مزامنة نزولية للأصناف/الأسعار (catalog pull) + جدولة تلقائية (worker/cron) — الحالي طابور صعودي يدوي التشغيل |
 | POST009 | معلومات الآلات | عرض معلومات الآلات وآخر فاتورة وصافي مبيعاتها | 🟡 | ✅ `GET /admin/machines` + `reports/by-machine` | ✅ AdminPage (قائمة) | P2 | دمج إحصاءات (آخر فاتورة/مردودات/صافي) في بطاقة الآلة بدل قائمتين منفصلتين |
-| POST010 | الدفع النقدي للفواتير | تدفيع الفواتير النقدية (كاشير تدفيع منفصل) | 🟡 | ✅ `GET /customers/{code}/credit-bills` + `POST /customers/{code}/collect` (تحصيل آجل idempotent، حارس لا-يتجاوز-المدين) + payments | 🟡 PaymentDialog داخل سياق البيع فقط | P1 | شاشة تحصيل مستقلة (backend كامل الآن) |
-| POST011 | سداد الفواتير | سداد فواتير آجلة (IAS_POS_PAY_BILLS) | 🟡 | ✅ credit-bills/collect (CREDIT_COLLECTIONS جديدة V013) + payments endpoints | ❌ لا UI سداد من BillDetail | P1 | زر "سداد" في BillDetailPage للفواتير CREDIT غير المسددة (backend جاهز، سجل السدادات موجود) |
+| POST010 | الدفع النقدي للفواتير | تدفيع الفواتير النقدية (كاشير تدفيع منفصل) | ✅ | ✅ `GET /customers/{code}/credit-bills` + `POST /customers/{code}/collect` (تحصيل آجل idempotent، حارس لا-يتجاوز-المدين) + payments | ✅ تبويب "الفواتير الآجلة" في CustomersPage + حوار سند تحصيل (2026-07-04) | P1 | مكتملة الجوهر |
+| POST011 | سداد الفواتير | سداد فواتير آجلة (IAS_POS_PAY_BILLS) | 🟡 | ✅ credit-bills/collect (CREDIT_COLLECTIONS جديدة V013) + payments endpoints | 🟡 السداد متاح من تبويب العميل (CustomersPage → الآجلة → تحصيل) 2026-07-04 | P1 | تحسين: زر "سداد" مباشر في BillDetailPage أيضاً |
 | POST012 | ملخص مبيعات الكاشيرات | ملخص نقدي/آجل/شبكة/مردودات لكل كاشير | 🟡 | ✅ `reports/by-cashier` + `shifts/{id}/summary` | ✅ تبويب في ReportsPage | P1 | **ناقص:** تفصيل طرق الدفع لكل كاشير (payment-methods الحالي إجمالي وليس per-cashier) |
-| POST013 | تصفية مبيعات الكاشيرات | عدّ النقد بالفئات ومطابقته مع النظام | ✅ | ✅ `POST /shifts/{id}/count` (عدّ بالفئات) + `POST /shifts/{id}/settle` (تصفية معتمدة SETTLED لا تتكرر) + `GET /shifts/{id}/settlement` + reconciliation | ✅ ReconciliationPage (X-report حيّ) — يتبقى UI إدخال الفئات | P1 | backend مكتمل (SHIFT_DENOMINATIONS + حالة SETTLED)؛ المتبقي: شاشة إدخال الفئات في الواجهة |
+| POST013 | تصفية مبيعات الكاشيرات | عدّ النقد بالفئات ومطابقته مع النظام | ✅ | ✅ `POST /shifts/{id}/count` + `POST /shifts/{id}/settle` + `GET /shifts/{id}/settlement` + reconciliation | ✅ ReconciliationPage: إدخال الفئات (فئة×عدد + مجموع حي) + اعتماد supervisor/admin + عرض التصفية المجمّدة — ويعمل بعد إقفال الوردية (lastShiftId) (2026-07-04) | P1 | مكتملة |
 | POST014 | عهدة الكاشيرات المالية | تسجيل عهدة/سحب عهدة للكاشير | 🟡 | 🟡 رصيد افتتاحي عند `shifts/open` فقط | ❌ | P1 | endpoint + UI لحركات عهدة أثناء الوردية (إيداع/سحب من الدرج) تدخل في التصفية |
 | POST015 | فائض وعجز الكاشيرات | إثبات قيد الفائض/العجز بعد التصفية | 🟡 | ✅ over/short يُحسب في reconciliation | ✅ يُعرض في ReconciliationPage | P1 | **ناقص:** ترحيل الفرق كسجل/قيد معتمد (voucher أو jrnl-diff) عند إقفال الوردية |
 | POST016 | قارئ الأسعار | استعلام سعر+صورة+كمية بالباركود للزبون | ✅ | ✅ `items/barcode/{bc}`, `items/{code}` | ✅ PriceCheckPage | P0 | مكتملة. (تحسين: وضع kiosk بملء الشاشة + صورة الصنف) |
@@ -32,7 +32,7 @@
 | POST018 | جرد الآلات | جرد بجهاز جرد + مطابقة (IAS_POS_AUD_ITEM) | ❌ | ❌ | ❌ | P2 | module جرد: إنشاء جلسة جرد + إدخال كميات + تقرير فروقات |
 | POST019 | طلب صرف/تحويل مواد | طلب تحويل مخزني من نقطة البيع للمخزن | ❌ | ❌ | ❌ | P2 | `POST /transfer-requests` + شاشة طلب (يُرحّل للأونكس عبر sync) |
 | POST020 | ربط الفاتورة بعميل نقاطي | ربط فاتورة سابقة بعميل واحتساب نقاطها | 🟡 | ✅ earn تلقائي عند البيع (loyalty.earnOnSale) | ✅ CustomerAttach أثناء البيع | P1 | **ناقص:** الربط **بأثر رجعي** لفاتورة مرحّلة بلا عميل (`POST /bills/{id}/attach-customer`) — هذا جوهر الشاشة الأصلية |
-| POST021 | استعراض حركة النقاط | سجل حركة النقاط لكل العملاء + الانتهاء | 🟡 | ✅ `loyalty/customers/{code}/ledger` (سجل كامل كسب/استبدال + رصيد جارٍ لكل حركة) + `loyalty/summary` (إجماليات ممنوح/مستبدل) | 🟡 الرصيد في CustomersPage | P1 | تبويب حركة النقاط في صفحة العميل (backend كامل) |
+| POST021 | استعراض حركة النقاط | سجل حركة النقاط لكل العملاء + الانتهاء | ✅ | ✅ `loyalty/customers/{code}/ledger` + `loyalty/summary` | ✅ تبويب "حركة النقاط" في CustomersPage: رصيد + سجل كامل برصيد جارٍ لكل حركة (2026-07-04) | P1 | مكتملة الجوهر (تحسين: صفحة إجماليات لكل العملاء من loyalty/summary) |
 | POST022 | جرد أصناف مردود المبيعات | مطابقة الكمية المردودة فعلياً مع المسجلة | ❌ | ❌ | ❌ | P2 | جلسة جرد مردودات مصغّرة + تقرير فروقات |
 | POST023 | الوصفة الطبية | إدخال وصفة (Wasfaty) وربطها بالفاتورة | ❌ | ❌ | ❌ | P2 | خاص بالصيدليات — يُبنى فقط إن كان نشاط العميل صيدلية |
 | POST024 | طلبات العملاء | أوامر بيع تُنزَّل لاحقاً في فاتورة | ❌ | ❌ | ❌ | P2 | module sales-orders (إنشاء/تعديل/إنزال في فاتورة) — شاشة كبيرة (29 block) |
@@ -44,7 +44,7 @@
 | POSTIN_MTX | قيود يومية MTX | إدخال قيود محاسبية (JV) من نقطة البيع | ❌ | ❌ | ❌ | P2 | خارج نطاق POS الحديث — المحاسبة تبقى في Onyx |
 | POST_WST | شاشة خدمية (WST) | قالب خدمي شبه فارغ (0 triggers/0 PU) | ❌ | — | — | P2 | لا وظيفة مستقلة فعلية — يُوثَّق كـ N/A |
 
-**POST: ✅ 8 · 🟡 13 · ❌ 9**
+**POST: ✅ 12 · 🟡 9 · ❌ 9** _(2026-07-04: POST001/010/013/021 صارت ✅ — الواجهة رُبطت بالكامل)_
 
 ---
 
@@ -58,20 +58,20 @@
 | POSR002 | تقرير العملاء النقديين (مبيعات/أرصدة IAS_CASH_CUSTMR) | 🟡 | 🟡 `top-customers` فقط | ✅ تبويب topCustomers | P1 | تقرير كشف عميل كامل (فواتيره/مردوداته/نقاطه لفترة) |
 | POSR003 | تقارير بقوالب مستخدم (S_RPRT_USR_TMPLT) | ❌ | ❌ | ❌ | P2 | آلية قوالب تقارير قابلة للحفظ — رفاهية، أو تُستبدل بتصدير CSV |
 | POSR004 | تقرير ورديات الكاشيرات (تفصيلي بالوردية) | 🟡 | 🟡 `by-cashier` (بالكاشير لا بالوردية) | ✅ تبويب byCashier | P1 | فلتر/تجميع بالوردية (shift-by-shift) + الفرق النقدي لكل وردية |
-| POSR005 | تقرير الفواتير المحذوفة/المعلقة تاريخياً (AUDIT_DEL_ITM, HST_HUNG) | 🟡 | ✅ `reports/audit` (IAS_POS_AUD_ITEM حي: 4,115 سطراً محذوفاً + اسم المستخدم العربي + AUD_DATE + fromHungBill) | ❌ | P1 | تبويب واجهة (جداول HST/HUNG التاريخية فاضية في بيئتنا — AUD_ITEM هو المصدر الفعلي) |
+| POSR005 | تقرير الفواتير المحذوفة/المعلقة تاريخياً (AUDIT_DEL_ITM, HST_HUNG) | ✅ | ✅ `reports/audit` (IAS_POS_AUD_ITEM حي: 4,115 سطراً محذوفاً + اسم المستخدم العربي + AUD_DATE + fromHungBill) | ✅ تبويب "سجل الحذف" في ReportsPage (2026-07-04) | P1 | مكتملة |
 | POSR006 | تقرير مبيعات حسب نوع الصنف/الآلة (ITEM_TYPES) | 🟡 | ✅ `sales-by-category` | ✅ تبويب salesByCategory | P2 | مطابقة التصنيف مع أنواع أصناف Onyx (ITEM_TYPES) إن اختلف |
-| POSR007 | تقرير نشاط الأصناف بصلاحيات الفروع (IAS_ITEMS_ACTIVITY) | 🟡 | ✅ `reports/item-movement` (حركة صنف تفصيلية بيع+مرتجع زمنياً + net) و`reports/slow-moving` (الأبطأ/عديمة البيع) — فرع واحد | ❌ | P2 | تعدد الفروع يبقى في Onyx؛ تبويب واجهة |
+| POSR007 | تقرير نشاط الأصناف بصلاحيات الفروع (IAS_ITEMS_ACTIVITY) | ✅ | ✅ `reports/item-movement` و`reports/slow-moving` — فرع واحد | ✅ تبويبا "حركة صنف" و"الأصناف الراكدة" في ReportsPage (2026-07-04) | P2 | تعدد الفروع يبقى في Onyx |
 | POSR008 | تقرير عملاء/ذمم AR (IAS_PARA_AR, CUSTOMER) | ❌ | ❌ | ❌ | P2 | كشف ذمم آجلة — يبقى غالباً في Onyx |
 | POSR009 | تقرير الآلات/السندات بالعملات (IAS_POS_MACHINE, VAOUCHER, EX_RATE) | 🟡 | ✅ `by-machine` + vouchers list | ✅ تبويب byMachine + VouchersPage | P2 | دمج السندات بالعملات في تقرير الآلة |
 | POSR010 | تقرير نقاط الولاء (IAS_POINT_TYP_MST) | ❌ | ❌ (رصيد فردي فقط) | ❌ | P1 | `reports/loyalty` (نقاط مكتسبة/مستبدلة/منتهية لفترة) + تبويب |
 | POSR011 | تقرير المردودات والدفع النقدي للمرتجعات (PRD_BACK_HOUR) | 🟡 | ✅ `reports/returns` | ✅ تبويب returns | P1 | إضافة بُعد "مرتجعات خارج المهلة/بلا فاتورة" إن فُعّل |
 | POSR012 | تقرير مجموعات العملاء/المناديب/المناطق (CUSTMR_GRP, SALES_MAN) | ❌ | ❌ | ❌ | P2 | يتطلب أولاً بناء مجموعات العملاء (POSI009) |
-| POSR013 | تقرير مبيعات الأصناف (IAS_ITM_MST تفصيلي) | ✅ | ✅ `by-item` + `discount` + الجديدة: `profit` (ربح/تكلفة PRIMARY_COST + costAvailable) و`comparison` (فترتان + دلتا) | ✅ تبويبا byItem/discount | P1 | مكتمل الجوهر + أرباح ومقارنة |
+| POSR013 | تقرير مبيعات الأصناف (IAS_ITM_MST تفصيلي) | ✅ | ✅ `by-item` + `discount` + `profit` + `comparison` | ✅ 4 تبويبات: byItem/discount + "الأرباح" و"مقارنة فترتين" (2026-07-04) | P1 | مكتمل |
 | POSR014 | تقرير الورديات والتصفية (POS_WRK_SHFT_CSHR, CASHER) | 🟡 | ✅ `z-report` + `shifts/{id}/summary` | ✅ ReconciliationPage | P1 | قائمة ورديات تاريخية (كل الورديات المقفلة + فروقها) — الحالي وردية حالية فقط |
 | POSR015 | تقرير أوامر البيع (SALES_ORDER) | ❌ | ❌ | ❌ | P2 | يتطلب أولاً POST024 |
 | POSR016 | تقرير السندات/الحسابات (ACCOUNT, PRIV_ACC) | 🟡 | ✅ `GET /vouchers` (فلاتر: وردية/نوع/كاشير/تاريخ) | ✅ VouchersPage | P2 | تقرير سندات مجمّع لفترة (إجماليات) داخل ReportsPage |
 
-**POSR: ✅ 2 · 🟡 9 · ❌ 5** _(2026-07-03: +6 endpoints تاريخية/متقدمة — POSR005 و POSR007 صارتا 🟡 backend-مكتمل، وتعزّز POSR013 بالأرباح والمقارنة، و`vat-detailed` يعمّق التقرير الضريبي)_
+**POSR: ✅ 4 · 🟡 7 · ❌ 5** _(2026-07-04: التبويبات الست رُبطت بـReportsPage — POSR005/POSR007 صارتا ✅، وvat-detailed تبويب حي)_
 
 ---
 
@@ -79,7 +79,7 @@
 
 | الشاشة | الاسم العربي | الوظيفة | الحالة | Backend | Frontend | أولوية | المطلوب |
 |---|---|---|:---:|---|---|:---:|---|
-| POSI001 | أجهزة وآلات نقاط البيع | تعريف الآلات + التصريح للأجهزة | 🟡 | ✅ `GET/POST /admin/machines` + `PUT /admin/machines/{no}` (overlay في MOTECH_POS يدمج مع IAS_POS_MACHINE) | 🟡 AdminPage (قراءة — يلزم ربط CRUD) | P1 | واجهة CRUD في AdminPage + تصريح جهاز (ربط terminal بالآلة) |
+| POSI001 | أجهزة وآلات نقاط البيع | تعريف الآلات + التصريح للأجهزة | ✅ | ✅ `GET/POST /admin/machines` + `PUT /admin/machines/{no}` (overlay في MOTECH_POS يدمج مع IAS_POS_MACHINE) | ✅ AdminPage: إنشاء/تعديل آلات (حوار كامل + origin badge) (2026-07-04) | P1 | تحسين: تصريح جهاز (ربط terminal بالآلة) |
 | POSI002 | لوحة المفاتيح الإضافية | ترميز لوحات لمسية للأصناف بلا باركود | ❌ | ❌ | 🟡 ItemGrid يعرض الأصناف لمسياً لكن بلا تكوين | P1 | جداول keyboards + CRUD + ربط ItemGrid بها (صفحات/ألوان/ترتيب) |
 | POSI003 | أصناف لوحة المفاتيح | ربط الأصناف بأزرار اللوحة | ❌ | ❌ | ❌ | P1 | جزء من POSI002 (سطر تفصيلي زر→صنف) |
 | POSI004 | مفاتيح المساعدة | عرض اختصارات لوحة المفاتيح | ❌ | — | ❌ | P2 | شاشة/Modal "اختصارات" ثابتة في PosPage (F-keys) — جهد صغير جداً |
@@ -89,13 +89,13 @@
 | POSI008 | ترميز برامج نقاطي | تعريف برامج الولاء وطرق الاحتساب | 🟡 | 🟡 محرك earn موجود (loyalty.service) بلا CRUD برامج | ❌ | P1 | CRUD برنامج نقاط (نسبة/شرائح/انتهاء) + صفحة إعداد |
 | POSI009 | مجموعات عملاء نقاط البيع | تقسيم العملاء لمجموعات للتقارير | ❌ | ❌ | ❌ | P2 | حقل group في customer + CRUD مجموعات (جهد صغير) |
 | POSI010 | بيانات عملاء نقاط البيع | إدخال/تعديل بيانات العميل النقدي | ✅ | ✅ `POST/PUT /customers` | ✅ CustomersPage + CustomerDialog | P1 | مكتملة الجوهر. (تحسين: حقول مندوب/منطقة/مجموعة) |
-| POSI011 | المستخدمون | إدارة مستخدمي النظام (USER_R) | 🟡 | ✅ `GET/POST /admin/users` + `PUT /admin/users/{id}` + `PUT /admin/users/{id}/status` (overlay USERS_OVERLAY يدمج مع USER_R + ربط بحساب auth عبر authUsername) | 🟡 AdminPage (قراءة — يلزم ربط CRUD) | P1 | واجهة CRUD في AdminPage (إنشاء/تعطيل/دور) |
+| POSI011 | المستخدمون | إدارة مستخدمي النظام (USER_R) | ✅ | ✅ `GET/POST /admin/users` + `PUT /admin/users/{id}` + `PUT /admin/users/{id}/status` (overlay USERS_OVERLAY يدمج مع USER_R + ربط بحساب auth عبر authUsername) | ✅ AdminPage: إنشاء/تعديل/تفعيل-تعطيل + عمودا الدور/origin (2026-07-04) | P1 | مكتملة الجوهر |
 | POSI012 | بطاقات POS (IAS_POS_CARD) | ترميز بطاقات الشبكة/الخصم | 🟡 | 🟡 `GET /cards` (قراءة) | ❌ | P2 | CRUD أنواع البطاقات + ربطها ببيانات دفع CARD (عمولة/بنك) |
 | POSI014 | تحديث قاعدة البيانات | ترقية schema وأرشفة الفواتير | ❌ | — (تُغنى عنها migrations/Prisma) | — | P2 | **N/A معمارياً** — يقابلها migrations. يلزم فقط: أرشفة فواتير قديمة (job) |
 | POSI200 | مبالغ بطاقات العملاء | أرصدة بطاقات العملاء مسبقة الدفع | ❌ | ❌ | ❌ | P2 | مع POSI007 (رصيد بطاقة العميل + حركاتها) |
-| POSI2000 | بيانات الأصناف | إدخال/تعديل الأصناف (IAS_ITM_MST) | 🟡 | ✅ `POST/PUT /items` + ✅ `items/{code}/units` (وحدات متعددة+باركود لكل وحدة) + ✅ `items/{code}/prices` + ✅ `categories` | ✅ ItemsPage + ItemDialog | P1 | **ناقص:** واجهة عرض الوحدات/المستويات في ItemDialog؛ الإنشاء المحلي ما زال (وحدة/سعر واحد) |
+| POSI2000 | بيانات الأصناف | إدخال/تعديل الأصناف (IAS_ITM_MST) | ✅ | ✅ `POST/PUT /items` + ✅ `items/{code}/units` + ✅ `items/{code}/prices` + ✅ `categories` | ✅ ItemsPage + ItemDialog + **ItemCatalogDialog** (مستويات الأسعار + الوحدات بمعامل التحويل) + فلتر فئات (2026-07-04) | P1 | تحسين: الإنشاء المحلي ما زال بوحدة/سعر واحد |
 
-**POSI: ✅ 1 · 🟡 6 · ❌ 8**
+**POSI: ✅ 4 · 🟡 3 · ❌ 8** _(2026-07-04: POSI001/POSI011/POSI2000 صارت ✅ — CRUD وكتالوج متقدم في الواجهة)_
 
 ---
 
@@ -104,7 +104,7 @@
 | الشاشة | الاسم العربي | الوظيفة | الحالة | Backend | Frontend | أولوية | المطلوب |
 |---|---|---|:---:|---|---|:---:|---|
 | POSS001 | متغيرات وإعدادات نقاط البيع | متغيرات النظام العامة (IAS_PARA_POS) | 🟡 | ✅ `GET/PUT/POST /settings` + `machine/{no}` | ✅ SettingsPage (overrides) | **P0** | **ناقص:** تغطية كل المتغيرات المؤثرة (فحص الكمية، مهلة الإرجاع PRD_BACK_HOUR، تفعيل الشاشات الاختيارية…) — الحالي مجموعة جزئية |
-| POSS002 | صلاحيات المستخدمين | صلاحيات تفصيلية للشاشات/العمليات | 🟡 | ✅ `GET/PUT /admin/permissions` — مصفوفة role×permission (بيع/مرتجع/خصم/إلغاء/تقارير/إعدادات/وردية/تجاوز سعر/سندات/فوترة) في MOTECH_POS.ROLE_PERMISSIONS (36 مدخلاً مبذوراً) | 🟡 RequireRole في الراوتر | P1 | شاشة إدارة المصفوفة + فرضها ديناميكياً في الحراس (الحالي RBAC ثابت + المصفوفة إدارية) |
+| POSS002 | صلاحيات المستخدمين | صلاحيات تفصيلية للشاشات/العمليات | 🟡 | ✅ `GET/PUT /admin/permissions` — مصفوفة role×permission (36 مدخلاً) | ✅ تبويب "الصلاحيات" في AdminPage: مصفوفة checkboxes 12×3 + حفظ ذري للفروقات (2026-07-04) | P1 | المتبقي: فرض المصفوفة ديناميكياً في حراس الـbackend (الحالي RBAC ثابت) |
 | POSS003 | النسخ الاحتياطية | نسخ احتياطي لقاعدة البيانات | ❌ | — (ops: pg_dump/cron خارج التطبيق) | ❌ | P2 | job نسخ مجدول + زر/حالة في AdminPage (أو يُوثَّق كإجراء تشغيلي) |
 | POSS004 | تغيير كلمة السر | المستخدم يغيّر كلمته | ❌ | ❌ لا endpoint | ❌ | P1 | `POST /auth/change-password` + نموذج بسيط — **جهد ساعة** |
 | POSS005 | الإعدادات الافتراضية | افتراضيات على مستوى النظام/النقطة | 🟡 | ✅ defaults + machine overrides في settings | ✅ SettingsPage | P2 | التحقق من تغطية (مستوى سعر افتراضي، عملة، مخزن افتراضي) |

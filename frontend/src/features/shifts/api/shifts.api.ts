@@ -6,6 +6,9 @@ import type {
   OpenShiftDto,
   CloseShiftDto,
   ShiftReconciliation,
+  ShiftCountDto,
+  SettleShiftDto,
+  ShiftSettlement,
 } from '@/shared/lib/types';
 
 /**
@@ -84,6 +87,63 @@ export function useShiftReconciliation(
         `/shifts/${encodeURIComponent(shiftId!)}/reconciliation${qs ? `?${qs}` : ''}`,
       );
     },
+  });
+}
+
+/**
+ * POST /shifts/{id}/count — save the counted cash by denominations (POST013).
+ * The sum of value×count is the actual cash; replaces a previous count for
+ * the same currency. Rejected with 409 once the shift is SETTLED.
+ */
+export function useShiftCount() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: { id: string; dto: ShiftCountDto }): Promise<ShiftSettlement> => {
+      const res = await api.post<ApiEnvelope<ShiftSettlement>>(
+        `/shifts/${encodeURIComponent(vars.id)}/count`,
+        vars.dto,
+      );
+      return res.data.data;
+    },
+    onSuccess: (_s, vars) => {
+      qc.invalidateQueries({ queryKey: ['shift', 'settlement', vars.id] });
+      qc.invalidateQueries({ queryKey: ['shift', 'reconciliation', vars.id] });
+    },
+  });
+}
+
+/**
+ * POST /shifts/{id}/settle — approve the settlement (supervisor/admin):
+ * expected vs counted denominations → over/short, status SETTLED
+ * (irreversible). 409 when not closed / no count / already settled.
+ */
+export function useSettleShift() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: { id: string; dto?: SettleShiftDto }): Promise<ShiftSettlement> => {
+      const res = await api.post<ApiEnvelope<ShiftSettlement>>(
+        `/shifts/${encodeURIComponent(vars.id)}/settle`,
+        vars.dto ?? {},
+      );
+      return res.data.data;
+    },
+    onSuccess: (_s, vars) => {
+      qc.invalidateQueries({ queryKey: ['shift', 'settlement', vars.id] });
+      qc.invalidateQueries({ queryKey: ['shift'] });
+    },
+  });
+}
+
+/**
+ * GET /shifts/{id}/settlement — final settlement view: expected, counted by
+ * denominations, difference, status (frozen once SETTLED; live before).
+ */
+export function useShiftSettlement(shiftId: string | null, enabled = true) {
+  return useQuery({
+    queryKey: ['shift', 'settlement', shiftId],
+    enabled: !!shiftId && enabled,
+    queryFn: () =>
+      getData<ShiftSettlement>(`/shifts/${encodeURIComponent(shiftId!)}/settlement`),
   });
 }
 

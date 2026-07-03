@@ -14,6 +14,12 @@ import type {
   TopCustomerRow,
   DiscountReportRow,
   SalesByCategoryRow,
+  SlowMovingRow,
+  ProfitReportRow,
+  ComparisonReport,
+  ItemMovementReport,
+  AuditReportRow,
+  VatDetailedRow,
 } from '@/shared/lib/types';
 
 function rangeParams(from?: string, to?: string): string {
@@ -137,6 +143,106 @@ export function useSalesByCategoryReport(from?: string, to?: string) {
     queryKey: ['report', 'sales-by-category', { from, to }],
     queryFn: () =>
       getData<SalesByCategoryRow[]>(`/reports/sales-by-category${rangeParams(from, to)}`),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Fable-5 wave — historical / advanced reports (proof-verified :3000,
+// 2026-07-03): slow-moving · profit · comparison · item-movement · audit ·
+// vat-detailed.
+// ---------------------------------------------------------------------------
+
+/** GET /reports/slow-moving — least/zero-sold items in the period. */
+export function useSlowMovingReport(from?: string, to?: string, limit = 50, maxQty = 5) {
+  return useQuery({
+    queryKey: ['report', 'slow-moving', { from, to, limit, maxQty }],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (from) params.set('from', from);
+      if (to) params.set('to', to);
+      params.set('limit', String(limit));
+      params.set('maxQty', String(maxQty));
+      return getData<SlowMovingRow[]>(`/reports/slow-moving?${params.toString()}`);
+    },
+  });
+}
+
+/** GET /reports/profit — revenue vs PRIMARY_COST per item + margin %. */
+export function useProfitReport(from?: string, to?: string, limit = 50) {
+  return useQuery({
+    queryKey: ['report', 'profit', { from, to, limit }],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (from) params.set('from', from);
+      if (to) params.set('to', to);
+      params.set('limit', String(limit));
+      return getData<ProfitReportRow[]>(`/reports/profit?${params.toString()}`);
+    },
+  });
+}
+
+/**
+ * GET /reports/comparison — two-period sales comparison (A vs B) with
+ * absolute + % deltas. All four dates are required by the backend, so the
+ * query stays disabled until they are all provided.
+ */
+export function useComparisonReport(periods: {
+  fromA?: string;
+  toA?: string;
+  fromB?: string;
+  toB?: string;
+}) {
+  const { fromA, toA, fromB, toB } = periods;
+  const ready = !!(fromA && toA && fromB && toB);
+  return useQuery({
+    queryKey: ['report', 'comparison', { fromA, toA, fromB, toB }],
+    enabled: ready,
+    queryFn: () =>
+      getData<ComparisonReport>(
+        `/reports/comparison?fromA=${fromA}&toA=${toA}&fromB=${fromB}&toB=${toB}`,
+      ),
+  });
+}
+
+/**
+ * GET /reports/item-movement — full movement history (sales + returns) of
+ * ONE item in a period. `item` (I_CODE) is required → disabled until set.
+ */
+export function useItemMovementReport(item: string, from?: string, to?: string, limit = 200) {
+  const code = item.trim();
+  return useQuery({
+    queryKey: ['report', 'item-movement', { item: code, from, to, limit }],
+    enabled: code.length > 0,
+    queryFn: () => {
+      const params = new URLSearchParams();
+      params.set('item', code);
+      if (from) params.set('from', from);
+      if (to) params.set('to', to);
+      params.set('limit', String(limit));
+      return getData<ItemMovementReport>(`/reports/item-movement?${params.toString()}`);
+    },
+  });
+}
+
+/** GET /reports/audit — deleted-lines audit trail (IAS_POS_AUD_ITEM). */
+export function useAuditReport(from?: string, to?: string, limit = 100) {
+  return useQuery({
+    queryKey: ['report', 'audit', { from, to, limit }],
+    queryFn: () => {
+      const params = new URLSearchParams();
+      if (from) params.set('from', from);
+      if (to) params.set('to', to);
+      params.set('limit', String(limit));
+      return getData<AuditReportRow[]>(`/reports/audit?${params.toString()}`);
+    },
+  });
+}
+
+/** GET /reports/vat-detailed — VAT grouped by effective rate × category. */
+export function useVatDetailedReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'vat-detailed', { from, to }],
+    queryFn: () => getData<VatDetailedRow[]>(`/reports/vat-detailed${rangeParams(from, to)}`),
   });
 }
 

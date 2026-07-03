@@ -24,6 +24,7 @@ export function ShiftBar() {
   const setCashierNo = usePosSettings((s) => s.setCashierNo);
   const setMachineNo = usePosSettings((s) => s.setMachineNo);
   const setShiftCode = usePosSettings((s) => s.setShiftCode);
+  const setLastShift = usePosSettings((s) => s.setLastShift);
 
   const current = useCurrentShift(cashierNo);
   const openShift = useOpenShift();
@@ -47,6 +48,7 @@ export function ShiftBar() {
         currency: 'YER',
       });
       setMsg({ kind: 'ok', text: `${t('shift.opened')} #${s.shiftNo}` });
+      setLastShift(s.id, s.shiftNo);
       setOpeningBalance('');
     } catch (e) {
       const detail = e instanceof ApiError ? e.problem.detail || e.problem.title : '';
@@ -67,6 +69,8 @@ export function ShiftBar() {
         kind: 'ok',
         text: `${t('shift.closed')} — ${t('shift.cashDifference')}: ${formatMoney(s.cashDifference ?? 0)}`,
       });
+      // Keep the closed shift reachable for POST013 settlement.
+      setLastShift(s.id, s.shiftNo);
       setClosingBalance('');
     } catch (e) {
       const detail = e instanceof ApiError ? e.problem.detail || e.problem.title : '';

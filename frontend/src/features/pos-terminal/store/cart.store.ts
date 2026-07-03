@@ -42,7 +42,8 @@ interface CartState {
   lines: CartLine[];
   billDiscount: number;
   customer: CartCustomer | null;
-  addItem: (item: Item) => void;
+  /** Add an item; `qty` defaults to 1 (weighted barcodes pass the scanned kg). */
+  addItem: (item: Item, qty?: number) => void;
   /** Replace the whole cart with the given lines (e.g. resuming a held bill). */
   loadLines: (lines: CartLine[], billDiscount?: number, customer?: CartCustomer | null) => void;
   setQty: (code: string, qty: number) => void;
@@ -57,17 +58,23 @@ function round2(n: number): number {
   return Math.round((n + Number.EPSILON) * 100) / 100;
 }
 
+/** Weighted (scale) quantities carry 3 decimals (grams). */
+function round3(n: number): number {
+  return Math.round((n + Number.EPSILON) * 1000) / 1000;
+}
+
 export const useCart = create<CartState>((set) => ({
   lines: [],
   billDiscount: 0,
   customer: null,
-  addItem: (item) =>
+  addItem: (item, qty = 1) =>
     set((state) => {
+      const inc = qty > 0 ? qty : 1;
       const existing = state.lines.find((l) => l.code === item.code);
       if (existing) {
         return {
           lines: state.lines.map((l) =>
-            l.code === item.code ? { ...l, qty: l.qty + 1 } : l,
+            l.code === item.code ? { ...l, qty: round3(l.qty + inc) } : l,
           ),
         };
       }
@@ -77,7 +84,7 @@ export const useCart = create<CartState>((set) => ({
         barcode: item.barcode,
         unit: item.unit,
         price: item.lastPrice ?? 0,
-        qty: 1,
+        qty: round3(inc),
         lineDiscount: 0,
         lineVat: 0,
       };

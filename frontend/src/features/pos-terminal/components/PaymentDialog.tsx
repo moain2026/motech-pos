@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Banknote, CreditCard, Clock, Plus, Trash2, X, CheckCircle2 } from 'lucide-react';
+import { Banknote, CreditCard, Clock, Plus, Trash2, X, CheckCircle2, Star, Ticket } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { ApiError } from '@/shared/lib/api-client';
@@ -14,6 +14,7 @@ interface TenderRow {
   currency: string;
   rate: string;
   cardNo?: string;
+  couponNo?: string;
 }
 
 function round2(n: number): number {
@@ -22,7 +23,9 @@ function round2(n: number): number {
 
 /**
  * Enhanced multi-tender payment dialog for a POSTED bill.
- * Multiple methods (cash / card / credit), per-tender currency + exchange rate,
+ * Methods: cash / card / credit / POINTS (loyalty redeem — amount = number of
+ * points, requires an attached customer) / COUPON (IAS_CPN_MST — amount
+ * optional, defaults to face value). Per-tender currency + exchange rate,
  * live remaining / change readout, then POST /bills/{id}/payments/multi.
  * The amount that counts toward the bill is amount × rate (amountInBill).
  */
@@ -31,6 +34,7 @@ export function PaymentDialog({
   billNo,
   billCurrency,
   netAmt,
+  customerCode,
   onClose,
   onSettled,
 }: {
@@ -38,6 +42,8 @@ export function PaymentDialog({
   billNo: string;
   billCurrency: string;
   netAmt: number;
+  /** Loyalty customer attached to the bill (required for POINTS tenders). */
+  customerCode?: string | null;
   onClose: () => void;
   onSettled: (paidAmt: number) => void;
 }) {
@@ -79,18 +85,35 @@ export function PaymentDialog({
     ]);
   const removeRow = (i: number) => setRows((rs) => rs.filter((_, idx) => idx !== i));
 
-  const canSubmit = paidInBill >= netAmt && rows.length > 0 && !payMulti.isPending;
+  // COUPON with no amount = full face value (server-resolved) — allow submit
+  // even when the client-side paid total is short.
+  const hasOpenCoupon = rows.some(
+    (r) => r.method === 'COUPON' && (r.couponNo ?? '').trim() && !(Number(r.amount) > 0),
+  );
+  const canSubmit = (paidInBill >= netAmt || hasOpenCoupon) && rows.length > 0 && !payMulti.isPending;
 
   const submit = async () => {
     setError(null);
+    if (rows.some((r) => r.method === 'POINTS' && (Number(r.amount) || 0) > 0) && !customerCode) {
+      setError(t('payMulti.needCustomerForPoints'));
+      return;
+    }
     const tenders: PaymentTenderDto[] = rows
-      .filter((r) => (Number(r.amount) || 0) > 0)
+      .filter((r) =>
+        r.method === 'COUPON'
+          ? (r.couponNo ?? '').trim().length > 0
+          : (Number(r.amount) || 0) > 0,
+      )
       .map((r) => ({
         method: r.method,
-        amount: Number(r.amount),
+        // COUPON: omit amount to redeem the full face value.
+        amount:
+          r.method === 'COUPON' && !(Number(r.amount) > 0) ? undefined : Number(r.amount),
         currency: r.currency || billCurrency,
         rate: Number(r.rate) || 1,
         cardNo: r.method === 'CARD' && r.cardNo ? r.cardNo : undefined,
+        customerCode: r.method === 'POINTS' ? (customerCode ?? undefined) : undefined,
+        couponNo: r.method === 'COUPON' ? r.couponNo?.trim() : undefined,
       }));
     if (tenders.length === 0) {
       setError(t('payMulti.needTender'));
@@ -113,6 +136,8 @@ export function PaymentDialog({
     CASH: { icon: Banknote, label: t('pos.methodCash') },
     CARD: { icon: CreditCard, label: t('pos.methodCard') },
     CREDIT: { icon: Clock, label: t('pos.methodCredit') },
+    POINTS: { icon: Star, label: t('pos.methodPoints') },
+    COUPON: { icon: Ticket, label: t('pos.methodCoupon') },
   };
 
   return (
@@ -161,6 +186,10 @@ export function PaymentDialog({
                       <option value="CASH">{t('pos.methodCash')}</option>
                       <option value="CARD">{t('pos.methodCard')}</option>
                       <option value="CREDIT">{t('pos.methodCredit')}</option>
+                      <option value="POINTS" disabled={!customerCode}>
+                        {t('pos.methodPoints')}
+                      </option>
+                      <option value="COUPON">{t('pos.methodCoupon')}</option>
                     </select>
                     <Input
                       type="number"
@@ -215,7 +244,26 @@ export function PaymentDialog({
                         aria-label={t('payMulti.cardNo')}
                       />
                     ) : null}
+                    {r.method === 'COUPON' ? (
+                      <Input
+                        value={r.couponNo ?? ''}
+                        onChange={(e) => setRow(i, { couponNo: e.target.value })}
+                        className="h-8 flex-1"
+                        placeholder={t('payMulti.couponNo')}
+                        aria-label={t('payMulti.couponNo')}
+                      />
+                    ) : null}
                   </div>
+                  {r.method === 'POINTS' ? (
+                    <p className="mt-1 text-[10px] text-[var(--color-muted)]">
+                      {t('payMulti.pointsHint')}
+                    </p>
+                  ) : null}
+                  {r.method === 'COUPON' ? (
+                    <p className="mt-1 text-[10px] text-[var(--color-muted)]">
+                      {t('payMulti.couponHint')}
+                    </p>
+                  ) : null}
                 </li>
               );
             })}
@@ -223,10 +271,16 @@ export function PaymentDialog({
 
           {/* Add-tender shortcuts */}
           <div className="mt-3 flex flex-wrap gap-2">
-            {(['CASH', 'CARD', 'CREDIT'] as PaymentMethod[]).map((m) => {
+            {(['CASH', 'CARD', 'CREDIT', 'POINTS', 'COUPON'] as PaymentMethod[]).map((m) => {
               const Icon = methodMeta[m].icon;
               return (
-                <Button key={m} variant="ghost" className="h-8 text-xs" onClick={() => addRow(m)}>
+                <Button
+                  key={m}
+                  variant="ghost"
+                  className="h-8 text-xs"
+                  disabled={m === 'POINTS' && !customerCode}
+                  onClick={() => addRow(m)}
+                >
                   <Plus className="size-3" />
                   <Icon className="size-4" />
                   {methodMeta[m].label}

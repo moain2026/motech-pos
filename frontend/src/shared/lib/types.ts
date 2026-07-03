@@ -94,10 +94,77 @@ export interface ItemStockRow {
   availableQty: number;
 }
 
+/** Scan metadata on GET /items/barcode/{bc}: weighted (scale) barcodes carry
+ *  the embedded weight (kg) in `quantity`; normal barcodes carry quantity 1. */
+export interface ScannedBarcode {
+  isWeighted: boolean;
+  barcode: string;
+  itemCode?: string;
+  quantity: number;
+}
+
 export interface ItemDetail extends Item {
   totalAvailableQty: number;
   stock: ItemStockRow[];
   vatPercent?: number | null;
+  /** Present on barcode-scan responses (weighted-barcode decode). */
+  scanned?: ScannedBarcode;
+}
+
+// ---- Catalog extras (prices / units / categories) — proof-verified :3000 ----
+/** One price-list row (IAS_ITEM_PRICE): LEV_NO × unit × price. */
+export interface ItemPriceLevel {
+  levNo: number;
+  unit: string | null;
+  packSize: number | null;
+  warehouseCode: number | null;
+  price: number;
+  minPrice: number | null;
+  maxPrice: number | null;
+}
+
+/** GET /items/{code}/prices → { code, levels[], prices[] }. */
+export interface ItemPricesView {
+  code: string;
+  levels: number[];
+  prices: ItemPriceLevel[];
+}
+
+/** One unit-of-measure row (IAS_ITM_DTL) with conversion factor P_SIZE. */
+export interface ItemUnitRow {
+  unit: string;
+  packSize: number;
+  barcode: string | null;
+  isMainUnit: boolean;
+  isSaleUnit: boolean;
+  isPurchaseUnit: boolean;
+  isStockUnit: boolean;
+  noSale: boolean;
+  inactive: boolean;
+  price: number | null;
+}
+
+/** GET /items/{code}/units → { code, baseUnit, units[] }. */
+export interface ItemUnitsView {
+  code: string;
+  baseUnit: string | null;
+  units: ItemUnitRow[];
+}
+
+/** Category tree node (GROUP_DETAILS → IAS_MAINSUB_GRP_DTL). */
+export interface CategoryChild {
+  code: string;
+  name: string | null;
+  englishName: string | null;
+  itemCount: number;
+}
+
+export interface CategoryNode {
+  code: string;
+  name: string | null;
+  englishName: string | null;
+  itemCount: number;
+  children: CategoryChild[];
 }
 
 
@@ -367,7 +434,7 @@ export interface PostedReturn {
 }
 
 // ---- Shifts (write path) — proof-verified against live :3100 2026-06-29 ----
-export type ShiftStatus = 'OPEN' | 'CLOSED';
+export type ShiftStatus = 'OPEN' | 'CLOSED' | 'SETTLED';
 
 /** Open work shift (MOTECH_POS.SHIFTS). Returned by /shifts/open,
  *  /shifts/current, /shifts/{id}/close. */
@@ -404,7 +471,8 @@ export interface CloseShiftDto {
 }
 
 // ---- Bills (write path) ----
-export type PaymentMethod = 'CASH' | 'CARD' | 'CREDIT';
+/** Tender methods. POINTS = loyalty redeem (amount = points); COUPON = IAS_CPN_MST voucher. */
+export type PaymentMethod = 'CASH' | 'CARD' | 'CREDIT' | 'POINTS' | 'COUPON';
 
 /** POST /bills line (request). itemCode + qty required; price/vat optional
  *  overrides (else backend uses reference price). */
@@ -567,11 +635,16 @@ export interface ResumeResult {
 // ---- Multi-tender payment (POST /bills/{id}/payments/multi) ----
 export interface PaymentTenderDto {
   method: PaymentMethod;
-  amount: number;
+  /** Tender amount. POINTS: number of points to redeem. Optional for COUPON
+   *  (defaults to the coupon's face value). */
+  amount?: number;
   currency?: string;
   rate?: number;
   cardNo?: string;
+  /** POINTS: the loyalty customer whose balance is deducted. */
   customerCode?: string;
+  /** COUPON: coupon number (IAS_CPN_MST). */
+  couponNo?: string;
 }
 
 export interface AddPaymentsDto {
@@ -761,6 +834,9 @@ export interface AdminMachine {
   lastBillDate: string | null;
   useVat: boolean;
   priceLevel: number | null;
+  /** ERP row, LOCAL overlay create, or EDIT (ERP + local override). */
+  origin?: ItemOrigin;
+  currency?: string | null;
 }
 
 export interface AdminUser {
@@ -774,6 +850,55 @@ export interface AdminUser {
   loggedOn: boolean;
   locked: boolean;
   email: string | null;
+  /** ERP row, LOCAL overlay create, or EDIT (ERP + local override). */
+  origin?: ItemOrigin;
+  /** RBAC role from the local overlay (null for pure ERP rows). */
+  role?: Role | null;
+  /** Linked auth-users.json login account. */
+  authUsername?: string | null;
+}
+
+// ---- Admin write (POST/PUT /admin/users|machines|permissions) ----
+export interface CreateAdminUserDto {
+  userId?: number;
+  arName?: string;
+  enName?: string;
+  code?: string;
+  role: Role;
+  email?: string;
+  authUsername?: string;
+  inactive?: boolean;
+}
+
+export interface UpdateAdminUserDto {
+  arName?: string;
+  enName?: string;
+  code?: string;
+  role?: Role;
+  email?: string;
+  authUsername?: string;
+  inactive?: boolean;
+}
+
+export interface CreateAdminMachineDto {
+  machineNo: number;
+  terminal?: string;
+  branchNo?: number;
+  warehouse?: number;
+  ipAddress?: string;
+  priceLevel?: number;
+  useVat?: boolean;
+  currency?: string;
+  inactive?: boolean;
+}
+
+export type UpdateAdminMachineDto = Omit<CreateAdminMachineDto, 'machineNo'>;
+
+/** One ROLE_PERMISSIONS row: may `role` perform `permission`? */
+export interface RolePermission {
+  role: Role;
+  permission: string;
+  allowed: boolean;
 }
 
 export interface AdminSession {
@@ -907,4 +1032,250 @@ export interface SalesByCategoryRow {
   lineCount: number;
   totalQty: number;
   totalAmt: number;
+}
+
+// ===========================================================================
+// Fable-5 wave — shift settlement, loyalty ledger, credit collections,
+// historical/advanced reports (proof-verified live :3000, 2026-07-03)
+// ===========================================================================
+
+// ---- Shift settlement by denominations (POST013) ----
+export interface DenominationLine {
+  value: number;
+  count: number;
+}
+
+export interface ShiftDenomination {
+  currency: string;
+  value: number;
+  count: number;
+  amount: number;
+}
+
+/** POST /shifts/{id}/count body. */
+export interface ShiftCountDto {
+  currency?: string;
+  denominations: DenominationLine[];
+}
+
+/** POST /shifts/{id}/settle body (supervisor/admin). */
+export interface SettleShiftDto {
+  settledBy?: number;
+  note?: string;
+  cashExpenses?: number;
+}
+
+/** GET /shifts/{id}/settlement — final settlement view. */
+export interface ShiftSettlement {
+  shiftId: string;
+  shiftNo: number;
+  cashierNo: number;
+  currency: string;
+  status: ShiftStatus;
+  expectedCash: number | null;
+  countedCash: number | null;
+  difference: number | null;
+  overShort: 'OVER' | 'SHORT' | 'BALANCED' | null;
+  denominations: ShiftDenomination[];
+  settledAt: string | null;
+  settledBy: number | null;
+  settleNote: string | null;
+}
+
+// ---- Loyalty ledger (POST021) ----
+/** One loyalty ledger movement (MOTECH_POS.POINTS_LEDGER). */
+export interface PointsLedgerRow {
+  id: string;
+  customerCode: string;
+  pointTypNo: number;
+  trnsType: number; // 1 earn, 2 redeem, 3 expire, 4 adjust
+  billId: string | null;
+  billNo: string | null;
+  docAmt: number;
+  pointCnt: number;
+  pointAmt: number;
+  shiftId: string | null;
+  cashierNo: number | null;
+  note: string | null;
+  createdAt: string;
+}
+
+export type LedgerKind = 'EARN' | 'REDEEM' | 'EXPIRE' | 'ADJUST';
+
+export interface LedgerEntryWithBalance extends PointsLedgerRow {
+  kind: LedgerKind;
+  /** Running balance AFTER this movement (newest first). */
+  balanceAfter: number;
+}
+
+export interface EarnedPointsBalance {
+  customerCode: string;
+  earnedPoints: number;
+  txnCount: number;
+}
+
+/** GET /loyalty/customers/{code}/ledger → { balance, entries }. */
+export interface CustomerLedgerView {
+  balance: EarnedPointsBalance;
+  entries: LedgerEntryWithBalance[];
+}
+
+/** GET /loyalty/summary — chain-wide granted vs redeemed totals. */
+export interface LoyaltySummary {
+  totalEarned: number;
+  totalRedeemed: number;
+  netOutstanding: number;
+  totalEarnedAmt: number;
+  totalRedeemedAmt: number;
+  earnCount: number;
+  redeemCount: number;
+  customerCount: number;
+}
+
+// ---- Credit (آجل) bill collections (POST010/011) ----
+export interface CreditBillRow {
+  billId: string;
+  billNo: string;
+  issuedAt: string;
+  currency: string;
+  netAmt: number;
+  creditAmt: number;
+  collectedAmt: number;
+  outstanding: number;
+  status: 'OPEN' | 'SETTLED';
+}
+
+/** GET /customers/{code}/credit-bills → bills + total outstanding. */
+export interface CreditBillsView {
+  customerCode: string;
+  bills: CreditBillRow[];
+  totalOutstanding: number;
+}
+
+/** POST /customers/{code}/collect body (Idempotency-Key mandatory). */
+export interface CollectDto {
+  billId: string;
+  amount: number;
+  method?: 'CASH' | 'CARD';
+  currency?: string;
+  rate?: number;
+  cashierNo?: number;
+  note?: string;
+}
+
+export interface CollectionRow {
+  id: string;
+  billId: string;
+  customerCode: string;
+  method: 'CASH' | 'CARD';
+  currency: string;
+  amount: number;
+  rate: number;
+  amountInBill: number;
+  cashierNo: number | null;
+  note: string | null;
+  idempotencyKey: string;
+  createdAt: string;
+}
+
+/** POST /customers/{code}/collect → receipt + refreshed bill. */
+export interface CollectResult {
+  collection: CollectionRow;
+  bill: CreditBillRow;
+  replayed: boolean;
+}
+
+// ---- Historical / advanced reports (YSPOS23) ----
+/** GET /reports/slow-moving — least/zero-sold items in the period. */
+export interface SlowMovingRow {
+  iCode: string;
+  iName: string | null;
+  totalQty: number;
+  totalAmt: number;
+  lineCount: number;
+  lastSoldDay: string | null;
+}
+
+/** GET /reports/profit — revenue vs PRIMARY_COST per item. */
+export interface ProfitReportRow {
+  iCode: string;
+  iName: string | null;
+  totalQty: number;
+  revenue: number;
+  cost: number;
+  profit: number;
+  marginPct: number;
+  costAvailable: boolean;
+}
+
+/** One side of the two-period comparison. */
+export interface ComparisonPeriod {
+  from: string;
+  to: string;
+  billCount: number;
+  totalAmt: number;
+  totalVat: number;
+  totalDisc: number;
+  avgBill: number;
+}
+
+/** GET /reports/comparison — period A vs B with deltas. */
+export interface ComparisonReport {
+  periodA: ComparisonPeriod;
+  periodB: ComparisonPeriod;
+  deltaAmt: number;
+  deltaAmtPct: number;
+  deltaBills: number;
+  deltaBillsPct: number;
+}
+
+/** One movement line of a single item (sale or return). */
+export interface ItemMovementRow {
+  moveType: 'SALE' | 'RETURN';
+  billNo: number;
+  day: string;
+  time: string | null;
+  qty: number;
+  price: number;
+  amount: number;
+  machineNo: number | null;
+}
+
+/** GET /reports/item-movement — item identity + chronological movements. */
+export interface ItemMovementReport {
+  iCode: string;
+  iName: string | null;
+  totalSoldQty: number;
+  totalReturnedQty: number;
+  netQty: number;
+  netAmt: number;
+  movements: ItemMovementRow[];
+}
+
+/** GET /reports/audit — deleted-lines audit trail (IAS_POS_AUD_ITEM). */
+export interface AuditReportRow {
+  billNo: number;
+  billDay: string | null;
+  billTime: string | null;
+  iCode: string;
+  iName: string | null;
+  qty: number;
+  price: number;
+  amount: number;
+  machineNo: number | null;
+  fromHungBill: boolean;
+  auditUserId: number | null;
+  auditUserName: string | null;
+  auditedAt: string | null;
+}
+
+/** GET /reports/vat-detailed — VAT grouped by effective rate × category. */
+export interface VatDetailedRow {
+  vatRate: number;
+  categoryNo: number | null;
+  categoryName: string | null;
+  lineCount: number;
+  totalQty: number;
+  grossAmt: number;
+  vatAmt: number;
 }

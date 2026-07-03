@@ -13,9 +13,13 @@ interface PosSettingsState {
   cashierNo: number;
   machineNo: number;
   shiftCode: string;
+  /** Last known shift (kept after close so settlement/POST013 stays reachable). */
+  lastShiftId: string | null;
+  lastShiftNo: number | null;
   setCashierNo: (n: number) => void;
   setMachineNo: (n: number) => void;
   setShiftCode: (c: string) => void;
+  setLastShift: (id: string | null, no?: number | null) => void;
 }
 
 export const usePosSettings = create<PosSettingsState>()(
@@ -24,9 +28,12 @@ export const usePosSettings = create<PosSettingsState>()(
       cashierNo: 12,
       machineNo: 1,
       shiftCode: 'M',
+      lastShiftId: null,
+      lastShiftNo: null,
       setCashierNo: (n) => set({ cashierNo: Math.max(0, Math.floor(n) || 0) }),
       setMachineNo: (n) => set({ machineNo: Math.max(0, Math.floor(n) || 0) }),
       setShiftCode: (c) => set({ shiftCode: c || 'M' }),
+      setLastShift: (id, no = null) => set({ lastShiftId: id, lastShiftNo: no }),
     }),
     { name: 'motech-pos-settings' },
   ),
