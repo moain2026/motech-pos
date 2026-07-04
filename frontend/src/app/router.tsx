@@ -79,6 +79,21 @@ const CustomerGroupsPage = lazy(() =>
 const KeypadsPage = lazy(() =>
   import('@/features/keypads').then((m) => ({ default: m.KeypadsPage })),
 );
+const SalesOrdersPage = lazy(() =>
+  import('@/features/sales-orders').then((m) => ({ default: m.SalesOrdersPage })),
+);
+const StockReceiptsPage = lazy(() =>
+  import('@/features/stock-docs').then((m) => ({ default: m.StockReceiptsPage })),
+);
+const StockIssuesPage = lazy(() =>
+  import('@/features/stock-docs').then((m) => ({ default: m.StockIssuesPage })),
+);
+const ReturnCountsPage = lazy(() =>
+  import('@/features/return-counts').then((m) => ({ default: m.ReturnCountsPage })),
+);
+const AlertsAdminPage = lazy(() =>
+  import('@/features/alerts').then((m) => ({ default: m.AlertsAdminPage })),
+);
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const token = useSession((s) => s.accessToken);
@@ -120,6 +135,18 @@ export const router = createBrowserRouter([
       { path: 'returns', element: <Lazy><ReturnsPage /></Lazy> },
       { path: 'prescriptions', element: <Lazy><PrescriptionsPage /></Lazy> },
       { path: 'transfers', element: <Lazy><TransfersPage /></Lazy> },
+      { path: 'sales-orders', element: <Lazy><SalesOrdersPage /></Lazy> },
+      { path: 'stock-receipts', element: <Lazy><StockReceiptsPage /></Lazy> },
+      { path: 'stock-issues', element: <Lazy><StockIssuesPage /></Lazy> },
+      { path: 'return-counts', element: <Lazy><ReturnCountsPage /></Lazy> },
+      {
+        path: 'alerts',
+        element: (
+          <RequireRole roles={PRIVILEGED}>
+            <Lazy><AlertsAdminPage /></Lazy>
+          </RequireRole>
+        ),
+      },
       {
         path: 'customers',
         element: (

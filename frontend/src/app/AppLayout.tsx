@@ -27,8 +27,13 @@ import {
   CreditCard,
   UsersRound,
   Grid3x3,
+  PackagePlus,
+  PackageMinus,
+  PackageSearch,
+  Megaphone,
 } from 'lucide-react';
 import { useSession, ChangePasswordDialog } from '@/features/auth';
+import { PendingAlertsBanner } from '@/features/alerts';
 import { OnlineBadge } from '@/shared/ui/OnlineBadge';
 import { cn } from '@/shared/lib/cn';
 import type { Role } from '@/shared/lib/types';
@@ -56,6 +61,10 @@ const NAV: NavItem[] = [
   { to: '/reconciliation', key: 'nav.reconciliation', icon: Scale, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/prescriptions', key: 'nav.prescriptions', icon: ClipboardList, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/transfers', key: 'nav.transfers', icon: ArrowLeftRight, roles: ['cashier', 'supervisor', 'admin'] },
+  { to: '/sales-orders', key: 'nav.salesOrders', icon: ClipboardList, roles: ['cashier', 'supervisor', 'admin'] },
+  { to: '/stock-receipts', key: 'nav.stockReceipts', icon: PackagePlus, roles: ['cashier', 'supervisor', 'admin'] },
+  { to: '/stock-issues', key: 'nav.stockIssues', icon: PackageMinus, roles: ['cashier', 'supervisor', 'admin'] },
+  { to: '/return-counts', key: 'nav.returnCounts', icon: PackageSearch, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/prepaid-cards', key: 'nav.prepaidCards', icon: CreditCard, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/keypads', key: 'nav.keypads', icon: Grid3x3, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/customers', key: 'nav.customers', icon: Users, roles: ['supervisor', 'admin'] },
@@ -68,6 +77,7 @@ const NAV: NavItem[] = [
   { to: '/inventory', key: 'nav.inventory', icon: Boxes, roles: ['supervisor', 'admin'] },
   { to: '/reports', key: 'nav.reports', icon: BarChart3, roles: ['supervisor', 'admin'] },
   { to: '/sync', key: 'nav.sync', icon: RefreshCw, roles: ['supervisor', 'admin'] },
+  { to: '/alerts', key: 'nav.alerts', icon: Megaphone, roles: ['supervisor', 'admin'] },
   { to: '/admin', key: 'nav.admin', icon: ShieldCheck, roles: ['admin'] },
   { to: '/settings', key: 'nav.settings', icon: Settings2, roles: ['admin'] },
 ];
@@ -150,6 +160,7 @@ export function AppLayout() {
           </div>
         </header>
         {showChangePw ? <ChangePasswordDialog onClose={() => setShowChangePw(false)} /> : null}
+        <PendingAlertsBanner />
         <main className="min-h-0 flex-1 overflow-auto">
           <Outlet />
         </main>

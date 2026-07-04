@@ -1717,3 +1717,206 @@ export interface DefaultSetting {
   liveValue: string | null;
   overridden: boolean;
 }
+
+/* ---------- sales orders (POST024) ---------- */
+
+export type SalesOrderStatus = 'OPEN' | 'CONVERTED' | 'CANCELLED';
+
+/** GET /sales-orders — order header row. */
+export interface SalesOrderHeader {
+  id: string;
+  orderNo: number;
+  status: SalesOrderStatus;
+  customerCode: string | null;
+  customerName: string | null;
+  currency: string;
+  refNo: string | null;
+  note: string | null;
+  expireDate: string | null;
+  createdBy: string;
+  createdAt: string;
+  convertedBillId: string | null;
+  convertedBillNo: string | null;
+  convertedBy: string | null;
+  convertedAt: string | null;
+  cancelledBy: string | null;
+  cancelledAt: string | null;
+  lineCount: number;
+}
+
+/** One ordered item (unitPrice = retail L1 snapshot, display only). */
+export interface SalesOrderLine {
+  lineId: string;
+  itemCode: string;
+  itemName: string | null;
+  qty: number;
+  unitPrice: number | null;
+  discDtl: number;
+  note: string | null;
+}
+
+export interface SalesOrderDetail extends SalesOrderHeader {
+  lines: SalesOrderLine[];
+}
+
+/** POST /sales-orders body. */
+export interface CreateSalesOrderDto {
+  customerCode?: string;
+  customerName?: string;
+  currency?: string;
+  refNo?: string;
+  note?: string;
+  expireDate?: string;
+  lines: { itemCode: string; qty: number; discDtl?: number; note?: string }[];
+}
+
+/* ---------- stock receipts (POST029) / stock issues (POST028) ---------- */
+
+export type StockDocStatus = 'DRAFT' | 'POSTED' | 'CANCELLED';
+
+/** GET /stock-receipts — receipt header row. */
+export interface StockReceiptHeader {
+  id: string;
+  receiptNo: number;
+  warehouseCode: number;
+  sourceWarehouseCode: number | null;
+  transferId: string | null;
+  status: StockDocStatus;
+  refNo: string | null;
+  note: string | null;
+  createdBy: string;
+  createdAt: string;
+  postedBy: string | null;
+  postedAt: string | null;
+  onyxDocNo: number | null;
+  onyxDocSer: number | null;
+  cancelledBy: string | null;
+  cancelledAt: string | null;
+  lineCount: number;
+}
+
+/** One received/dispatched item line (shared shape). */
+export interface StockDocLine {
+  lineId: string;
+  itemCode: string;
+  itemName: string | null;
+  qty: number;
+  itmUnt: string | null;
+  pSize: number;
+  unitCost: number | null;
+  note: string | null;
+}
+
+export interface StockReceiptDetail extends StockReceiptHeader {
+  lines: StockDocLine[];
+}
+
+/** POST /stock-receipts body. */
+export interface CreateStockReceiptDto {
+  warehouseCode: number;
+  sourceWarehouseCode?: number;
+  transferId?: string;
+  refNo?: string;
+  note?: string;
+  lines: { itemCode: string; qty: number; note?: string }[];
+}
+
+/** GET /stock-issues — dispatch header row. */
+export interface StockIssueHeader {
+  id: string;
+  issueNo: number;
+  warehouseCode: number;
+  destWarehouseCode: number | null;
+  transferId: string | null;
+  status: StockDocStatus;
+  refNo: string | null;
+  note: string | null;
+  createdBy: string;
+  createdAt: string;
+  postedBy: string | null;
+  postedAt: string | null;
+  onyxDocNo: number | null;
+  onyxDocSer: number | null;
+  cancelledBy: string | null;
+  cancelledAt: string | null;
+  lineCount: number;
+}
+
+export interface StockIssueDetail extends StockIssueHeader {
+  lines: StockDocLine[];
+}
+
+/** POST /stock-issues body. */
+export interface CreateStockIssueDto {
+  warehouseCode: number;
+  destWarehouseCode?: number;
+  transferId?: string;
+  refNo?: string;
+  note?: string;
+  lines: { itemCode: string; qty: number; note?: string }[];
+}
+
+/* ---------- return counts (POST022) ---------- */
+
+export type ReturnCountStatus = 'DRAFT' | 'POSTED';
+
+/** GET /return-counts — count session header. */
+export interface ReturnCountHeader {
+  id: string;
+  countNo: number;
+  machineNo: number;
+  countDate: string;
+  status: ReturnCountStatus;
+  refNo: string | null;
+  note: string | null;
+  createdBy: string;
+  createdAt: string;
+  postedBy: string | null;
+  postedAt: string | null;
+  lineCount: number;
+}
+
+/** One counted returned item (diff = counted − system). */
+export interface ReturnCountLine {
+  lineId: string;
+  itemCode: string;
+  itemName: string | null;
+  systemQty: number;
+  countedQty: number;
+  diffQty: number;
+}
+
+export interface ReturnCountDetail extends ReturnCountHeader {
+  lines: ReturnCountLine[];
+}
+
+/* ---------- POS alerts (POS_ALRT_SCR) ---------- */
+
+/** One login alert/note. */
+export interface PosAlert {
+  id: string;
+  title: string;
+  body: string | null;
+  active: boolean;
+  showFrom: string | null;
+  showUntil: string | null;
+  createdBy: string;
+  createdAt: string;
+}
+
+/** POST /alerts body. */
+export interface CreateAlertDto {
+  title: string;
+  body?: string;
+  showFrom?: string;
+  showUntil?: string;
+}
+
+/** PUT /alerts/{id} body. */
+export interface UpdateAlertDto {
+  title?: string;
+  body?: string;
+  active?: boolean;
+  showFrom?: string;
+  showUntil?: string;
+}
