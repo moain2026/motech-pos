@@ -64,6 +64,13 @@ export interface CloseShiftInput {
   closingBalance?: number;
   /** Expenses paid out of the drawer during the shift (reduces expected cash). */
   cashExpenses?: number;
+  /**
+   * CASH receipt vouchers folded into the drawer (adds to expected cash).
+   * Filled by the service from the vouchers module so close() and
+   * reconciliation() share the exact same expected-cash formula:
+   *   expected = opening + cash sales + cash receipts - cash expenses.
+   */
+  cashReceipts?: number;
   closeNote?: string;
 }
 

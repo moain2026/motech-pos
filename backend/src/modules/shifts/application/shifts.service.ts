@@ -60,9 +60,24 @@ export class ShiftsService {
     return this.repo.open(input);
   }
 
-  /** Close a shift (computes expected cash + difference). */
-  close(input: CloseShiftInput): Promise<ShiftRecord> {
-    return this.repo.close(input);
+  /**
+   * Close a shift (computes expected cash + difference).
+   *
+   * Expected-cash formula is UNIFIED with reconciliation():
+   *   expected = opening + cash sales + cash receipts - cash expenses.
+   * Cash vouchers (POST025/POST026) are folded in here so the figure frozen
+   * on the shift row at close is identical to what GET /shifts/:id/
+   * reconciliation reports afterwards (no drift between the two endpoints).
+   */
+  async close(input: CloseShiftInput): Promise<ShiftRecord> {
+    const voucherTotals = await this.voucherCashTotals(input.shiftId);
+    return this.repo.close({
+      ...input,
+      cashReceipts: input.cashReceipts ?? voucherTotals.cashReceipts,
+      // Explicit override wins; else voucher-sourced cash expenses (same
+      // precedence as reconciliation()).
+      cashExpenses: input.cashExpenses ?? voucherTotals.cashExpenses,
+    });
   }
 
   /** X/Z-style summary: shift record + cash totals. */
@@ -93,9 +108,7 @@ export class ShiftsService {
 
     // Cash vouchers (POST025/POST026): receipts add to the drawer, expenses
     // remove from it. Pulled from the vouchers module when present.
-    const voucherTotals = this.vouchers
-      ? await this.vouchers.shiftCashTotals(shiftId)
-      : { cashReceipts: 0, cashExpenses: 0, netCashEffect: 0, receiptCount: 0, expenseCount: 0 };
+    const voucherTotals = await this.voucherCashTotals(shiftId);
     const cashReceipts = voucherTotals.cashReceipts;
     // Expenses: explicit override wins; else voucher-sourced cash expenses.
     const cashExpenses = opts?.cashExpenses ?? voucherTotals.cashExpenses;
@@ -284,6 +297,19 @@ export class ShiftsService {
       throw new ShiftNotFoundError(`Shift ${shiftId} not found`, { shiftId });
     }
     return shift;
+  }
+
+  /** CASH voucher totals for a shift (zeroes when vouchers module absent). */
+  private async voucherCashTotals(shiftId: string) {
+    return this.vouchers
+      ? this.vouchers.shiftCashTotals(shiftId)
+      : {
+          cashReceipts: 0,
+          cashExpenses: 0,
+          netCashEffect: 0,
+          receiptCount: 0,
+          expenseCount: 0,
+        };
   }
 }
 

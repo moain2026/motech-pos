@@ -165,10 +165,13 @@ export class OracleShiftWriteRepository implements ShiftWriteRepository {
     }
 
     const totals = await this.cashTotals(input.shiftId);
+    const cashReceipts = input.cashReceipts ?? 0;
     const cashExpenses = input.cashExpenses ?? 0;
-    // expected cash = opening + cash sales - cash expenses (POST013/015).
+    // Expected cash = opening + cash sales + cash receipts - cash expenses
+    // (POST013/015) — the SAME formula as the reconciliation endpoint. The
+    // service layer supplies cashReceipts/cashExpenses from cash vouchers.
     const expectedCash = round4(
-      existing.openingBalance + totals.cashTotal - cashExpenses,
+      existing.openingBalance + totals.cashTotal + cashReceipts - cashExpenses,
     );
     const closingBalance = input.closingBalance ?? expectedCash;
     const cashDifference = round4(closingBalance - expectedCash);
