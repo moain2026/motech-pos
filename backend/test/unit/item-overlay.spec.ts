@@ -55,6 +55,25 @@ class FakeErp implements ItemRepository {
   findPriceAtLevel() {
     return Promise.resolve(null);
   }
+  findStockLimits() {
+    return Promise.resolve(null);
+  }
+}
+
+/** Minimal barcodes fake — POSI006/008/009 paths are not exercised here. */
+class FakeBarcodes {
+  listByItem() {
+    return Promise.resolve([]);
+  }
+  findByBarcode() {
+    return Promise.resolve(null);
+  }
+  add(): never {
+    throw new Error('not used in this suite');
+  }
+  deactivate() {
+    return Promise.resolve(false);
+  }
 }
 
 class FakeOverlay implements ItemOverlayRepository {
@@ -82,6 +101,9 @@ class FakeOverlay implements ItemOverlayRepository {
       unit: input.unit ?? null,
       price: input.price ?? null,
       vatPercent: input.vatPercent ?? null,
+      minLimitQty: input.minLimitQty ?? null,
+      maxLimitQty: input.maxLimitQty ?? null,
+      reorderLimitQty: input.reorderLimitQty ?? null,
       inactive: input.inactive ?? false,
       createdAt: now,
       updatedAt: now,
@@ -107,7 +129,7 @@ describe('CatalogService overlay merge (POSI2000)', () => {
   beforeEach(() => {
     erp = new FakeErp();
     ov = new FakeOverlay();
-    svc = new CatalogService(erp, ov);
+    svc = new CatalogService(erp, ov, new FakeBarcodes() as never);
   });
 
   it('creates a LOCAL item and reads it back', async () => {
