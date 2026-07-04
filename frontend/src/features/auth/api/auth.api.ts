@@ -26,6 +26,19 @@ export function useLogin() {
   });
 }
 
+/**
+ * POST /auth/change-password (POSS004) — verifies the current password and
+ * stores the new one (bcrypt-12 server-side). Available to every logged-in
+ * user; proof-verified against live :3000 (2026-07-04).
+ */
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: async (input: { oldPassword: string; newPassword: string }): Promise<void> => {
+      await api.post<ApiEnvelope<{ changed: boolean }>>('/auth/change-password', input);
+    },
+  });
+}
+
 /** GET /auth/me (used to validate a restored session on boot). */
 export async function fetchMe(): Promise<AuthUser> {
   const res = await api.get<ApiEnvelope<AuthUser>>('/auth/me');

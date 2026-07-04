@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   BarChart3,
@@ -24,6 +25,15 @@ import {
   ShieldAlert,
   ReceiptText,
   Search,
+  Download,
+  Hourglass,
+  History,
+  UserSearch,
+  Wallet,
+  Banknote,
+  Star,
+  ClipboardList,
+  Users,
 } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
@@ -50,7 +60,19 @@ import {
   useItemMovementReport,
   useAuditReport,
   useVatDetailedReport,
+  useByShiftReport,
+  useShiftsHistoryReport,
+  useCustomerStatementReport,
+  useReceivablesReport,
+  useVouchersSummaryReport,
+  useLoyaltyReport,
+  useSalesOrdersReport,
+  useCustomerGroupsReport,
+  downloadReportCsv,
+  type ExportableReport,
 } from '../api/reports.api';
+import { formatDateTime } from '@/shared/lib/format';
+import { ApiError } from '@/shared/lib/api-client';
 import type { UseQueryResult } from '@tanstack/react-query';
 
 type Tab =
@@ -72,7 +94,15 @@ type Tab =
   | 'comparison'
   | 'itemMovement'
   | 'audit'
-  | 'vatDetailed';
+  | 'vatDetailed'
+  | 'byShift'
+  | 'shiftsHistory'
+  | 'customerStatement'
+  | 'receivables'
+  | 'vouchersSummary'
+  | 'loyalty'
+  | 'salesOrders'
+  | 'customerGroups';
 
 const TABS: { key: Tab; icon: typeof CalendarDays }[] = [
   { key: 'daily', icon: CalendarDays },
@@ -94,7 +124,36 @@ const TABS: { key: Tab; icon: typeof CalendarDays }[] = [
   { key: 'itemMovement', icon: Activity },
   { key: 'audit', icon: ShieldAlert },
   { key: 'vatDetailed', icon: ReceiptText },
+  { key: 'byShift', icon: Hourglass },
+  { key: 'shiftsHistory', icon: History },
+  { key: 'customerStatement', icon: UserSearch },
+  { key: 'receivables', icon: Wallet },
+  { key: 'vouchersSummary', icon: Banknote },
+  { key: 'loyalty', icon: Star },
+  { key: 'salesOrders', icon: ClipboardList },
+  { key: 'customerGroups', icon: Users },
 ];
+
+/** Tab → GET /reports/export report id (only flat reports are exportable). */
+const EXPORT_OF: Partial<Record<Tab, ExportableReport>> = {
+  daily: 'daily',
+  monthly: 'monthly',
+  byItem: 'by-item',
+  byMachine: 'by-machine',
+  byCashier: 'by-cashier',
+  paymentMethods: 'payment-methods',
+  returns: 'returns',
+  tax: 'tax',
+  hourly: 'hourly-sales',
+  topCustomers: 'top-customers',
+  discount: 'discount',
+  salesByCategory: 'sales-by-category',
+  byShift: 'by-shift',
+  shiftsHistory: 'shifts-history',
+  receivables: 'receivables',
+  salesOrders: 'sales-orders',
+  customerGroups: 'customer-groups',
+};
 
 /**
  * Reports screen — 4 reports (daily / monthly / best-selling / by-machine)
@@ -125,8 +184,8 @@ export function ReportsPage() {
         {t('reports.title')}
       </h1>
 
-      {/* Tabs */}
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label={t('reports.title')}>
+      {/* Tabs + CSV export for the active (exportable) tab */}
+      <div className="flex flex-wrap items-center gap-2" role="tablist" aria-label={t('reports.title')}>
         {TABS.map(({ key, icon: Icon }) => (
           <button
             key={key}
@@ -144,6 +203,7 @@ export function ReportsPage() {
             {t(`reports.tab.${key}`)}
           </button>
         ))}
+        {EXPORT_OF[tab] ? <ExportCsvButton report={EXPORT_OF[tab]!} /> : null}
       </div>
 
       <div className="min-h-0 flex-1 overflow-hidden">
@@ -166,7 +226,51 @@ export function ReportsPage() {
         {tab === 'itemMovement' && <ItemMovementReportView />}
         {tab === 'audit' && <AuditReport />}
         {tab === 'vatDetailed' && <VatDetailedReport />}
+        {tab === 'byShift' && <ByShiftReport />}
+        {tab === 'shiftsHistory' && <ShiftsHistoryReport />}
+        {tab === 'customerStatement' && <CustomerStatementView />}
+        {tab === 'receivables' && <ReceivablesReport />}
+        {tab === 'vouchersSummary' && <VouchersSummaryReport />}
+        {tab === 'loyalty' && <LoyaltyReportView />}
+        {tab === 'salesOrders' && <SalesOrdersReport />}
+        {tab === 'customerGroups' && <CustomerGroupsReport />}
       </div>
+    </div>
+  );
+}
+
+/**
+ * CSV export button (POSR003 substitute) — shown on every exportable tab;
+ * downloads GET /reports/export?report=… via the authed client.
+ */
+function ExportCsvButton({
+  report,
+  range,
+}: {
+  report: ExportableReport;
+  range?: { from?: string; to?: string };
+}) {
+  const { t } = useTranslation();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const run = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await downloadReportCsv(report, range);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.problem.detail || e.problem.title : t('reports2.exportError'));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="flex items-center gap-2">
+      <Button variant="outline" className="h-9" disabled={busy} onClick={() => void run()}>
+        <Download className="size-4" />
+        {busy ? t('reports2.exporting') : t('reports2.exportCsv')}
+      </Button>
+      {error ? <span className="text-xs text-[var(--color-danger)]">{error}</span> : null}
     </div>
   );
 }
@@ -1262,6 +1366,655 @@ function VatDetailedReport() {
                 <td className="tnum px-3 py-2 text-end">{formatNumber(r.totalQty)}</td>
                 <td className="tnum px-3 py-2 text-end">{formatMoney(r.grossAmt)}</td>
                 <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.vatAmt)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </TableCard>
+      </ReportShell>
+    </div>
+  );
+}
+
+/* ==========================================================================
+ * Wave F/G — POSR reports (live endpoints, 2026-07-04): by-shift ·
+ * shifts-history · customer-statement · receivables · vouchers-summary ·
+ * loyalty · sales-orders · customer-groups.
+ * ========================================================================== */
+
+/** Small colored status pill (shift / order states). */
+function StatusPill({ value, tone }: { value: string; tone: 'success' | 'warning' | 'danger' | 'muted' }) {
+  const cls =
+    tone === 'success'
+      ? 'bg-[var(--color-success)]/15 text-[var(--color-success)]'
+      : tone === 'warning'
+        ? 'bg-[var(--color-warning)]/15 text-[var(--color-warning)]'
+        : tone === 'danger'
+          ? 'bg-[var(--color-danger)]/15 text-[var(--color-danger)]'
+          : 'bg-[var(--color-surface-2)] text-[var(--color-muted)]';
+  return <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}>{value}</span>;
+}
+
+function shiftTone(status: string): 'success' | 'warning' | 'muted' {
+  if (status === 'OPEN') return 'success';
+  if (status === 'CLOSED') return 'warning';
+  return 'muted';
+}
+
+/* ---------- by shift (POSR004) ---------- */
+
+function ByShiftReport() {
+  const { t } = useTranslation();
+  const [range, setRange] = useState<{ from?: string; to?: string }>({});
+  const query = useByShiftReport(range.from, range.to);
+  const rows = query.data ?? [];
+  const kpis = useMemo(
+    () => ({
+      netAmt: rows.reduce((n, r) => n + r.netAmt, 0),
+      bills: rows.reduce((n, r) => n + r.billCount, 0),
+    }),
+    [rows],
+  );
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <RangeBar onApply={(from, to) => setRange({ from, to })} />
+      <ReportShell query={query} empty={rows.length === 0}>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Kpi icon={<Coins className="size-6" />} label={t('reports.netAmt')} value={formatMoney(kpis.netAmt)} />
+          <Kpi icon={<Receipt className="size-6" />} label={t('reports.billCount')} value={formatNumber(kpis.bills)} />
+        </div>
+        <TableCard>
+          <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+            <tr>
+              <Th>{t('reports2.byShift.shiftNo')}</Th>
+              <Th>{t('reports.cashierNo')}</Th>
+              <Th>{t('reports.machineNo')}</Th>
+              <Th center>{t('reports2.byShift.status')}</Th>
+              <Th>{t('reports2.byShift.openedAt')}</Th>
+              <Th end>{t('reports.billCount')}</Th>
+              <Th end>{t('reports.netAmt')}</Th>
+              <Th end>{t('reports.cashCollected')}</Th>
+              <Th end>{t('reports.cardCollected')}</Th>
+              <Th end>{t('reports2.byShift.overShort')}</Th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {rows.map((r) => (
+              <tr key={r.shiftId} className="hover:bg-[var(--color-surface-2)]">
+                <td className="tnum px-3 py-2 font-medium">#{r.shiftNo}</td>
+                <td className="tnum px-3 py-2">{r.cashierNo}</td>
+                <td className="tnum px-3 py-2">{r.machineNo ?? '—'}</td>
+                <td className="px-3 py-2 text-center">
+                  <StatusPill value={t(`reports2.shiftStatus.${r.status}`, { defaultValue: r.status })} tone={shiftTone(r.status)} />
+                </td>
+                <td className="tnum px-3 py-2 text-[var(--color-muted)]">{formatDateTime(r.openedAt)}</td>
+                <td className="tnum px-3 py-2 text-end">{formatNumber(r.billCount)}</td>
+                <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.netAmt)}</td>
+                <td className="tnum px-3 py-2 text-end">{formatMoney(r.cashCollected)}</td>
+                <td className="tnum px-3 py-2 text-end">{formatMoney(r.cardCollected)}</td>
+                <td
+                  className={`tnum px-3 py-2 text-end font-bold ${
+                    (r.cashDifference ?? 0) < 0
+                      ? 'text-[var(--color-danger)]'
+                      : (r.cashDifference ?? 0) > 0
+                        ? 'text-[var(--color-warning)]'
+                        : ''
+                  }`}
+                >
+                  {r.cashDifference != null ? formatMoney(r.cashDifference) : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </TableCard>
+      </ReportShell>
+    </div>
+  );
+}
+
+/* ---------- shifts history (POSR014) ---------- */
+
+function ShiftsHistoryReport() {
+  const { t } = useTranslation();
+  const [range, setRange] = useState<{ from?: string; to?: string }>({});
+  const query = useShiftsHistoryReport(range.from, range.to);
+  const rows = query.data ?? [];
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <RangeBar onApply={(from, to) => setRange({ from, to })} />
+      <p className="text-xs text-[var(--color-muted)]">{t('reports2.shiftsHistory.hint')}</p>
+      <ReportShell query={query} empty={rows.length === 0}>
+        <TableCard>
+          <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+            <tr>
+              <Th>{t('reports2.byShift.shiftNo')}</Th>
+              <Th>{t('reports.cashierNo')}</Th>
+              <Th center>{t('reports2.byShift.status')}</Th>
+              <Th>{t('reports2.byShift.openedAt')}</Th>
+              <Th end>{t('reports2.shiftsHistory.opening')}</Th>
+              <Th end>{t('reports2.shiftsHistory.expected')}</Th>
+              <Th end>{t('reports2.shiftsHistory.counted')}</Th>
+              <Th end>{t('reports2.byShift.overShort')}</Th>
+              <Th end>{t('reports2.shiftsHistory.receipts')}</Th>
+              <Th end>{t('reports2.shiftsHistory.expenses')}</Th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {rows.map((r) => (
+              <tr key={r.shiftId} className="hover:bg-[var(--color-surface-2)]">
+                <td className="tnum px-3 py-2 font-medium">#{r.shiftNo}</td>
+                <td className="tnum px-3 py-2">{r.cashierNo}</td>
+                <td className="px-3 py-2 text-center">
+                  <StatusPill value={t(`reports2.shiftStatus.${r.status}`, { defaultValue: r.status })} tone={shiftTone(r.status)} />
+                </td>
+                <td className="tnum px-3 py-2 text-[var(--color-muted)]">{formatDateTime(r.openedAt)}</td>
+                <td className="tnum px-3 py-2 text-end">{formatMoney(r.openingBalance)}</td>
+                <td className="tnum px-3 py-2 text-end">{r.expectedCash != null ? formatMoney(r.expectedCash) : '—'}</td>
+                <td className="tnum px-3 py-2 text-end">{r.countedCash != null ? formatMoney(r.countedCash) : '—'}</td>
+                <td
+                  className={`tnum px-3 py-2 text-end font-bold ${
+                    (r.settleDifference ?? r.cashDifference ?? 0) < 0 ? 'text-[var(--color-danger)]' : ''
+                  }`}
+                >
+                  {r.settleDifference != null
+                    ? formatMoney(r.settleDifference)
+                    : r.cashDifference != null
+                      ? formatMoney(r.cashDifference)
+                      : '—'}
+                </td>
+                <td className="tnum px-3 py-2 text-end">{formatMoney(r.cashReceipts)}</td>
+                <td className="tnum px-3 py-2 text-end">{formatMoney(r.cashExpenses)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </TableCard>
+      </ReportShell>
+    </div>
+  );
+}
+
+/* ---------- customer statement (POSR002) ---------- */
+
+function CustomerStatementView() {
+  const { t } = useTranslation();
+  const [customerInput, setCustomerInput] = useState('');
+  const [applied, setApplied] = useState<{ customer: string; from?: string; to?: string }>({
+    customer: '',
+  });
+  const query = useCustomerStatementReport(applied.customer, applied.from, applied.to);
+  const r = query.data;
+
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <RangeBar
+        extra={
+          <label className="flex flex-col gap-1">
+            <span className="text-xs text-[var(--color-muted)]">{t('reports2.customerStatement.customer')}</span>
+            <div className="relative">
+              <Search className="pointer-events-none absolute inset-y-0 end-2 my-auto size-4 text-[var(--color-muted)]" aria-hidden />
+              <Input
+                value={customerInput}
+                onChange={(e) => setCustomerInput(e.target.value)}
+                placeholder={t('reports2.customerStatement.customerPh')}
+                className="tnum h-9 w-48 pe-8"
+              />
+            </div>
+          </label>
+        }
+        onApply={(from, to) => setApplied({ customer: customerInput.trim(), from, to })}
+      />
+
+      {!applied.customer ? (
+        <EmptyView label={t('reports2.customerStatement.needCustomer')} />
+      ) : query.isLoading ? (
+        <LoadingView />
+      ) : query.isError ? (
+        <ErrorView error={query.error} onRetry={() => query.refetch()} />
+      ) : r ? (
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto scroll-thin pe-1">
+          <p className="text-sm font-bold">
+            {r.customerName?.trim() || r.customerCode}
+            <span className="tnum ms-2 text-[var(--color-muted)]">{r.customerCode}</span>
+          </p>
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+            <Kpi icon={<Coins className="size-6" />} label={t('reports2.customerStatement.salesTotal')} value={formatMoney(r.totals.salesTotal)} />
+            <Kpi icon={<Undo2 className="size-6" />} label={t('reports2.customerStatement.returnsTotal')} value={formatMoney(r.totals.returnsTotal)} />
+            <Kpi icon={<Star className="size-6" />} label={t('reports2.customerStatement.points')} value={`${formatNumber(r.totals.pointsEarned)} / ${formatNumber(r.totals.pointsRedeemed)}`} />
+            <Kpi icon={<Wallet className="size-6" />} label={t('reports2.customerStatement.outstanding')} value={formatMoney(r.totals.outstanding)} />
+          </div>
+
+          <StatementSection title={t('reports2.customerStatement.bills')} count={r.bills.length}>
+            <table className="w-full text-sm">
+              <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+                <tr>
+                  <Th>{t('bills.billNo')}</Th>
+                  <Th>{t('reports2.customerStatement.date')}</Th>
+                  <Th end>{t('reports.grossAmt')}</Th>
+                  <Th end>{t('reports.totalDisc')}</Th>
+                  <Th end>{t('reports.totalVat')}</Th>
+                  <Th end>{t('reports.netAmt')}</Th>
+                  <Th end>{t('reports2.customerStatement.paid')}</Th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {r.bills.map((b) => (
+                  <tr key={b.billId} className="hover:bg-[var(--color-surface-2)]">
+                    <td className="tnum px-3 py-2 font-medium">{b.billNo}</td>
+                    <td className="tnum px-3 py-2 text-[var(--color-muted)]">{formatDateTime(b.issuedAt)}</td>
+                    <td className="tnum px-3 py-2 text-end">{formatMoney(b.grossAmt)}</td>
+                    <td className="tnum px-3 py-2 text-end">{formatMoney(b.discountAmt)}</td>
+                    <td className="tnum px-3 py-2 text-end">{formatMoney(b.vatAmt)}</td>
+                    <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(b.netAmt)}</td>
+                    <td className="tnum px-3 py-2 text-end">{formatMoney(b.paidAmt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </StatementSection>
+
+          <StatementSection title={t('reports2.customerStatement.returns')} count={r.returns.length}>
+            <table className="w-full text-sm">
+              <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+                <tr>
+                  <Th>{t('reports2.customerStatement.rtBillNo')}</Th>
+                  <Th>{t('reports2.customerStatement.originalBillNo')}</Th>
+                  <Th>{t('reports2.customerStatement.date')}</Th>
+                  <Th end>{t('reports.netAmt')}</Th>
+                  <Th end>{t('reports.refundAmt')}</Th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {r.returns.map((x) => (
+                  <tr key={x.returnId} className="hover:bg-[var(--color-surface-2)]">
+                    <td className="tnum px-3 py-2 font-medium">{x.rtBillNo}</td>
+                    <td className="tnum px-3 py-2">{x.originalBillNo}</td>
+                    <td className="tnum px-3 py-2 text-[var(--color-muted)]">{formatDateTime(x.issuedAt)}</td>
+                    <td className="tnum px-3 py-2 text-end">{formatMoney(x.netAmt)}</td>
+                    <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(x.refundAmt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </StatementSection>
+
+          <StatementSection title={t('reports2.customerStatement.pointsSection')} count={r.points.length}>
+            <table className="w-full text-sm">
+              <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+                <tr>
+                  <Th>{t('reports2.loyalty.type')}</Th>
+                  <Th>{t('bills.billNo')}</Th>
+                  <Th end>{t('reports2.loyalty.points')}</Th>
+                  <Th end>{t('reports2.customerStatement.docAmt')}</Th>
+                  <Th>{t('reports2.customerStatement.date')}</Th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {r.points.map((p, i) => (
+                  <tr key={i} className="hover:bg-[var(--color-surface-2)]">
+                    <td className="px-3 py-2">{t(`loyalty.kind.${p.trnsTypeName}`, { defaultValue: p.trnsTypeName })}</td>
+                    <td className="tnum px-3 py-2">{p.billNo ?? '—'}</td>
+                    <td className={`tnum px-3 py-2 text-end font-bold ${p.pointCnt < 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-success)]'}`}>
+                      {formatNumber(p.pointCnt)}
+                    </td>
+                    <td className="tnum px-3 py-2 text-end">{formatMoney(p.docAmt)}</td>
+                    <td className="tnum px-3 py-2 text-[var(--color-muted)]">{formatDateTime(p.createdAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </StatementSection>
+
+          <StatementSection title={t('reports2.customerStatement.collections')} count={r.collections.length}>
+            <table className="w-full text-sm">
+              <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+                <tr>
+                  <Th>{t('reports.paymentMethod')}</Th>
+                  <Th>{t('reports.currency')}</Th>
+                  <Th end>{t('reports.amount')}</Th>
+                  <Th>{t('reports2.customerStatement.date')}</Th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {r.collections.map((c) => (
+                  <tr key={c.collectionId} className="hover:bg-[var(--color-surface-2)]">
+                    <td className="px-3 py-2">{t(`reports.method.${c.method}`, { defaultValue: c.method })}</td>
+                    <td className="tnum px-3 py-2">{c.currency}</td>
+                    <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(c.amountInBill)}</td>
+                    <td className="tnum px-3 py-2 text-[var(--color-muted)]">{formatDateTime(c.createdAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </StatementSection>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function StatementSection({
+  title,
+  count,
+  children,
+}: {
+  title: string;
+  count: number;
+  children: ReactNode;
+}) {
+  const { t } = useTranslation();
+  return (
+    <Card className="overflow-hidden">
+      <div className="flex items-center justify-between border-b bg-[var(--color-surface-2)] px-3 py-2">
+        <p className="text-sm font-bold">{title}</p>
+        <span className="tnum text-xs text-[var(--color-muted)]">{count}</span>
+      </div>
+      {count === 0 ? (
+        <p className="p-4 text-center text-sm text-[var(--color-muted)]">{t('status.empty')}</p>
+      ) : (
+        <div className="overflow-x-auto">{children}</div>
+      )}
+    </Card>
+  );
+}
+
+/* ---------- receivables (POSR008) ---------- */
+
+function ReceivablesReport() {
+  const { t } = useTranslation();
+  const query = useReceivablesReport();
+  const rows = query.data ?? [];
+  const kpis = useMemo(
+    () => ({
+      outstanding: rows.reduce((n, r) => n + r.outstanding, 0),
+      credit: rows.reduce((n, r) => n + r.creditTotal, 0),
+    }),
+    [rows],
+  );
+  return (
+    <ReportShell query={query} empty={rows.length === 0}>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <Kpi icon={<Wallet className="size-6" />} label={t('reports2.receivables.outstanding')} value={formatMoney(kpis.outstanding)} />
+        <Kpi icon={<Coins className="size-6" />} label={t('reports2.receivables.creditTotal')} value={formatMoney(kpis.credit)} />
+      </div>
+      <TableCard>
+        <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+          <tr>
+            <Th>{t('reports.customer')}</Th>
+            <Th end>{t('reports2.receivables.creditBills')}</Th>
+            <Th end>{t('reports2.receivables.creditTotal')}</Th>
+            <Th end>{t('reports2.receivables.collected')}</Th>
+            <Th end>{t('reports2.receivables.outstanding')}</Th>
+            <Th>{t('reports2.receivables.lastCredit')}</Th>
+            <Th>{t('reports2.receivables.lastCollection')}</Th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {rows.map((r) => (
+            <tr key={r.customerCode} className="hover:bg-[var(--color-surface-2)]">
+              <td className="px-3 py-2 font-medium">
+                {r.customerName?.trim() || r.customerCode}
+                <span className="tnum ms-2 text-xs text-[var(--color-muted)]">{r.customerCode}</span>
+              </td>
+              <td className="tnum px-3 py-2 text-end">{formatNumber(r.creditBillCount)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.creditTotal)}</td>
+              <td className="tnum px-3 py-2 text-end text-[var(--color-success)]">{formatMoney(r.collectedTotal)}</td>
+              <td className={`tnum px-3 py-2 text-end font-bold ${r.outstanding > 0 ? 'text-[var(--color-danger)]' : ''}`}>
+                {formatMoney(r.outstanding)}
+              </td>
+              <td className="tnum px-3 py-2 text-[var(--color-muted)]">{r.lastCreditAt ? formatDateTime(r.lastCreditAt) : '—'}</td>
+              <td className="tnum px-3 py-2 text-[var(--color-muted)]">{r.lastCollectionAt ? formatDateTime(r.lastCollectionAt) : '—'}</td>
+            </tr>
+          ))}
+        </tbody>
+      </TableCard>
+    </ReportShell>
+  );
+}
+
+/* ---------- vouchers summary (POSR009/016) ---------- */
+
+function VouchersSummaryReport() {
+  const { t } = useTranslation();
+  const [range, setRange] = useState<{ from?: string; to?: string }>({});
+  const query = useVouchersSummaryReport(range.from, range.to);
+  const r = query.data;
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <RangeBar onApply={(from, to) => setRange({ from, to })} />
+      {query.isLoading ? (
+        <LoadingView />
+      ) : query.isError ? (
+        <ErrorView error={query.error} onRetry={() => query.refetch()} />
+      ) : !r || r.rows.length === 0 ? (
+        <EmptyView />
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <Kpi icon={<Banknote className="size-6" />} label={t('reports2.vouchersSummary.receipts')} value={`${formatMoney(r.totals.receiptsTotal)} (${formatNumber(r.totals.receiptCount)})`} />
+            <Kpi icon={<Banknote className="size-6" />} label={t('reports2.vouchersSummary.expenses')} value={`${formatMoney(r.totals.expensesTotal)} (${formatNumber(r.totals.expenseCount)})`} />
+            <Kpi icon={<Coins className="size-6" />} label={t('reports2.vouchersSummary.netEffect')} value={formatMoney(r.totals.netCashEffect)} />
+          </div>
+          <TableCard>
+            <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+              <tr>
+                <Th>{t('reports.machineNo')}</Th>
+                <Th>{t('reports2.vouchersSummary.type')}</Th>
+                <Th>{t('reports.paymentMethod')}</Th>
+                <Th>{t('reports.currency')}</Th>
+                <Th end>{t('reports2.vouchersSummary.count')}</Th>
+                <Th end>{t('reports.amount')}</Th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {r.rows.map((v, i) => (
+                <tr key={i} className="hover:bg-[var(--color-surface-2)]">
+                  <td className="tnum px-3 py-2">{v.machineNo ?? '—'}</td>
+                  <td className="px-3 py-2">
+                    <StatusPill
+                      value={t(`reports2.vouchersSummary.${v.voucherType === 'RECEIPT' ? 'receipt' : 'expense'}`)}
+                      tone={v.voucherType === 'RECEIPT' ? 'success' : 'danger'}
+                    />
+                  </td>
+                  <td className="px-3 py-2">{t(`reports.method.${v.paymentMethod}`, { defaultValue: v.paymentMethod })}</td>
+                  <td className="tnum px-3 py-2">{v.currency}</td>
+                  <td className="tnum px-3 py-2 text-end">{formatNumber(v.voucherCount)}</td>
+                  <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(v.amount)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </TableCard>
+        </>
+      )}
+    </div>
+  );
+}
+
+/* ---------- loyalty (POSR010) ---------- */
+
+function LoyaltyReportView() {
+  const { t } = useTranslation();
+  const [range, setRange] = useState<{ from?: string; to?: string }>({});
+  const query = useLoyaltyReport(range.from, range.to);
+  const r = query.data;
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <RangeBar onApply={(from, to) => setRange({ from, to })} />
+      {query.isLoading ? (
+        <LoadingView />
+      ) : query.isError ? (
+        <ErrorView error={query.error} onRetry={() => query.refetch()} />
+      ) : !r || (r.byCustomer.length === 0 && r.byType.length === 0) ? (
+        <EmptyView />
+      ) : (
+        <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-auto scroll-thin pe-1">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <Kpi icon={<Star className="size-6" />} label={t('reports2.loyalty.earned')} value={formatNumber(r.totals.earned)} />
+            <Kpi icon={<Star className="size-6" />} label={t('reports2.loyalty.redeemed')} value={formatNumber(r.totals.redeemed)} />
+            <Kpi icon={<Star className="size-6" />} label={t('reports2.loyalty.net')} value={formatNumber(r.totals.net)} />
+          </div>
+          <Card className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+                <tr>
+                  <Th>{t('reports2.loyalty.type')}</Th>
+                  <Th end>{t('reports.txnCount')}</Th>
+                  <Th end>{t('reports2.loyalty.points')}</Th>
+                  <Th end>{t('reports2.customerStatement.docAmt')}</Th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {r.byType.map((s) => (
+                  <tr key={s.trnsType} className="hover:bg-[var(--color-surface-2)]">
+                    <td className="px-3 py-2 font-medium">{t(`loyalty.kind.${s.trnsTypeName}`, { defaultValue: s.trnsTypeName })}</td>
+                    <td className="tnum px-3 py-2 text-end">{formatNumber(s.txnCount)}</td>
+                    <td className={`tnum px-3 py-2 text-end font-bold ${s.points < 0 ? 'text-[var(--color-danger)]' : 'text-[var(--color-success)]'}`}>
+                      {formatNumber(s.points)}
+                    </td>
+                    <td className="tnum px-3 py-2 text-end">{formatMoney(s.docAmt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
+          <Card className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+                <tr>
+                  <Th>{t('reports.customer')}</Th>
+                  <Th end>{t('reports2.loyalty.earned')}</Th>
+                  <Th end>{t('reports2.loyalty.redeemed')}</Th>
+                  <Th end>{t('reports2.loyalty.expired')}</Th>
+                  <Th end>{t('reports2.loyalty.net')}</Th>
+                </tr>
+              </thead>
+              <tbody className="divide-y">
+                {r.byCustomer.map((c) => (
+                  <tr key={c.customerCode} className="hover:bg-[var(--color-surface-2)]">
+                    <td className="px-3 py-2 font-medium">
+                      {c.customerName?.trim() || c.customerCode}
+                      <span className="tnum ms-2 text-xs text-[var(--color-muted)]">{c.customerCode}</span>
+                    </td>
+                    <td className="tnum px-3 py-2 text-end text-[var(--color-success)]">{formatNumber(c.earned)}</td>
+                    <td className="tnum px-3 py-2 text-end text-[var(--color-danger)]">{formatNumber(c.redeemed)}</td>
+                    <td className="tnum px-3 py-2 text-end">{formatNumber(c.expired)}</td>
+                    <td className="tnum px-3 py-2 text-end font-bold">{formatNumber(c.net)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- sales orders (POSR015, read-only) ---------- */
+
+function SalesOrdersReport() {
+  const { t } = useTranslation();
+  const [range, setRange] = useState<{ from?: string; to?: string }>({});
+  const query = useSalesOrdersReport(range.from, range.to);
+  const rows = query.data ?? [];
+  const kpis = useMemo(
+    () => ({
+      totalAmt: rows.reduce((n, r) => n + r.orderAmt, 0),
+      count: rows.length,
+    }),
+    [rows],
+  );
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <RangeBar onApply={(from, to) => setRange({ from, to })} />
+      <p className="text-xs text-[var(--color-muted)]">{t('reports2.salesOrders.hint')}</p>
+      <ReportShell query={query} empty={rows.length === 0}>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Kpi icon={<Coins className="size-6" />} label={t('reports.totalAmt')} value={formatMoney(kpis.totalAmt)} />
+          <Kpi icon={<ClipboardList className="size-6" />} label={t('reports2.salesOrders.count')} value={formatNumber(kpis.count)} />
+        </div>
+        <TableCard>
+          <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+            <tr>
+              <Th>{t('reports2.salesOrders.orderNo')}</Th>
+              <Th>{t('reports.day')}</Th>
+              <Th>{t('reports2.itemMovement.time')}</Th>
+              <Th>{t('reports.customer')}</Th>
+              <Th>{t('reports.currency')}</Th>
+              <Th end>{t('reports.amount')}</Th>
+              <Th end>{t('reports.totalVat')}</Th>
+              <Th center>{t('reports2.salesOrders.processed')}</Th>
+              <Th end>{t('reports.machineNo')}</Th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {rows.map((r, i) => (
+              <tr key={`${r.orderNo}-${i}`} className="hover:bg-[var(--color-surface-2)]">
+                <td className="tnum px-3 py-2 font-medium">#{r.orderNo}</td>
+                <td className="tnum px-3 py-2">{r.orderDay ?? '—'}</td>
+                <td className="tnum px-3 py-2 text-[var(--color-muted)]">{r.orderTime ?? '—'}</td>
+                <td className="px-3 py-2">{r.customerName?.trim() || r.custCode || '—'}</td>
+                <td className="tnum px-3 py-2">{r.currency ?? '—'}</td>
+                <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.orderAmt)}</td>
+                <td className="tnum px-3 py-2 text-end">{formatMoney(r.vatAmt)}</td>
+                <td className="px-3 py-2 text-center">
+                  <StatusPill
+                    value={r.processed ? t('reports2.salesOrders.yes') : t('reports2.salesOrders.no')}
+                    tone={r.processed ? 'success' : 'warning'}
+                  />
+                </td>
+                <td className="tnum px-3 py-2 text-end text-[var(--color-muted)]">{r.machineNo ?? '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </TableCard>
+      </ReportShell>
+    </div>
+  );
+}
+
+/* ---------- customer groups (POSR012) ---------- */
+
+function CustomerGroupsReport() {
+  const { t } = useTranslation();
+  const [range, setRange] = useState<{ from?: string; to?: string }>({});
+  const query = useCustomerGroupsReport(range.from, range.to);
+  const rows = query.data ?? [];
+  const kpis = useMemo(
+    () => ({
+      totalAmt: rows.reduce((n, r) => n + r.totalAmt, 0),
+      bills: rows.reduce((n, r) => n + r.billCount, 0),
+    }),
+    [rows],
+  );
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <RangeBar onApply={(from, to) => setRange({ from, to })} />
+      <ReportShell query={query} empty={rows.length === 0}>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <Kpi icon={<Coins className="size-6" />} label={t('reports.totalAmt')} value={formatMoney(kpis.totalAmt)} />
+          <Kpi icon={<Receipt className="size-6" />} label={t('reports.billCount')} value={formatNumber(kpis.bills)} />
+        </div>
+        <TableCard>
+          <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+            <tr>
+              <Th>{t('reports2.customerGroups.group')}</Th>
+              <Th end>{t('reports2.customerGroups.customers')}</Th>
+              <Th end>{t('reports.billCount')}</Th>
+              <Th end>{t('reports.totalAmt')}</Th>
+              <Th end>{t('reports.totalVat')}</Th>
+              <Th end>{t('reports.totalDisc')}</Th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {rows.map((r, i) => (
+              <tr key={`${r.groupCode ?? 'none'}-${i}`} className="hover:bg-[var(--color-surface-2)]">
+                <td className="px-3 py-2 font-medium">
+                  {r.groupName?.trim() || r.groupCode || t('reports2.customerGroups.ungrouped')}
+                </td>
+                <td className="tnum px-3 py-2 text-end">{formatNumber(r.customerCount)}</td>
+                <td className="tnum px-3 py-2 text-end">{formatNumber(r.billCount)}</td>
+                <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.totalAmt)}</td>
+                <td className="tnum px-3 py-2 text-end">{formatMoney(r.totalVat)}</td>
+                <td className="tnum px-3 py-2 text-end">{formatMoney(r.totalDisc)}</td>
               </tr>
             ))}
           </tbody>

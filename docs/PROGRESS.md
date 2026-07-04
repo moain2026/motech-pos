@@ -1,6 +1,23 @@
 # 📈 سجل تقدّم Motech POS
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
+## 2026-07-04 (واجهة الموجة G — ربط ميزات backend الجديدة بالـUI) — subagent frontend-waveG-wire
+
+> **النطاق:** frontend فقط (لا backend، لا features/settings — وكيل آخر). كل الأشكال (types) مُثبتة بـcurl حي على :3000 قبل الكتابة. بناء نظيف (tsc -b + vite، صفر أخطاء) ومنشور على https://nuugneol.gensparkclaw.com (200).
+
+| الشاشة | المحتوى |
+|---|---|
+| **POSS004 تغيير كلمة السر** | `ChangePasswordDialog` — زر 🔑 في رأس الشاشة بجانب اسم المستخدم (لكل الأدوار): قديمة + جديدة (≥8) + تأكيد + إظهار/إخفاء + أخطاء RFC9457 |
+| **POST023 الوصفة الطبية** | feature جديد `prescriptions/`: صفحة `/prescriptions` (قائمة + فلتر فاتورة/مريض) + حوار إنشاء (تحميل أصناف الفاتورة من `bill/{billNo}/items` → تأشير جرعة/استخدام/مدة لكل صنف + طبيب/مريض/ملف) + حوار عرض للتفاصيل |
+| **POST019 طلب التحويل** | feature جديد `transfers/`: صفحة `/transfers` (قائمة + فلتر مفتوح/ملغى) + حوار إنشاء (مخزن مصدر/وجهة من GET /warehouses + أسطر متعددة كود+كمية+ملاحظة) + عرض تفصيلي بـavlQty (أحمر لو أقل من المطلوب) + إلغاء OPEN بتأكيد |
+| **8 تبويبات تقارير جديدة** | ReportsPage صارت 27 تبويباً: byShift (POSR004) · shiftsHistory (POSR014) · customerStatement (POSR002 — 4 أقسام: فواتير/مرتجعات/نقاط/تحصيلات + KPIs) · receivables (POSR008) · vouchersSummary (POSR009/016) · loyalty (POSR010 — byType+byCustomer) · salesOrders (POSR015) · customerGroups (POSR012) |
+| **تصدير CSV (POSR003)** | زر «تصدير CSV» يظهر على كل تبويب مسطّح قابل للتصدير (17 تقريراً — مطابق لقائمة backend) — تنزيل عبر axios الموثّق (Bearer) + blob download |
+| **تحصيل الآجل + سجل النقاط** | كانا مربوطين مسبقاً في CustomersPage (تبويبا «حركة النقاط» + «الفواتير الآجلة» مع CollectDialog) — تحقّق فقط، لا تغيير |
+
+**تفاصيل تقنية:** مساران جديدان lazy في router (`/prescriptions`، `/transfers` — متاحة لكل الأدوار مثل returns) + إدخالان في NAV بأيقونات ClipboardList/ArrowLeftRight · ~40 واجهة type جديدة في types.ts (مطابقة حرفياً لأشكال الـports في backend) · كل النصوص عربية في common.json (مفاتيح changePw/rx/transfers/reports2.*) · chunks: prescriptions 14.4KB، transfers 14.5KB، reports 65KB.
+
+**Proof:** `npm run build` ✅ (tsc -b صفر أخطاء) · نُشر إلى /var/www/motech-pos · `curl https://nuugneol.gensparkclaw.com/` → 200 وindex يشير للبناء الجديد · أشكال الاستجابات مُثبتة حياً (by-shift/shifts-history/receivables/vouchers-summary/loyalty/sales-orders/customer-groups/customer-statement/transfers/prescriptions + CSV export).
+
 ## 2026-07-04 (الموجة E — شاشات الإدخال POSI كاملة backend) — subagent waveE-posi-settings
 
 > **النطاق:** كل شاشات POSI الناقصة — 6 commits، 3 migrations (V016/V019/V020)، 3 modules جديدة (suppliers/master-data/keypads) + توسيع catalog/cards/customers، 36 endpoint جديداً، 30 اختبار unit جديداً. النمط الموحّد: **overlay في MOTECH_POS — ERP مقدّس لا يُمس أبداً**، والقراءات تدمج ERP+overlay (origin: ERP|LOCAL|EDIT). كل endpoint مُثبت حياً بـcurl + SELECT.

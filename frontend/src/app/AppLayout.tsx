@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
@@ -16,8 +17,11 @@ import {
   Boxes,
   RefreshCw,
   ShieldCheck,
+  KeyRound,
+  ClipboardList,
+  ArrowLeftRight,
 } from 'lucide-react';
-import { useSession } from '@/features/auth';
+import { useSession, ChangePasswordDialog } from '@/features/auth';
 import { OnlineBadge } from '@/shared/ui/OnlineBadge';
 import { cn } from '@/shared/lib/cn';
 import type { Role } from '@/shared/lib/types';
@@ -43,6 +47,8 @@ const NAV: NavItem[] = [
   { to: '/returns', key: 'nav.returns', icon: Undo2, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/vouchers', key: 'nav.vouchers', icon: ReceiptText, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/reconciliation', key: 'nav.reconciliation', icon: Scale, roles: ['cashier', 'supervisor', 'admin'] },
+  { to: '/prescriptions', key: 'nav.prescriptions', icon: ClipboardList, roles: ['cashier', 'supervisor', 'admin'] },
+  { to: '/transfers', key: 'nav.transfers', icon: ArrowLeftRight, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/customers', key: 'nav.customers', icon: Users, roles: ['supervisor', 'admin'] },
   { to: '/items', key: 'nav.items', icon: Package, roles: ['supervisor', 'admin'] },
   { to: '/inventory', key: 'nav.inventory', icon: Boxes, roles: ['supervisor', 'admin'] },
@@ -58,6 +64,7 @@ export function AppLayout() {
   const navigate = useNavigate();
   const user = useSession((s) => s.user);
   const clear = useSession((s) => s.clear);
+  const [showChangePw, setShowChangePw] = useState(false);
   const role = user?.role;
   const nav = NAV.filter((n) => !role || n.roles.includes(role));
 
@@ -114,10 +121,21 @@ export function AppLayout() {
       <div className="flex min-h-0 flex-col">
         <header className="flex items-center justify-between border-b bg-[var(--color-surface)] px-4 py-2">
           <OnlineBadge />
-          <span className="text-sm text-[var(--color-muted)]">
-            {user?.displayName ?? user?.username} · {user?.role}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-[var(--color-muted)]">
+              {user?.displayName ?? user?.username} · {user?.role}
+            </span>
+            <button
+              onClick={() => setShowChangePw(true)}
+              title={t('changePw.title')}
+              aria-label={t('changePw.title')}
+              className="grid size-8 place-items-center rounded-md text-[var(--color-muted)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-fg)]"
+            >
+              <KeyRound className="size-4" aria-hidden />
+            </button>
+          </div>
         </header>
+        {showChangePw ? <ChangePasswordDialog onClose={() => setShowChangePw(false)} /> : null}
         <main className="min-h-0 flex-1 overflow-auto">
           <Outlet />
         </main>

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getData } from '@/shared/lib/api-client';
+import { api, getData } from '@/shared/lib/api-client';
 import type {
   DailySummaryRow,
   MonthlySummaryRow,
@@ -20,6 +20,14 @@ import type {
   ItemMovementReport,
   AuditReportRow,
   VatDetailedRow,
+  ByShiftRow,
+  ShiftHistoryRow,
+  CustomerStatementReport,
+  ReceivableRow,
+  VoucherSummaryReport,
+  LoyaltyReport,
+  SalesOrderRow,
+  CustomerGroupReportRow,
 } from '@/shared/lib/types';
 
 function rangeParams(from?: string, to?: string): string {
@@ -244,6 +252,142 @@ export function useVatDetailedReport(from?: string, to?: string) {
     queryKey: ['report', 'vat-detailed', { from, to }],
     queryFn: () => getData<VatDetailedRow[]>(`/reports/vat-detailed${rangeParams(from, to)}`),
   });
+}
+
+// ---------------------------------------------------------------------------
+// Wave F/G — POSR reports (proof-verified live :3000, 2026-07-04):
+// by-shift · shifts-history · customer-statement · receivables ·
+// vouchers-summary · loyalty · sales-orders · customer-groups + CSV export.
+// ---------------------------------------------------------------------------
+
+/** GET /reports/by-shift (POSR004) — per-shift sales + over/short. */
+export function useByShiftReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'by-shift', { from, to }],
+    queryFn: () => getData<ByShiftRow[]>(`/reports/by-shift${rangeParams(from, to)}`),
+  });
+}
+
+/** GET /reports/shifts-history (POSR014) — reconciliation figures. */
+export function useShiftsHistoryReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'shifts-history', { from, to }],
+    queryFn: () => getData<ShiftHistoryRow[]>(`/reports/shifts-history${rangeParams(from, to)}`),
+  });
+}
+
+/**
+ * GET /reports/customer-statement (POSR002) — full statement of ONE cash
+ * customer. `customer` is required by the backend → disabled until set.
+ */
+export function useCustomerStatementReport(customer: string, from?: string, to?: string) {
+  const code = customer.trim();
+  return useQuery({
+    queryKey: ['report', 'customer-statement', { customer: code, from, to }],
+    enabled: code.length > 0,
+    queryFn: () => {
+      const params = new URLSearchParams();
+      params.set('customer', code);
+      if (from) params.set('from', from);
+      if (to) params.set('to', to);
+      return getData<CustomerStatementReport>(`/reports/customer-statement?${params.toString()}`);
+    },
+  });
+}
+
+/** GET /reports/receivables (POSR008) — credit receivables per customer. */
+export function useReceivablesReport() {
+  return useQuery({
+    queryKey: ['report', 'receivables'],
+    queryFn: () => getData<ReceivableRow[]>('/reports/receivables'),
+  });
+}
+
+/** GET /reports/vouchers-summary (POSR009/016) — rows + totals. */
+export function useVouchersSummaryReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'vouchers-summary', { from, to }],
+    queryFn: () =>
+      getData<VoucherSummaryReport>(`/reports/vouchers-summary${rangeParams(from, to)}`),
+  });
+}
+
+/** GET /reports/loyalty (POSR010) — points by type/customer + totals. */
+export function useLoyaltyReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'loyalty', { from, to }],
+    queryFn: () => getData<LoyaltyReport>(`/reports/loyalty${rangeParams(from, to)}`),
+  });
+}
+
+/** GET /reports/sales-orders (POSR015) — read-only SALES_ORDER headers. */
+export function useSalesOrdersReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'sales-orders', { from, to }],
+    queryFn: () => getData<SalesOrderRow[]>(`/reports/sales-orders${rangeParams(from, to)}`),
+  });
+}
+
+/** GET /reports/customer-groups (POSR012) — sales per customer group. */
+export function useCustomerGroupsReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'customer-groups', { from, to }],
+    queryFn: () =>
+      getData<CustomerGroupReportRow[]>(`/reports/customer-groups${rangeParams(from, to)}`),
+  });
+}
+
+/**
+ * Flat reports the backend can export as CSV via GET /reports/export
+ * (POSR003 substitute) — keep in sync with the backend's valid list.
+ */
+export const EXPORTABLE_REPORTS = [
+  'daily',
+  'monthly',
+  'by-item',
+  'by-machine',
+  'tax',
+  'hourly-sales',
+  'top-customers',
+  'discount',
+  'sales-by-category',
+  'by-cashier',
+  'payment-methods',
+  'returns',
+  'by-shift',
+  'shifts-history',
+  'receivables',
+  'customer-groups',
+  'sales-orders',
+] as const;
+
+export type ExportableReport = (typeof EXPORTABLE_REPORTS)[number];
+
+/**
+ * GET /reports/export?report=… — downloads the CSV through the authed axios
+ * client (Bearer token) and triggers a browser download.
+ */
+export async function downloadReportCsv(
+  report: ExportableReport,
+  range?: { from?: string; to?: string },
+): Promise<void> {
+  const params = new URLSearchParams();
+  params.set('report', report);
+  if (range?.from) params.set('from', range.from);
+  if (range?.to) params.set('to', range.to);
+  const res = await api.get<Blob>(`/reports/export?${params.toString()}`, {
+    responseType: 'blob',
+  });
+  const url = URL.createObjectURL(
+    new Blob([res.data], { type: 'text/csv;charset=utf-8' }),
+  );
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${report}-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 /** Legacy daily summary (kept for backward compat / bills/summary/daily). */

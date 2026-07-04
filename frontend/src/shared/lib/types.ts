@@ -1279,3 +1279,323 @@ export interface VatDetailedRow {
   grossAmt: number;
   vatAmt: number;
 }
+
+/* ==========================================================================
+ * Wave G — prescriptions (POST023), transfers (POST019), POSR wave-F reports.
+ * Shapes proof-verified against live :3000 (2026-07-04).
+ * ========================================================================== */
+
+/* ---------- prescriptions (POST023) ---------- */
+
+/** One annotated line to send with POST /prescriptions. */
+export interface RxLineInput {
+  itemCode: string;
+  dosage?: string;
+  usageNotes?: string;
+  duration?: string;
+}
+
+/** GET /prescriptions — list row. */
+export interface PrescriptionRow {
+  id: string;
+  billNo: string;
+  doctorName: string;
+  patientName: string;
+  patientRef: string | null;
+  rxDate: string | null;
+  note: string | null;
+  createdBy: string;
+  createdAt: string;
+  lineCount: number;
+}
+
+/** One annotated line of a stored prescription. */
+export interface PrescriptionLine {
+  lineId: string;
+  itemCode: string;
+  itemName: string | null;
+  qty: number;
+  dosage: string | null;
+  usageNotes: string | null;
+  duration: string | null;
+}
+
+/** GET /prescriptions/{id} — header + lines. */
+export interface PrescriptionDetail extends PrescriptionRow {
+  lines: PrescriptionLine[];
+}
+
+/** GET /prescriptions/bill/{billNo}/items — bill line for pre-fill. */
+export interface RxBillItem {
+  itemCode: string;
+  qty: number;
+  itemName: string | null;
+}
+
+/** POST /prescriptions body. */
+export interface CreatePrescriptionDto {
+  billNo: string;
+  doctorName: string;
+  patientName: string;
+  patientRef?: string;
+  rxDate?: string;
+  note?: string;
+  lines: RxLineInput[];
+}
+
+/* ---------- transfers (POST019) ---------- */
+
+/** GET /transfers — request header row. */
+export interface TransferRow {
+  id: string;
+  reqNo: number;
+  fromWarehouse: number;
+  toWarehouse: number;
+  status: 'OPEN' | 'CANCELLED';
+  reqSide: string | null;
+  purpose: string | null;
+  refNo: string | null;
+  note: string | null;
+  createdBy: string;
+  createdAt: string;
+  cancelledBy: string | null;
+  cancelledAt: string | null;
+  lineCount: number;
+}
+
+/** One requested item (avlQty = available snapshot at request time). */
+export interface TransferLine {
+  lineId: string;
+  itemCode: string;
+  itemName: string | null;
+  qty: number;
+  avlQty: number | null;
+  note: string | null;
+}
+
+/** GET /transfers/{id} — header + lines. */
+export interface TransferDetail extends TransferRow {
+  lines: TransferLine[];
+}
+
+/** POST /transfers body. */
+export interface CreateTransferDto {
+  fromWarehouse: number;
+  toWarehouse: number;
+  reqSide?: string;
+  purpose?: string;
+  refNo?: string;
+  note?: string;
+  lines: { itemCode: string; qty: number; note?: string }[];
+}
+
+/** GET /warehouses — merged ERP + overlay row. */
+export interface WarehouseRow {
+  code: number;
+  arName: string | null;
+  enName: string | null;
+  location: string | null;
+  tel: string | null;
+  keeper: string | null;
+  noSale: boolean;
+  priceLevel: number | null;
+  inactive: boolean;
+  origin: string;
+}
+
+/* ---------- POSR wave-F reports ---------- */
+
+/** GET /reports/by-shift (POSR004) — one shift with sales + collections. */
+export interface ByShiftRow {
+  shiftId: string;
+  shiftNo: number;
+  cashierNo: number;
+  machineNo: number | null;
+  status: string;
+  openedAt: string;
+  closedAt: string | null;
+  billCount: number;
+  grossAmt: number;
+  discountAmt: number;
+  vatAmt: number;
+  netAmt: number;
+  cashCollected: number;
+  cardCollected: number;
+  creditCollected: number;
+  cashDifference: number | null;
+}
+
+/** GET /reports/shifts-history (POSR014) — reconciliation figures. */
+export interface ShiftHistoryRow {
+  shiftId: string;
+  shiftNo: number;
+  shiftCode: string | null;
+  cashierNo: number;
+  machineNo: number | null;
+  currency: string;
+  status: string;
+  openedAt: string;
+  closedAt: string | null;
+  openingBalance: number;
+  closingBalance: number | null;
+  expectedCash: number | null;
+  cashDifference: number | null;
+  countedCash: number | null;
+  settleDifference: number | null;
+  settledAt: string | null;
+  cashReceipts: number;
+  cashExpenses: number;
+}
+
+/** GET /reports/customer-statement (POSR002) — sub rows. */
+export interface CustomerStatementBillRow {
+  billId: string;
+  billNo: string;
+  issuedAt: string;
+  currency: string;
+  grossAmt: number;
+  discountAmt: number;
+  vatAmt: number;
+  netAmt: number;
+  paidAmt: number;
+}
+
+export interface CustomerStatementReturnRow {
+  returnId: string;
+  rtBillNo: string;
+  originalBillNo: string;
+  issuedAt: string;
+  netAmt: number;
+  refundAmt: number;
+}
+
+export interface CustomerStatementPointsRow {
+  trnsType: number;
+  trnsTypeName: 'EARN' | 'REDEEM' | 'EXPIRE' | 'ADJUST';
+  billNo: string | null;
+  docAmt: number;
+  pointCnt: number;
+  pointAmt: number;
+  createdAt: string;
+}
+
+export interface CustomerStatementCollectionRow {
+  collectionId: string;
+  billId: string;
+  method: string;
+  currency: string;
+  amountInBill: number;
+  createdAt: string;
+}
+
+/** GET /reports/customer-statement — full statement of one customer. */
+export interface CustomerStatementReport {
+  customerCode: string;
+  customerName: string | null;
+  from: string | null;
+  to: string | null;
+  bills: CustomerStatementBillRow[];
+  returns: CustomerStatementReturnRow[];
+  points: CustomerStatementPointsRow[];
+  collections: CustomerStatementCollectionRow[];
+  totals: {
+    billCount: number;
+    salesTotal: number;
+    returnCount: number;
+    returnsTotal: number;
+    pointsEarned: number;
+    pointsRedeemed: number;
+    creditTotal: number;
+    collectedTotal: number;
+    outstanding: number;
+  };
+}
+
+/** GET /reports/receivables (POSR008) — one customer's credit snapshot. */
+export interface ReceivableRow {
+  customerCode: string;
+  customerName: string | null;
+  creditBillCount: number;
+  creditTotal: number;
+  collectedTotal: number;
+  outstanding: number;
+  lastCreditAt: string | null;
+  lastCollectionAt: string | null;
+}
+
+/** GET /reports/vouchers-summary (POSR009/016) rows + totals. */
+export interface VoucherSummaryRow {
+  machineNo: number | null;
+  voucherType: 'RECEIPT' | 'EXPENSE';
+  paymentMethod: string;
+  currency: string;
+  voucherCount: number;
+  amount: number;
+  amountInShift: number;
+}
+
+export interface VoucherSummaryReport {
+  rows: VoucherSummaryRow[];
+  totals: {
+    receiptCount: number;
+    receiptsTotal: number;
+    expenseCount: number;
+    expensesTotal: number;
+    netCashEffect: number;
+  };
+}
+
+/** GET /reports/loyalty (POSR010) — slices + per-customer + totals. */
+export interface LoyaltyTypeSlice {
+  trnsType: number;
+  trnsTypeName: 'EARN' | 'REDEEM' | 'EXPIRE' | 'ADJUST';
+  txnCount: number;
+  points: number;
+  pointAmt: number;
+  docAmt: number;
+}
+
+export interface LoyaltyCustomerRow {
+  customerCode: string;
+  customerName: string | null;
+  earned: number;
+  redeemed: number;
+  expired: number;
+  adjusted: number;
+  net: number;
+}
+
+export interface LoyaltyReport {
+  from: string | null;
+  to: string | null;
+  byType: LoyaltyTypeSlice[];
+  byCustomer: LoyaltyCustomerRow[];
+  totals: { earned: number; redeemed: number; expired: number; net: number };
+}
+
+/** GET /reports/sales-orders (POSR015) — read-only SALES_ORDER header. */
+export interface SalesOrderRow {
+  orderNo: number;
+  orderSer: number | null;
+  soType: number;
+  orderDay: string | null;
+  orderTime: string | null;
+  custCode: string | null;
+  customerName: string | null;
+  currency: string | null;
+  orderAmt: number;
+  vatAmt: number;
+  processed: boolean;
+  machineNo: number | null;
+}
+
+/** GET /reports/customer-groups (POSR012) — sales per customer group. */
+export interface CustomerGroupReportRow {
+  groupCode: string | null;
+  groupName: string | null;
+  customerCount: number;
+  billCount: number;
+  totalAmt: number;
+  totalVat: number;
+  totalDisc: number;
+}

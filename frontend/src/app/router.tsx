@@ -52,6 +52,12 @@ const AdminPage = lazy(() =>
 const SyncPage = lazy(() =>
   import('@/features/sync').then((m) => ({ default: m.SyncPage })),
 );
+const PrescriptionsPage = lazy(() =>
+  import('@/features/prescriptions').then((m) => ({ default: m.PrescriptionsPage })),
+);
+const TransfersPage = lazy(() =>
+  import('@/features/transfers').then((m) => ({ default: m.TransfersPage })),
+);
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const token = useSession((s) => s.accessToken);
@@ -91,6 +97,8 @@ export const router = createBrowserRouter([
       { path: 'bills', element: <Lazy><BillsPage /></Lazy> },
       { path: 'bills/:billNo', element: <Lazy><BillDetailPage /></Lazy> },
       { path: 'returns', element: <Lazy><ReturnsPage /></Lazy> },
+      { path: 'prescriptions', element: <Lazy><PrescriptionsPage /></Lazy> },
+      { path: 'transfers', element: <Lazy><TransfersPage /></Lazy> },
       {
         path: 'customers',
         element: (
