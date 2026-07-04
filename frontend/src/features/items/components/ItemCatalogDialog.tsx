@@ -1,19 +1,60 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X, Layers, Ruler, CheckCircle2, XCircle } from 'lucide-react';
+import {
+  X,
+  Layers,
+  Ruler,
+  CheckCircle2,
+  XCircle,
+  Barcode,
+  Gauge,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
+import { Input } from '@/shared/ui/Input';
+import { OriginBadge } from '@/shared/ui/OriginBadge';
 import { LoadingView, ErrorView, EmptyView } from '@/shared/ui/StateView';
+import { ApiError } from '@/shared/lib/api-client';
 import { formatMoney, formatNumber } from '@/shared/lib/format';
 import { useItemPrices, useItemUnits } from '@/features/pos-terminal/api/items.api';
+import {
+  useItemBarcodes,
+  useItemLimits,
+  useAddItemBarcode,
+  useRemoveItemBarcode,
+  useUpdateItemLimits,
+} from '../api/item-extras.api';
 import type { Item } from '@/shared/lib/types';
 
+type CatalogTab = 'pricing' | 'barcodes' | 'limits';
+
+const TABS: { key: CatalogTab; icon: typeof Layers }[] = [
+  { key: 'pricing', icon: Layers },
+  { key: 'barcodes', icon: Barcode },
+  { key: 'limits', icon: Gauge },
+];
+
+function errText(e: unknown, fallback: string): string {
+  if (e instanceof ApiError) {
+    const trace = e.problem.traceId ? ` (traceId: ${e.problem.traceId})` : '';
+    return `${e.problem.detail || e.problem.title}${trace}`;
+  }
+  return fallback;
+}
+
 /**
- * Advanced-catalog detail (POS_ITM_PRICE / POSI2000):
- *  • All price levels (LEV_NO × unit) from GET /items/{code}/prices.
- *  • All units of measure with conversion factors (P_SIZE), per-unit barcode
- *    and price from GET /items/{code}/units (e.g. حبة/كرتون).
+ * Advanced-catalog detail (POS_ITM_PRICE / POSI2000 / POSI006-008-009):
+ *  • Pricing tab: all price levels (LEV_NO × unit) + units of measure with
+ *    conversion factors (P_SIZE) — GET /items/{code}/prices · /units.
+ *  • Barcodes tab: multi-barcode per unit (ERP + LOCAL overlay), add LOCAL
+ *    barcode / disable LOCAL barcode — GET/POST/DELETE /items/{code}/barcodes.
+ *  • Limits tab: min/max/reorder stock limits (merged ERP + overlay), edited
+ *    via PUT /items/{code} — GET /items/{code}/limits.
  */
 export function ItemCatalogDialog({ item, onClose }: { item: Item; onClose: () => void }) {
   const { t } = useTranslation();
+  const [tab, setTab] = useState<CatalogTab>('pricing');
   const prices = useItemPrices(item.code);
   const units = useItemUnits(item.code);
 
@@ -35,7 +76,37 @@ export function ItemCatalogDialog({ item, onClose }: { item: Item; onClose: () =
           </Button>
         </div>
 
+        <div
+          className="flex flex-wrap gap-2 border-b px-4 py-2"
+          role="tablist"
+          aria-label={t('catalog.details')}
+        >
+          {TABS.map(({ key, icon: Icon }) => (
+            <button
+              key={key}
+              role="tab"
+              aria-selected={tab === key}
+              onClick={() => setTab(key)}
+              className={
+                'flex items-center gap-2 rounded-[var(--radius)] border px-3 py-1.5 text-sm font-medium transition-colors ' +
+                (tab === key
+                  ? 'border-[var(--color-brand-500)] bg-[var(--color-brand-600)] text-white'
+                  : 'text-[var(--color-muted)] hover:bg-[var(--color-surface-2)]')
+              }
+            >
+              <Icon className="size-4" aria-hidden />
+              {t(`catalog.tab.${key}`)}
+            </button>
+          ))}
+        </div>
+
         <div className="min-h-0 flex-1 overflow-y-auto scroll-thin p-4">
+          {tab === 'barcodes' ? (
+            <BarcodesTab item={item} />
+          ) : tab === 'limits' ? (
+            <LimitsTab item={item} />
+          ) : (
+            <>
           {/* Price levels */}
           <section aria-label={t('catalog.pricesTitle')}>
             <h3 className="mb-2 flex items-center gap-2 font-bold">
@@ -139,9 +210,277 @@ export function ItemCatalogDialog({ item, onClose }: { item: Item; onClose: () =
               </table>
             )}
           </section>
+            </>
+          )}
         </div>
       </div>
     </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Barcodes tab (POSI006/008/009 multi-barcode)
+// ---------------------------------------------------------------------------
+
+function BarcodesTab({ item }: { item: Item }) {
+  const { t } = useTranslation();
+  const query = useItemBarcodes(item.code);
+  const add = useAddItemBarcode();
+  const remove = useRemoveItemBarcode();
+
+  const [barcode, setBarcode] = useState('');
+  const [unit, setUnit] = useState('');
+  const [packSize, setPackSize] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async () => {
+    const bc = barcode.trim();
+    if (!bc) return;
+    setError(null);
+    try {
+      await add.mutateAsync({
+        code: item.code,
+        dto: {
+          barcode: bc,
+          unit: unit.trim() || undefined,
+          packSize: packSize.trim() ? Number(packSize) : undefined,
+        },
+      });
+      setBarcode('');
+      setUnit('');
+      setPackSize('');
+    } catch (e) {
+      setError(errText(e, t('catalog.barcodeAddError')));
+    }
+  };
+
+  const disable = async (bc: string) => {
+    setError(null);
+    try {
+      await remove.mutateAsync({ code: item.code, barcode: bc });
+    } catch (e) {
+      setError(errText(e, t('catalog.barcodeAddError')));
+    }
+  };
+
+  return (
+    <section aria-label={t('catalog.tab.barcodes')}>
+      {/* Add a LOCAL barcode */}
+      <div className="mb-3 grid grid-cols-1 gap-2 sm:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_minmax(0,1fr)_auto]">
+        <Input
+          value={barcode}
+          onChange={(e) => setBarcode(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') void submit();
+          }}
+          placeholder={t('catalog.newBarcode')}
+          className="tnum h-10"
+          dir="ltr"
+          aria-label={t('catalog.newBarcode')}
+        />
+        <Input
+          value={unit}
+          onChange={(e) => setUnit(e.target.value)}
+          placeholder={t('catalog.unit')}
+          className="h-10"
+          aria-label={t('catalog.unit')}
+        />
+        <Input
+          type="number"
+          min={0}
+          value={packSize}
+          onChange={(e) => setPackSize(e.target.value)}
+          placeholder={t('catalog.packSize')}
+          className="tnum h-10 text-end"
+          aria-label={t('catalog.packSize')}
+        />
+        <Button
+          variant="primary"
+          className="h-10"
+          disabled={!barcode.trim() || add.isPending}
+          onClick={() => void submit()}
+        >
+          <Plus className="size-4" />
+          {t('catalog.addBarcode')}
+        </Button>
+      </div>
+      {error ? (
+        <p
+          role="alert"
+          className="mb-3 rounded-md bg-[var(--color-danger)]/15 p-2 text-center text-xs text-[var(--color-danger)]"
+        >
+          {error}
+        </p>
+      ) : null}
+
+      {query.isLoading ? (
+        <LoadingView />
+      ) : query.isError ? (
+        <ErrorView error={query.error} onRetry={() => query.refetch()} />
+      ) : !query.data || query.data.barcodes.length === 0 ? (
+        <EmptyView label={t('catalog.noBarcodes')} />
+      ) : (
+        <table className="w-full text-sm">
+          <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+            <tr>
+              <th className="px-3 py-1.5 text-start font-semibold">{t('items.barcode')}</th>
+              <th className="px-3 py-1.5 text-start font-semibold">{t('catalog.unit')}</th>
+              <th className="hidden px-3 py-1.5 text-end font-semibold sm:table-cell">
+                {t('catalog.packSize')}
+              </th>
+              <th className="px-3 py-1.5 text-center font-semibold">{t('catalog.mainUnit')}</th>
+              <th className="px-3 py-1.5 text-center font-semibold">{t('items.origin')}</th>
+              <th className="px-3 py-1.5 text-end font-semibold">{t('items.actions')}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {query.data.barcodes.map((b) => (
+              <tr
+                key={b.barcode}
+                className={`hover:bg-[var(--color-surface-2)] ${b.inactive ? 'opacity-50' : ''}`}
+              >
+                <td className="tnum px-3 py-1.5 font-medium" dir="ltr">
+                  {b.barcode}
+                  {b.noSale ? (
+                    <span className="ms-2 rounded-full bg-[var(--color-danger)]/15 px-2 py-0.5 text-[10px] text-[var(--color-danger)]">
+                      {t('catalog.noSale')}
+                    </span>
+                  ) : null}
+                </td>
+                <td className="px-3 py-1.5">{b.unit ?? '—'}</td>
+                <td className="tnum hidden px-3 py-1.5 text-end sm:table-cell">
+                  {b.packSize != null ? formatNumber(b.packSize) : '—'}
+                </td>
+                <td className="px-3 py-1.5 text-center">
+                  <BoolIcon value={b.isMain} />
+                </td>
+                <td className="px-3 py-1.5 text-center">
+                  <OriginBadge origin={b.origin} />
+                </td>
+                <td className="px-3 py-1.5 text-end">
+                  {b.origin === 'LOCAL' && !b.inactive ? (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t('catalog.removeBarcode')}
+                      title={t('catalog.removeBarcode')}
+                      disabled={remove.isPending}
+                      onClick={() => void disable(b.barcode)}
+                    >
+                      <Trash2 className="size-4 text-[var(--color-danger)]" />
+                    </Button>
+                  ) : null}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Stock limits tab (POSI2000 min/max/reorder)
+// ---------------------------------------------------------------------------
+
+function LimitsTab({ item }: { item: Item }) {
+  const { t } = useTranslation();
+  const query = useItemLimits(item.code);
+  const update = useUpdateItemLimits();
+
+  const [minQty, setMinQty] = useState<string | null>(null);
+  const [maxQty, setMaxQty] = useState<string | null>(null);
+  const [reorderQty, setReorderQty] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+
+  if (query.isLoading) return <LoadingView />;
+  if (query.isError) return <ErrorView error={query.error} onRetry={() => query.refetch()} />;
+  if (!query.data) return <EmptyView />;
+
+  const d = query.data;
+  const minV = minQty ?? (d.minLimitQty != null ? String(d.minLimitQty) : '');
+  const maxV = maxQty ?? (d.maxLimitQty != null ? String(d.maxLimitQty) : '');
+  const reoV = reorderQty ?? (d.reorderLimitQty != null ? String(d.reorderLimitQty) : '');
+
+  const submit = async () => {
+    setError(null);
+    setSaved(false);
+    const dto: { minLimitQty?: number; maxLimitQty?: number; reorderLimitQty?: number } = {};
+    if (minV.trim()) dto.minLimitQty = Number(minV);
+    if (maxV.trim()) dto.maxLimitQty = Number(maxV);
+    if (reoV.trim()) dto.reorderLimitQty = Number(reoV);
+    try {
+      await update.mutateAsync({ code: item.code, dto });
+      setSaved(true);
+    } catch (e) {
+      setError(errText(e, t('catalog.limitsSaveError')));
+    }
+  };
+
+  return (
+    <section aria-label={t('catalog.tab.limits')} className="mx-auto max-w-md">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="flex items-center gap-2 font-bold">
+          <Gauge className="size-4 text-[var(--color-brand-500)]" aria-hidden />
+          {t('catalog.limitsTitle')}
+        </h3>
+        <OriginBadge origin={d.origin} />
+      </div>
+
+      <div className="flex flex-col gap-3">
+        <label className="flex flex-col gap-1">
+          <span className="text-sm text-[var(--color-muted)]">{t('catalog.minLimit')}</span>
+          <Input
+            type="number"
+            min={0}
+            value={minV}
+            onChange={(e) => setMinQty(e.target.value)}
+            className="tnum h-10 text-end"
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-sm text-[var(--color-muted)]">{t('catalog.maxLimit')}</span>
+          <Input
+            type="number"
+            min={0}
+            value={maxV}
+            onChange={(e) => setMaxQty(e.target.value)}
+            className="tnum h-10 text-end"
+          />
+        </label>
+        <label className="flex flex-col gap-1">
+          <span className="text-sm text-[var(--color-muted)]">{t('catalog.reorderLimit')}</span>
+          <Input
+            type="number"
+            min={0}
+            value={reoV}
+            onChange={(e) => setReorderQty(e.target.value)}
+            className="tnum h-10 text-end"
+          />
+        </label>
+
+        {error ? (
+          <p
+            role="alert"
+            className="rounded-md bg-[var(--color-danger)]/15 p-2 text-center text-xs text-[var(--color-danger)]"
+          >
+            {error}
+          </p>
+        ) : null}
+        {saved ? (
+          <p className="rounded-md bg-[var(--color-success)]/15 p-2 text-center text-xs text-[var(--color-success)]">
+            {t('catalog.limitsSaved')}
+          </p>
+        ) : null}
+
+        <Button variant="primary" disabled={update.isPending} onClick={() => void submit()}>
+          <CheckCircle2 className="size-4" />
+          {update.isPending ? t('items.saving') : t('items.save')}
+        </Button>
+      </div>
+    </section>
   );
 }
 

@@ -58,6 +58,24 @@ const PrescriptionsPage = lazy(() =>
 const TransfersPage = lazy(() =>
   import('@/features/transfers').then((m) => ({ default: m.TransfersPage })),
 );
+const SuppliersPage = lazy(() =>
+  import('@/features/master-data').then((m) => ({ default: m.SuppliersPage })),
+);
+const WarehousesPage = lazy(() =>
+  import('@/features/master-data').then((m) => ({ default: m.WarehousesPage })),
+);
+const GroupsUnitsPage = lazy(() =>
+  import('@/features/master-data').then((m) => ({ default: m.GroupsUnitsPage })),
+);
+const CurrenciesPage = lazy(() =>
+  import('@/features/master-data').then((m) => ({ default: m.CurrenciesPage })),
+);
+const PrepaidCardsPage = lazy(() =>
+  import('@/features/prepaid-cards').then((m) => ({ default: m.PrepaidCardsPage })),
+);
+const CustomerGroupsPage = lazy(() =>
+  import('@/features/customer-groups').then((m) => ({ default: m.CustomerGroupsPage })),
+);
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const token = useSession((s) => s.accessToken);
@@ -120,6 +138,50 @@ export const router = createBrowserRouter([
         element: (
           <RequireRole roles={PRIVILEGED}>
             <Lazy><InventoryPage /></Lazy>
+          </RequireRole>
+        ),
+      },
+      {
+        path: 'suppliers',
+        element: (
+          <RequireRole roles={PRIVILEGED}>
+            <Lazy><SuppliersPage /></Lazy>
+          </RequireRole>
+        ),
+      },
+      {
+        path: 'warehouses',
+        element: (
+          <RequireRole roles={PRIVILEGED}>
+            <Lazy><WarehousesPage /></Lazy>
+          </RequireRole>
+        ),
+      },
+      {
+        path: 'groups-units',
+        element: (
+          <RequireRole roles={PRIVILEGED}>
+            <Lazy><GroupsUnitsPage /></Lazy>
+          </RequireRole>
+        ),
+      },
+      {
+        path: 'currencies',
+        element: (
+          <RequireRole roles={PRIVILEGED}>
+            <Lazy><CurrenciesPage /></Lazy>
+          </RequireRole>
+        ),
+      },
+      {
+        path: 'prepaid-cards',
+        element: <Lazy><PrepaidCardsPage /></Lazy>,
+      },
+      {
+        path: 'customer-groups',
+        element: (
+          <RequireRole roles={PRIVILEGED}>
+            <Lazy><CustomerGroupsPage /></Lazy>
           </RequireRole>
         ),
       },

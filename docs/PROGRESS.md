@@ -1,6 +1,24 @@
 # 📈 سجل تقدّم Motech POS
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
+## 2026-07-04 (واجهة الموجة E — شاشات POSI master data في الـUI) — subagent frontend-waveE-wire
+
+> **النطاق:** frontend فقط (لا backend، لا features/settings — وكيل آخر). features جديدة: `master-data/`، `prepaid-cards/`، `customer-groups/` + توسيع `items/`. كل الأشكال مُثبتة بـcurl حي على :3000 قبل الكتابة، وكل شاشة مُثبتة بعد النشر عبر CDP على الدومين العام (دخول supervisor1 حقيقي + عدّ صفوف حي).
+
+| الشاشة | المحتوى | proof حي (rows) |
+|---|---|---|
+| **الموردون** `/suppliers` | بحث debounce + جدول (هاتف/مسؤول تختفي على mobile) + حوار إنشاء/تعديل (10 حقول + فترة ائتمان) | 39 صفاً |
+| **المخازن** `/warehouses` | جدول + شارة «البيع موقوف» + حوار (أمين/موقع/مستوى سعر/noSale) | 3 |
+| **المجموعات + الوحدات** `/groups-units` | شاشة واحدة بتبويبين: مجموعات (ضريبة%/خصم/ترتيب/عدّاد أصناف) + وحدات (كود مطلوب عند الإنشاء) | 24 |
+| **العملات** `/currencies` | سعرا الصرف (محاسبي rate + كاشير ratePos) + خانات عشرية + شارة العملة المحلية | 4 |
+| **بطاقات مسبقة الدفع** `/prepaid-cards` (POSI007+200) | فلاتر (عميل/نوع/نشطة) + إصدار + شحن (supervisor/admin) + سحب (كل الأدوار — فعل الدفع) مع حارس رصيد في الـUI + تفعيل/تعطيل + حوار سجل حركات برصيد جارٍ (ISSUE/TOPUP/REDEEM ملوّنة) | 1 (GC-2026-0001، رصيد 45,000 حي) |
+| **مجموعات العملاء** `/customer-groups` (POSI009) | master/detail متجاوب (عمودان على desktop، مكدّس على mobile): قائمة + إنشاء/تعديل (sendMsg) + لوحة أعضاء (إضافة بكود C_CODE + إزالة، أسماء محلولة) | 2 مجموعات |
+| **باركود متعدد + حدود مخزون** (POSI2000) | ItemCatalogDialog صار بتبويبات: الأسعار/الوحدات (كما كان) + **الباركودات** (إضافة LOCAL إنلاين + تعطيل LOCAL، ERP مصون) + **حدود المخزون** (min/max/reorder عبر PUT /items) | إضافة TEST-UI من الـUI → LOCAL active → تعطيل → inactive + الباركود لم يعد يُحل في scan (مُثبت SELECT) |
+
+**تفاصيل تقنية:** 6 مسارات lazy جديدة في router (كلها supervisor/admin عدا `/prepaid-cards` لكل الأدوار — الكاشير يحتاج السحب وقت الدفع) + 6 إدخالات NAV بأيقونات Truck/Warehouse/FolderTree/Coins/CreditCard/UsersRound · مكوّن مشترك `MdShared` (MdDialog/Field/CheckField/errorText) يوحّد نمط الحوارات · مفاتيح i18n جديدة md/suppliers/warehouses/groupsUnits/currencies/prepaid/custGroups + catalog.tab.* · chunks: master-data 30.7KB، prepaid-cards 14.8KB، customer-groups ≈ 12KB، items 21.7KB.
+
+**Proof:** `npm run build` ✅ (tsc -b صفر أخطاء) · نُشر إلى /var/www/motech-pos · الدومين 200 + chunks الجديدة 200 · دخول حي عبر المتصفح (CDP) → كل الشاشات الست ترسم ببيانات حقيقية (الأرقام أعلاه) وبلا أخطاء · كتابة حقيقية من الـUI (باركود أُضيف ثم عُطّل) · SCREENS_GAP: POSI ✅4→7 (POSI007/009/200 اكتملت)، الإجمالي الصارم 27/80 = 33.75%، مرجّحة 52.5%.
+
 ## 2026-07-04 (واجهة الموجة G — ربط ميزات backend الجديدة بالـUI) — subagent frontend-waveG-wire
 
 > **النطاق:** frontend فقط (لا backend، لا features/settings — وكيل آخر). كل الأشكال (types) مُثبتة بـcurl حي على :3000 قبل الكتابة. بناء نظيف (tsc -b + vite، صفر أخطاء) ومنشور على https://nuugneol.gensparkclaw.com (200).

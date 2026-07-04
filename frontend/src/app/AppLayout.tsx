@@ -20,6 +20,12 @@ import {
   KeyRound,
   ClipboardList,
   ArrowLeftRight,
+  Truck,
+  Warehouse,
+  FolderTree,
+  Coins,
+  CreditCard,
+  UsersRound,
 } from 'lucide-react';
 import { useSession, ChangePasswordDialog } from '@/features/auth';
 import { OnlineBadge } from '@/shared/ui/OnlineBadge';
@@ -49,8 +55,14 @@ const NAV: NavItem[] = [
   { to: '/reconciliation', key: 'nav.reconciliation', icon: Scale, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/prescriptions', key: 'nav.prescriptions', icon: ClipboardList, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/transfers', key: 'nav.transfers', icon: ArrowLeftRight, roles: ['cashier', 'supervisor', 'admin'] },
+  { to: '/prepaid-cards', key: 'nav.prepaidCards', icon: CreditCard, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/customers', key: 'nav.customers', icon: Users, roles: ['supervisor', 'admin'] },
+  { to: '/customer-groups', key: 'nav.customerGroups', icon: UsersRound, roles: ['supervisor', 'admin'] },
   { to: '/items', key: 'nav.items', icon: Package, roles: ['supervisor', 'admin'] },
+  { to: '/groups-units', key: 'nav.groupsUnits', icon: FolderTree, roles: ['supervisor', 'admin'] },
+  { to: '/suppliers', key: 'nav.suppliers', icon: Truck, roles: ['supervisor', 'admin'] },
+  { to: '/warehouses', key: 'nav.warehouses', icon: Warehouse, roles: ['supervisor', 'admin'] },
+  { to: '/currencies', key: 'nav.currencies', icon: Coins, roles: ['supervisor', 'admin'] },
   { to: '/inventory', key: 'nav.inventory', icon: Boxes, roles: ['supervisor', 'admin'] },
   { to: '/reports', key: 'nav.reports', icon: BarChart3, roles: ['supervisor', 'admin'] },
   { to: '/sync', key: 'nav.sync', icon: RefreshCw, roles: ['supervisor', 'admin'] },
