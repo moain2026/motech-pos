@@ -11,6 +11,7 @@ import { CatalogModule } from './modules/catalog/catalog.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { EInvoiceModule } from './modules/einvoice/einvoice.module';
+import { KeypadsModule } from './modules/keypads/keypads.module';
 import { LoyaltyModule } from './modules/loyalty/loyalty.module';
 import { MasterDataModule } from './modules/master-data/master-data.module';
 import { SuppliersModule } from './modules/suppliers/suppliers.module';
@@ -49,6 +50,7 @@ import { VouchersModule } from './modules/vouchers/vouchers.module';
     CustomersModule,
     InventoryModule,
     AdminModule,
+    KeypadsModule,
     LoyaltyModule,
     MasterDataModule,
     SuppliersModule,
