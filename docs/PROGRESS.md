@@ -1,6 +1,36 @@
 # 📈 سجل تقدّم Motech POS
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
+## 2026-07-04 (الموجة F — إكمال تقارير POSR كاملة + إصلاح باغ التصفية P1) — subagent waveF-reports-shiftbug
+
+### 1) 🐛 إصلاح باغ P1: توحيد expected-cash بين close وreconciliation ✅
+**الباغ:** `POST /shifts/:id/close` كان يحسب `expected = فتح + مبيعات نقد − cashExpenses(من الطلب)` بينما `GET /shifts/:id/reconciliation` يحسب `expected = فتح + مبيعات نقد + سندات قبض − سندات صرف` — وردية فيها سندات تقفل برقم متوقّع مختلف عما يقرّره تقريرها نفسه.
+**الإصلاح:** `ShiftsService.close()` يجلب الآن مجاميع سندات الوردية (VOUCHER_CASH_TOTALS) ويمرّر `cashReceipts`/`cashExpenses` للـrepository — الصيغة موحّدة في المكانين: **expected = فتح + مبيعات نقد + مقبوضات − مصروفات** (override صريح لـcashExpenses ما زال يفوز، نفس أسبقية reconciliation).
+**proof حي (curl :3000):** فتح وردية 160 (عهدة 1000) → بيع نقد 300 (فاتورة 260700300000375) → سند قبض 500 (RCP260700300000005) + سند صرف 120 (EXP260700300000006) → reconciliation (OPEN): expected=**1680** (1000+300+500−120) → close: expectedCash=**1680** ✓ تطابق تام → reconciliation (CLOSED): expected=**1680**، BALANCED → SELECT مباشر من MOTECH_POS.SHIFTS: EXPECTED_CASH=1680 ✓. قبل الإصلاح كان close سيعطي 1180.
+**test:** `shift-close-reconciliation.spec.ts` (3 اختبارات): تطابق close/recon مع سندات · override صريح يفوز في المسارين · fallback صفري بلا vouchers provider.
+
+### 2) 📊 10 endpoints تقارير جديدة — إكمال كل POSR الناقصة backend (16/16) ✅
+كلها JWT + RFC9457 + bind variables + قراءة فقط، بنمط الـports/repos القائم:
+
+| Endpoint | POSR | المحتوى | proof حي |
+|---|---|---|---|
+| `GET /reports/by-shift` | POSR004 | مبيعات وردية-بوردية (فواتير/إجماليات/نقد-شبكة-آجل/فرق نقدي لكل وردية) + فلتر cashier/shift | وردية 160: billCount=1، cash=300، diff=0 |
+| `GET /reports/shifts-history` | POSR014 | قائمة ورديات تاريخية كاملة (21 وردية) بفروق الإقفال والتصفية + سندات كل وردية، فلتر status | SETTLED×2: وردية 129 (16600/16550/−50) |
+| `GET /reports/customer-statement?customer=` | POSR002 | كشف عميل كامل: فواتيره/مردوداته/حركة نقاطه/تحصيلاته + إجماليات (مبيعات/ذمة متبقية) | عميل 1 «محمد العباسي»: 3 فواتير 23,510، نقاط +234/−20 |
+| `GET /reports/receivables` | POSR008 | ذمم آجلة لكل عميل (آجل/محصّل/متبقٍ/آخر حركة) من PAYMENTS(CREDIT)+CREDIT_COLLECTIONS | C001: آجل 30، محصّل 30، متبقٍ 0 |
+| `GET /reports/vouchers-summary` | POSR009+016 | سندات مجمّعة آلة×نوع×طريقة×عملة + إجماليات وصافي أثر نقدي، فلتر وردية/مدى | 4 قبض=1750، 2 صرف=240، صافي 1510؛ بفلتر وردية 160: 500/120/380 |
+| `GET /reports/loyalty` | POSR010 | نقاط الفترة byType (كسب/استبدال/انتهاء/تسوية) + byCustomer + إجماليات، فلتر customer/وردية/مدى | earned=617، redeemed=120، net=497؛ عميل 1: 234/20/214 |
+| `GET /reports/returns-window` | POSR011 | كل مرتجع مع ساعات التأخير عن فاتورته الأصلية (BILL_DATE+BILL_TIME من YSPOS23) وwithinWindow مقابل PRD_BACK_HOUR | مرتجع فوري delay=0، تاريخي 201.88h؛ PRD_BACK_HOUR=NULL → withinWindow=null (غير مفعّل بصدق) |
+| `GET /reports/sales-orders` | POSR015 | أوامر البيع من YSPOS23.SALES_ORDER (قراءة فقط، فلتر processed/مدى) | الأمران الحقيقيان (2026-04-25، 520+10 YER، processed) |
+| `GET /reports/customer-groups` | POSR012 | مبيعات بمجموعة العميل (JOIN لـIAS_CASH_CUSTMR_GRP — فارغة حالياً فدلو NULL يجمع الكل؛ يتفعّل مع POSI009) | 2,591 فاتورة = 1.29M في دلو واحد (صادق مع الواقع) |
+| `GET /reports/export?report=` | POSR003 | تصدير CSV (RFC4180، UTF-8) لـ17 تقريراً مسطّحاً — البديل المقرّر لقوالب S_RPRT_USR_TMPLT | CSV حي بأسماء عربية («بيض»، «ارز الديوان…»)؛ report مجهول → 400 |
+
++ تحسين POSR006: `sales-by-category?machine=` (نوع الصنف × الآلة) — proof: آلة 3 = 900 مقابل 376,200 إجمالاً.
+**حراس مُثبتة:** بلا توكن → 401 · customer-statement بلا customer → 400 · status مجهول → 400 · تاريخ مشوّه → 400.
+**درس SQL:** حساب delay للمرتجعات يحتاج `TRUNC(BILL_DATE)` — BILL_DATE في YSPOS23 يحمل أحياناً مكوّن وقت يتكرر مع BILL_TIME فيضاعف الوقت (ظهر كـdelay سالب).
+
+- **حالة عامة:** build ✅ · **200/200 unit تمر** (+15 جديدة: 3 shift-close-reconciliation + 6 pos-reports موجة F + الموجود) · golden 43/43 (مع TEST_* env) · pm2 online · OpenAPI مُعاد توليده · لم تُلمس وحدات الوكلاء الآخرين (catalog/customers/admin/suppliers).
+
 ## 2026-07-04 (الموجة G — POSS مكتملة + حركات POST متقدّمة) — subagent waveG-poss-post
 ### 4 إنجازات حيّة مُثبتة (كلها curl حي + DB proof + commit منفصل):
 
