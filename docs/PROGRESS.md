@@ -1,6 +1,34 @@
 # 📈 سجل تقدّم Motech POS
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
+## 2026-07-04 (الموجة H backend — إغلاق كل شاشات POST القابلة للبناء) — subagent backend-remaining-12 (Fable 5)
+
+> **النطاق:** backend فقط — 5 modules جديدة + 6 هجرات (V021–V026). لم تُلمس وحدات الوكلاء الآخرين (inventory/keypads/items/reports/settings). **24 موديول · 186 endpoint · 240 اختبار أخضر (كان 214) · lint 0**.
+
+**1. أوامر البيع / طلبات العملاء (POST024) — module sales-orders (V021):**
+- `POST/GET /sales-orders` + `/:id` + **`/:id/convert`** + `/:id/cancel`. الطلب OPEN→CONVERTED|CANCELLED، أسماء/أسعار عربية تُلتقط للعرض والتحويل **ينزل فاتورة حقيقية في YSPOS23** عبر PostBillUseCase نفسه (تسعير سيرفر، وردية مفتوحة، نقاط) — مفتاح idempotency واحد للتحويل والفاتورة (لا فاتورة مكررة حتى مع crash).
+- **proof:** أمر بسطرين (أرز بسمتي 850 + خميرة 300×2) → convert → **BILL 260700300000407 = 1450** في IAS_POS_BILL_MST/DTL بـSELECT مباشر → replay=true نفس الفاتورة → 409 لمفتاح جديد/إلغاء محوّل → 404 صنف مجهول.
+
+**2. الاستلام المخزني (POST029) — module stock-receiving (V022+V023+V024):**
+- `POST/GET /stock-receipts` + `/:id/post` (supervisor/admin) + `/:id/cancel`. الاعتماد يكتب **ITEM_MOVEMENT حقيقي (DOC_TYPE=8، IN_OUT=+1)** في نفس معاملة قلب DRAFT→POSTED + تحديث MV — **المخزون يزيد فعلاً**. ترقيم ERP أصلي (IAS_SERIAL_SEQ/IAS_DOC_SEQ/GNR_DOC_PST_SQ + MAX(DOC_NO)+1). snapshot اسم/وحدة مخزون/عبوة/آخر كلفة من IAS_ITM_DTL/ITEM_MOVEMENT الحية.
+- **اكتشاف وإصلاح حرج (V024):** الـdump يفتقد مخطط **IAS_SYS** (LANG_DEF/IAS_LABELS/IAS_MSGS) → 556 كائناً معطوباً في IAS202623 ومنها IAS_ITM_PKG التي يستدعيها trigger المخزون → أي INSERT في ITEM_MOVEMENT كان يفشل ORA-20302. بُني shim schema + synonyms + إعادة compile (UTL_RECOMP من sysdba داخل الحاوية) → IAS_ITM_PKG **VALID** (المعطوب 556→398، المتبقي db-links/APEX لا يمس POS).
+- **proof:** استلام 2×1050010023 في مخزن 2 → post → صف ITEM_MOVEMENT (DOC_NO=3، SERIAL=13929) بـSELECT مباشر → **التوفر 33→35** → replay لا يكرر → 409/404/403(كاشير لا يعتمد)/401.
+
+**3. التحويل المخزني الصادر (POST028) — stock-issues في نفس الموديول (V025):**
+- `POST/GET /stock-issues` + `/:id/post` + `/:id/cancel` — مرآة الاستلام (DOC_TYPE=7، IN_OUT=−1) + **حارس توفر** (CHECK_AVL_QTY_PRC): لا صرف فوق المتاح → 422 insufficient-stock. يكتمل به ثلاثي التحويل: POST019 طلب → POST028 صرف → POST029 استلام.
+- **proof:** صرف 3 من مخزن 1 → ITEM_MOVEMENT DOC_TYPE=7 SERIAL=13930 → التوفر 35→32 → طلب 100000 → **422**.
+
+**4. جرد أصناف المردود (POST022) — module return-counts (V026):**
+- جلسة لآلة+يوم، النظامي يُلتقط حياً من IAS_POS_RT_BILL_MST/DTL (يشمل مرتجعات Motech لأنها في نفس الجداول الحقيقية)، DIFF=معدود−نظامي، اعتماد مجمّد idempotent.
+- **proof:** جلسة آلة 1 يوم 2026-07-03: جبنة سالم نظامي=5 معدود=4 → **diff=−1** · صنفان آخران diff=0 → post → سطر بعد الاعتماد 409.
+- **إصلاح مرافق:** باغ timezone — `toISOString()` كان يزحزح DATE منتصف-الليل يوماً للخلف (GMT+2) → TO_CHAR في SQL (أصلح أيضاً expireDate في sales-orders).
+
+**5. تنبيهات الدخول (POS_ALRT_SCR) — module alerts (V026):**
+- `POST/PUT/GET /alerts` (إدارة) + `GET /alerts/pending` (غير المُقرّة للمستخدم الحالي — مصدر popup الدخول) + `POST /:id/ack` (مرة لكل مستخدم) + نافذة عرض بتواريخ.
+- **proof:** أدمن ينشئ → كاشير pending=1 → ack → 0 (والأدمن ما زال 1 — لكل مستخدم) → كاشير ينشئ 403 → تعطيل يخفي للجميع.
+
+**الحصيلة:** POST القابلة للبناء كلها مبنية backend (❌ في POST = POSTIN_MTX/POST_WST فقط وكلاهما N/A). المرجّحة 63.1%→66.25%. 6 commits بهوية MoainAlabbasi. المتبقي للـfrontend: شاشات أوامر البيع/الاستلام/الصرف/جرد المرتجع + popup التنبيهات.
+
 ## 2026-07-04 (POSS001 → ✅ كامل UI — صفحة إعدادات أدمن لكل الـ179) — subagent settings-ui-179
 
 > **النطاق:** frontend فقط — `features/settings/` حصراً. أُعيدت كتابة SettingsPage بالكامل فوق `GET /settings/all` + `PUT /settings/{key}` (backend كان جاهزاً من 2026-07-01).
