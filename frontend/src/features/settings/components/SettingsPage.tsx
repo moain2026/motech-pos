@@ -1,333 +1,442 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Settings2,
-  Store,
-  Coins,
+  Search,
+  Hash,
   Printer,
+  Percent,
   Award,
-  ToggleLeft,
-  Save,
-  CheckCircle2,
-  Info,
   CreditCard,
+  Ticket,
+  Users,
+  Coins,
+  MessageSquare,
+  SlidersHorizontal,
+  RotateCcw,
+  CheckCircle2,
+  XCircle,
+  Info,
+  Lock,
+  CalendarClock,
 } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
-import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
-import { LoadingView, ErrorView } from '@/shared/ui/StateView';
+import { LoadingView, ErrorView, EmptyView } from '@/shared/ui/StateView';
 import { ApiError } from '@/shared/lib/api-client';
-import type { Settings, SettingsOverride } from '@/shared/lib/types';
-import { useSettings, useUpdateSettings } from '../api/settings.api';
+import { useSession } from '@/features/auth';
+import {
+  useAllSettings,
+  useSaveSetting,
+  type ClassifiedSetting,
+  type SettingGroup,
+} from '../api/settings.api';
 import { useCards } from '../api/cards.api';
 
 /**
- * الإعدادات (Settings) — view/edit system settings. Reads GET /settings;
- * admin-only edits are persisted as local overrides via PUT /settings.
- * The only editable fields exposed here are the store identity (shop name,
- * footer), currency and the loyalty-points toggle — everything else is shown
- * read-only so we never fabricate keys the backend doesn't accept.
+ * الإعدادات (POSS001) — full admin settings screen. Renders ALL 179
+ * IAS_PARA_POS settings from GET /settings/all in ten group tabs, with a
+ * live search across every group, per-type controls (text / number / 0-1
+ * toggle / read-only date), instant per-key persistence via
+ * PUT /settings/:key, an override badge + revert-to-live action, and
+ * toast feedback. Writes are admin-only (RBAC on the route + defensive
+ * read-only mode here for any non-admin who reaches the page).
  */
+
+const GROUPS: { key: SettingGroup; icon: typeof Hash }[] = [
+  { key: 'numbering', icon: Hash },
+  { key: 'printing', icon: Printer },
+  { key: 'tax', icon: Percent },
+  { key: 'points', icon: Award },
+  { key: 'cards', icon: CreditCard },
+  { key: 'coupons', icon: Ticket },
+  { key: 'customers', icon: Users },
+  { key: 'currency', icon: Coins },
+  { key: 'messages', icon: MessageSquare },
+  { key: 'behavior', icon: SlidersHorizontal },
+];
+
+type ToastState = { kind: 'success' | 'error'; text: string } | null;
+
 export function SettingsPage() {
-  const q = useSettings();
+  const q = useAllSettings();
 
   if (q.isLoading) return <LoadingView />;
   if (q.isError) return <ErrorView error={q.error} onRetry={() => q.refetch()} />;
   if (!q.data) return null;
-  return <SettingsForm data={q.data} />;
+  return <SettingsView groups={q.data.groups} meta={q.data.meta} />;
 }
 
-/** Override keys the backend accepts (mirror of GET field names). */
-const KEY = {
-  shopName: 'shopName',
-  billFooter: 'billFooter',
-  currency: 'currency',
-  usePosPointSys: 'points.usePosPointSys',
-} as const;
-
-function SettingsForm({ data }: { data: Settings }) {
+function SettingsView({
+  groups,
+  meta,
+}: {
+  groups: Record<SettingGroup, ClassifiedSetting[]>;
+  meta: { total: number; overrideCount: number };
+}) {
   const { t } = useTranslation();
-  const update = useUpdateSettings();
+  const role = useSession((s) => s.user?.role);
+  const canEdit = role === 'admin';
 
-  const [shopName, setShopName] = useState(data.shopName ?? '');
-  const [billFooter, setBillFooter] = useState(data.billFooter ?? '');
-  const [currency, setCurrency] = useState(data.currency ?? '');
-  const [usePoints, setUsePoints] = useState(data.points.usePosPointSys);
-  const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
+  const [tab, setTab] = useState<SettingGroup>('numbering');
+  const [query, setQuery] = useState('');
+  const [toast, setToast] = useState<ToastState>(null);
+  const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Re-sync when the underlying data changes (after a successful save refetch).
-  useEffect(() => {
-    setShopName(data.shopName ?? '');
-    setBillFooter(data.billFooter ?? '');
-    setCurrency(data.currency ?? '');
-    setUsePoints(data.points.usePosPointSys);
-  }, [data]);
+  const showToast = (kind: 'success' | 'error', text: string) => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    setToast({ kind, text });
+    toastTimer.current = setTimeout(() => setToast(null), kind === 'success' ? 2500 : 5000);
+  };
+  useEffect(() => () => {
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+  }, []);
 
-  const dirty =
-    shopName !== (data.shopName ?? '') ||
-    billFooter !== (data.billFooter ?? '') ||
-    currency !== (data.currency ?? '') ||
-    usePoints !== data.points.usePosPointSys;
+  const trimmed = query.trim().toLowerCase();
+  const searching = trimmed.length > 0;
 
-  const save = async () => {
-    setError(null);
-    setSaved(false);
-    const overrides: SettingsOverride[] = [];
-    if (shopName !== (data.shopName ?? '')) overrides.push({ key: KEY.shopName, value: shopName });
-    if (billFooter !== (data.billFooter ?? ''))
-      overrides.push({ key: KEY.billFooter, value: billFooter });
-    if (currency !== (data.currency ?? '')) overrides.push({ key: KEY.currency, value: currency });
-    if (usePoints !== data.points.usePosPointSys)
-      overrides.push({ key: KEY.usePosPointSys, value: usePoints });
-    if (overrides.length === 0) return;
-    try {
-      await update.mutateAsync({ overrides });
-      setSaved(true);
-    } catch (e) {
-      if (e instanceof ApiError) {
-        const trace = e.problem.traceId ? ` (traceId: ${e.problem.traceId})` : '';
-        setError(`${e.problem.detail || e.problem.title}${trace}`);
-      } else {
-        setError(t('settings.saveError'));
+  /** Search across ALL groups (key + Arabic description). */
+  const searchResults = useMemo(() => {
+    if (!searching) return [];
+    const out: ClassifiedSetting[] = [];
+    for (const { key } of GROUPS) {
+      for (const s of groups[key] ?? []) {
+        if (
+          s.key.toLowerCase().includes(trimmed) ||
+          (s.description ?? '').toLowerCase().includes(trimmed)
+        ) {
+          out.push(s);
+        }
       }
     }
-  };
+    return out;
+  }, [groups, searching, trimmed]);
+
+  const visible = searching ? searchResults : (groups[tab] ?? []);
 
   return (
-    <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,1fr)] gap-4 p-4">
+    <div className="mx-auto flex h-full max-w-5xl flex-col gap-4 p-4">
+      {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="flex items-center gap-2 text-xl font-bold">
           <Settings2 className="size-6 text-[var(--color-brand-500)]" aria-hidden />
           {t('settings.title')}
+          <span className="tnum rounded-full bg-[var(--color-surface-2)] px-2.5 py-0.5 text-xs font-semibold text-[var(--color-muted)]">
+            {t('settings.totalCount', { count: meta.total })}
+          </span>
         </h1>
-        {data.hasOverrides ? (
+        {meta.overrideCount > 0 ? (
           <span className="flex items-center gap-1 rounded-full bg-[var(--color-brand-600)]/15 px-3 py-1 text-xs text-[var(--color-brand-500)]">
             <Info className="size-3.5" aria-hidden />
-            {t('settings.hasOverrides')}
+            {t('settings.overrideCount', { count: meta.overrideCount })}
           </span>
         ) : null}
       </div>
 
-      {/* Store identity */}
-      <Section icon={<Store className="size-5" />} title={t('settings.storeSection')}>
-        <Field label={t('settings.shopName')}>
-          <Input value={shopName} onChange={(e) => setShopName(e.target.value)} className="h-10" />
-        </Field>
-        <Field label={t('settings.billFooter')}>
-          <Input
-            value={billFooter}
-            onChange={(e) => setBillFooter(e.target.value)}
-            className="h-10"
-            placeholder={t('settings.billFooterPlaceholder')}
-          />
-        </Field>
-      </Section>
-
-      {/* Currency & pricing */}
-      <Section icon={<Coins className="size-5" />} title={t('settings.currencySection')}>
-        <Field label={t('settings.currency')}>
-          <Input
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value)}
-            className="h-10"
-            placeholder="YER"
-          />
-        </Field>
-        <ReadOnly label={t('settings.priceLevel')} value={data.priceLevel ?? '—'} />
-        <ReadOnly label={t('settings.pricingType')} value={String(data.pricingType ?? '—')} />
-      </Section>
-
-      {/* Loyalty points */}
-      <Section icon={<Award className="size-5" />} title={t('settings.pointsSection')}>
-        <Toggle
-          label={t('settings.usePoints')}
-          checked={usePoints}
-          onChange={setUsePoints}
-        />
-        <ReadOnly
-          label={t('settings.pointCalcType')}
-          value={data.points.pointCalcType != null ? String(data.points.pointCalcType) : '—'}
-        />
-      </Section>
-
-      {/* Payment cards (read-only list of configured card types) */}
-      <CardsSection />
-
-      {/* Printing (read-only view of current values) */}
-      <Section icon={<Printer className="size-5" />} title={t('settings.printSection')}>
-        <ReadOnly label={t('settings.printBill')} value={yesNo(t, data.printing.printBill)} />
-        <ReadOnly
-          label={t('settings.printBeforeSave')}
-          value={yesNo(t, data.printing.printBillBeforeSave)}
-        />
-        <ReadOnly label={t('settings.openDrawer')} value={yesNo(t, data.printing.openDrawer)} />
-      </Section>
-
-      {/* Features */}
-      <Section icon={<ToggleLeft className="size-5" />} title={t('settings.featuresSection')}>
-        <ReadOnly label={t('settings.useSaleOrder')} value={yesNo(t, data.features.useSaleOrder)} />
-        <ReadOnly label={t('settings.useDiscCard')} value={yesNo(t, data.features.useDiscCard)} />
-        <ReadOnly
-          label={t('settings.allowChangeCurr')}
-          value={yesNo(t, data.features.allowChangeBillCurr)}
-        />
-      </Section>
-
-      {error ? (
+      {/* Read-only notice for non-admins (route is admin-only; defensive) */}
+      {!canEdit ? (
         <p
-          role="alert"
-          className="rounded-md bg-[var(--color-danger)]/15 p-2 text-center text-sm text-[var(--color-danger)]"
+          role="note"
+          className="flex items-center gap-2 rounded-md bg-[var(--color-warning,#b45309)]/15 p-3 text-sm text-[var(--color-fg)]"
         >
-          {error}
-        </p>
-      ) : null}
-      {saved && !dirty ? (
-        <p
-          role="status"
-          className="flex items-center justify-center gap-2 rounded-md bg-[var(--color-success)]/15 p-2 text-center text-sm text-[var(--color-success)]"
-        >
-          <CheckCircle2 className="size-4" aria-hidden />
-          {t('settings.saved')}
+          <Lock className="size-4 shrink-0" aria-hidden />
+          {t('settings.readOnlyNotice')}
         </p>
       ) : null}
 
-      <div className="sticky bottom-0 flex justify-end gap-2 border-t bg-[var(--color-surface)] py-3">
-        <Button
-          size="lg"
-          variant="primary"
-          disabled={!dirty || update.isPending}
-          onClick={save}
-        >
-          <Save className="size-5" />
-          {update.isPending ? t('settings.saving') : t('settings.save')}
-        </Button>
+      {/* Search */}
+      <div className="relative">
+        <Search
+          className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-[var(--color-muted)]"
+          aria-hidden
+        />
+        <Input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t('settings.searchPlaceholder')}
+          aria-label={t('settings.searchPlaceholder')}
+          className="ps-9"
+        />
       </div>
+
+      {/* Group tabs (hidden while searching — search spans all groups) */}
+      {!searching ? (
+        <div
+          role="tablist"
+          aria-label={t('settings.title')}
+          className="flex flex-wrap items-center gap-2"
+        >
+          {GROUPS.map(({ key, icon: Icon }) => (
+            <button
+              key={key}
+              role="tab"
+              aria-selected={tab === key}
+              onClick={() => setTab(key)}
+              className={
+                'flex items-center gap-2 rounded-[var(--radius)] border px-3 py-2 text-sm font-medium transition-colors ' +
+                (tab === key
+                  ? 'border-[var(--color-brand-500)] bg-[var(--color-brand-600)] text-white'
+                  : 'text-[var(--color-muted)] hover:bg-[var(--color-surface-2)]')
+              }
+            >
+              <Icon className="size-4" aria-hidden />
+              {t(`settings.group.${key}`)}
+              <span className="tnum text-xs opacity-70">{(groups[key] ?? []).length}</span>
+            </button>
+          ))}
+        </div>
+      ) : (
+        <p className="text-sm text-[var(--color-muted)]" role="status">
+          {t('settings.searchResults', { count: searchResults.length })}
+        </p>
+      )}
+
+      {/* Settings list */}
+      <div className="min-h-0 flex-1 overflow-y-auto">
+        {visible.length === 0 ? (
+          <EmptyView label={t('settings.noResults')} />
+        ) : (
+          <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            {visible.map((s) => (
+              <SettingRow
+                key={s.key}
+                setting={s}
+                canEdit={canEdit}
+                showGroup={searching}
+                onToast={showToast}
+              />
+            ))}
+          </div>
+        )}
+        {!searching && tab === 'cards' ? <CardTypesTable /> : null}
+      </div>
+
+      {/* Toast */}
+      {toast ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className={
+            'fixed bottom-6 start-1/2 z-50 flex max-w-[90vw] -translate-x-1/2 items-center gap-2 rounded-lg px-4 py-3 text-sm text-white shadow-lg ' +
+            (toast.kind === 'success' ? 'bg-[var(--color-success)]' : 'bg-[var(--color-danger)]')
+          }
+        >
+          {toast.kind === 'success' ? (
+            <CheckCircle2 className="size-4 shrink-0" aria-hidden />
+          ) : (
+            <XCircle className="size-4 shrink-0" aria-hidden />
+          )}
+          {toast.text}
+        </div>
+      ) : null}
     </div>
   );
 }
 
-function yesNo(t: (k: string) => string, v: boolean): string {
-  return v ? t('settings.yes') : t('settings.no');
+//============================================================================
+// One setting row — control chosen by Oracle type + value shape
+//============================================================================
+
+/** A NUMBER setting whose effective+live values are only 0/1/null is a flag. */
+function isToggle(s: ClassifiedSetting): boolean {
+  const zeroOne = (v: string | null) => v == null || v === '0' || v === '1';
+  return s.type === 'NUMBER' && zeroOne(s.value) && zeroOne(s.liveValue);
 }
 
-/** Payment-card types (GET /cards) — read-only list shown in settings. */
-function CardsSection() {
+function SettingRow({
+  setting: s,
+  canEdit,
+  showGroup,
+  onToast,
+}: {
+  setting: ClassifiedSetting;
+  canEdit: boolean;
+  showGroup: boolean;
+  onToast: (kind: 'success' | 'error', text: string) => void;
+}) {
+  const { t } = useTranslation();
+  const save = useSaveSetting();
+  const [draft, setDraft] = useState(s.value ?? '');
+  const [busy, setBusy] = useState(false);
+
+  // Re-sync the draft when the server value changes (refetch after save).
+  useEffect(() => setDraft(s.value ?? ''), [s.value]);
+
+  const persist = async (value: string | null, revert = false) => {
+    setBusy(true);
+    try {
+      await save.mutateAsync({ key: s.key, value });
+      onToast(
+        'success',
+        revert
+          ? t('settings.revertedToast', { key: s.key })
+          : t('settings.savedToast', { key: s.key }),
+      );
+    } catch (e) {
+      const detail =
+        e instanceof ApiError ? e.problem.detail || e.problem.title : t('settings.saveError');
+      onToast('error', `${s.key}: ${detail}`);
+      setDraft(s.value ?? ''); // roll the control back to the server value
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  /** Commit a text/number draft when it actually changed. */
+  const commitDraft = () => {
+    const next = draft.trim() === '' ? null : draft;
+    if ((next ?? '') === (s.value ?? '')) return;
+    void persist(next);
+  };
+
+  const toggle = isToggle(s);
+  const isDate = s.type === 'DATE';
+  const disabled = !canEdit || busy;
+
+  return (
+    <Card className="flex flex-col gap-2 p-3">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <code className="text-xs font-bold text-[var(--color-fg)]" dir="ltr">
+              {s.key}
+            </code>
+            {s.overridden ? (
+              <span className="rounded-full bg-[var(--color-brand-600)]/15 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-brand-500)]">
+                {t('settings.overriddenBadge')}
+              </span>
+            ) : null}
+            {showGroup ? (
+              <span className="rounded-full bg-[var(--color-surface-2)] px-2 py-0.5 text-[10px] text-[var(--color-muted)]">
+                {t(`settings.group.${s.group}`)}
+              </span>
+            ) : null}
+          </div>
+          {s.description ? (
+            <p className="mt-1 text-xs text-[var(--color-muted)]">{s.description}</p>
+          ) : null}
+        </div>
+
+        {s.overridden && canEdit ? (
+          <button
+            type="button"
+            onClick={() => void persist(null, true)}
+            disabled={busy}
+            title={t('settings.revert')}
+            className="flex shrink-0 items-center gap-1 rounded-md border px-2 py-1 text-[11px] text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface-2)] disabled:opacity-50"
+          >
+            <RotateCcw className="size-3" aria-hidden />
+            {t('settings.revert')}
+          </button>
+        ) : null}
+      </div>
+
+      {/* Control by type */}
+      {toggle ? (
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-xs text-[var(--color-muted)]">
+            {s.value === '1' ? t('settings.enabled') : t('settings.disabled')}
+          </span>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={s.value === '1'}
+            aria-label={s.key}
+            disabled={disabled}
+            onClick={() => void persist(s.value === '1' ? '0' : '1')}
+            className={
+              'relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-50 ' +
+              (s.value === '1'
+                ? 'bg-[var(--color-brand-600)]'
+                : 'border bg-[var(--color-surface-2)]')
+            }
+          >
+            <span
+              className={
+                'absolute top-0.5 size-5 rounded-full bg-white shadow transition-all ' +
+                (s.value === '1' ? 'start-0.5' : 'end-0.5')
+              }
+            />
+          </button>
+        </div>
+      ) : isDate ? (
+        <div className="flex h-10 items-center gap-2 rounded-md border bg-[var(--color-surface-2)] px-3 text-xs text-[var(--color-muted)]">
+          <CalendarClock className="size-3.5 shrink-0" aria-hidden />
+          <span className="tnum truncate" dir="ltr">
+            {s.value ? new Date(s.value).toLocaleString('ar') : '—'}
+          </span>
+        </div>
+      ) : (
+        <Input
+          type={s.type === 'NUMBER' ? 'number' : 'text'}
+          inputMode={s.type === 'NUMBER' ? 'decimal' : undefined}
+          value={draft}
+          disabled={disabled}
+          dir="auto"
+          className="h-10 text-sm"
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commitDraft}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+            if (e.key === 'Escape') setDraft(s.value ?? '');
+          }}
+          placeholder={s.liveValue ?? '—'}
+          aria-label={s.key}
+        />
+      )}
+
+      {/* Live-value hint when an override masks it */}
+      {s.overridden && s.liveValue !== s.value ? (
+        <p className="text-[10px] text-[var(--color-muted)]">
+          {t('settings.liveValue')}: <span className="tnum" dir="ltr">{s.liveValue ?? '—'}</span>
+        </p>
+      ) : null}
+    </Card>
+  );
+}
+
+//============================================================================
+// Payment-card types (GET /cards) — read-only table under the cards tab
+//============================================================================
+
+function CardTypesTable() {
   const { t } = useTranslation();
   const q = useCards();
   const cards = q.data ?? [];
+  if (q.isLoading || q.isError || cards.length === 0) return null;
   return (
-    <Card className="p-4">
+    <Card className="mt-3 p-4">
       <h2 className="mb-3 flex items-center gap-2 font-bold text-[var(--color-fg)]">
-        <span className="text-[var(--color-brand-500)]"><CreditCard className="size-5" /></span>
+        <CreditCard className="size-5 text-[var(--color-brand-500)]" aria-hidden />
         {t('settings.cardsSection')}
       </h2>
-      {q.isLoading ? (
-        <p className="text-sm text-[var(--color-muted)]">{t('status.loading')}</p>
-      ) : q.isError ? (
-        <p className="text-sm text-[var(--color-danger)]">{t('settings.cardsError')}</p>
-      ) : cards.length === 0 ? (
-        <p className="text-sm text-[var(--color-muted)]">{t('status.empty')}</p>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
-              <tr>
-                <th className="px-3 py-2 text-start font-semibold">{t('settings.cardName')}</th>
-                <th className="px-3 py-2 text-end font-semibold">{t('settings.cardType')}</th>
-                <th className="px-3 py-2 text-end font-semibold">{t('settings.cardCommission')}</th>
-                <th className="px-3 py-2 text-end font-semibold">{t('settings.cardBank')}</th>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+            <tr>
+              <th className="px-3 py-2 text-start font-semibold">{t('settings.cardName')}</th>
+              <th className="px-3 py-2 text-end font-semibold">{t('settings.cardType')}</th>
+              <th className="px-3 py-2 text-end font-semibold">{t('settings.cardCommission')}</th>
+              <th className="px-3 py-2 text-end font-semibold">{t('settings.cardBank')}</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {cards.map((c) => (
+              <tr key={c.cardNo} className="hover:bg-[var(--color-surface-2)]">
+                <td className="px-3 py-2 font-medium">
+                  {c.cardName?.trim() || c.cardEName?.trim() || `#${c.cardNo}`}
+                </td>
+                <td className="tnum px-3 py-2 text-end text-[var(--color-muted)]">{c.cardType}</td>
+                <td className="tnum px-3 py-2 text-end">{c.commissionPct}%</td>
+                <td className="tnum px-3 py-2 text-end text-[var(--color-muted)]">
+                  {c.bankNo ?? '—'}
+                </td>
               </tr>
-            </thead>
-            <tbody className="divide-y">
-              {cards.map((c) => (
-                <tr key={c.cardNo} className="hover:bg-[var(--color-surface-2)]">
-                  <td className="px-3 py-2 font-medium">
-                    {c.cardName?.trim() || c.cardEName?.trim() || `#${c.cardNo}`}
-                  </td>
-                  <td className="tnum px-3 py-2 text-end text-[var(--color-muted)]">{c.cardType}</td>
-                  <td className="tnum px-3 py-2 text-end">{c.commissionPct}%</td>
-                  <td className="tnum px-3 py-2 text-end text-[var(--color-muted)]">{c.bankNo ?? '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </Card>
-  );
-}
-
-function Section({
-  icon,
-  title,
-  children,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <Card className="p-4">
-      <h2 className="mb-3 flex items-center gap-2 font-bold text-[var(--color-fg)]">
-        <span className="text-[var(--color-brand-500)]">{icon}</span>
-        {title}
-      </h2>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">{children}</div>
-    </Card>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="flex flex-col gap-1">
-      <span className="text-sm text-[var(--color-muted)]">{label}</span>
-      {children}
-    </label>
-  );
-}
-
-function ReadOnly({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-sm text-[var(--color-muted)]">{label}</span>
-      <div className="flex h-10 items-center rounded-md border bg-[var(--color-surface-2)] px-3 text-sm text-[var(--color-muted)]">
-        {value}
+            ))}
+          </tbody>
+        </table>
       </div>
-    </div>
-  );
-}
-
-function Toggle({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <label className="flex cursor-pointer items-center justify-between gap-3 rounded-md border p-3 sm:col-span-2">
-      <span className="text-sm font-medium">{label}</span>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={checked}
-        aria-label={label}
-        onClick={() => onChange(!checked)}
-        className={
-          'relative h-6 w-11 shrink-0 rounded-full transition-colors ' +
-          (checked ? 'bg-[var(--color-brand-600)]' : 'bg-[var(--color-surface-2)] border')
-        }
-      >
-        <span
-          className={
-            'absolute top-0.5 size-5 rounded-full bg-white shadow transition-all ' +
-            (checked ? 'start-0.5 translate-x-0' : 'end-0.5')
-          }
-        />
-      </button>
-    </label>
+    </Card>
   );
 }

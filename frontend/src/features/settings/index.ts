@@ -1,2 +1,2 @@
 export { SettingsPage } from './components/SettingsPage';
-export { useSettings, useUpdateSettings } from './api/settings.api';
+export { useSettings, useUpdateSettings, useAllSettings, useSaveSetting } from './api/settings.api';

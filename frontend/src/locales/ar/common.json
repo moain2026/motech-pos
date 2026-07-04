@@ -336,7 +336,32 @@
     "cardType": "النوع",
     "cardCommission": "العمولة",
     "cardBank": "البنك",
-    "cardsError": "تعذّر تحميل البطاقات"
+    "cardsError": "تعذّر تحميل البطاقات",
+    "totalCount": "{{count}} إعداد",
+    "overrideCount": "{{count}} تعديل محلي",
+    "readOnlyNotice": "عرض فقط — تعديل الإعدادات متاح لمدير النظام فقط.",
+    "searchPlaceholder": "ابحث في الإعدادات (بالاسم أو الوصف)…",
+    "searchResults": "{{count}} نتيجة",
+    "noResults": "لا توجد إعدادات مطابقة",
+    "overriddenBadge": "مُعدّل",
+    "revert": "إرجاع للافتراضي",
+    "enabled": "مفعّل",
+    "disabled": "معطّل",
+    "liveValue": "القيمة الحية",
+    "savedToast": "تم حفظ {{key}}",
+    "revertedToast": "أُرجع {{key}} للقيمة الحية",
+    "group": {
+      "numbering": "الترقيم",
+      "printing": "الطباعة",
+      "tax": "الضريبة",
+      "points": "النقاط",
+      "cards": "بطاقات الخصم",
+      "coupons": "الكوبونات",
+      "customers": "العملاء",
+      "currency": "العملات",
+      "messages": "الرسائل",
+      "behavior": "سلوك النظام"
+    }
   },
   "vouchers": {
     "title": "السندات",
