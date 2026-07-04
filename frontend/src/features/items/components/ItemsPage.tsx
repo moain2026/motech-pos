@@ -73,7 +73,7 @@ export function ItemsPage() {
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="h-11 rounded-md border bg-[var(--color-surface)] px-3 text-sm"
+          className="h-11 min-w-0 max-w-full rounded-md border bg-[var(--color-surface)] px-3 text-sm"
           aria-label={t('catalog.categories')}
         >
           <option value="">{t('catalog.allCategories')}</option>

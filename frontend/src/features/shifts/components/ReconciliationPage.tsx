@@ -90,7 +90,7 @@ export function ReconciliationPage() {
   // Closed shift (no open one): show the settlement flow only.
   if (!shift) {
     return (
-      <div className="mx-auto grid max-w-3xl gap-4 p-4">
+      <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,1fr)] gap-4 p-4">
         <h1 className="flex items-center gap-2 text-lg font-bold">
           <Scale className="size-6 text-[var(--color-brand-500)]" aria-hidden />
           {t('recon.title')}
@@ -102,7 +102,7 @@ export function ReconciliationPage() {
   }
 
   return (
-    <div className="mx-auto grid max-w-3xl gap-4 p-4">
+    <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,1fr)] gap-4 p-4">
       <h1 className="flex items-center gap-2 text-lg font-bold">
         <Scale className="size-6 text-[var(--color-brand-500)]" aria-hidden />
         {t('recon.title')} — {t('shift.no')} #{shift.shiftNo}
@@ -394,7 +394,7 @@ function DenominationSettlement({ shiftId, currency }: { shiftId: string; curren
                     min={0}
                     value={r.value}
                     onChange={(e) => setRow(i, { value: e.target.value })}
-                    className="tnum h-9 w-28 text-end"
+                    className="tnum h-9 w-full min-w-0 max-w-28 flex-1 text-end"
                     aria-label={t('recon.denomValue')}
                   />
                   <span className="text-xs text-[var(--color-muted)]">×</span>
@@ -403,7 +403,7 @@ function DenominationSettlement({ shiftId, currency }: { shiftId: string; curren
                     min={0}
                     value={r.count}
                     onChange={(e) => setRow(i, { count: e.target.value })}
-                    className="tnum h-9 w-24 text-end"
+                    className="tnum h-9 w-full min-w-0 max-w-24 flex-1 text-end"
                     placeholder="0"
                     aria-label={t('recon.denomCount')}
                   />
@@ -469,12 +469,12 @@ function DenominationSettlement({ shiftId, currency }: { shiftId: string; curren
               <h3 className="mb-2 font-bold">{t('recon.settleSection')}</h3>
               <p className="mb-2 text-xs text-[var(--color-muted)]">{t('recon.settleHint')}</p>
               <div className="flex flex-wrap items-end gap-2">
-                <label className="flex flex-col gap-1">
+                <label className="flex min-w-0 flex-col gap-1">
                   <span className="text-sm text-[var(--color-muted)]">{t('recon.settleNote')}</span>
                   <Input
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
-                    className="h-10 w-64"
+                    className="h-10 w-full min-w-0 max-w-64"
                   />
                 </label>
                 <Button

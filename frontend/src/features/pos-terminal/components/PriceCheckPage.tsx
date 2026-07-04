@@ -29,7 +29,7 @@ export function PriceCheckPage() {
   };
 
   return (
-    <div className="mx-auto grid max-w-xl gap-4 p-4">
+    <div className="mx-auto grid max-w-xl grid-cols-[minmax(0,1fr)] gap-4 p-4">
       <h1 className="flex items-center gap-2 text-lg font-bold">
         <ScanBarcode className="size-6 text-[var(--color-brand-500)]" aria-hidden />
         {t('priceCheck.title')}

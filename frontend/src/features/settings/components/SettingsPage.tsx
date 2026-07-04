@@ -95,7 +95,7 @@ function SettingsForm({ data }: { data: Settings }) {
   };
 
   return (
-    <div className="mx-auto grid max-w-3xl gap-4 p-4">
+    <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,1fr)] gap-4 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="flex items-center gap-2 text-xl font-bold">
           <Settings2 className="size-6 text-[var(--color-brand-500)]" aria-hidden />

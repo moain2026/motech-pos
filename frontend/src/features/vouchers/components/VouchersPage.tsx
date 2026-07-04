@@ -27,13 +27,13 @@ export function VouchersPage() {
   const vouchers = list.data ?? [];
 
   return (
-    <div className="mx-auto grid max-w-3xl gap-4 p-4">
+    <div className="mx-auto grid max-w-3xl grid-cols-[minmax(0,1fr)] gap-4 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="flex items-center gap-2 text-lg font-bold">
           <ReceiptText className="size-6 text-[var(--color-brand-500)]" aria-hidden />
           {t('vouchers.title')}
         </h1>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Button
             variant="success"
             disabled={!hasShift}
