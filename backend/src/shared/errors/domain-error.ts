@@ -391,3 +391,10 @@ export class StockReceiptEmptyError extends DomainError {
   readonly httpStatus = 422;
   readonly title = 'Stock receipt has no lines to post';
 }
+
+/** POST028: dispatching more than the source warehouse has available. */
+export class InsufficientStockError extends DomainError {
+  readonly typeSlug = 'insufficient-stock';
+  readonly httpStatus = 422;
+  readonly title = 'Insufficient available stock at the source warehouse';
+}
