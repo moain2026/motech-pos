@@ -349,3 +349,10 @@ export class TransferStateError extends DomainError {
   readonly httpStatus = 409;
   readonly title = 'Invalid transfer request state for this action';
 }
+
+/** POSI007/POSI200: a redemption exceeds the card's remaining balance. */
+export class InsufficientCardBalanceError extends DomainError {
+  readonly typeSlug = 'insufficient-card-balance';
+  readonly httpStatus = 422;
+  readonly title = 'Insufficient prepaid card balance';
+}
