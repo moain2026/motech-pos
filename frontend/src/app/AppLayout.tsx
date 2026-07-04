@@ -26,6 +26,7 @@ import {
   Coins,
   CreditCard,
   UsersRound,
+  Grid3x3,
 } from 'lucide-react';
 import { useSession, ChangePasswordDialog } from '@/features/auth';
 import { OnlineBadge } from '@/shared/ui/OnlineBadge';
@@ -56,6 +57,7 @@ const NAV: NavItem[] = [
   { to: '/prescriptions', key: 'nav.prescriptions', icon: ClipboardList, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/transfers', key: 'nav.transfers', icon: ArrowLeftRight, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/prepaid-cards', key: 'nav.prepaidCards', icon: CreditCard, roles: ['cashier', 'supervisor', 'admin'] },
+  { to: '/keypads', key: 'nav.keypads', icon: Grid3x3, roles: ['cashier', 'supervisor', 'admin'] },
   { to: '/customers', key: 'nav.customers', icon: Users, roles: ['supervisor', 'admin'] },
   { to: '/customer-groups', key: 'nav.customerGroups', icon: UsersRound, roles: ['supervisor', 'admin'] },
   { to: '/items', key: 'nav.items', icon: Package, roles: ['supervisor', 'admin'] },

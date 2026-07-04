@@ -76,6 +76,9 @@ const PrepaidCardsPage = lazy(() =>
 const CustomerGroupsPage = lazy(() =>
   import('@/features/customer-groups').then((m) => ({ default: m.CustomerGroupsPage })),
 );
+const KeypadsPage = lazy(() =>
+  import('@/features/keypads').then((m) => ({ default: m.KeypadsPage })),
+);
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const token = useSession((s) => s.accessToken);
@@ -177,6 +180,7 @@ export const router = createBrowserRouter([
         path: 'prepaid-cards',
         element: <Lazy><PrepaidCardsPage /></Lazy>,
       },
+      { path: 'keypads', element: <Lazy><KeypadsPage /></Lazy> },
       {
         path: 'customer-groups',
         element: (

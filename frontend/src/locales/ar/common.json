@@ -26,7 +26,8 @@
     "groupsUnits": "المجموعات والوحدات",
     "currencies": "العملات",
     "prepaidCards": "بطاقات مسبقة الدفع",
-    "customerGroups": "مجموعات العملاء"
+    "customerGroups": "مجموعات العملاء",
+    "keypads": "لوحات المفاتيح"
   },
   "origin": {
     "ERP": "من النظام",
@@ -230,7 +231,8 @@
       "vouchersSummary": "ملخص السندات",
       "loyalty": "نقاط الولاء",
       "salesOrders": "أوامر البيع",
-      "customerGroups": "مجموعات العملاء"
+      "customerGroups": "مجموعات العملاء",
+      "returnsWindow": "نافذة الإرجاع"
     },
     "netBeforeVat": "الصافي قبل الضريبة",
     "hour": "الساعة",
@@ -360,7 +362,14 @@
       "customers": "العملاء",
       "currency": "العملات",
       "messages": "الرسائل",
-      "behavior": "سلوك النظام"
+      "behavior": "سلوك النظام",
+      "defaults": "الافتراضيات المرقّمة"
+    },
+    "defaults": {
+      "empty": "لا افتراضيات مرقّمة",
+      "no": "الرقم",
+      "comment": "الوصف",
+      "value": "القيمة"
     }
   },
   "vouchers": {
@@ -448,7 +457,8 @@
     "lowHint": "الأصناف بكمية أقل من أو تساوي {{threshold}}",
     "tab": {
       "all": "كل الأصناف",
-      "low": "منخفض المخزون"
+      "low": "منخفض المخزون",
+      "counts": "الجرد الفعلي"
     }
   },
   "admin": {
@@ -658,7 +668,9 @@
     "maxLimit": "الحد الأقصى",
     "reorderLimit": "حد إعادة الطلب",
     "limitsSaved": "تم حفظ حدود المخزون",
-    "limitsSaveError": "تعذّر حفظ حدود المخزون"
+    "limitsSaveError": "تعذّر حفظ حدود المخزون",
+    "pickLevel": "اختيار مستوى السعر",
+    "noPriceAtLevel": "لا سعر لهذا المستوى"
   },
   "loyalty": {
     "tabInfo": "البيانات",
@@ -887,6 +899,22 @@
       "group": "المجموعة",
       "customers": "عدد العملاء",
       "ungrouped": "بدون مجموعة"
+    },
+    "returnsWindow": {
+      "windowHint": "نافذة الإرجاع المسموحة: {{hours}} ساعة (PRD_BACK_HOUR)",
+      "notConfigured": "نافذة الإرجاع غير مفعّلة في إعدادات النظام (PRD_BACK_HOUR)",
+      "total": "عدد المرتجعات",
+      "outside": "خارج النافذة",
+      "refund": "إجمالي المسترد",
+      "rtBill": "فاتورة الإرجاع",
+      "originalBill": "الفاتورة الأصلية",
+      "issuedAt": "وقت الإرجاع",
+      "delayHours": "التأخير (ساعات)",
+      "refundAmt": "المسترد",
+      "window": "النافذة",
+      "within": "داخل النافذة",
+      "outsideBadge": "خارج النافذة",
+      "unknown": "غير معروف"
     }
   },
   "changePw": {
@@ -1135,5 +1163,72 @@
     "sendMsg": "رسائل تسويقية",
     "created": "تم إنشاء المجموعة",
     "updated": "تم تحديث المجموعة"
+  },
+  "stockCount": {
+    "new": "بدء جرد جديد",
+    "start": "بدء الجرد",
+    "startError": "تعذّر بدء الجرد",
+    "close": "إغلاق",
+    "empty": "لا جلسات جرد بعد",
+    "statusFilter": "تصفية بالحالة",
+    "allStatuses": "كل الحالات",
+    "status": {
+      "DRAFT": "مسودة",
+      "POSTED": "معتمد"
+    },
+    "statusL": "الحالة",
+    "warehouse": "المخزن",
+    "pickWarehouse": "اختر المخزن…",
+    "note": "ملاحظة",
+    "notePlaceholder": "ملاحظة اختيارية…",
+    "lineCount": "الأصناف المعدودة",
+    "varianceCount": "الفروقات",
+    "createdBy": "أنشأه",
+    "createdAt": "تاريخ الإنشاء",
+    "detailTitle": "تفاصيل الجرد",
+    "item": "الصنف",
+    "itemCode": "كود الصنف",
+    "itemCodePlaceholder": "امسح أو اكتب كود الصنف…",
+    "countedQty": "العدّ الفعلي",
+    "systemQty": "كمية النظام",
+    "diff": "الفرق",
+    "countedAt": "وقت العدّ",
+    "record": "تسجيل العدّ",
+    "lineError": "تعذّر تسجيل العدّ",
+    "noLines": "لم تُعَدّ أصناف بعد — أدخل كود الصنف والعدّ الفعلي أعلاه",
+    "post": "اعتماد الجرد (نهائي)",
+    "postConfirm": "اعتماد الجرد يجمّد الجلسة نهائياً ولا يمكن التعديل بعده. متابعة؟",
+    "postError": "تعذّر اعتماد الجرد",
+    "postNeedsRole": "اعتماد الجرد يتطلب دور مشرف أو مدير",
+    "postedBy": "اعتمده {{user}} في {{at}}"
+  },
+  "keypads": {
+    "title": "لوحات المفاتيح اللمسية",
+    "new": "لوحة جديدة",
+    "edit": "تعديل اللوحة",
+    "close": "إغلاق",
+    "empty": "لا لوحات مفاتيح بعد — أنشئ أول لوحة",
+    "pickHint": "اختر لوحة لعرض مفاتيحها",
+    "arName": "الاسم بالعربية",
+    "enName": "الاسم بالإنجليزية",
+    "inactive": "غير نشطة",
+    "save": "حفظ",
+    "saveError": "تعذّر حفظ اللوحة",
+    "keyCount": "{{count}} مفتاحاً",
+    "addKey": "ربط صنف",
+    "addKeyError": "تعذّر ربط الصنف",
+    "removeKey": "إزالة المفتاح",
+    "removeError": "تعذّر إزالة المفتاح",
+    "noKeys": "لا مفاتيح على هذه اللوحة — اربط أصنافاً لتظهر كأزرار للكاشير",
+    "group": "مجموعة",
+    "groupName": "اسم المجموعة",
+    "groupPlaceholder": "مثال: خضروات، فواكه، مخبوزات…",
+    "searchItem": "ابحث عن صنف بالاسم أو الكود…",
+    "noResults": "لا نتائج",
+    "changeItem": "تغيير الصنف",
+    "keyLabel": "عنوان المفتاح",
+    "keyLabelPlaceholder": "افتراضياً اسم الصنف",
+    "keyColor": "لون المفتاح",
+    "linkKey": "ربط بالمفتاح"
   }
 }

@@ -28,6 +28,7 @@ import type {
   LoyaltyReport,
   SalesOrderRow,
   CustomerGroupReportRow,
+  ReturnsWindowReport,
 } from '@/shared/lib/types';
 
 function rangeParams(from?: string, to?: string): string {
@@ -325,6 +326,18 @@ export function useSalesOrdersReport(from?: string, to?: string) {
   return useQuery({
     queryKey: ['report', 'sales-orders', { from, to }],
     queryFn: () => getData<SalesOrderRow[]>(`/reports/sales-orders${rangeParams(from, to)}`),
+  });
+}
+
+/**
+ * GET /reports/returns-window (POSR011) — every return vs the allowed
+ * return window PRD_BACK_HOUR (delay hours + within/outside flag).
+ */
+export function useReturnsWindowReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'returns-window', { from, to }],
+    queryFn: () =>
+      getData<ReturnsWindowReport>(`/reports/returns-window${rangeParams(from, to)}`),
   });
 }
 

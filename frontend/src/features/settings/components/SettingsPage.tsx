@@ -19,6 +19,7 @@ import {
   Info,
   Lock,
   CalendarClock,
+  ListOrdered,
 } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Input } from '@/shared/ui/Input';
@@ -28,9 +29,12 @@ import { useSession } from '@/features/auth';
 import {
   useAllSettings,
   useSaveSetting,
+  useDefaults,
+  useSaveDefaults,
   type ClassifiedSetting,
   type SettingGroup,
 } from '../api/settings.api';
+import type { DefaultSetting } from '@/shared/lib/types';
 import { useCards } from '../api/cards.api';
 
 /**
@@ -78,7 +82,7 @@ function SettingsView({
   const role = useSession((s) => s.user?.role);
   const canEdit = role === 'admin';
 
-  const [tab, setTab] = useState<SettingGroup>('numbering');
+  const [tab, setTab] = useState<SettingGroup | 'defaults'>('numbering');
   const [query, setQuery] = useState('');
   const [toast, setToast] = useState<ToastState>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -112,7 +116,7 @@ function SettingsView({
     return out;
   }, [groups, searching, trimmed]);
 
-  const visible = searching ? searchResults : (groups[tab] ?? []);
+  const visible = searching || tab === 'defaults' ? searchResults : (groups[tab] ?? []);
 
   return (
     <div className="mx-auto flex h-full max-w-5xl flex-col gap-4 p-4">
@@ -185,6 +189,21 @@ function SettingsView({
               <span className="tnum text-xs opacity-70">{(groups[key] ?? []).length}</span>
             </button>
           ))}
+          {/* POSS005 — numbered system defaults (GET/PUT /settings/defaults) */}
+          <button
+            role="tab"
+            aria-selected={tab === 'defaults'}
+            onClick={() => setTab('defaults')}
+            className={
+              'flex items-center gap-2 rounded-[var(--radius)] border px-3 py-2 text-sm font-medium transition-colors ' +
+              (tab === 'defaults'
+                ? 'border-[var(--color-brand-500)] bg-[var(--color-brand-600)] text-white'
+                : 'text-[var(--color-muted)] hover:bg-[var(--color-surface-2)]')
+            }
+          >
+            <ListOrdered className="size-4" aria-hidden />
+            {t('settings.group.defaults')}
+          </button>
         </div>
       ) : (
         <p className="text-sm text-[var(--color-muted)]" role="status">
@@ -194,7 +213,9 @@ function SettingsView({
 
       {/* Settings list */}
       <div className="min-h-0 flex-1 overflow-y-auto">
-        {visible.length === 0 ? (
+        {!searching && tab === 'defaults' ? (
+          <DefaultsTable canEdit={canEdit} onToast={showToast} />
+        ) : visible.length === 0 ? (
           <EmptyView label={t('settings.noResults')} />
         ) : (
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
@@ -438,5 +459,132 @@ function CardTypesTable() {
         </table>
       </div>
     </Card>
+  );
+}
+
+//============================================================================
+// POSS005 — numbered system defaults (GET/PUT /settings/defaults)
+//============================================================================
+
+function DefaultsTable({
+  canEdit,
+  onToast,
+}: {
+  canEdit: boolean;
+  onToast: (kind: 'success' | 'error', text: string) => void;
+}) {
+  const { t } = useTranslation();
+  const q = useDefaults();
+
+  if (q.isLoading) return <LoadingView />;
+  if (q.isError) return <ErrorView error={q.error} onRetry={() => q.refetch()} />;
+  const rows = q.data ?? [];
+  if (rows.length === 0) return <EmptyView label={t('settings.defaults.empty')} />;
+
+  return (
+    <Card className="overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+          <tr>
+            <th className="px-3 py-2 text-start font-semibold">{t('settings.defaults.no')}</th>
+            <th className="px-3 py-2 text-start font-semibold">{t('settings.defaults.comment')}</th>
+            <th className="px-3 py-2 text-start font-semibold">{t('settings.defaults.value')}</th>
+            <th className="px-3 py-2 text-end font-semibold"></th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {rows.map((d) => (
+            <DefaultRow key={d.no} row={d} canEdit={canEdit} onToast={onToast} />
+          ))}
+        </tbody>
+      </table>
+    </Card>
+  );
+}
+
+function DefaultRow({
+  row: d,
+  canEdit,
+  onToast,
+}: {
+  row: DefaultSetting;
+  canEdit: boolean;
+  onToast: (kind: 'success' | 'error', text: string) => void;
+}) {
+  const { t } = useTranslation();
+  const save = useSaveDefaults();
+  const [draft, setDraft] = useState(d.value ?? '');
+  useEffect(() => setDraft(d.value ?? ''), [d.value]);
+
+  const persist = async (value: string | null, revert = false) => {
+    try {
+      await save.mutateAsync([{ no: d.no, value }]);
+      onToast(
+        'success',
+        revert
+          ? t('settings.revertedToast', { key: `#${d.no}` })
+          : t('settings.savedToast', { key: `#${d.no}` }),
+      );
+    } catch (e) {
+      const detail =
+        e instanceof ApiError ? e.problem.detail || e.problem.title : t('settings.saveError');
+      onToast('error', `#${d.no}: ${detail}`);
+      setDraft(d.value ?? '');
+    }
+  };
+
+  const commit = () => {
+    const next = draft.trim() === '' ? null : draft;
+    if ((next ?? '') === (d.value ?? '')) return;
+    void persist(next);
+  };
+
+  return (
+    <tr className="hover:bg-[var(--color-surface-2)]">
+      <td className="tnum px-3 py-2 font-bold">{d.no}</td>
+      <td className="px-3 py-2 text-[var(--color-muted)]">
+        {d.comment?.trim() || '—'}
+        {d.overridden ? (
+          <span className="ms-2 rounded-full bg-[var(--color-brand-600)]/15 px-2 py-0.5 text-[10px] font-semibold text-[var(--color-brand-500)]">
+            {t('settings.overriddenBadge')}
+          </span>
+        ) : null}
+      </td>
+      <td className="px-3 py-2">
+        <Input
+          value={draft}
+          disabled={!canEdit || save.isPending}
+          dir="auto"
+          className="h-9 max-w-56 text-sm"
+          onChange={(e) => setDraft(e.target.value)}
+          onBlur={commit}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+            if (e.key === 'Escape') setDraft(d.value ?? '');
+          }}
+          placeholder={d.liveValue ?? '—'}
+          aria-label={`${t('settings.defaults.no')} ${d.no}`}
+        />
+        {d.overridden && d.liveValue !== d.value ? (
+          <p className="mt-1 text-[10px] text-[var(--color-muted)]">
+            {t('settings.liveValue')}: <span className="tnum" dir="ltr">{d.liveValue ?? '—'}</span>
+          </p>
+        ) : null}
+      </td>
+      <td className="px-3 py-2 text-end">
+        {d.overridden && canEdit ? (
+          <button
+            type="button"
+            onClick={() => void persist(null, true)}
+            disabled={save.isPending}
+            title={t('settings.revert')}
+            className="inline-flex items-center gap-1 rounded-md border px-2 py-1 text-[11px] text-[var(--color-muted)] transition-colors hover:bg-[var(--color-surface-2)] disabled:opacity-50"
+          >
+            <RotateCcw className="size-3" aria-hidden />
+            {t('settings.revert')}
+          </button>
+        ) : null}
+      </td>
+    </tr>
   );
 }

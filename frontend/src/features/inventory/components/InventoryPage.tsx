@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Boxes, Search, AlertTriangle, PackageSearch } from 'lucide-react';
+import { Boxes, Search, AlertTriangle, PackageSearch, ClipboardCheck } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
@@ -9,6 +9,7 @@ import { formatNumber } from '@/shared/lib/format';
 import type { InventoryItem } from '@/shared/lib/types';
 import { useInventory, useLowStock } from '../api/inventory.api';
 import { InventoryDetailDialog } from './InventoryDetailDialog';
+import { StockCountsTab } from './StockCountsTab';
 
 function useDebounced<T>(value: T, ms: number): T {
   const [v, setV] = useState(value);
@@ -19,12 +20,14 @@ function useDebounced<T>(value: T, ms: number): T {
   return v;
 }
 
-type Tab = 'all' | 'low';
+type Tab = 'all' | 'low' | 'counts';
 
 /**
  * المخزون (Inventory) — aggregated available quantities per item (Arabic
- * names), a low-stock tab, and a per-warehouse detail drill-down.
- * GET /inventory · /inventory/low-stock · /inventory/{code}. supervisor/admin.
+ * names), a low-stock tab, a stock-counts (جرد POST018) tab, and a
+ * per-warehouse detail drill-down.
+ * GET /inventory · /inventory/low-stock · /inventory/{code} ·
+ * /inventory/counts. supervisor/admin.
  */
 export function InventoryPage() {
   const { t } = useTranslation();
@@ -63,6 +66,9 @@ export function InventoryPage() {
               {formatNumber(lowItems.length)}
             </span>
           ) : null}
+        </TabBtn>
+        <TabBtn active={tab === 'counts'} onClick={() => setTab('counts')} icon={<ClipboardCheck className="size-4" />}>
+          {t('inventory.tab.counts')}
         </TabBtn>
       </div>
 
@@ -106,6 +112,8 @@ export function InventoryPage() {
             ) : null}
           </Card>
         </>
+      ) : tab === 'counts' ? (
+        <StockCountsTab />
       ) : (
         <Card className="flex min-h-0 flex-1 flex-col overflow-hidden">
           {lowThreshold != null ? (

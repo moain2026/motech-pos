@@ -34,6 +34,7 @@ import {
   Star,
   ClipboardList,
   Users,
+  AlarmClock,
 } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
@@ -68,6 +69,7 @@ import {
   useLoyaltyReport,
   useSalesOrdersReport,
   useCustomerGroupsReport,
+  useReturnsWindowReport,
   downloadReportCsv,
   type ExportableReport,
 } from '../api/reports.api';
@@ -102,7 +104,8 @@ type Tab =
   | 'vouchersSummary'
   | 'loyalty'
   | 'salesOrders'
-  | 'customerGroups';
+  | 'customerGroups'
+  | 'returnsWindow';
 
 const TABS: { key: Tab; icon: typeof CalendarDays }[] = [
   { key: 'daily', icon: CalendarDays },
@@ -132,6 +135,7 @@ const TABS: { key: Tab; icon: typeof CalendarDays }[] = [
   { key: 'loyalty', icon: Star },
   { key: 'salesOrders', icon: ClipboardList },
   { key: 'customerGroups', icon: Users },
+  { key: 'returnsWindow', icon: AlarmClock },
 ];
 
 /** Tab → GET /reports/export report id (only flat reports are exportable). */
@@ -234,6 +238,7 @@ export function ReportsPage() {
         {tab === 'loyalty' && <LoyaltyReportView />}
         {tab === 'salesOrders' && <SalesOrdersReport />}
         {tab === 'customerGroups' && <CustomerGroupsReport />}
+        {tab === 'returnsWindow' && <ReturnsWindowReportView />}
       </div>
     </div>
   );
@@ -2020,6 +2025,90 @@ function CustomerGroupsReport() {
           </tbody>
         </TableCard>
       </ReportShell>
+    </div>
+  );
+}
+
+/* ---------- returns vs return window (POSR011) ---------- */
+
+function ReturnsWindowReportView() {
+  const { t } = useTranslation();
+  const [range, setRange] = useState<{ from?: string; to?: string }>({});
+  const query = useReturnsWindowReport(range.from, range.to);
+  const r = query.data;
+  const rows = r?.rows ?? [];
+  const kpis = useMemo(
+    () => ({
+      outside: rows.filter((x) => x.withinWindow === false).length,
+      refund: rows.reduce((n, x) => n + x.refundAmt, 0),
+    }),
+    [rows],
+  );
+  return (
+    <div className="flex h-full flex-col gap-4">
+      <RangeBar onApply={(from, to) => setRange({ from, to })} />
+      {r?.windowHours == null && r ? (
+        <p className="text-xs text-[var(--color-warning)]">
+          {t('reports2.returnsWindow.notConfigured')}
+        </p>
+      ) : r ? (
+        <p className="text-xs text-[var(--color-muted)]">
+          {t('reports2.returnsWindow.windowHint', { hours: r.windowHours })}
+        </p>
+      ) : null}
+      {query.isLoading ? (
+        <LoadingView />
+      ) : query.isError ? (
+        <ErrorView error={query.error} onRetry={() => query.refetch()} />
+      ) : rows.length === 0 ? (
+        <EmptyView />
+      ) : (
+        <>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <Kpi icon={<Undo2 className="size-6" />} label={t('reports2.returnsWindow.total')} value={formatNumber(rows.length)} />
+            <Kpi icon={<AlarmClock className="size-6" />} label={t('reports2.returnsWindow.outside')} value={formatNumber(kpis.outside)} />
+            <Kpi icon={<Coins className="size-6" />} label={t('reports2.returnsWindow.refund')} value={formatMoney(kpis.refund)} />
+          </div>
+          <TableCard>
+            <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+              <tr>
+                <Th>{t('reports2.returnsWindow.rtBill')}</Th>
+                <Th>{t('reports2.returnsWindow.originalBill')}</Th>
+                <Th>{t('reports.customer')}</Th>
+                <Th end>{t('reports.cashierNo')}</Th>
+                <Th>{t('reports2.returnsWindow.issuedAt')}</Th>
+                <Th end>{t('reports2.returnsWindow.delayHours')}</Th>
+                <Th end>{t('reports2.returnsWindow.refundAmt')}</Th>
+                <Th center>{t('reports2.returnsWindow.window')}</Th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {rows.map((x) => (
+                <tr key={x.rtBillNo} className="hover:bg-[var(--color-surface-2)]">
+                  <td className="tnum px-3 py-2 font-medium">{x.rtBillNo}</td>
+                  <td className="tnum px-3 py-2 text-[var(--color-muted)]">{x.originalBillNo}</td>
+                  <td className="px-3 py-2">{x.customerName?.trim() || '—'}</td>
+                  <td className="tnum px-3 py-2 text-end">{x.cashierNo}</td>
+                  <td className="tnum px-3 py-2">{formatDateTime(x.issuedAt)}</td>
+                  <td className="tnum px-3 py-2 text-end">
+                    {x.delayHours != null ? formatNumber(x.delayHours) : '—'}
+                  </td>
+                  <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(x.refundAmt)}</td>
+                  <td className="px-3 py-2 text-center">
+                    {x.withinWindow == null ? (
+                      <StatusPill value={t('reports2.returnsWindow.unknown')} tone="muted" />
+                    ) : x.withinWindow ? (
+                      <StatusPill value={t('reports2.returnsWindow.within')} tone="success" />
+                    ) : (
+                      <StatusPill value={t('reports2.returnsWindow.outsideBadge')} tone="danger" />
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </TableCard>
+        </>
+      )}
     </div>
   );
 }

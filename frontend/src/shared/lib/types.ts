@@ -1599,3 +1599,121 @@ export interface CustomerGroupReportRow {
   totalVat: number;
   totalDisc: number;
 }
+
+// ---------------------------------------------------------------------------
+// Stock counts (POST018 جرد) — proof-verified :3000 (2026-07-04)
+// ---------------------------------------------------------------------------
+
+export type StockCountStatus = 'DRAFT' | 'POSTED';
+
+/** One counted item inside a stock-count session. */
+export interface StockCountLine {
+  lineId: string;
+  itemCode: string;
+  itemName: string | null;
+  systemQty: number;
+  countedQty: number;
+  diffQty: number;
+  countedAt: string;
+}
+
+/** Stock-count session header (GET /inventory/counts). */
+export interface StockCountHeader {
+  id: string;
+  warehouseCode: number;
+  status: StockCountStatus;
+  note: string | null;
+  createdBy: string;
+  createdAt: string;
+  postedBy: string | null;
+  postedAt: string | null;
+  lineCount: number;
+  varianceCount: number;
+}
+
+/** GET /inventory/counts/{id} — header + lines. */
+export interface StockCountDetail extends StockCountHeader {
+  lines: StockCountLine[];
+}
+
+// ---------------------------------------------------------------------------
+// Keypads (POSI002/POSI003 لوحات المفاتيح) — proof-verified :3000 (2026-07-04)
+// ---------------------------------------------------------------------------
+
+/** One touch keypad (POSI002). */
+export interface KeypadRow {
+  id: string;
+  keypadNo: number;
+  arName: string | null;
+  enName: string | null;
+  inactive: boolean;
+  keyCount: number;
+}
+
+/** One item key on a keypad (POSI003) with resolved name/price. */
+export interface KeypadKeyRow {
+  id: string;
+  keypadNo: number;
+  grpNo: number;
+  grpName: string | null;
+  itemCode: string;
+  itemName: string | null;
+  price: number | null;
+  posNo: number | null;
+  color: string | null;
+  label: string | null;
+}
+
+/** GET /keypads/{no} — keypad + keys. */
+export interface KeypadDetail extends KeypadRow {
+  keys: KeypadKeyRow[];
+}
+
+export interface UpsertKeypadDto {
+  keypadNo?: number;
+  arName?: string;
+  enName?: string;
+  inactive?: boolean;
+}
+
+export interface AddKeypadKeyDto {
+  itemCode: string;
+  grpNo?: number;
+  grpName?: string;
+  posNo?: number;
+  color?: string;
+  label?: string;
+}
+
+// ---------------------------------------------------------------------------
+// Returns-window report (POSR011) + numbered defaults (POSS005)
+// ---------------------------------------------------------------------------
+
+/** GET /reports/returns-window — one return vs PRD_BACK_HOUR. */
+export interface ReturnWindowRow {
+  rtBillNo: string;
+  originalBillNo: string;
+  customerName: string | null;
+  cashierNo: number;
+  issuedAt: string;
+  originalBillDay: string | null;
+  originalBillTime: string | null;
+  netAmt: number;
+  refundAmt: number;
+  delayHours: number | null;
+  withinWindow: boolean | null;
+}
+
+export interface ReturnsWindowReport {
+  windowHours: number | null;
+  rows: ReturnWindowRow[];
+}
+
+/** GET /settings/defaults — one numbered POS_DFLT_STNG_MST default. */
+export interface DefaultSetting {
+  no: number;
+  value: string | null;
+  comment: string | null;
+  liveValue: string | null;
+  overridden: boolean;
+}

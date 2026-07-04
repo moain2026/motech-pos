@@ -112,3 +112,37 @@ export function useUpdateItemLimits() {
     },
   });
 }
+
+// ---------------------------------------------------------------------------
+// Price-level selection (POS_ITM_PRICE) — GET /items/{code}/prices/{levNo}
+// ---------------------------------------------------------------------------
+
+/** Resolved price for one level (optionally one unit). */
+export interface PriceAtLevel {
+  code: string;
+  levNo: number;
+  unit: string | null;
+  packSize: number | null;
+  warehouseCode: number | null;
+  price: number;
+  minPrice: number | null;
+  maxPrice: number | null;
+}
+
+/**
+ * GET /items/{code}/prices/{levNo}?unit= — sale-time price-level selection;
+ * defaults to the base (smallest) unit when unit is omitted.
+ */
+export function usePriceAtLevel(code: string | null, levNo: number | null, unit?: string) {
+  return useQuery({
+    queryKey: ['item', code, 'price-at-level', { levNo, unit }],
+    enabled: !!code && levNo != null,
+    queryFn: () => {
+      const qs = unit ? `?unit=${encodeURIComponent(unit)}` : '';
+      return getData<PriceAtLevel>(
+        `/items/${encodeURIComponent(code!)}/prices/${levNo}${qs}`,
+      );
+    },
+    staleTime: 60_000,
+  });
+}

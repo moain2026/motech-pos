@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, getData } from '@/shared/lib/api-client';
-import type { ApiEnvelope, Settings, UpdateSettingsDto } from '@/shared/lib/types';
+import type {
+  ApiEnvelope,
+  DefaultSetting,
+  Settings,
+  UpdateSettingsDto,
+} from '@/shared/lib/types';
 
 /**
  * Settings API — proof-verified against live :3000 (2026-07-04).
@@ -101,6 +106,35 @@ export function useSettings() {
     queryKey: ['settings'],
     queryFn: () => getData<Settings>('/settings'),
     staleTime: 30_000,
+  });
+}
+
+/**
+ * GET /settings/defaults — numbered system defaults (POSS005): live
+ * POS_DFLT_STNG_MST merged with local overrides.
+ */
+export function useDefaults() {
+  return useQuery({
+    queryKey: ['settings', 'defaults'],
+    queryFn: () => getData<DefaultSetting[]>('/settings/defaults'),
+    staleTime: 30_000,
+  });
+}
+
+/**
+ * PUT /settings/defaults — upsert numbered-default overrides (admin only);
+ * `value: null` reverts a number to the live YSPOS23 value.
+ */
+export function useSaveDefaults() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (defaults: { no: number; value: string | null }[]): Promise<DefaultSetting[]> => {
+      const res = await api.put<ApiEnvelope<DefaultSetting[]>>('/settings/defaults', {
+        defaults,
+      });
+      return res.data.data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['settings', 'defaults'] }),
   });
 }
 

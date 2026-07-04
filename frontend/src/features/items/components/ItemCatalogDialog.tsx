@@ -24,6 +24,7 @@ import {
   useAddItemBarcode,
   useRemoveItemBarcode,
   useUpdateItemLimits,
+  usePriceAtLevel,
 } from '../api/item-extras.api';
 import type { Item } from '@/shared/lib/types';
 
@@ -113,6 +114,13 @@ export function ItemCatalogDialog({ item, onClose }: { item: Item; onClose: () =
               <Layers className="size-4 text-[var(--color-brand-500)]" aria-hidden />
               {t('catalog.pricesTitle')}
             </h3>
+            {prices.data && prices.data.levels.length > 0 ? (
+              <PriceLevelPicker
+                code={item.code}
+                levels={prices.data.levels}
+                units={(units.data?.units ?? []).map((u) => u.unit)}
+              />
+            ) : null}
             {prices.isLoading ? (
               <LoadingView />
             ) : prices.isError ? (
@@ -489,5 +497,81 @@ function BoolIcon({ value }: { value: boolean }) {
     <CheckCircle2 className="mx-auto size-4 text-[var(--color-success)]" aria-hidden />
   ) : (
     <XCircle className="mx-auto size-4 text-[var(--color-muted)]" aria-hidden />
+  );
+}
+
+/**
+ * Sale-time price-level picker (POS_ITM_PRICE) — pick a LEV_NO (and optional
+ * unit) → live resolved price via GET /items/{code}/prices/{levNo}?unit=.
+ */
+function PriceLevelPicker({
+  code,
+  levels,
+  units,
+}: {
+  code: string;
+  levels: number[];
+  units: string[];
+}) {
+  const { t } = useTranslation();
+  const [levNo, setLevNo] = useState<number | null>(null);
+  const [unit, setUnit] = useState('');
+  const q = usePriceAtLevel(code, levNo, unit || undefined);
+
+  return (
+    <div className="mb-3 flex flex-wrap items-end gap-2 rounded-md border bg-[var(--color-surface-2)]/50 p-2">
+      <label className="flex flex-col gap-1">
+        <span className="text-xs text-[var(--color-muted)]">{t('catalog.pickLevel')}</span>
+        <select
+          value={levNo ?? ''}
+          onChange={(e) => setLevNo(e.target.value === '' ? null : Number(e.target.value))}
+          className="h-9 rounded-md border bg-[var(--color-surface)] px-2 text-sm"
+          aria-label={t('catalog.pickLevel')}
+        >
+          <option value="">—</option>
+          {levels.map((l) => (
+            <option key={l} value={l}>
+              {t('catalog.level')} {l}
+            </option>
+          ))}
+        </select>
+      </label>
+      {units.length > 0 ? (
+        <label className="flex flex-col gap-1">
+          <span className="text-xs text-[var(--color-muted)]">{t('catalog.unit')}</span>
+          <select
+            value={unit}
+            onChange={(e) => setUnit(e.target.value)}
+            className="h-9 rounded-md border bg-[var(--color-surface)] px-2 text-sm"
+            aria-label={t('catalog.unit')}
+          >
+            <option value="">{t('catalog.baseUnit')}</option>
+            {units.map((u) => (
+              <option key={u} value={u}>
+                {u}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+      {levNo != null ? (
+        <div className="flex h-9 items-center rounded-md border bg-[var(--color-surface)] px-3">
+          {q.isLoading ? (
+            <span className="text-xs text-[var(--color-muted)]">{t('status.loading')}</span>
+          ) : q.isError ? (
+            <span className="text-xs text-[var(--color-danger)]">{t('catalog.noPriceAtLevel')}</span>
+          ) : q.data ? (
+            <span className="tnum text-sm font-bold text-[var(--color-brand-500)]">
+              {formatMoney(q.data.price)}
+              {q.data.unit ? (
+                <span className="ms-1 text-xs font-normal text-[var(--color-muted)]">
+                  / {q.data.unit}
+                </span>
+              ) : null}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
+    </div>
   );
 }
