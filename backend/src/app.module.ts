@@ -12,6 +12,7 @@ import { CustomersModule } from './modules/customers/customers.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { EInvoiceModule } from './modules/einvoice/einvoice.module';
 import { LoyaltyModule } from './modules/loyalty/loyalty.module';
+import { PrescriptionsModule } from './modules/prescriptions/prescriptions.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ReturnsModule } from './modules/returns/returns.module';
 import { SettingsModule } from './modules/settings/settings.module';
@@ -46,6 +47,7 @@ import { VouchersModule } from './modules/vouchers/vouchers.module';
     InventoryModule,
     AdminModule,
     LoyaltyModule,
+    PrescriptionsModule,
     VouchersModule,
     SettingsModule,
     EInvoiceModule,
