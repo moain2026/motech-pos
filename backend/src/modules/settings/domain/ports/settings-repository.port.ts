@@ -1,6 +1,42 @@
 /** DI token for the SettingsRepository port (reads YSPOS23, writes MOTECH_POS overlay). */
 export const SETTINGS_REPOSITORY = Symbol('SETTINGS_REPOSITORY');
 
+/** Functional grouping of the 179 IAS_PARA_POS settings (docs/SETTINGS_CLASSIFIED.txt). */
+export type SettingGroup =
+  | 'numbering'
+  | 'printing'
+  | 'tax'
+  | 'points'
+  | 'cards'
+  | 'coupons'
+  | 'customers'
+  | 'currency'
+  | 'messages'
+  | 'behavior';
+
+/** Oracle data type of an IAS_PARA_POS column. */
+export type SettingType = 'VARCHAR2' | 'NUMBER' | 'DATE';
+
+/**
+ * One classified setting for GET /settings/all — the raw IAS_PARA_POS column
+ * projected with its effective value (overlay wins), the live Onyx value,
+ * data type, functional group and optional Arabic description.
+ */
+export interface ClassifiedSetting {
+  /** Canonical key = the IAS_PARA_POS column name (e.g. PRINT_BILL). */
+  key: string;
+  /** Effective value (overlay override wins over live). */
+  value: string | null;
+  /** The live YSPOS23 value (before any override). */
+  liveValue: string | null;
+  type: SettingType;
+  group: SettingGroup;
+  /** Whether a MOTECH_POS overlay override is currently applied. */
+  overridden: boolean;
+  /** وصف عربي (متوفر لأهم الإعدادات). */
+  description?: string;
+}
+
 /**
  * PosSettings — the effective POS system settings (POSS001 / IAS_PARA_POS),
  * projected into a stable, typed shape for the frontend. Values originate from

@@ -88,3 +88,52 @@ describe('SettingsService defaults (POSS005)', () => {
     expect(repo.writes).toHaveLength(0);
   });
 });
+
+describe('SettingsService classified catalog (GET /settings/all)', () => {
+  it('returns all 179 settings classified into the 10 groups', async () => {
+    const repo = new FakeRepo();
+    const svc = new SettingsService(repo);
+    const { groups, total, overrideCount } = await svc.getAllClassified();
+    expect(total).toBe(179);
+    expect(overrideCount).toBe(0);
+    const counts = Object.fromEntries(
+      Object.entries(groups).map(([g, l]) => [g, l.length]),
+    );
+    expect(Object.values(counts).reduce((a, b) => a + b, 0)).toBe(179);
+    expect(counts.numbering).toBe(15);
+    expect(counts.printing).toBe(29);
+    expect(counts.tax).toBe(1);
+    expect(counts.points).toBe(13);
+    expect(counts.behavior).toBe(91);
+    // Arabic descriptions on common settings
+    const printBill = groups.printing.find((s) => s.key === 'PRINT_BILL')!;
+    expect(printBill.description).toContain('طباعة');
+  });
+
+  it('saveOne writes an override under the raw column key and reflects it', async () => {
+    const repo = new FakeRepo();
+    const svc = new SettingsService(repo);
+    const saved = await svc.saveOne('PRINT_BILL', '0', 7);
+    expect(saved).toMatchObject({
+      key: 'PRINT_BILL',
+      value: '0',
+      overridden: true,
+      group: 'printing',
+    });
+    expect(repo.writes[0]).toMatchObject({
+      updatedBy: 7,
+      overrides: [{ key: 'PRINT_BILL', value: '0' }],
+    });
+    // Canonical alias maps to the same column
+    const viaCanonical = await svc.saveOne('printing.printBill', '1', 7);
+    expect(viaCanonical.key).toBe('PRINT_BILL');
+    expect(viaCanonical.value).toBe('1');
+  });
+
+  it('saveOne rejects an unknown key with 404', async () => {
+    const svc = new SettingsService(new FakeRepo());
+    await expect(svc.saveOne('NOT_A_COLUMN', '1', 1)).rejects.toBeInstanceOf(
+      NotFoundException,
+    );
+  });
+});

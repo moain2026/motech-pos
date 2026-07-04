@@ -24,6 +24,7 @@ import { SettingsService } from '../application/settings.service';
 import {
   isAllowedSettingKey,
   UpdateDefaultsDto,
+  UpdateOneSettingDto,
   UpdateSettingsDto,
 } from './update-settings.dto';
 
@@ -52,6 +53,24 @@ export class SettingsController {
   async get() {
     const data = await this.settings.getSettings();
     return { data, meta: { hasOverrides: data.hasOverrides } };
+  }
+
+  @Get('all')
+  @ApiOperation({
+    summary:
+      'ALL 179 IAS_PARA_POS settings classified by group (numbering/printing/tax/points/cards/coupons/customers/currency/messages/behavior), merged with local overrides',
+  })
+  @ApiOkResponse({ description: 'Envelope { data: { groups }, meta }' })
+  async all() {
+    const { groups, total, overrideCount } =
+      await this.settings.getAllClassified();
+    const counts = Object.fromEntries(
+      Object.entries(groups).map(([g, list]) => [g, list.length]),
+    );
+    return {
+      data: { groups },
+      meta: { total, overrideCount, groupCounts: counts },
+    };
   }
 
   @Get('defaults')
@@ -130,6 +149,31 @@ export class SettingsController {
         overrideCount,
       },
     };
+  }
+
+  @Put(':key')
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @ApiOperation({
+    summary:
+      'Upsert a single setting override by key (raw IAS_PARA_POS column or canonical key) — admin only; value:null reverts to live',
+  })
+  @ApiOkResponse({ description: 'Envelope { data } with the merged setting' })
+  async updateOne(
+    @Param('key') key: string,
+    @Body() dto: UpdateOneSettingDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    if (!isAllowedSettingKey(key)) {
+      throw new BadRequestException(`Unknown setting key: ${key}`);
+    }
+    const updatedBy = req.user?.sub ?? null;
+    const data = await this.settings.saveOne(
+      key,
+      dto.value ?? null,
+      updatedBy,
+    );
+    return { data, meta: { key: data.key, overridden: data.overridden } };
   }
 
   private async applyOverrides(

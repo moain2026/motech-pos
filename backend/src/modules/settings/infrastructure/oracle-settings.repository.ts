@@ -33,18 +33,12 @@ export class OracleSettingsRepository implements SettingsRepository {
     para: Record<string, unknown> | null;
     defaults: DefaultSetting[];
   }> {
-    // IAS_PARA_POS is a single-row parameters profile. Select the columns we
-    // project (explicit list — no SELECT * — so the shape is stable).
+    // IAS_PARA_POS is a single-row parameters profile with 179 columns
+    // (VARCHAR2/NUMBER/DATE only — see docs/SETTINGS_CLASSIFIED.txt). We read
+    // ALL columns so the classified GET /settings/all endpoint can expose
+    // every setting; the typed PosSettings projection picks what it needs.
     const para = await this.oracle.queryOne<Record<string, unknown>>(
-      `SELECT SETTING_NAME, CURR_DFLT, PRICE_LEVEL, POS_PRICING_TYPE, FTR_BILL,
-              MACHINE_DIGIT, USER_DIGIT, SERIAL_DIGIT, POS_BILL_SERIAL,
-              PRINT_BILL, PRINT_BILL_B4SAV, OPEN_DRAWER,
-              USE_HUNG_BILLS, MAXHUNGS, ALLOW_PRINT_HUNG_BILL,
-              ROUND_AMT_FRCTION, USE_CHECK_SUM, RETURN_PERIOD, CHANGE_PERIOD,
-              USE_POS_POINT_SYS, POINT_CALC_TYP,
-              USE_SALE_ORDER, USE_DISC_CARD, ALLOW_CHANGE_BILL_CURR
-       FROM ${this.schema}.IAS_PARA_POS
-       WHERE ROWNUM = 1`,
+      `SELECT * FROM ${this.schema}.IAS_PARA_POS WHERE ROWNUM = 1`,
     );
 
     type DfltRow = { STNG_NO: number; STNG_VAL: string | null; COMNT: string | null };

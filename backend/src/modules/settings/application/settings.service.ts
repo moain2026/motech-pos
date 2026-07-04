@@ -1,12 +1,18 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import {
+  ClassifiedSetting,
   DefaultSetting,
   MachineSettings,
   PosSettings,
+  SettingGroup,
   SettingOverride,
   SettingsRepository,
   SETTINGS_REPOSITORY,
 } from '../domain/ports/settings-repository.port';
+import {
+  SETTINGS_CATALOG,
+  SETTINGS_CATALOG_BY_COLUMN,
+} from '../domain/settings-catalog';
 
 /**
  * SettingsService (application layer) — orchestrates the READ of live YSPOS23
@@ -52,6 +58,129 @@ export class SettingsService {
     'features.allowChangeBillCurr',
   ];
 
+  /**
+   * Canonical camelCase key -> IAS_PARA_POS column, so raw-column reads
+   * (GET /settings/all) also honour overrides written via canonical keys.
+   */
+  static readonly CANONICAL_TO_COLUMN: Readonly<Record<string, string>> = {
+    shopName: 'SETTING_NAME',
+    currency: 'CURR_DFLT',
+    priceLevel: 'PRICE_LEVEL',
+    pricingType: 'POS_PRICING_TYPE',
+    billFooter: 'FTR_BILL',
+    'numbering.machineDigit': 'MACHINE_DIGIT',
+    'numbering.userDigit': 'USER_DIGIT',
+    'numbering.serialDigit': 'SERIAL_DIGIT',
+    'numbering.posBillSerial': 'POS_BILL_SERIAL',
+    'printing.printBill': 'PRINT_BILL',
+    'printing.printBillBeforeSave': 'PRINT_BILL_B4SAV',
+    'printing.openDrawer': 'OPEN_DRAWER',
+    'hungBills.useHungBills': 'USE_HUNG_BILLS',
+    'hungBills.maxHungs': 'MAXHUNGS',
+    'hungBills.allowPrintHungBill': 'ALLOW_PRINT_HUNG_BILL',
+    'tax.roundAmtFraction': 'ROUND_AMT_FRCTION',
+    'tax.useCheckSum': 'USE_CHECK_SUM',
+    'tax.returnPeriod': 'RETURN_PERIOD',
+    'tax.changePeriod': 'CHANGE_PERIOD',
+    'points.usePosPointSys': 'USE_POS_POINT_SYS',
+    'points.pointCalcType': 'POINT_CALC_TYP',
+    'features.useSaleOrder': 'USE_SALE_ORDER',
+    'features.useDiscCard': 'USE_DISC_CARD',
+    'features.allowChangeBillCurr': 'ALLOW_CHANGE_BILL_CURR',
+  };
+
+  /** Column -> canonical key (reverse of CANONICAL_TO_COLUMN). */
+  private static readonly COLUMN_TO_CANONICAL: ReadonlyMap<string, string> =
+    new Map(
+      Object.entries(SettingsService.CANONICAL_TO_COLUMN).map(([k, c]) => [
+        c,
+        k,
+      ]),
+    );
+
+  /** True when `key` is one of the 179 raw IAS_PARA_POS column names. */
+  static isCatalogColumn(key: string): boolean {
+    return SETTINGS_CATALOG_BY_COLUMN.has(key);
+  }
+
+  /**
+   * GET /settings/all — ALL 179 IAS_PARA_POS settings, classified by group
+   * (docs/SETTINGS_CLASSIFIED.txt). For every column we report the effective
+   * value (overlay wins — checked under both the raw column key and, when one
+   * exists, the canonical camelCase key), the live value, type, group,
+   * override flag and Arabic description for the common settings.
+   */
+  async getAllClassified(): Promise<{
+    groups: Record<SettingGroup, ClassifiedSetting[]>;
+    total: number;
+    overrideCount: number;
+  }> {
+    const [{ para }, overlay] = await Promise.all([
+      this.repo.readLiveSettings(),
+      this.repo.readOverlay(),
+    ]);
+    const p = para ?? {};
+
+    const toText = (v: unknown): string | null => {
+      if (v == null) return null;
+      if (v instanceof Date) return v.toISOString();
+      return String(v);
+    };
+
+    const groups = {} as Record<SettingGroup, ClassifiedSetting[]>;
+    let overrideCount = 0;
+    for (const entry of SETTINGS_CATALOG) {
+      const liveValue = toText(p[entry.column]);
+      // Overlay lookup: raw column key first, then the canonical key alias.
+      const canonical = SettingsService.COLUMN_TO_CANONICAL.get(entry.column);
+      let overridden = false;
+      let value = liveValue;
+      if (overlay.has(entry.column)) {
+        overridden = true;
+        value = overlay.get(entry.column) ?? null;
+      } else if (canonical && overlay.has(canonical)) {
+        overridden = true;
+        value = overlay.get(canonical) ?? null;
+      }
+      if (overridden) overrideCount += 1;
+      const item: ClassifiedSetting = {
+        key: entry.column,
+        value,
+        liveValue,
+        type: entry.type,
+        group: entry.group,
+        overridden,
+        ...(entry.description ? { description: entry.description } : {}),
+      };
+      (groups[entry.group] ??= []).push(item);
+    }
+    return { groups, total: SETTINGS_CATALOG.length, overrideCount };
+  }
+
+  /**
+   * PUT /settings/:key — upsert a single overlay override for any of the 179
+   * raw column keys (or a canonical camelCase key). `value: null` reverts to
+   * the live YSPOS23 value. Returns the refreshed classified view of the key.
+   */
+  async saveOne(
+    key: string,
+    value: string | null,
+    updatedBy: number | null,
+  ): Promise<ClassifiedSetting> {
+    const column = SettingsService.isCatalogColumn(key)
+      ? key
+      : SettingsService.CANONICAL_TO_COLUMN[key];
+    if (!column) {
+      throw new NotFoundException(`Unknown setting key: ${key}`);
+    }
+    // Persist under the raw column key (single canonical storage key).
+    await this.repo.writeOverlay([{ key: column, value }], updatedBy);
+    const { groups } = await this.getAllClassified();
+    const entry = SETTINGS_CATALOG_BY_COLUMN.get(column)!;
+    const found = groups[entry.group].find((s) => s.key === column)!;
+    return found;
+  }
+
   async getSettings(): Promise<PosSettings> {
     const [{ para, defaults }, overlay] = await Promise.all([
       this.repo.readLiveSettings(),
@@ -60,9 +189,11 @@ export class SettingsService {
 
     const p = para ?? {};
 
-    // Read a value: overlay override wins, else the live IAS_PARA_POS column.
+    // Read a value: overlay override wins (canonical key or raw column key),
+    // else the live IAS_PARA_POS column.
     const str = (key: string, col: string): string | null => {
       if (overlay.has(key)) return overlay.get(key) ?? null;
+      if (overlay.has(col)) return overlay.get(col) ?? null;
       const v = p[col];
       return v == null ? null : String(v);
     };
