@@ -77,6 +77,13 @@ export interface CategoryChild {
   itemCount: number;
 }
 
+/** ERP stock limits for an item (IAS_ITM_MST — POSI2000 advanced fields). */
+export interface ItemStockLimits {
+  minLimitQty: number | null; // ITM_MIN_LMT_QTY
+  maxLimitQty: number | null; // ITM_MAX_LMT_QTY
+  reorderLimitQty: number | null; // ITM_ROL_LMT_QTY
+}
+
 /** Item nature types (IAS202623.ITEM_TYPES — e.g. stocked vs service). */
 export interface ItemTypeRow {
   typeOfItem: number;
@@ -99,6 +106,9 @@ export interface ItemRepository {
 
   /** All units of measure for an item with conversion factors (IAS_ITM_DTL). */
   listUnits(code: string): Promise<ItemUnit[]>;
+
+  /** ERP stock limits (min/max/reorder) for an item; null if unknown. */
+  findStockLimits(code: string): Promise<ItemStockLimits | null>;
 
   /** Category tree: main groups with sub-groups and item counts. */
   listCategories(): Promise<CategoryNode[]>;

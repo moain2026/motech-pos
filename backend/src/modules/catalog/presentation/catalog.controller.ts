@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Param,
@@ -16,7 +17,11 @@ import { JwtAuthGuard } from '../../auth/presentation/jwt-auth.guard';
 import { RolesGuard } from '../../auth/presentation/roles.guard';
 import { CatalogService } from '../application/catalog.service';
 import { ListItemsQuery } from './list-items.query';
-import { CreateItemDto, UpdateItemDto } from './upsert-item.dto';
+import {
+  AddItemBarcodeDto,
+  CreateItemDto,
+  UpdateItemDto,
+} from './upsert-item.dto';
 
 @ApiTags('catalog')
 @ApiBearerAuth()
@@ -117,6 +122,60 @@ export class CatalogController {
   async units(@Param('code') code: string) {
     const data = await this.catalog.listUnits(code);
     return { data, meta: { count: data.units.length } };
+  }
+
+  @Get(':code/barcodes')
+  @ApiOperation({
+    summary:
+      'All barcodes of an item (POSI006/008/009 multi-barcode): ERP ' +
+      'IAS_ITM_UNT_BARCODE rows merged with local additions.',
+  })
+  async barcodes(@Param('code') code: string) {
+    const data = await this.catalog.listBarcodes(code);
+    return { data, meta: { count: data.barcodes.length } };
+  }
+
+  @Post(':code/barcodes')
+  @HttpCode(201)
+  @Roles('supervisor', 'admin')
+  @ApiOperation({
+    summary: 'Add a LOCAL barcode to an item (MOTECH_POS overlay only)',
+  })
+  async addBarcode(
+    @Param('code') code: string,
+    @Body() dto: AddItemBarcodeDto,
+  ) {
+    const data = await this.catalog.addBarcode({
+      itemCode: code,
+      barcode: dto.barcode,
+      unit: dto.unit ?? null,
+      packSize: dto.packSize ?? null,
+      isMain: dto.isMain ?? false,
+      noSale: dto.noSale ?? false,
+    });
+    return { data, meta: { origin: data.origin } };
+  }
+
+  @Delete(':code/barcodes/:bc')
+  @Roles('supervisor', 'admin')
+  @ApiOperation({
+    summary:
+      'Disable a LOCAL barcode (soft delete; ERP barcodes are immutable)',
+  })
+  async removeBarcode(@Param('bc') bc: string) {
+    const data = await this.catalog.removeBarcode(bc);
+    return { data };
+  }
+
+  @Get(':code/limits')
+  @ApiOperation({
+    summary:
+      'Stock limits (min/max/reorder — ITM_MIN/MAX/ROL_LMT_QTY) merged ' +
+      'ERP + overlay (POSI2000 advanced item settings).',
+  })
+  async limits(@Param('code') code: string) {
+    const data = await this.catalog.getStockLimits(code);
+    return { data, meta: { origin: data.origin } };
   }
 
   @Get(':code')

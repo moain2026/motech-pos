@@ -16,6 +16,9 @@ interface Row {
   UNIT: string | null;
   PRICE: number | null;
   VAT_PERCENT: number | null;
+  MIN_LMT_QTY: number | null;
+  MAX_LMT_QTY: number | null;
+  ROL_LMT_QTY: number | null;
   INACTIVE: number;
   CREATED_AT: Date;
   UPDATED_AT: Date;
@@ -34,7 +37,8 @@ export class OracleItemOverlayRepository implements ItemOverlayRepository {
   }
 
   private readonly cols = `CODE, ORIGIN, NAME, BARCODE, UNIT, PRICE,
-    VAT_PERCENT, INACTIVE, CREATED_AT, UPDATED_AT`;
+    VAT_PERCENT, MIN_LMT_QTY, MAX_LMT_QTY, ROL_LMT_QTY, INACTIVE,
+    CREATED_AT, UPDATED_AT`;
 
   async findByCode(code: string): Promise<ItemOverlayRow | null> {
     const row = await this.db.queryOne<Row>(
@@ -89,12 +93,18 @@ export class OracleItemOverlayRepository implements ItemOverlayRepository {
        ON (t.CODE = s.CODE)
        WHEN MATCHED THEN UPDATE SET
          ORIGIN = :origin, NAME = :name, BARCODE = :barcode, UNIT = :unit,
-         PRICE = :price, VAT_PERCENT = :vatPercent, INACTIVE = :inactive,
+         PRICE = :price, VAT_PERCENT = :vatPercent,
+         MIN_LMT_QTY = COALESCE(:minLmt, t.MIN_LMT_QTY),
+         MAX_LMT_QTY = COALESCE(:maxLmt, t.MAX_LMT_QTY),
+         ROL_LMT_QTY = COALESCE(:rolLmt, t.ROL_LMT_QTY),
+         INACTIVE = :inactive,
          UPDATED_AT = SYSTIMESTAMP
        WHEN NOT MATCHED THEN INSERT
-         (ID, CODE, ORIGIN, NAME, BARCODE, UNIT, PRICE, VAT_PERCENT, INACTIVE)
+         (ID, CODE, ORIGIN, NAME, BARCODE, UNIT, PRICE, VAT_PERCENT,
+          MIN_LMT_QTY, MAX_LMT_QTY, ROL_LMT_QTY, INACTIVE)
        VALUES
-         (:id, :code, :origin, :name, :barcode, :unit, :price, :vatPercent, :inactive)`,
+         (:id, :code, :origin, :name, :barcode, :unit, :price, :vatPercent,
+          :minLmt, :maxLmt, :rolLmt, :inactive)`,
       {
         id: uuidv7(),
         code: input.code,
@@ -104,6 +114,11 @@ export class OracleItemOverlayRepository implements ItemOverlayRepository {
         unit: input.unit ?? null,
         price: input.price ?? null,
         vatPercent: input.vatPercent ?? null,
+        // Explicit NUMBER types (null binds default to STRING → ORA-00932
+        // inside COALESCE with NUMBER columns).
+        minLmt: { val: input.minLimitQty ?? null, type: oracledb.NUMBER },
+        maxLmt: { val: input.maxLimitQty ?? null, type: oracledb.NUMBER },
+        rolLmt: { val: input.reorderLimitQty ?? null, type: oracledb.NUMBER },
         inactive: input.inactive ? 1 : 0,
       },
     );
@@ -121,6 +136,9 @@ export class OracleItemOverlayRepository implements ItemOverlayRepository {
       unit: r.UNIT,
       price: r.PRICE == null ? null : Number(r.PRICE),
       vatPercent: r.VAT_PERCENT == null ? null : Number(r.VAT_PERCENT),
+      minLimitQty: r.MIN_LMT_QTY == null ? null : Number(r.MIN_LMT_QTY),
+      maxLimitQty: r.MAX_LMT_QTY == null ? null : Number(r.MAX_LMT_QTY),
+      reorderLimitQty: r.ROL_LMT_QTY == null ? null : Number(r.ROL_LMT_QTY),
       inactive: Number(r.INACTIVE) === 1,
       createdAt: r.CREATED_AT.toISOString(),
       updatedAt: r.UPDATED_AT.toISOString(),

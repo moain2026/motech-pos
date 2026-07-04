@@ -9,6 +9,7 @@ import {
   ItemListResult,
   ItemPriceLevel,
   ItemRepository,
+  ItemStockLimits,
   ItemTypeRow,
   ItemUnit,
 } from '../domain/ports/item-repository.port';
@@ -351,6 +352,28 @@ export class OracleItemRepository implements ItemRepository {
       inactive: Number(r.INACTIVE ?? 0) === 1,
       price: r.LIST_PRICE == null ? null : Number(r.LIST_PRICE),
     }));
+  }
+
+  async findStockLimits(code: string): Promise<ItemStockLimits | null> {
+    const row = await this.oracle.queryOne<{
+      ITM_MIN_LMT_QTY: number | null;
+      ITM_MAX_LMT_QTY: number | null;
+      ITM_ROL_LMT_QTY: number | null;
+    }>(
+      `SELECT ITM_MIN_LMT_QTY, ITM_MAX_LMT_QTY, ITM_ROL_LMT_QTY
+       FROM ${this.masterSchema}.IAS_ITM_MST
+       WHERE I_CODE = :code`,
+      { code },
+    );
+    if (!row) return null;
+    return {
+      minLimitQty:
+        row.ITM_MIN_LMT_QTY == null ? null : Number(row.ITM_MIN_LMT_QTY),
+      maxLimitQty:
+        row.ITM_MAX_LMT_QTY == null ? null : Number(row.ITM_MAX_LMT_QTY),
+      reorderLimitQty:
+        row.ITM_ROL_LMT_QTY == null ? null : Number(row.ITM_ROL_LMT_QTY),
+    };
   }
 
   async listCategories(): Promise<CategoryNode[]> {

@@ -9,6 +9,9 @@ export interface ItemOverlayRow {
   unit: string | null;
   price: number | null;
   vatPercent: number | null;
+  minLimitQty: number | null; // ITM_MIN_LMT_QTY (حد أدنى للمخزون)
+  maxLimitQty: number | null; // ITM_MAX_LMT_QTY
+  reorderLimitQty: number | null; // ITM_ROL_LMT_QTY (حد إعادة الطلب)
   inactive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -22,6 +25,9 @@ export interface UpsertItemOverlayInput {
   unit?: string | null;
   price?: number | null;
   vatPercent?: number | null;
+  minLimitQty?: number | null;
+  maxLimitQty?: number | null;
+  reorderLimitQty?: number | null;
   inactive?: boolean;
 }
 

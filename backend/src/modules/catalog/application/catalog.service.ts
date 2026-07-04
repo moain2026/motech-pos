@@ -17,6 +17,11 @@ import {
   ItemRepository,
   ITEM_REPOSITORY,
 } from '../domain/ports/item-repository.port';
+import {
+  AddItemBarcodeInput,
+  ItemBarcodesRepository,
+  ITEM_BARCODES_REPOSITORY,
+} from '../domain/ports/item-barcodes.port';
 
 export interface UpsertItemInput {
   code: string;
@@ -25,6 +30,9 @@ export interface UpsertItemInput {
   unit?: string | null;
   price?: number | null;
   vatPercent?: number | null;
+  minLimitQty?: number | null;
+  maxLimitQty?: number | null;
+  reorderLimitQty?: number | null;
   inactive?: boolean;
 }
 
@@ -38,6 +46,8 @@ export class CatalogService {
     @Inject(ITEM_REPOSITORY) private readonly repo: ItemRepository,
     @Inject(ITEM_OVERLAY_REPOSITORY)
     private readonly overlay: ItemOverlayRepository,
+    @Inject(ITEM_BARCODES_REPOSITORY)
+    private readonly barcodes: ItemBarcodesRepository,
   ) {}
 
   async list(filter: ItemListFilter) {
@@ -160,6 +170,9 @@ export class CatalogService {
       unit: input.unit ?? existing?.unit ?? erpDto?.unit ?? null,
       price: input.price ?? existing?.price ?? erpDto?.lastPrice ?? null,
       vatPercent: input.vatPercent ?? existing?.vatPercent ?? null,
+      minLimitQty: input.minLimitQty ?? null,
+      maxLimitQty: input.maxLimitQty ?? null,
+      reorderLimitQty: input.reorderLimitQty ?? null,
       inactive: input.inactive ?? existing?.inactive ?? false,
     });
     return erpDto
@@ -226,6 +239,82 @@ export class CatalogService {
     };
   }
 
+  /**
+   * All barcodes of an item (POSI006/008/009 multi-barcode):
+   * ERP rows (IAS_ITM_UNT_BARCODE) + local additions (overlay).
+   */
+  async listBarcodes(code: string) {
+    const rows = await this.barcodes.listByItem(code);
+    if (rows.length === 0) {
+      const exists =
+        (await this.repo.findByCode(code)) ??
+        (await this.overlay.findByCode(code));
+      if (!exists) {
+        throw new ItemNotFoundError(`Item ${code} not found`, { code });
+      }
+    }
+    return { code, barcodes: rows };
+  }
+
+  /** Add a LOCAL barcode to an item (must be globally unique). */
+  async addBarcode(input: AddItemBarcodeInput) {
+    const exists =
+      (await this.repo.findByCode(input.itemCode)) ??
+      (await this.overlay.findByCode(input.itemCode));
+    if (!exists) {
+      throw new ItemNotFoundError(`Item ${input.itemCode} not found`, {
+        code: input.itemCode,
+      });
+    }
+    const dup = await this.barcodes.findByBarcode(input.barcode);
+    if (dup) {
+      throw new OverlayConflictError(
+        `Barcode ${input.barcode} already maps to item ${dup.itemCode}`,
+        { barcode: input.barcode, itemCode: dup.itemCode },
+      );
+    }
+    return this.barcodes.add(input);
+  }
+
+  /** Disable a LOCAL barcode (ERP barcodes cannot be removed from here). */
+  async removeBarcode(barcode: string) {
+    const row = await this.barcodes.findByBarcode(barcode);
+    if (!row) {
+      throw new ItemNotFoundError(`Barcode ${barcode} not found`, { barcode });
+    }
+    if (row.origin === 'ERP') {
+      throw new InvalidOverlayError(
+        `Barcode ${barcode} belongs to the ERP master and cannot be removed here`,
+        { barcode },
+      );
+    }
+    const ok = await this.barcodes.deactivate(barcode);
+    return { barcode, removed: ok };
+  }
+
+  /**
+   * Stock limits for an item (POSI2000 advanced): ERP IAS_ITM_MST limits
+   * merged with the local overlay (overlay wins).
+   */
+  async getStockLimits(code: string) {
+    const [erp, ov] = await Promise.all([
+      this.repo.findStockLimits(code),
+      this.overlay.findByCode(code),
+    ]);
+    if (!erp && !ov) {
+      throw new ItemNotFoundError(`Item ${code} not found`, { code });
+    }
+    return {
+      code,
+      minLimitQty: ov?.minLimitQty ?? erp?.minLimitQty ?? null,
+      maxLimitQty: ov?.maxLimitQty ?? erp?.maxLimitQty ?? null,
+      reorderLimitQty: ov?.reorderLimitQty ?? erp?.reorderLimitQty ?? null,
+      origin: ov?.minLimitQty != null || ov?.maxLimitQty != null || ov?.reorderLimitQty != null
+        ? (ov.origin as 'LOCAL' | 'EDIT')
+        : ('ERP' as const),
+    };
+  }
+
   async getByBarcode(barcode: string) {
     // Weighted (scale) barcode? Decode → resolve by embedded item code and
     // surface the embedded quantity so the cashier's cart line is pre-filled.
@@ -249,15 +338,27 @@ export class CatalogService {
       );
     }
     const found = await this.repo.findByBarcode(barcode);
-    if (!found) {
-      throw new ItemNotFoundError(`No item for barcode ${barcode}`, {
-        barcode,
-      });
+    if (found) {
+      return {
+        ...this.toDetailDto(found),
+        scanned: { isWeighted: false as const, barcode, quantity: 1 },
+      };
     }
-    return {
-      ...this.toDetailDto(found),
-      scanned: { isWeighted: false as const, barcode, quantity: 1 },
-    };
+    // Fallback: the real barcode master (IAS_ITM_UNT_BARCODE + local overlay)
+    // — covers barcodes never yet observed in sale history (POSI006/008/009).
+    const bcRow = await this.barcodes.findByBarcode(barcode);
+    if (bcRow && !bcRow.inactive && bcRow.itemCode) {
+      const detail = await this.resolveDetailByCode(bcRow.itemCode);
+      if (detail) {
+        return {
+          ...detail,
+          scanned: { isWeighted: false as const, barcode, quantity: 1 },
+        };
+      }
+    }
+    throw new ItemNotFoundError(`No item for barcode ${barcode}`, {
+      barcode,
+    });
   }
 
   /** getByCode variant that returns null instead of throwing (scan path). */
