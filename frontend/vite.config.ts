@@ -11,6 +11,9 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
+      // نسجّل الـ SW يدوياً في main.tsx مع cache-busting + updateViaCache:'none'
+      // حتى لا يعلق المستخدمون على نسخة SW قديمة مخزّنة في CDN/المتصفح.
+      injectRegister: false,
       includeAssets: ['favicon.svg'],
       manifest: {
         name: 'Motech POS',
@@ -50,6 +53,9 @@ export default defineConfig({
   ],
   resolve: {
     alias: { '@': path.resolve(__dirname, './src') },
+  },
+  define: {
+    __BUILD_ID__: JSON.stringify(Date.now().toString(36)),
   },
   build: {
     rolldownOptions: {

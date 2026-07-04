@@ -94,7 +94,7 @@ export function VouchersPage() {
                     </p>
                     <p className="tnum text-xs text-[var(--color-muted)]">
                       {v.description || v.partyName || '—'}
-                      {v.category ? ` · ${v.category}` : ''} · {v.paymentMethod}
+                      {v.category ? ` · ${v.category}` : ''} · {t(`vouchers.methods.${v.paymentMethod}`, v.paymentMethod)}
                     </p>
                   </div>
                   <span

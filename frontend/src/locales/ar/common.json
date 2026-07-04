@@ -154,7 +154,10 @@
     "net": "الصافي",
     "stored": "المخزّن في النظام",
     "recomputed": "محسوب من البنود",
-    "type": "النوع"
+    "type": "النوع",
+    "typeName": {
+      "1": "بيع"
+    }
   },
   "reports": {
     "title": "التقارير",
@@ -342,7 +345,12 @@
     "submit": "حفظ السند",
     "saving": "جارٍ الحفظ…",
     "created": "تم إنشاء السند رقم",
-    "createError": "تعذّر إنشاء السند"
+    "createError": "تعذّر إنشاء السند",
+    "methods": {
+      "CASH": "نقداً",
+      "CARD": "بطاقة",
+      "BANK": "تحويل بنكي"
+    }
   },
   "returns": {
     "title": "المرتجعات",
@@ -525,7 +533,8 @@
     "status": {
       "OVER": "فائض",
       "SHORT": "عجز",
-      "BALANCED": "مطابق"
+      "BALANCED": "مطابق",
+      "PENDING": "بانتظار العدّ"
     },
     "tenderSection": "إجماليات الدفع",
     "billCount": "عدد الفواتير",
@@ -615,7 +624,8 @@
     "summaryTitle": "إجماليات النقاط",
     "totalEarned": "ممنوحة",
     "totalRedeemed": "مستبدلة",
-    "netOutstanding": "الرصيد القائم"
+    "netOutstanding": "الرصيد القائم",
+    "kindCol": "النوع"
   },
   "credit": {
     "title": "تحصيل الفواتير الآجلة",

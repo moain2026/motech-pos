@@ -12,7 +12,7 @@ import {
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { LoadingView, ErrorView, EmptyView } from '@/shared/ui/StateView';
-import { formatNumber } from '@/shared/lib/format';
+import { formatDateTime, formatNumber } from '@/shared/lib/format';
 import { ApiError } from '@/shared/lib/api-client';
 import type { SyncEntryStatus } from '@/shared/lib/types';
 import { useSyncStatus, useSyncQueue, useRunSync } from '../api/sync.api';
@@ -138,7 +138,7 @@ export function SyncPage() {
                     {formatNumber(e.rtryCnt)}/{formatNumber(e.allwdRtryCnt)}
                   </td>
                   <td className="tnum px-3 py-2 text-[var(--color-muted)]">
-                    {new Date(e.enqueuedAt).toLocaleString('ar')}
+                    {formatDateTime(e.enqueuedAt)}
                   </td>
                   <td className="px-3 py-2 text-xs text-[var(--color-danger)]">{e.lastError ?? '—'}</td>
                 </tr>

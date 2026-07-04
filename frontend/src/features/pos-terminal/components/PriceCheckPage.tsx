@@ -5,7 +5,7 @@ import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { LoadingView, ErrorView } from '@/shared/ui/StateView';
-import { formatMoney } from '@/shared/lib/format';
+import { formatMoney, formatNumber } from '@/shared/lib/format';
 import { useItemDetail } from '../api/items.api';
 
 /**
@@ -89,7 +89,7 @@ export function PriceCheckPage() {
                   {formatMoney(item.lastPrice)}
                 </Field>
                 <Field label={t('priceCheck.available')} tone="success">
-                  {new Intl.NumberFormat('ar').format(item.totalAvailableQty)}
+                  {formatNumber(item.totalAvailableQty)}
                 </Field>
               </div>
             </div>

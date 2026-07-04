@@ -271,7 +271,7 @@ function LedgerTab({ code }: { code: string }) {
           <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
             <tr>
               <th className="px-3 py-2 text-start font-semibold">{t('loyalty.date')}</th>
-              <th className="px-3 py-2 text-start font-semibold">{t('reports.method')}</th>
+              <th className="px-3 py-2 text-start font-semibold">{t('loyalty.kindCol')}</th>
               <th className="px-3 py-2 text-start font-semibold">{t('loyalty.billNo')}</th>
               <th className="px-3 py-2 text-end font-semibold">{t('loyalty.docAmt')}</th>
               <th className="px-3 py-2 text-end font-semibold">{t('loyalty.points')}</th>

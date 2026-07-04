@@ -61,7 +61,10 @@ export function BillDetailPage() {
             <Card className="flex flex-col gap-2 p-4">
               <Meta label={t('bills.date')} value={formatDate(query.data.billDate)} />
               <Meta label={t('bills.machine')} value={String(query.data.machineNo)} />
-              <Meta label={t('bills.type')} value={String(query.data.billType)} />
+              <Meta
+                label={t('bills.type')}
+                value={t(`bills.typeName.${query.data.billType}`, String(query.data.billType))}
+              />
               <Meta
                 label={t('bills.customer')}
                 value={query.data.customer.name ?? query.data.customer.code ?? '—'}

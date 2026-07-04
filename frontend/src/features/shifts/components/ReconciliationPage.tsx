@@ -18,7 +18,7 @@ import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { LoadingView, ErrorView, EmptyView } from '@/shared/ui/StateView';
 import { ApiError } from '@/shared/lib/api-client';
-import { formatMoney, formatNumber } from '@/shared/lib/format';
+import { formatDateTime, formatMoney, formatNumber } from '@/shared/lib/format';
 import { usePosSettings } from '@/features/pos-terminal/store/pos-settings.store';
 import { useSession } from '@/features/auth';
 import type { PaymentMethod } from '@/shared/lib/types';
@@ -170,11 +170,14 @@ export function ReconciliationPage() {
                   ? 'bg-[var(--color-success)]/15 text-[var(--color-success)]'
                   : r.overShort === 'OVER'
                     ? 'bg-[var(--color-brand-600)]/15 text-[var(--color-brand-100)]'
-                    : 'bg-[var(--color-danger)]/15 text-[var(--color-danger)]')
+                    : r.overShort === 'SHORT'
+                      ? 'bg-[var(--color-danger)]/15 text-[var(--color-danger)]'
+                      : 'bg-[var(--color-surface-2)] text-[var(--color-muted)]')
               }
             >
               <span className="font-bold">
-                {t('recon.difference')} · {t(`recon.status.${r.overShort}`)}
+                {t('recon.difference')} ·{' '}
+                {r.overShort ? t(`recon.status.${r.overShort}`) : t('recon.status.PENDING')}
               </span>
               <span className="tnum text-xl font-extrabold">
                 {r.cashDifference != null ? formatMoney(r.cashDifference) : '—'}
@@ -186,7 +189,7 @@ export function ReconciliationPage() {
           <Card className="p-4">
             <h2 className="mb-3 font-bold">{t('recon.tenderSection')}</h2>
             <div className="grid gap-2 sm:grid-cols-2">
-              <Line label={t('recon.billCount')} value={String(r.billCount)} />
+              <Line label={t('recon.billCount')} value={formatNumber(r.billCount)} />
               <Line label={t('recon.netSales')} value={formatMoney(r.netSalesTotal)} />
               <Line label={t('recon.cardTotal')} value={formatMoney(r.cardTotal)} />
               <Line label={t('recon.creditTotal')} value={formatMoney(r.creditTotal)} />
@@ -231,7 +234,7 @@ export function ReconciliationPage() {
                                 {c.currency} × {c.count}
                               </span>
                               <span className="tnum">
-                                {new Intl.NumberFormat('ar').format(c.amount)} → {formatMoney(c.amountInBill)}
+                                {formatNumber(c.amount)} → {formatMoney(c.amountInBill)}
                               </span>
                             </li>
                           ))}
@@ -349,7 +352,7 @@ function DenominationSettlement({ shiftId, currency }: { shiftId: string; curren
               value={formatMoney(s.difference ?? 0)}
               strong
             />
-            <Line label={t('recon.settledAt')} value={s.settledAt ?? '—'} />
+            <Line label={t('recon.settledAt')} value={s.settledAt ? formatDateTime(s.settledAt) : '—'} />
             {s.settledBy != null ? (
               <Line label={t('recon.settledBy')} value={`#${s.settledBy}`} />
             ) : null}
