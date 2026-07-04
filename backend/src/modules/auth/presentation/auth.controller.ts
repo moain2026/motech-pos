@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../application/auth.service';
-import { LoginDto, RefreshDto } from './auth.dto';
+import { ChangePasswordDto, LoginDto, RefreshDto } from './auth.dto';
 import { AuthenticatedRequest, JwtAuthGuard } from './jwt-auth.guard';
 
 @ApiTags('auth')
@@ -45,5 +45,29 @@ export class AuthController {
     }
     const me = await this.auth.me(userId);
     return { data: me };
+  }
+
+  @Post('change-password')
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      'Change own password (POSS004) — verifies the current password, stores bcrypt(12)',
+  })
+  async changePassword(
+    @Body() dto: ChangePasswordDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const userId = req.user?.sub;
+    if (userId == null) {
+      throw new UnauthorizedException();
+    }
+    const user = await this.auth.changePassword(
+      userId,
+      dto.oldPassword,
+      dto.newPassword,
+    );
+    return { data: { changed: true, user } };
   }
 }

@@ -21,3 +21,18 @@ export class RefreshDto {
   @MinLength(10)
   refreshToken!: string;
 }
+
+/** POSS004 تغيير كلمة السر — old + new password for the authenticated user. */
+export class ChangePasswordDto {
+  @ApiProperty({ description: 'Current password' })
+  @IsString()
+  @MinLength(1)
+  @MaxLength(128)
+  oldPassword!: string;
+
+  @ApiProperty({ description: 'New password (min 8 chars)' })
+  @IsString()
+  @MinLength(8)
+  @MaxLength(128)
+  newPassword!: string;
+}

@@ -22,7 +22,7 @@ function fakeConfig(): TypedConfigService {
 }
 
 /** In-memory user repo seeded with a bcrypt-hashed password. */
-function fakeUserRepo(): UserRepository {
+function fakeUserRepo(): UserRepository & { persisted: string[] } {
   const user: AuthUser = {
     id: 7,
     username: 'cashier1',
@@ -32,10 +32,17 @@ function fakeUserRepo(): UserRepository {
     branchNo: 1,
     active: true,
   };
+  const persisted: string[] = [];
   return {
+    persisted,
     findByUsername: async (u) =>
       u.toLowerCase() === user.username ? user : null,
     findById: async (id) => (id === user.id ? user : null),
+    updatePassword: async (id, hash) => {
+      if (id !== user.id) throw new Error('unknown user');
+      user.passwordHash = hash;
+      persisted.push(hash);
+    },
   };
 }
 
@@ -109,6 +116,49 @@ describe('AuthService', () => {
   it('rejects using an access token as a refresh token', async () => {
     const login = await svc.login('cashier1', 'secret123');
     await expect(svc.refresh(login.accessToken)).rejects.toThrow();
+  });
+});
+
+describe('AuthService.changePassword (POSS004)', () => {
+  it('changes the password: old stops working, new works, hash is bcrypt-12', async () => {
+    const repo = fakeUserRepo();
+    const svc2 = new AuthService(repo, new TokenService(fakeConfig()));
+    const res = await svc2.changePassword(7, 'secret123', 'NewPass456!');
+    expect(res.username).toBe('cashier1');
+    expect(repo.persisted).toHaveLength(1);
+    // bcrypt cost 12 encoded in the hash prefix.
+    expect(repo.persisted[0]).toMatch(/^\$2[aby]\$12\$/);
+    await expect(svc2.login('cashier1', 'secret123')).rejects.toThrow(
+      /Invalid username or password/,
+    );
+    const login = await svc2.login('cashier1', 'NewPass456!');
+    expect(login.user.id).toBe(7);
+  });
+
+  it('rejects a wrong current password (401, no persist)', async () => {
+    const repo = fakeUserRepo();
+    const svc2 = new AuthService(repo, new TokenService(fakeConfig()));
+    await expect(
+      svc2.changePassword(7, 'wrong-old', 'NewPass456!'),
+    ).rejects.toThrow(/Current password is incorrect/);
+    expect(repo.persisted).toHaveLength(0);
+  });
+
+  it('rejects reusing the same password (422)', async () => {
+    const repo = fakeUserRepo();
+    const svc2 = new AuthService(repo, new TokenService(fakeConfig()));
+    await expect(
+      svc2.changePassword(7, 'secret123', 'secret123'),
+    ).rejects.toThrow(/must differ/);
+    expect(repo.persisted).toHaveLength(0);
+  });
+
+  it('rejects an unknown user id with invalid-credentials', async () => {
+    const repo = fakeUserRepo();
+    const svc2 = new AuthService(repo, new TokenService(fakeConfig()));
+    await expect(
+      svc2.changePassword(999, 'secret123', 'NewPass456!'),
+    ).rejects.toThrow(/Current password is incorrect/);
   });
 });
 

@@ -293,3 +293,59 @@ export class StockCountEmptyError extends DomainError {
   readonly httpStatus = 422;
   readonly title = 'Stock count has no lines';
 }
+
+/** POSS004: the new password equals the current one. */
+export class PasswordReuseError extends DomainError {
+  readonly typeSlug = 'password-reuse';
+  readonly httpStatus = 422;
+  readonly title = 'New password must differ from the current password';
+}
+
+/** POST023: the referenced sale bill does not exist in YSPOS23. */
+export class PrescriptionBillNotFoundError extends DomainError {
+  readonly typeSlug = 'prescription-bill-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Sale bill not found for prescription';
+}
+
+/** POST023: the requested prescription does not exist. */
+export class PrescriptionNotFoundError extends DomainError {
+  readonly typeSlug = 'prescription-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Prescription not found';
+}
+
+/** POST023: a prescription line references an item not on the linked bill. */
+export class PrescriptionItemNotOnBillError extends DomainError {
+  readonly typeSlug = 'prescription-item-not-on-bill';
+  readonly httpStatus = 422;
+  readonly title = 'Item is not on the linked sale bill';
+}
+
+/** POST019: the requested transfer request does not exist. */
+export class TransferNotFoundError extends DomainError {
+  readonly typeSlug = 'transfer-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Transfer request not found';
+}
+
+/** POST019: source and destination warehouses must differ. */
+export class TransferSameWarehouseError extends DomainError {
+  readonly typeSlug = 'transfer-same-warehouse';
+  readonly httpStatus = 422;
+  readonly title = 'Source and destination warehouses must differ';
+}
+
+/** POST019: an unknown warehouse code was supplied. */
+export class TransferWarehouseNotFoundError extends DomainError {
+  readonly typeSlug = 'transfer-warehouse-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Warehouse not found';
+}
+
+/** POST019: invalid state transition (e.g. cancel a non-OPEN request). */
+export class TransferStateError extends DomainError {
+  readonly typeSlug = 'transfer-invalid-state';
+  readonly httpStatus = 409;
+  readonly title = 'Invalid transfer request state for this action';
+}

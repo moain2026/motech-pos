@@ -1,6 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
-import { InvalidCredentialsError } from '../../../shared/errors/domain-error';
+import {
+  InvalidCredentialsError,
+  PasswordReuseError,
+} from '../../../shared/errors/domain-error';
 import { AuthUser, AuthUserView, toView } from '../domain/user.entity';
 import {
   UserRepository,
@@ -59,6 +62,35 @@ export class AuthService {
   async me(userId: number): Promise<AuthUserView | null> {
     const user = await this.users.findById(userId);
     return user ? toView(user) : null;
+  }
+
+  /**
+   * POSS004 تغيير كلمة السر — verify the CURRENT password, then persist a new
+   * bcrypt hash (cost 12) for the authenticated user. The new password must
+   * differ from the old one (mirrors the Onyx screen's confirm+change flow).
+   */
+  async changePassword(
+    userId: number,
+    oldPassword: string,
+    newPassword: string,
+  ): Promise<AuthUserView> {
+    const user = await this.users.findById(userId);
+    // Constant-time compare even for a missing user (no enumeration).
+    const hash =
+      user?.passwordHash ??
+      '$2a$10$0000000000000000000000000000000000000000000000000000u';
+    const ok = await bcrypt.compare(oldPassword, hash);
+    if (!user || !ok) {
+      throw new InvalidCredentialsError('Current password is incorrect');
+    }
+    if (oldPassword === newPassword) {
+      throw new PasswordReuseError(
+        'New password must differ from the current password',
+      );
+    }
+    const newHash = await bcrypt.hash(newPassword, 12);
+    await this.users.updatePassword(user.id, newHash);
+    return toView(user);
   }
 
   private issue(user: AuthUser): LoginResult {
