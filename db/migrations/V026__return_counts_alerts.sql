@@ -1,0 +1,91 @@
+--------------------------------------------------------------------------------
+-- V026 — RETURN_COUNTS + lines (POST022 جرد أصناف مردود المبيعات)
+--        + POS_ALERTS (POS_ALRT_SCR تنبيهات الدخول)
+--------------------------------------------------------------------------------
+-- Run as MOTECH_POS:
+--   sudo docker exec -i oracle12 sqlplus -S "MOTECH_POS/motech_pos_2026@//localhost:1521/xe" @V026__return_counts_alerts.sql
+--
+-- POST022: physical count of RETURNED items vs the system-recorded returns
+--   (Onyx IAS_INV_RT_BILL_MST/DTL analogue). Like POST018 stock counts, but
+--   the SYSTEM side is the sum of returned qty from the REAL return tables
+--   (YSPOS23.IAS_POS_RT_BILL_MST/DTL, read-only) for one machine + date.
+--   DRAFT → POSTED (frozen variance record); counts never mutate stock.
+--
+-- POS_ALRT_SCR: simple login notes/alerts shown once per user at sign-in.
+--------------------------------------------------------------------------------
+
+SET ECHO ON
+WHENEVER SQLERROR EXIT FAILURE
+
+CREATE TABLE RETURN_COUNTS (
+  ID              VARCHAR2(36)  NOT NULL,
+  COUNT_NO        NUMBER(12,0)  NOT NULL,
+  MACHINE_NO      NUMBER(10,0)  NOT NULL,               -- الآلة المجرودة مردوداتها
+  COUNT_DATE      DATE          NOT NULL,               -- يوم المردودات المجرود
+  STATUS          VARCHAR2(12)  DEFAULT 'DRAFT' NOT NULL, -- DRAFT | POSTED
+  REF_NO          VARCHAR2(60),
+  NOTE            VARCHAR2(500),
+  CREATED_BY      VARCHAR2(50)  NOT NULL,
+  CREATED_AT      TIMESTAMP     DEFAULT SYSTIMESTAMP NOT NULL,
+  POSTED_BY       VARCHAR2(50),
+  POSTED_AT       TIMESTAMP,
+  POST_IDEMPOTENCY_KEY VARCHAR2(64),
+  CONSTRAINT PK_RETURN_COUNTS PRIMARY KEY (ID),
+  CONSTRAINT UQ_RC_COUNT_NO UNIQUE (COUNT_NO),
+  CONSTRAINT UQ_RC_POST_KEY UNIQUE (POST_IDEMPOTENCY_KEY),
+  CONSTRAINT CK_RC_STATUS CHECK (STATUS IN ('DRAFT','POSTED')),
+  CONSTRAINT CK_RC_POSTED CHECK (
+    (STATUS = 'DRAFT'  AND POSTED_AT IS NULL) OR
+    (STATUS = 'POSTED' AND POSTED_AT IS NOT NULL AND POSTED_BY IS NOT NULL)
+  )
+);
+
+CREATE TABLE RETURN_COUNT_LINES (
+  ID          VARCHAR2(36)  NOT NULL,
+  COUNT_ID    VARCHAR2(36)  NOT NULL,
+  ITEM_CODE   VARCHAR2(30)  NOT NULL,
+  ITEM_NAME   VARCHAR2(250),
+  SYSTEM_QTY  NUMBER(18,4)  DEFAULT 0 NOT NULL,         -- returned in system (snapshot)
+  COUNTED_QTY NUMBER(18,4)  NOT NULL,                   -- physically counted
+  DIFF_QTY    NUMBER(18,4)  NOT NULL,                   -- counted − system
+  CONSTRAINT PK_RC_LINES PRIMARY KEY (ID),
+  CONSTRAINT FK_RCL_COUNT FOREIGN KEY (COUNT_ID) REFERENCES RETURN_COUNTS (ID),
+  CONSTRAINT UQ_RCL_ITEM UNIQUE (COUNT_ID, ITEM_CODE)
+);
+
+CREATE SEQUENCE SEQ_RETURN_COUNT_NO START WITH 1 INCREMENT BY 1 NOCACHE;
+
+CREATE INDEX IX_RC_STATUS ON RETURN_COUNTS (STATUS, CREATED_AT);
+CREATE INDEX IX_RCL_COUNT ON RETURN_COUNT_LINES (COUNT_ID);
+
+-- POS_ALRT_SCR — login alerts/notes (shown once per user).
+CREATE TABLE POS_ALERTS (
+  ID          VARCHAR2(36)   NOT NULL,
+  TITLE       VARCHAR2(120)  NOT NULL,
+  BODY        VARCHAR2(2000),
+  ACTIVE      NUMBER(1,0)    DEFAULT 1 NOT NULL,
+  SHOW_FROM   DATE,
+  SHOW_UNTIL  DATE,
+  CREATED_BY  VARCHAR2(50)   NOT NULL,
+  CREATED_AT  TIMESTAMP      DEFAULT SYSTIMESTAMP NOT NULL,
+  CONSTRAINT PK_POS_ALERTS PRIMARY KEY (ID)
+);
+
+CREATE TABLE POS_ALERT_ACKS (
+  ID        VARCHAR2(36)  NOT NULL,
+  ALERT_ID  VARCHAR2(36)  NOT NULL,
+  USERNAME  VARCHAR2(50)  NOT NULL,
+  ACKED_AT  TIMESTAMP     DEFAULT SYSTIMESTAMP NOT NULL,
+  CONSTRAINT PK_POS_ALERT_ACKS PRIMARY KEY (ID),
+  CONSTRAINT FK_PAA_ALERT FOREIGN KEY (ALERT_ID) REFERENCES POS_ALERTS (ID),
+  CONSTRAINT UQ_PAA UNIQUE (ALERT_ID, USERNAME)
+);
+
+GRANT SELECT, INSERT, UPDATE ON RETURN_COUNTS      TO MOTECH_RW;
+GRANT SELECT, INSERT, UPDATE ON RETURN_COUNT_LINES TO MOTECH_RW;
+GRANT SELECT ON SEQ_RETURN_COUNT_NO TO MOTECH_RW;
+GRANT SELECT, INSERT, UPDATE ON POS_ALERTS     TO MOTECH_RW;
+GRANT SELECT, INSERT         ON POS_ALERT_ACKS TO MOTECH_RW;
+
+PROMPT V026 return counts + pos alerts created.
+EXIT

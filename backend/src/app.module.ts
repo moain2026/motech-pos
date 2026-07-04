@@ -17,6 +17,7 @@ import { MasterDataModule } from './modules/master-data/master-data.module';
 import { SuppliersModule } from './modules/suppliers/suppliers.module';
 import { PrescriptionsModule } from './modules/prescriptions/prescriptions.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { ReturnCountsModule } from './modules/return-counts/return-counts.module';
 import { ReturnsModule } from './modules/returns/returns.module';
 import { SalesOrdersModule } from './modules/sales-orders/sales-orders.module';
 import { SettingsModule } from './modules/settings/settings.module';
@@ -58,6 +59,7 @@ import { VouchersModule } from './modules/vouchers/vouchers.module';
     SuppliersModule,
     PrescriptionsModule,
     VouchersModule,
+    ReturnCountsModule,
     SalesOrdersModule,
     SettingsModule,
     StockReceivingModule,

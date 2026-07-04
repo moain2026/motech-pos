@@ -24,7 +24,7 @@ interface HeadRow {
   CURRENCY: string;
   REF_NO: string | null;
   NOTE: string | null;
-  EXPIRE_DATE: Date | null;
+  EXPIRE_DATE_STR: string | null; // yyyy-mm-dd — TO_CHAR in SQL (no TZ shift)
   CREATED_BY: string;
   CREATED_AT: Date;
   CONVERTED_BILL_ID: string | null;
@@ -263,7 +263,9 @@ export class OracleSalesOrderRepository implements SalesOrderRepository {
   private headSelect(): string {
     return `
       SELECT o.ID, o.ORDER_NO, o.STATUS, o.CUSTOMER_CODE, o.CUSTOMER_NAME,
-             o.CURRENCY, o.REF_NO, o.NOTE, o.EXPIRE_DATE, o.CREATED_BY,
+             o.CURRENCY, o.REF_NO, o.NOTE,
+             TO_CHAR(o.EXPIRE_DATE, 'YYYY-MM-DD') AS EXPIRE_DATE_STR,
+             o.CREATED_BY,
              o.CREATED_AT, o.CONVERTED_BILL_ID, o.CONVERTED_BILL_NO,
              o.CONVERTED_BY, o.CONVERTED_AT, o.CANCELLED_BY, o.CANCELLED_AT,
              NVL(l.LINE_CNT, 0) AS LINE_CNT
@@ -303,7 +305,7 @@ export class OracleSalesOrderRepository implements SalesOrderRepository {
       currency: r.CURRENCY,
       refNo: r.REF_NO,
       note: r.NOTE,
-      expireDate: r.EXPIRE_DATE ? r.EXPIRE_DATE.toISOString().slice(0, 10) : null,
+      expireDate: r.EXPIRE_DATE_STR,
       createdBy: r.CREATED_BY,
       createdAt: r.CREATED_AT.toISOString(),
       convertedBillId: r.CONVERTED_BILL_ID,
