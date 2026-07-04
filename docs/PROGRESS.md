@@ -1,6 +1,28 @@
 # 📈 سجل تقدّم Motech POS
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
+## 2026-07-04 (الموجة E — شاشات الإدخال POSI كاملة backend) — subagent waveE-posi-settings
+
+> **النطاق:** كل شاشات POSI الناقصة — 6 commits، 3 migrations (V016/V019/V020)، 3 modules جديدة (suppliers/master-data/keypads) + توسيع catalog/cards/customers، 36 endpoint جديداً، 30 اختبار unit جديداً. النمط الموحّد: **overlay في MOTECH_POS — ERP مقدّس لا يُمس أبداً**، والقراءات تدمج ERP+overlay (origin: ERP|LOCAL|EDIT). كل endpoint مُثبت حياً بـcurl + SELECT.
+
+| الشاشة | Endpoints | proof حي |
+|---|---|---|
+| **POSI001/002 موردون** | `GET/POST/PUT /suppliers` (دمج V_DETAILS 38 مورداً + SUPPLIERS_OVERLAY) | إنشاء «مؤسسة الأمل للتجارة» → 9000 LOCAL · EDIT مورد ERP 2 (هاتف+جهة اتصال) وV_DETAILS لم يتغير · dup 409 · cashier 403 |
+| **POSI003 مخازن** | `GET/POST/PUT /warehouses` (WAREHOUSE_DETAILS + overlay) | «مخزن الفرع الجديد» → 900 LOCAL · EDIT مخزن 2 (أمين محمد الحكيمي) |
+| **POSI004 مجموعات أصناف** | `GET/POST/PUT /item-groups` (GROUP_DETAILS + overlay + عدّاد أصناف حي) | «العطور والبخور» → 900 LOCAL · EDIT مجموعة 01 (ضريبة→0) مع بقاء itemCount=112 |
+| **POSI005 وحدات** | `GET/POST/PUT /units` (MEASUREMENT + overlay) | «طبلية» LOCAL size 30→24 · dup «درزن» (ERP) → 409 |
+| **POSI011 عملات** | `GET/POST/PUT /currencies` (EX_RATE + overlay، rate/ratePos) | EUR LOCAL (580/585) · USD ratePos 530→540 EDIT وEX_RATE لم يتغير |
+| **POSI006/008/009-item باركود متعدد + حدود** | `GET/POST/DELETE /items/{code}/barcodes` + `GET /items/{code}/limits` + PUT limits (IAS_ITM_UNT_BARCODE 2,614 + ITEM_BARCODES_OVERLAY؛ حدود ITM_MIN/MAX/ROL_LMT_QTY + overlay) | باركود كرتون×12 جديد يُحل فوراً في scan · حذف باركود ERP → 422 · limits ERP reorder=5 → overlay min=10/reorder=20 EDIT |
+| **POSI002/003 لوحات مفاتيح** | `GET/POST/PUT /keypads` + `POST/DELETE /keypads/{no}/keys` (KEYPADS/KEYPAD_KEYS V016 — جداول YSPOS23 فارغة) | «لوحة الخضروات والفواكه» → ربط صنف باسمه العربي + سعر 200 حي من IAS_ITEM_PRICE · صنف مجهول 404 |
+| **POSI007 بطاقات مسبقة الدفع** | `GET/POST /prepaid-cards` + `topup/redeem/status/movements` (V019، REDEEM بـSELECT…FOR UPDATE — لا سحب فوق الرصيد) | GC-2026-0001 (50,000 لعميل 1) → topup 10k → cashier redeem 15k (ref=فاتورة) → 45,000 · redeem زائد → **422 insufficient-card-balance** · معطلة/منتهية → 409 · دفتر 3 حركات برصيد جارٍ في SELECT |
+| **POSI200 أرصدة بطاقات العملاء** | `GET /prepaid-cards?customer=` + `/{no}/movements` | رصيد حي + ledger ISSUE/TOPUP/REDEEM |
+| **POSI009 مجموعات عملاء** | `GET/POST/PUT /customer-groups` + `members` (V020، مجموعة واحدة لكل عميل) | «عملاء الجملة» + «عملاء التجزئة» · ضم محمد العباسي + أنس الدبعي (أسماء من CUSTOMER) · إعادة ضم تنقل · مجهول 404 |
+
+**درس Oracle تقني (تكرر 3 مرات):** أي bind بقيمة JS null داخل `COALESCE(:x, NUMBER_col)` يفشل بـORA-00932 (null الافتراضي يُربط كـSTRING) — الحل دائماً `{ val, type: oracledb.NUMBER }`.
+
+**الاختبارات:** 211 unit ✅ (كانت 147 قبل الموجات؛ +30 من هذه الموجة: suppliers 6، master-data 8، item-barcodes 6، keypads 5، prepaid-cards 6 (−مكرر)، customer-groups 5) + 43 golden ✅.
+**ملاحظة واجهة:** كل الشاشات أعلاه 🟡 في SCREENS_GAP_FINAL (backend مكتمل مُثبت — UI لم تُبن بعد).
+
 ## 2026-07-04 (الموجة F — إكمال تقارير POSR كاملة + إصلاح باغ التصفية P1) — subagent waveF-reports-shiftbug
 
 ### 1) 🐛 إصلاح باغ P1: توحيد expected-cash بين close وreconciliation ✅
