@@ -128,6 +128,64 @@ export class SettingsService {
     };
   }
 
+  /**
+   * POSS005 الإعدادات الافتراضية — the numbered system defaults
+   * (POS_DFLT_STNG_MST) merged with the local overlay (`default.<no>` keys,
+   * overlay wins). Each row reports whether an override is active and the
+   * original live value so the UI can show "reverts to X".
+   */
+  async getDefaults(): Promise<{
+    defaults: (DefaultSetting & {
+      overridden: boolean;
+      liveValue: string | null;
+    })[];
+    overrideCount: number;
+  }> {
+    const [{ defaults }, overlay] = await Promise.all([
+      this.repo.readLiveSettings(),
+      this.repo.readOverlay(),
+    ]);
+    let overrideCount = 0;
+    const merged = defaults.map((d) => {
+      const key = `default.${d.no}`;
+      const overridden = overlay.has(key);
+      if (overridden) overrideCount += 1;
+      return {
+        ...d,
+        value: overridden ? (overlay.get(key) ?? null) : d.value,
+        liveValue: d.value,
+        overridden,
+      };
+    });
+    return { defaults: merged, overrideCount };
+  }
+
+  /**
+   * POSS005 write side — upsert overlay overrides for numbered defaults.
+   * `value: null` clears the override (revert to the live Onyx value).
+   * Every STNG_NO is validated against the LIVE list (404 for unknown ones)
+   * so the overlay never accumulates orphan keys.
+   */
+  async saveDefaults(
+    entries: { no: number; value: string | null }[],
+    updatedBy: number | null,
+  ) {
+    const { defaults } = await this.repo.readLiveSettings();
+    const known = new Set(defaults.map((d) => d.no));
+    const unknown = entries.map((e) => e.no).filter((no) => !known.has(no));
+    if (unknown.length > 0) {
+      throw new NotFoundException(
+        `Unknown default setting number(s): ${unknown.join(', ')}`,
+      );
+    }
+    const overrides: SettingOverride[] = entries.map((e) => ({
+      key: `default.${e.no}`,
+      value: e.value,
+    }));
+    await this.repo.writeOverlay(overrides, updatedBy);
+    return this.getDefaults();
+  }
+
   async getMachine(machineNo: number): Promise<MachineSettings> {
     const m = await this.repo.readMachine(machineNo);
     if (!m) {

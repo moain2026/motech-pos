@@ -3,9 +3,12 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsInt,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
+  Min,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -53,4 +56,36 @@ export function isAllowedSettingKey(key: string): boolean {
   return (
     SettingsService.EDITABLE_KEYS.includes(key) || ALLOWED_KEY.test(key)
   );
+}
+
+/** One numbered default override (POSS005): STNG_NO + value (null reverts). */
+export class DefaultEntryDto {
+  @ApiProperty({ example: 13, description: 'STNG_NO (POS_DFLT_STNG_MST)' })
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  @Max(9999)
+  no!: number;
+
+  @ApiProperty({
+    description: 'New value as text; null reverts to the live YSPOS23 value',
+    nullable: true,
+    required: false,
+    example: '1',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(4000)
+  value!: string | null;
+}
+
+/** PUT /settings/defaults body — batch of numbered-default overrides. */
+export class UpdateDefaultsDto {
+  @ApiProperty({ type: [DefaultEntryDto] })
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(200)
+  @ValidateNested({ each: true })
+  @Type(() => DefaultEntryDto)
+  defaults!: DefaultEntryDto[];
 }

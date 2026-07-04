@@ -23,6 +23,7 @@ import { RolesGuard } from '../../auth/presentation/roles.guard';
 import { SettingsService } from '../application/settings.service';
 import {
   isAllowedSettingKey,
+  UpdateDefaultsDto,
   UpdateSettingsDto,
 } from './update-settings.dto';
 
@@ -51,6 +52,17 @@ export class SettingsController {
   async get() {
     const data = await this.settings.getSettings();
     return { data, meta: { hasOverrides: data.hasOverrides } };
+  }
+
+  @Get('defaults')
+  @ApiOperation({
+    summary:
+      'Numbered system defaults (POSS005 الإعدادات الافتراضية) — live POS_DFLT_STNG_MST merged with local overrides',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async defaults() {
+    const { defaults, overrideCount } = await this.settings.getDefaults();
+    return { data: defaults, meta: { count: defaults.length, overrideCount } };
   }
 
   @Get('machine/:no')
@@ -91,6 +103,33 @@ export class SettingsController {
     @Req() req: AuthenticatedRequest,
   ) {
     return this.applyOverrides(dto, req);
+  }
+
+  @Put('defaults')
+  @UseGuards(RolesGuard)
+  @Roles('admin')
+  @ApiOperation({
+    summary:
+      'Upsert numbered-default overrides (POSS005) — admin only; value:null reverts to live',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta } with merged defaults' })
+  async updateDefaults(
+    @Body() dto: UpdateDefaultsDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const updatedBy = req.user?.sub ?? null;
+    const { defaults, overrideCount } = await this.settings.saveDefaults(
+      dto.defaults.map((d) => ({ no: d.no, value: d.value ?? null })),
+      updatedBy,
+    );
+    return {
+      data: defaults,
+      meta: {
+        applied: dto.defaults.length,
+        count: defaults.length,
+        overrideCount,
+      },
+    };
   }
 
   private async applyOverrides(
