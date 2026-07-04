@@ -4,6 +4,7 @@ import { ConfigModule } from './config/config.module';
 import { HealthModule } from './health/health.module';
 import { OracleModule } from './infrastructure/oracle/oracle.module';
 import { AdminModule } from './modules/admin/admin.module';
+import { AlertsModule } from './modules/alerts/alerts.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { BillsModule } from './modules/bills/bills.module';
 import { CardsModule } from './modules/cards/cards.module';
@@ -44,6 +45,7 @@ import { VouchersModule } from './modules/vouchers/vouchers.module';
     OracleModule,
     HealthModule,
     AuthModule,
+    AlertsModule,
     CatalogModule,
     ShiftsModule,
     BillsModule,

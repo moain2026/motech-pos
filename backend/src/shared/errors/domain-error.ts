@@ -392,6 +392,13 @@ export class StockReceiptEmptyError extends DomainError {
   readonly title = 'Stock receipt has no lines to post';
 }
 
+/** POS_ALRT_SCR: the alert id is unknown. */
+export class AlertNotFoundError extends DomainError {
+  readonly typeSlug = 'alert-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Alert not found';
+}
+
 /** POST028: dispatching more than the source warehouse has available. */
 export class InsufficientStockError extends DomainError {
   readonly typeSlug = 'insufficient-stock';
