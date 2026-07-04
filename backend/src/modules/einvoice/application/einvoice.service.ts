@@ -63,7 +63,7 @@ export class EInvoiceService {
     const fdaCode = this.fdaCode(facts.billId, doc.docHash);
 
     try {
-      const inserted = await this.repo.insert({
+      await this.repo.insert({
         billId: facts.billId,
         billNo: facts.billNo,
         sellerName: seller.name,
