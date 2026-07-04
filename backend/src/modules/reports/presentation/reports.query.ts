@@ -122,3 +122,50 @@ export class AuditQuery extends DateRangeQuery {
   @Max(1000)
   limit?: number = 100;
 }
+
+/** POSR004 by-shift query: range + optional shift + optional cashier. */
+export class ByShiftQuery extends PosReportQuery {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  cashier?: number;
+}
+
+/** POSR014 shifts-history query: range + optional status filter. */
+export class ShiftsHistoryQuery extends DateRangeQuery {
+  @IsOptional()
+  @IsString()
+  @Matches(/^(OPEN|CLOSED|SETTLED)$/, {
+    message: 'status must be OPEN, CLOSED or SETTLED',
+  })
+  status?: string;
+}
+
+/** POSR002 customer-statement query: REQUIRED customer + range. */
+export class CustomerStatementQuery extends DateRangeQuery {
+  @IsString()
+  @IsNotEmpty()
+  customer!: string;
+}
+
+/** POSR010 loyalty query: range + optional shift + optional customer. */
+export class LoyaltyReportQuery extends PosReportQuery {
+  @IsOptional()
+  @IsString()
+  customer?: string;
+}
+
+/** POSR015 sales-orders query: range + optional processed flag + cap. */
+export class SalesOrdersQuery extends DateRangeQuery {
+  @IsOptional()
+  @Matches(/^(true|false)$/, { message: 'processed must be true or false' })
+  processed?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(500)
+  limit?: number = 100;
+}

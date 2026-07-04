@@ -101,6 +101,36 @@
                 ]
             }
         },
+        "/api/v1/auth/change-password": {
+            "post": {
+                "operationId": "AuthController_changePassword",
+                "summary": "Change own password (POSS004) — verifies the current password, stores bcrypt(12)",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChangePasswordDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "auth"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
         "/api/v1/items": {
             "get": {
                 "operationId": "CatalogController_list",
@@ -322,6 +352,130 @@
             "get": {
                 "operationId": "CatalogController_units",
                 "summary": "All units of measure for an item (IAS_ITM_DTL) with conversion factors (P_SIZE), per-unit barcode and price — e.g. حبة/كرتون.",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "catalog"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/items/{code}/barcodes": {
+            "get": {
+                "operationId": "CatalogController_barcodes",
+                "summary": "All barcodes of an item (POSI006/008/009 multi-barcode): ERP IAS_ITM_UNT_BARCODE rows merged with local additions.",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "catalog"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "CatalogController_addBarcode",
+                "summary": "Add a LOCAL barcode to an item (MOTECH_POS overlay only)",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddItemBarcodeDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "catalog"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/items/{code}/barcodes/{bc}": {
+            "delete": {
+                "operationId": "CatalogController_removeBarcode",
+                "summary": "Disable a LOCAL barcode (soft delete; ERP barcodes are immutable)",
+                "parameters": [
+                    {
+                        "name": "bc",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                },
+                "tags": [
+                    "catalog"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/items/{code}/limits": {
+            "get": {
+                "operationId": "CatalogController_limits",
+                "summary": "Stock limits (min/max/reorder — ITM_MIN/MAX/ROL_LMT_QTY) merged ERP + overlay (POSI2000 advanced item settings).",
                 "parameters": [
                     {
                         "name": "code",
@@ -1327,7 +1481,7 @@
         "/api/v1/reports/sales-by-category": {
             "get": {
                 "operationId": "ReportsController_salesByCategory",
-                "summary": "Sales grouped by item category (ITEM_TYPES)",
+                "summary": "Sales grouped by item category (ITEM_TYPES); optional ?machine= cut (POSR006)",
                 "parameters": [],
                 "responses": {
                     "200": {
@@ -1532,6 +1686,215 @@
                 "responses": {
                     "200": {
                         "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/by-shift": {
+            "get": {
+                "operationId": "ReportsController_byShift",
+                "summary": "Sales per shift (shift-by-shift detail + over/short; POSR004)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/shifts-history": {
+            "get": {
+                "operationId": "ReportsController_shiftsHistory",
+                "summary": "Historical shifts list with reconciliation figures (POSR014)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/customer-statement": {
+            "get": {
+                "operationId": "ReportsController_customerStatement",
+                "summary": "Full statement of one cash customer: bills/returns/points/collections (POSR002)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/receivables": {
+            "get": {
+                "operationId": "ReportsController_receivables",
+                "summary": "Credit receivables (ذمم آجلة) per customer (POSR008)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/vouchers-summary": {
+            "get": {
+                "operationId": "ReportsController_vouchersSummary",
+                "summary": "Vouchers aggregated by machine × type × method × currency (POSR009/POSR016)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/loyalty": {
+            "get": {
+                "operationId": "ReportsController_loyalty",
+                "summary": "Loyalty points report for a period (POSR010)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/returns-window": {
+            "get": {
+                "operationId": "ReportsController_returnsWindow",
+                "summary": "Returns vs the allowed return window PRD_BACK_HOUR (POSR011)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/sales-orders": {
+            "get": {
+                "operationId": "ReportsController_salesOrders",
+                "summary": "Sales orders from YSPOS23.SALES_ORDER (POSR015, read-only)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/customer-groups": {
+            "get": {
+                "operationId": "ReportsController_customerGroups",
+                "summary": "Sales grouped by cash-customer group (IAS_CASH_CUSTMR_GRP; POSR012)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "reports"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reports/export": {
+            "get": {
+                "operationId": "ReportsController_export",
+                "summary": "CSV export of a flat report (report=daily|monthly|by-item|…; POSR003 substitute)",
+                "parameters": [
+                    {
+                        "name": "report",
+                        "required": true,
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "text/csv body (UTF-8, comma-separated)"
                     }
                 },
                 "tags": [
@@ -1842,6 +2205,168 @@
                 },
                 "tags": [
                     "loyalty"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/inventory/counts": {
+            "post": {
+                "operationId": "StockCountController_start",
+                "summary": "Start a new stock-count session (جرد) for a warehouse",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StartCountDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "inventory"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "get": {
+                "operationId": "StockCountController_list",
+                "summary": "List stock-count sessions (newest first)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "inventory"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/inventory/counts/{id}": {
+            "get": {
+                "operationId": "StockCountController_byId",
+                "summary": "Stock-count detail with lines (Arabic item names)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "inventory"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/inventory/counts/{id}/lines": {
+            "post": {
+                "operationId": "StockCountController_countLine",
+                "summary": "Record the physical count of one item (diff = counted − system qty)",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CountLineDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "inventory"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/inventory/counts/{id}/post": {
+            "post": {
+                "operationId": "StockCountController_post",
+                "summary": "Approve (post) the stock count — freezes variances, immutable",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "idempotency-key",
+                        "required": true,
+                        "in": "header",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "description": "uuid — mandatory; replays return the same posted count",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "inventory"
                 ],
                 "security": [
                     {
@@ -2200,6 +2725,764 @@
                 ]
             }
         },
+        "/api/v1/keypads": {
+            "get": {
+                "operationId": "KeypadsController_list",
+                "summary": "List keypads with key counts (POSI002)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "keypads"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "KeypadsController_create",
+                "summary": "Create a keypad",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertKeypadDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "keypads"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/keypads/{no}": {
+            "get": {
+                "operationId": "KeypadsController_get",
+                "summary": "Keypad detail + keys with resolved item names/prices (POSI003 grid)",
+                "parameters": [
+                    {
+                        "name": "no",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "keypads"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "put": {
+                "operationId": "KeypadsController_update",
+                "summary": "Edit a keypad (name/status)",
+                "parameters": [
+                    {
+                        "name": "no",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertKeypadDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "keypads"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/keypads/{no}/keys": {
+            "post": {
+                "operationId": "KeypadsController_addKey",
+                "summary": "Link an item to the keypad (POSI003) — item must exist",
+                "parameters": [
+                    {
+                        "name": "no",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AddKeypadKeyDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "keypads"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/keypads/{no}/keys/{keyId}": {
+            "delete": {
+                "operationId": "KeypadsController_removeKey",
+                "summary": "Remove a key from the keypad",
+                "parameters": [
+                    {
+                        "name": "no",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "keyId",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "keypads"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/warehouses": {
+            "get": {
+                "operationId": "MasterDataController_warehouses",
+                "summary": "List warehouses (WAREHOUSE_DETAILS merged with overlay)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "master-data"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "MasterDataController_createWarehouse",
+                "summary": "Create a LOCAL warehouse (MOTECH_POS overlay)",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertWarehouseDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "master-data"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/warehouses/{code}": {
+            "put": {
+                "operationId": "MasterDataController_updateWarehouse",
+                "summary": "Edit a warehouse (overlay; ERP never mutated)",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertWarehouseDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "master-data"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/item-groups": {
+            "get": {
+                "operationId": "MasterDataController_itemGroups",
+                "summary": "List item groups (GROUP_DETAILS merged with overlay) + item counts",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "master-data"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "MasterDataController_createItemGroup",
+                "summary": "Create a LOCAL item group (MOTECH_POS overlay)",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertItemGroupDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "master-data"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/item-groups/{code}": {
+            "put": {
+                "operationId": "MasterDataController_updateItemGroup",
+                "summary": "Edit an item group (overlay; ERP never mutated)",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertItemGroupDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "master-data"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/units": {
+            "get": {
+                "operationId": "MasterDataController_units",
+                "summary": "List units of measure (MEASUREMENT merged with overlay)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "master-data"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "MasterDataController_createUnit",
+                "summary": "Create a LOCAL unit (MOTECH_POS overlay)",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertUnitDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "master-data"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/units/{code}": {
+            "put": {
+                "operationId": "MasterDataController_updateUnit",
+                "summary": "Edit a unit (overlay; ERP never mutated)",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertUnitDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "master-data"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/currencies": {
+            "get": {
+                "operationId": "MasterDataController_currencies",
+                "summary": "List currencies + exchange rates (EX_RATE merged with overlay: rate = accounting, ratePos = POS rate)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "master-data"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "MasterDataController_createCurrency",
+                "summary": "Add a currency (MOTECH_POS overlay)",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertCurrencyDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "master-data"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/currencies/{code}": {
+            "put": {
+                "operationId": "MasterDataController_updateCurrency",
+                "summary": "Edit a currency / set the POS exchange rate",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpsertCurrencyDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "master-data"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/suppliers": {
+            "get": {
+                "operationId": "SuppliersController_list",
+                "summary": "List suppliers (V_DETAILS merged with local overlay)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "suppliers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "post": {
+                "operationId": "SuppliersController_create",
+                "summary": "Create a LOCAL supplier (MOTECH_POS overlay; POSI001/002)",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateSupplierDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "suppliers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/suppliers/{code}": {
+            "get": {
+                "operationId": "SuppliersController_get",
+                "summary": "Supplier detail (merged)",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "suppliers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "put": {
+                "operationId": "SuppliersController_update",
+                "summary": "Edit a supplier (overlay of ERP/local row; ERP never mutated)",
+                "parameters": [
+                    {
+                        "name": "code",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateSupplierDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "suppliers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/prescriptions": {
+            "post": {
+                "operationId": "PrescriptionController_create",
+                "summary": "Create a prescription linked to a sale bill (doctor + patient + item instructions)",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreatePrescriptionDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "prescriptions"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "get": {
+                "operationId": "PrescriptionController_list",
+                "summary": "List prescriptions (filter by billNo / patient)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "prescriptions"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/prescriptions/bill/{billNo}/items": {
+            "get": {
+                "operationId": "PrescriptionController_billItems",
+                "summary": "Items of a live sale bill (pre-fill the annotate screen) — 404 when unknown",
+                "parameters": [
+                    {
+                        "name": "billNo",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "prescriptions"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/prescriptions/{id}": {
+            "get": {
+                "operationId": "PrescriptionController_byId",
+                "summary": "Prescription detail with annotated lines",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "prescriptions"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
         "/api/v1/vouchers": {
             "post": {
                 "operationId": "VouchersController_create",
@@ -2371,6 +3654,54 @@
                 ]
             }
         },
+        "/api/v1/settings/defaults": {
+            "get": {
+                "operationId": "SettingsController_defaults",
+                "summary": "Numbered system defaults (POSS005 الإعدادات الافتراضية) — live POS_DFLT_STNG_MST merged with local overrides",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "settings"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "put": {
+                "operationId": "SettingsController_updateDefaults",
+                "summary": "Upsert numbered-default overrides (POSS005) — admin only; value:null reverts to live",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateDefaultsDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta } with merged defaults"
+                    }
+                },
+                "tags": [
+                    "settings"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
         "/api/v1/settings/machine/{no}": {
             "get": {
                 "operationId": "SettingsController_machine",
@@ -2392,6 +3723,112 @@
                 },
                 "tags": [
                     "settings"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/transfers": {
+            "post": {
+                "operationId": "TransferController_create",
+                "summary": "Raise a material transfer request between two warehouses",
+                "parameters": [],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateTransferDto"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "transfers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            },
+            "get": {
+                "operationId": "TransferController_list",
+                "summary": "List transfer requests (filter status/warehouse)",
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data, meta }"
+                    }
+                },
+                "tags": [
+                    "transfers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/transfers/{id}": {
+            "get": {
+                "operationId": "TransferController_byId",
+                "summary": "Transfer request detail with lines",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "transfers"
+                ],
+                "security": [
+                    {
+                        "bearer": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/transfers/{id}/cancel": {
+            "post": {
+                "operationId": "TransferController_cancel",
+                "summary": "Cancel an OPEN transfer request",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "in": "path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Envelope { data }"
+                    }
+                },
+                "tags": [
+                    "transfers"
                 ],
                 "security": [
                     {
@@ -2604,6 +4041,23 @@
                     "refreshToken"
                 ]
             },
+            "ChangePasswordDto": {
+                "type": "object",
+                "properties": {
+                    "oldPassword": {
+                        "type": "string",
+                        "description": "Current password"
+                    },
+                    "newPassword": {
+                        "type": "string",
+                        "description": "New password (min 8 chars)"
+                    }
+                },
+                "required": [
+                    "oldPassword",
+                    "newPassword"
+                ]
+            },
             "CreateItemDto": {
                 "type": "object",
                 "properties": {
@@ -2628,6 +4082,18 @@
                     "vatPercent": {
                         "type": "number",
                         "description": "Local VAT percent"
+                    },
+                    "minLimitQty": {
+                        "type": "number",
+                        "description": "Min stock limit (ITM_MIN_LMT_QTY)"
+                    },
+                    "maxLimitQty": {
+                        "type": "number",
+                        "description": "Max stock limit (ITM_MAX_LMT_QTY)"
+                    },
+                    "reorderLimitQty": {
+                        "type": "number",
+                        "description": "Reorder limit (ITM_ROL_LMT_QTY)"
                     },
                     "inactive": {
                         "type": "boolean"
@@ -2656,10 +4122,50 @@
                     "vatPercent": {
                         "type": "number"
                     },
+                    "minLimitQty": {
+                        "type": "number",
+                        "description": "Min stock limit (ITM_MIN_LMT_QTY)"
+                    },
+                    "maxLimitQty": {
+                        "type": "number",
+                        "description": "Max stock limit (ITM_MAX_LMT_QTY)"
+                    },
+                    "reorderLimitQty": {
+                        "type": "number",
+                        "description": "Reorder limit (ITM_ROL_LMT_QTY)"
+                    },
                     "inactive": {
                         "type": "boolean"
                     }
                 }
+            },
+            "AddItemBarcodeDto": {
+                "type": "object",
+                "properties": {
+                    "barcode": {
+                        "type": "string",
+                        "description": "The new barcode (globally unique)"
+                    },
+                    "unit": {
+                        "type": "string",
+                        "description": "Unit of measure (ITM_UNT), e.g. حبة"
+                    },
+                    "packSize": {
+                        "type": "number",
+                        "description": "Pack size for the unit (P_SIZE)"
+                    },
+                    "isMain": {
+                        "type": "boolean",
+                        "description": "Mark as the main barcode"
+                    },
+                    "noSale": {
+                        "type": "boolean",
+                        "description": "Barcode blocked from sale"
+                    }
+                },
+                "required": [
+                    "barcode"
+                ]
             },
             "OpenShiftDto": {
                 "type": "object",
@@ -2803,7 +4309,7 @@
                     "unitPrice": {
                         "type": "number",
                         "example": 150,
-                        "description": "Override price (else reference)"
+                        "description": "Echo of the displayed price. The SERVER reference price is always authoritative; a differing value requires the PRICE_OVERRIDE permission (else 403)."
                     },
                     "discDtl": {
                         "type": "number",
@@ -2817,7 +4323,7 @@
                     "vatPercent": {
                         "type": "number",
                         "example": 15,
-                        "description": "Override VAT% (else reference)"
+                        "description": "VAT% — server reference is authoritative; differing value requires PRICE_OVERRIDE."
                     }
                 },
                 "required": [
@@ -3233,6 +4739,14 @@
                 "type": "object",
                 "properties": {}
             },
+            "StartCountDto": {
+                "type": "object",
+                "properties": {}
+            },
+            "CountLineDto": {
+                "type": "object",
+                "properties": {}
+            },
             "CreateAdminMachineDto": {
                 "type": "object",
                 "properties": {
@@ -3431,6 +4945,335 @@
                     "entries"
                 ]
             },
+            "UpsertKeypadDto": {
+                "type": "object",
+                "properties": {
+                    "keypadNo": {
+                        "type": "number",
+                        "description": "Keypad number. Omit on create to auto-assign."
+                    },
+                    "arName": {
+                        "type": "string",
+                        "description": "Arabic name (e.g. لوحة الخضروات)"
+                    },
+                    "enName": {
+                        "type": "string"
+                    },
+                    "inactive": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "AddKeypadKeyDto": {
+                "type": "object",
+                "properties": {
+                    "itemCode": {
+                        "type": "string",
+                        "description": "Item business code (I_CODE)"
+                    },
+                    "grpNo": {
+                        "type": "number",
+                        "description": "Key group inside the pad (default 1)"
+                    },
+                    "grpName": {
+                        "type": "string",
+                        "description": "Group caption (e.g. خضروات)"
+                    },
+                    "posNo": {
+                        "type": "number",
+                        "description": "Ordering inside the group"
+                    },
+                    "color": {
+                        "type": "string",
+                        "description": "UI color hint (hex, e.g. #4caf50)"
+                    },
+                    "label": {
+                        "type": "string",
+                        "description": "Key caption (defaults to item name)"
+                    }
+                },
+                "required": [
+                    "itemCode"
+                ]
+            },
+            "UpsertWarehouseDto": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "number",
+                        "description": "Warehouse code (W_CODE). Omit on create to auto-assign (>= 900)."
+                    },
+                    "arName": {
+                        "type": "string",
+                        "description": "Arabic name (W_NAME)"
+                    },
+                    "enName": {
+                        "type": "string",
+                        "description": "English name (W_E_NAME)"
+                    },
+                    "location": {
+                        "type": "string"
+                    },
+                    "tel": {
+                        "type": "string"
+                    },
+                    "keeper": {
+                        "type": "string",
+                        "description": "Warehouse keeper (WH_KEEPER)"
+                    },
+                    "noSale": {
+                        "type": "boolean",
+                        "description": "true = sales blocked from this warehouse"
+                    },
+                    "priceLevel": {
+                        "type": "number",
+                        "description": "Default price level (PRICE_LVL)"
+                    },
+                    "inactive": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "UpsertItemGroupDto": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "Group code (G_CODE). Omit on create to auto-assign (>= 900)."
+                    },
+                    "arName": {
+                        "type": "string",
+                        "description": "Arabic name (G_A_NAME)"
+                    },
+                    "enName": {
+                        "type": "string",
+                        "description": "English name (G_E_NAME)"
+                    },
+                    "taxPercent": {
+                        "type": "number",
+                        "description": "Default VAT % (TAX_PRCNT_DFLT)"
+                    },
+                    "allowDiscount": {
+                        "type": "boolean",
+                        "description": "Allow discounts on the group"
+                    },
+                    "sortOrder": {
+                        "type": "number",
+                        "description": "Display order (G_ORDR)"
+                    },
+                    "inactive": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "UpsertUnitDto": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "Unit code (MEASURE_CODE, usually the Arabic name e.g. حبة). Required on create."
+                    },
+                    "arName": {
+                        "type": "string",
+                        "description": "Arabic name (MEASURE)"
+                    },
+                    "enName": {
+                        "type": "string",
+                        "description": "English name (MEASURE_F_NM)"
+                    },
+                    "defaultSize": {
+                        "type": "number",
+                        "description": "Default pack size (DFLT_SIZE)"
+                    },
+                    "inactive": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "UpsertCurrencyDto": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "Currency code (CUR_CODE, e.g. EUR). Required on create."
+                    },
+                    "arName": {
+                        "type": "string",
+                        "description": "Arabic name (CUR_NAME)"
+                    },
+                    "enName": {
+                        "type": "string",
+                        "description": "English name (CUR_E_NAME)"
+                    },
+                    "rate": {
+                        "type": "number",
+                        "description": "Accounting exchange rate (CUR_RATE)"
+                    },
+                    "ratePos": {
+                        "type": "number",
+                        "description": "POS exchange rate (CUR_RATE_POS)"
+                    },
+                    "fractionNo": {
+                        "type": "number",
+                        "description": "Decimal places (CUR_FRC_NO)"
+                    },
+                    "isLocal": {
+                        "type": "boolean",
+                        "description": "true = the local/base currency (L_F)"
+                    },
+                    "inactive": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "CreateSupplierDto": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "Supplier code (V_CODE). Omit to auto-assign a local code (>= 9000)."
+                    },
+                    "arName": {
+                        "type": "string",
+                        "description": "Arabic name (V_A_NAME)"
+                    },
+                    "enName": {
+                        "type": "string",
+                        "description": "English name (V_E_NAME)"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "mobile": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "taxCode": {
+                        "type": "string",
+                        "description": "Tax registration (V_TAX_CODE)"
+                    },
+                    "contact": {
+                        "type": "string",
+                        "description": "Contact person (V_PERSON)"
+                    },
+                    "creditPeriod": {
+                        "type": "number",
+                        "description": "Credit period in days"
+                    },
+                    "inactive": {
+                        "type": "boolean",
+                        "description": "true = disabled"
+                    }
+                },
+                "required": [
+                    "arName"
+                ]
+            },
+            "UpdateSupplierDto": {
+                "type": "object",
+                "properties": {
+                    "arName": {
+                        "type": "string"
+                    },
+                    "enName": {
+                        "type": "string"
+                    },
+                    "phone": {
+                        "type": "string"
+                    },
+                    "mobile": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string"
+                    },
+                    "address": {
+                        "type": "string"
+                    },
+                    "taxCode": {
+                        "type": "string"
+                    },
+                    "contact": {
+                        "type": "string"
+                    },
+                    "creditPeriod": {
+                        "type": "number"
+                    },
+                    "inactive": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "RxLineDto": {
+                "type": "object",
+                "properties": {
+                    "itemCode": {
+                        "type": "string",
+                        "example": "1030020018"
+                    },
+                    "dosage": {
+                        "type": "string",
+                        "example": "قرص كل 8 ساعات"
+                    },
+                    "usageNotes": {
+                        "type": "string",
+                        "example": "بعد الأكل مع كوب ماء"
+                    },
+                    "duration": {
+                        "type": "string",
+                        "example": "7 أيام"
+                    }
+                },
+                "required": [
+                    "itemCode"
+                ]
+            },
+            "CreatePrescriptionDto": {
+                "type": "object",
+                "properties": {
+                    "billNo": {
+                        "type": "string",
+                        "example": "26201300078",
+                        "description": "YSPOS23 BILL_NO"
+                    },
+                    "doctorName": {
+                        "type": "string",
+                        "example": "د. أحمد الحمادي"
+                    },
+                    "patientName": {
+                        "type": "string",
+                        "example": "محمد العباسي"
+                    },
+                    "patientRef": {
+                        "type": "string",
+                        "example": "F-10233"
+                    },
+                    "rxDate": {
+                        "type": "string",
+                        "example": "2026-07-04"
+                    },
+                    "note": {
+                        "type": "string"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/RxLineDto"
+                        }
+                    }
+                },
+                "required": [
+                    "billNo",
+                    "doctorName",
+                    "patientName",
+                    "lines"
+                ]
+            },
             "CreateVoucherDto": {
                 "type": "object",
                 "properties": {
@@ -3525,6 +5368,100 @@
                 },
                 "required": [
                     "overrides"
+                ]
+            },
+            "DefaultEntryDto": {
+                "type": "object",
+                "properties": {
+                    "no": {
+                        "type": "number",
+                        "example": 13,
+                        "description": "STNG_NO (POS_DFLT_STNG_MST)"
+                    },
+                    "value": {
+                        "type": "object",
+                        "description": "New value as text; null reverts to the live YSPOS23 value",
+                        "nullable": true,
+                        "example": "1"
+                    }
+                },
+                "required": [
+                    "no"
+                ]
+            },
+            "UpdateDefaultsDto": {
+                "type": "object",
+                "properties": {
+                    "defaults": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DefaultEntryDto"
+                        }
+                    }
+                },
+                "required": [
+                    "defaults"
+                ]
+            },
+            "TransferLineDto": {
+                "type": "object",
+                "properties": {
+                    "itemCode": {
+                        "type": "string",
+                        "example": "1030020018"
+                    },
+                    "qty": {
+                        "type": "number",
+                        "example": 12
+                    },
+                    "note": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "itemCode",
+                    "qty"
+                ]
+            },
+            "CreateTransferDto": {
+                "type": "object",
+                "properties": {
+                    "fromWarehouse": {
+                        "type": "number",
+                        "example": 1,
+                        "description": "المخزن المطلوب منه (source)"
+                    },
+                    "toWarehouse": {
+                        "type": "number",
+                        "example": 2,
+                        "description": "المخزن الطالب (destination)"
+                    },
+                    "reqSide": {
+                        "type": "string",
+                        "example": "نقطة البيع 3"
+                    },
+                    "purpose": {
+                        "type": "string",
+                        "example": "تعويض نواقص الرف"
+                    },
+                    "refNo": {
+                        "type": "string",
+                        "example": "REF-2026-018"
+                    },
+                    "note": {
+                        "type": "string"
+                    },
+                    "lines": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/TransferLineDto"
+                        }
+                    }
+                },
+                "required": [
+                    "fromWarehouse",
+                    "toWarehouse",
+                    "lines"
                 ]
             },
             "EnqueueSyncDto": {

@@ -6,6 +6,7 @@ import {
   CategoryReportRow,
   ComparisonPeriod,
   ComparisonReport,
+  CustomerGroupReportRow,
   CustomerReportRow,
   DailyReportRow,
   DateRangeFilter,
@@ -18,6 +19,7 @@ import {
   MonthlyReportRow,
   ProfitReportRow,
   ReportsRepository,
+  SalesOrderRow,
   SlowMovingRow,
   TaxReportRow,
   VatDetailedRow,
@@ -344,11 +346,16 @@ export class OracleReportsRepository implements ReportsRepository {
   }
 
   async salesByCategory(
-    filter: DateRangeFilter,
+    filter: DateRangeFilter & { machineNo?: number },
   ): Promise<CategoryReportRow[]> {
     // Filter the range on the MST header; resolve the category through the
     // item master (ITEM_TYPE) -> ITEM_TYPES lookup in the master schema.
+    // Optional machine filter = POSR006's "مبيعات حسب نوع الصنف/الآلة".
     const { where, binds } = this.range(filter, 'm');
+    if (filter.machineNo != null) {
+      where.push('m.MACHINE_NO = :machineNo');
+      binds.machineNo = filter.machineNo;
+    }
     type Row = {
       CATEGORY_NO: number | null;
       CATEGORY_NAME: string | null;
@@ -812,6 +819,123 @@ export class OracleReportsRepository implements ReportsRepository {
       totalQty: Number(r.TOTAL_QTY ?? 0),
       grossAmt: Number(r.GROSS_AMT ?? 0),
       vatAmt: Number(r.VAT_AMT ?? 0),
+    }));
+  }
+
+  /** POSR015 — sales orders read from YSPOS23.SALES_ORDER (read-only). */
+  async salesOrders(
+    filter: DateRangeFilter & { processed?: boolean; limit: number },
+  ): Promise<SalesOrderRow[]> {
+    const where: string[] = ['NVL(o.INACTIVE, 0) = 0'];
+    const binds: Record<string, unknown> = { lim: filter.limit };
+    if (filter.from) {
+      where.push(`o.ORDER_DATE >= TO_DATE(:fromD, 'YYYY-MM-DD')`);
+      binds.fromD = filter.from;
+    }
+    if (filter.to) {
+      where.push(`o.ORDER_DATE < TO_DATE(:toD, 'YYYY-MM-DD') + 1`);
+      binds.toD = filter.to;
+    }
+    if (filter.processed != null) {
+      where.push('NVL(o.PROCESED, 0) = :processed');
+      binds.processed = filter.processed ? 1 : 0;
+    }
+    type Row = {
+      ORDER_NO: number;
+      ORDER_SER: number | null;
+      SO_TYPE: number;
+      ORDER_DAY: string | null;
+      ORDER_TIME: string | null;
+      CUST_CODE: string | null;
+      C_NAME: string | null;
+      ORDER_CUR: string | null;
+      ORDER_AMT: number | null;
+      VAT_AMT: number | null;
+      PROCESED: number | null;
+      MACHINE_NO: number | null;
+    };
+    const rows = await this.oracle.query<Row>(
+      `SELECT * FROM (
+         SELECT o.ORDER_NO                              AS ORDER_NO,
+                o.ORDER_SER                             AS ORDER_SER,
+                o.SO_TYPE                               AS SO_TYPE,
+                TO_CHAR(o.ORDER_DATE, 'YYYY-MM-DD')     AS ORDER_DAY,
+                o.ORDER_TIME                            AS ORDER_TIME,
+                NVL(o.CUST_CODE, o.C_CODE)              AS CUST_CODE,
+                o.C_NAME                                AS C_NAME,
+                o.ORDER_CUR                             AS ORDER_CUR,
+                o.ORDER_AMT                             AS ORDER_AMT,
+                o.VAT_AMT                               AS VAT_AMT,
+                o.PROCESED                              AS PROCESED,
+                o.MACHINE_NO                            AS MACHINE_NO
+         FROM ${this.schema}.SALES_ORDER o
+         WHERE ${where.join(' AND ')}
+         ORDER BY o.ORDER_DATE DESC, o.ORDER_NO DESC
+       ) WHERE ROWNUM <= :lim`,
+      binds as BindParameters,
+    );
+    return rows.map((r) => ({
+      orderNo: Number(r.ORDER_NO),
+      orderSer: r.ORDER_SER == null ? null : Number(r.ORDER_SER),
+      soType: Number(r.SO_TYPE),
+      orderDay: r.ORDER_DAY ?? null,
+      orderTime: r.ORDER_TIME ?? null,
+      custCode: r.CUST_CODE ?? null,
+      customerName: r.C_NAME ?? null,
+      currency: r.ORDER_CUR ?? null,
+      orderAmt: Number(r.ORDER_AMT ?? 0),
+      vatAmt: Number(r.VAT_AMT ?? 0),
+      processed: Number(r.PROCESED ?? 0) === 1,
+      machineNo: r.MACHINE_NO == null ? null : Number(r.MACHINE_NO),
+    }));
+  }
+
+  /**
+   * POSR012 — sales grouped by cash-customer group. Bills resolve their
+   * customer through CUST_CODE (falling back to C_CODE) into
+   * IAS_CASH_CUSTMR -> IAS_CASH_CUSTMR_GRP (master schema). Bills without a
+   * matched customer/group collapse into a NULL bucket (عملاء بلا مجموعة /
+   * walk-in) so the totals always reconcile with the daily report.
+   */
+  async customerGroups(
+    filter: DateRangeFilter,
+  ): Promise<CustomerGroupReportRow[]> {
+    const { where, binds } = this.range(filter, 'm');
+    type Row = {
+      GRP_CODE: string | null;
+      GRP_NAME: string | null;
+      CUSTOMER_COUNT: number;
+      BILL_COUNT: number;
+      TOTAL_AMT: number;
+      TOTAL_VAT: number;
+      TOTAL_DISC: number;
+    };
+    const rows = await this.oracle.query<Row>(
+      `SELECT TO_CHAR(g.CUST_GRP_CODE)                    AS GRP_CODE,
+              MAX(NVL(g.CUST_GRP_L_NM, g.CUST_GRP_F_NM)) AS GRP_NAME,
+              COUNT(DISTINCT NVL(m.CUST_CODE, m.C_CODE)) AS CUSTOMER_COUNT,
+              COUNT(*)                                   AS BILL_COUNT,
+              SUM(m.BILL_AMT)                            AS TOTAL_AMT,
+              SUM(NVL(m.VAT_AMT, 0))                     AS TOTAL_VAT,
+              SUM(NVL(m.DISC_AMT, 0))                    AS TOTAL_DISC
+       FROM ${this.schema}.IAS_POS_BILL_MST m
+       LEFT JOIN ${this.masterSchema}.IAS_CASH_CUSTMR c
+              ON TO_CHAR(c.CUST_CODE) = NVL(m.CUST_CODE, m.C_CODE)
+       LEFT JOIN ${this.masterSchema}.IAS_CASH_CUSTMR_GRP g
+              ON g.CUST_GRP_CODE = c.CUST_GRP_CODE
+       WHERE ${where.join(' AND ')}
+       GROUP BY g.CUST_GRP_CODE
+       ORDER BY SUM(m.BILL_AMT) DESC`,
+      binds as BindParameters,
+    );
+    return rows.map((r) => ({
+      groupCode: r.GRP_CODE,
+      groupName: r.GRP_NAME,
+      customerCount: Number(r.CUSTOMER_COUNT ?? 0),
+      billCount: Number(r.BILL_COUNT),
+      totalAmt: Number(r.TOTAL_AMT ?? 0),
+      totalVat: Number(r.TOTAL_VAT ?? 0),
+      totalDisc: Number(r.TOTAL_DISC ?? 0),
     }));
   }
 }

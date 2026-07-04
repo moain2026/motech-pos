@@ -58,9 +58,14 @@ export class ReportsService {
     return this.repo.discountReport(filter);
   }
 
-  /** Sales grouped by item category. */
-  salesByCategory(filter: DateRangeFilter) {
+  /** Sales grouped by item category (optional machine cut — POSR006). */
+  salesByCategory(filter: DateRangeFilter & { machineNo?: number }) {
     return this.repo.salesByCategory(filter);
+  }
+
+  /** POSR012 — sales grouped by customer group. */
+  customerGroups(filter: DateRangeFilter) {
+    return this.repo.customerGroups(filter);
   }
 
   /** Z-report: full close summary for a range/machine. */
@@ -103,6 +108,13 @@ export class ReportsService {
     return this.repo.vatDetailed(filter);
   }
 
+  /** POSR015 — sales orders (YSPOS23.SALES_ORDER). */
+  salesOrders(
+    filter: DateRangeFilter & { processed?: boolean; limit: number },
+  ) {
+    return this.repo.salesOrders(filter);
+  }
+
   //==========================================================================
   // MOTECH_POS reports (our own recorded sales)
   //==========================================================================
@@ -120,5 +132,44 @@ export class ReportsService {
   /** Returns aggregation. */
   returnsReport(filter: PosReportFilter) {
     return this.pos.returns(filter);
+  }
+
+  //==========================================================================
+  // Wave F — POSR completions
+  //==========================================================================
+
+  /** POSR004 — sales aggregated shift-by-shift. */
+  byShift(filter: PosReportFilter & { cashierNo?: number }) {
+    return this.pos.byShift(filter);
+  }
+
+  /** POSR014 — historical shifts + reconciliation deltas. */
+  shiftsHistory(filter: PosReportFilter & { status?: string }) {
+    return this.pos.shiftsHistory(filter);
+  }
+
+  /** POSR002 — full statement of one cash customer. */
+  customerStatement(filter: PosReportFilter & { customerCode: string }) {
+    return this.pos.customerStatement(filter);
+  }
+
+  /** POSR008 — receivables per customer. */
+  receivables() {
+    return this.pos.receivables();
+  }
+
+  /** POSR009/POSR016 — voucher aggregates. */
+  vouchersSummary(filter: PosReportFilter) {
+    return this.pos.vouchersSummary(filter);
+  }
+
+  /** POSR010 — loyalty points for a period. */
+  loyaltyReport(filter: PosReportFilter & { customerCode?: string }) {
+    return this.pos.loyaltyReport(filter);
+  }
+
+  /** POSR011 — returns vs allowed return window. */
+  returnsWindow(filter: PosReportFilter) {
+    return this.pos.returnsWindow(filter);
   }
 }

@@ -212,6 +212,33 @@ export interface VatDetailedRow {
  * joined with the IAS202623 item master for Arabic names. STRICTLY read-only
  * (served by the MOTECH_RO connection). No INSERT/UPDATE/DELETE.
  */
+/** POSR012 — sales grouped by customer group (IAS_CASH_CUSTMR_GRP). */
+export interface CustomerGroupReportRow {
+  groupCode: string | null;
+  groupName: string | null;
+  customerCount: number;
+  billCount: number;
+  totalAmt: number;
+  totalVat: number;
+  totalDisc: number;
+}
+
+/** POSR015 — one sales order (SALES_ORDER header, read-only). */
+export interface SalesOrderRow {
+  orderNo: number;
+  orderSer: number | null;
+  soType: number;
+  orderDay: string | null;
+  orderTime: string | null;
+  custCode: string | null;
+  customerName: string | null;
+  currency: string | null;
+  orderAmt: number;
+  vatAmt: number;
+  processed: boolean;
+  machineNo: number | null;
+}
+
 export interface ReportsRepository {
   /** Daily sales aggregation (COUNT bills, SUM amt/vat/disc) by day. */
   daily(filter: DateRangeFilter): Promise<DailyReportRow[]>;
@@ -240,7 +267,9 @@ export interface ReportsRepository {
   discountReport(filter: DateRangeFilter): Promise<DiscountReportRow[]>;
 
   /** Sales grouped by item category (ITEM_TYPES). */
-  salesByCategory(filter: DateRangeFilter): Promise<CategoryReportRow[]>;
+  salesByCategory(
+    filter: DateRangeFilter & { machineNo?: number },
+  ): Promise<CategoryReportRow[]>;
 
   /** Z-report: full close summary + payment breakdown for a range/machine. */
   zReport(
@@ -277,4 +306,12 @@ export interface ReportsRepository {
 
   /** Detailed VAT report grouped by effective VAT rate x item category. */
   vatDetailed(filter: DateRangeFilter): Promise<VatDetailedRow[]>;
+
+  /** POSR015 — sales orders (YSPOS23.SALES_ORDER, read-only). */
+  salesOrders(
+    filter: DateRangeFilter & { processed?: boolean; limit: number },
+  ): Promise<SalesOrderRow[]>;
+
+  /** POSR012 — sales grouped by customer group (cash-customer groups). */
+  customerGroups(filter: DateRangeFilter): Promise<CustomerGroupReportRow[]>;
 }
