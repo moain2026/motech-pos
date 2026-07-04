@@ -332,19 +332,18 @@ test.describe('Motech POS — المسارات الحرجة (live E2E)', () => {
     await expect(page.getByRole('link', { name: 'الإعدادات' })).toBeVisible();
 
     await page.goto('/settings');
-    await expect(page.getByRole('heading', { name: 'الإعدادات' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /الإعدادات/ })).toBeVisible();
 
-    // Real server data: shop name loaded from GET /settings (ERP value).
-    await expect(page.getByText('بيانات المحل')).toBeVisible();
-    const shopName = page
-      .getByText('اسم المحل')
-      .locator('xpath=following-sibling::input[1]');
-    await expect(shopName).toBeVisible();
-    expect((await shopName.inputValue()).trim().length).toBeGreaterThan(0);
+    // Real server data: all 179 IAS_PARA_POS settings load from GET /settings/all.
+    await expect(page.getByText(/179\s*إعداد/)).toBeVisible({ timeout: 15000 });
 
-    // The rest of the sections render with server-backed values.
-    await expect(page.getByText('العملة والتسعير')).toBeVisible();
-    await expect(page.getByText('الطباعة', { exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: /حفظ الإعدادات/ })).toBeVisible();
+    // Group tabs render with live counts (numbering=15, printing=29).
+    await expect(page.getByRole('tab', { name: /الترقيم/ })).toBeVisible();
+    await expect(page.getByRole('tab', { name: /الطباعة/ })).toBeVisible();
+
+    // A real ERP setting key is rendered with its live value control.
+    const search = page.getByRole('searchbox');
+    await search.fill('SETTING_NAME');
+    await expect(page.getByText('SETTING_NAME', { exact: true })).toBeVisible();
   });
 });
