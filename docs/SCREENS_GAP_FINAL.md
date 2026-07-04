@@ -30,11 +30,11 @@
 | POST016 | قارئ الأسعار | استعلام سعر+صورة+كمية بالباركود للزبون | ✅ | ✅ `items/barcode/{bc}`, `items/{code}` | ✅ PriceCheckPage | P0 | مكتملة. (تحسين: وضع kiosk بملء الشاشة + صورة الصنف) |
 | POST017 | استعراض حركة الفواتير | استعراض حركة المبيعات والمردودات بفلاتر | ✅ | ✅ `GET /bills` (فلاتر) + `GET /returns` | ✅ BillsPage + ReturnsPage | P1 | مكتملة |
 | POST018 | جرد الآلات | جرد بجهاز جرد + مطابقة (IAS_POS_AUD_ITEM) | ✅ | ✅ `POST /inventory/counts` + `/:id/lines` + `/:id/post` + `GET` قائمة/تفاصيل (V015: STOCK_COUNTS/LINES، فرق = عدّ − نظام من MV_ITEM_AVL_QTY، اعتماد supervisor/admin idempotent) | ❌ | P2 | backend مكتمل — تبقى شاشة الجرد في الواجهة |
-| POST019 | طلب صرف/تحويل مواد | طلب تحويل مخزني من نقطة البيع للمخزن | ❌ | ❌ | ❌ | P2 | `POST /transfer-requests` + شاشة طلب (يُرحّل للأونكس عبر sync) |
+| POST019 | طلب صرف/تحويل مواد | طلب تحويل مخزني من نقطة البيع للمخزن | 🟡 | ✅ `POST/GET /transfers` + `/:id` + `/:id/cancel` (V018: MATERIAL_TRANSFERS/LINES — مخازن مُتحقّقة حياً من YSPOS23، snapshot توفر المصدر من MV_ITEM_AVL_QTY، OPEN→CANCELLED) | ❌ | P2 | backend مكتمل — يتبقى واجهة + ترحيل للأونكس عبر sync عند توفر الربط |
 | POST020 | ربط الفاتورة بعميل نقاطي | ربط فاتورة سابقة بعميل واحتساب نقاطها | 🟡 | ✅ earn تلقائي عند البيع (loyalty.earnOnSale) | ✅ CustomerAttach أثناء البيع | P1 | **ناقص:** الربط **بأثر رجعي** لفاتورة مرحّلة بلا عميل (`POST /bills/{id}/attach-customer`) — هذا جوهر الشاشة الأصلية |
 | POST021 | استعراض حركة النقاط | سجل حركة النقاط لكل العملاء + الانتهاء | ✅ | ✅ `loyalty/customers/{code}/ledger` + `loyalty/summary` | ✅ تبويب "حركة النقاط" في CustomersPage: رصيد + سجل كامل برصيد جارٍ لكل حركة (2026-07-04) | P1 | مكتملة الجوهر (تحسين: صفحة إجماليات لكل العملاء من loyalty/summary) |
 | POST022 | جرد أصناف مردود المبيعات | مطابقة الكمية المردودة فعلياً مع المسجلة | ❌ | ❌ | ❌ | P2 | جلسة جرد مردودات مصغّرة + تقرير فروقات |
-| POST023 | الوصفة الطبية | إدخال وصفة (Wasfaty) وربطها بالفاتورة | ❌ | ❌ | ❌ | P2 | خاص بالصيدليات — يُبنى فقط إن كان نشاط العميل صيدلية |
+| POST023 | الوصفة الطبية | إدخال وصفة (Wasfaty) وربطها بالفاتورة | 🟡 | ✅ `POST/GET /prescriptions` + `/:id` + `bill/:billNo/items` (V017: PRESCRIPTIONS/LINES — طبيب+مريض+جرعة/استخدام/مدة لكل صنف، فاتورة مُتحقّقة حياً والأصناف يجب أن تكون عليها) | ❌ | P2 | backend مكتمل — يتبقى واجهة (صيدليات فقط) |
 | POST024 | طلبات العملاء | أوامر بيع تُنزَّل لاحقاً في فاتورة | ❌ | ❌ | ❌ | P2 | module sales-orders (إنشاء/تعديل/إنزال في فاتورة) — شاشة كبيرة (29 block) |
 | POST025 | المقبوضات | سندات قبض نقدية يستلمها الكاشير | ✅ | ✅ `POST /vouchers` (RECEIPT) | ✅ VouchersPage + VoucherDialog | P1 | مكتملة — وتدخل في تصفية الوردية (voucher-cash-totals) |
 | POST026 | المصروفات | سندات صرف نقدية من الصندوق | ✅ | ✅ `POST /vouchers` (EXPENSE) | ✅ VouchersPage + VoucherDialog | P1 | مكتملة |
@@ -50,28 +50,28 @@
 
 ## 2) تقارير — POSR (16 شاشة)
 
-> المبني فعلياً: **19 endpoint تقارير** (`daily, monthly, by-item, by-machine, by-cashier, payment-methods, returns, tax, hourly-sales, z-report, top-customers, discount, sales-by-category` + الجديدة 2026-07-03: `slow-moving, profit, comparison, item-movement, audit, vat-detailed`) + ReportsPage بـ13 تبويباً (التبويبات الست الجديدة لم تُربط بالواجهة بعد).
+> المبني فعلياً: **29 endpoint تقارير** (`daily, monthly, by-item, by-machine, by-cashier, payment-methods, returns, tax, hourly-sales, z-report, top-customers, discount, sales-by-category` + 2026-07-03: `slow-moving, profit, comparison, item-movement, audit, vat-detailed` + **الموجة F 2026-07-04**: `by-shift, shifts-history, customer-statement, receivables, vouchers-summary, loyalty, returns-window, sales-orders, customer-groups, export(CSV)`) + ReportsPage بـ19 تبويباً (تبويبات الموجة F لم تُربط بالواجهة بعد).
 
 | الشاشة | الوظيفة الدقيقة (من الجداول/SQL) | الحالة | Backend | Frontend | أولوية | المطلوب |
 |---|---|:---:|---|---|:---:|---|
 | POSR001 | تقرير الوردية/اليومية (Z-report — POS_WRK_SHFT_CSHR + عملاء نقديون) | ✅ | ✅ `reports/z-report` + daily | ✅ تبويبا zReport/daily | **P0** | مكتمل الجوهر. (تحسين: طباعة Z-report حرارية) |
-| POSR002 | تقرير العملاء النقديين (مبيعات/أرصدة IAS_CASH_CUSTMR) | 🟡 | 🟡 `top-customers` فقط | ✅ تبويب topCustomers | P1 | تقرير كشف عميل كامل (فواتيره/مردوداته/نقاطه لفترة) |
-| POSR003 | تقارير بقوالب مستخدم (S_RPRT_USR_TMPLT) | ❌ | ❌ | ❌ | P2 | آلية قوالب تقارير قابلة للحفظ — رفاهية، أو تُستبدل بتصدير CSV |
-| POSR004 | تقرير ورديات الكاشيرات (تفصيلي بالوردية) | 🟡 | 🟡 `by-cashier` (بالكاشير لا بالوردية) | ✅ تبويب byCashier | P1 | فلتر/تجميع بالوردية (shift-by-shift) + الفرق النقدي لكل وردية |
+| POSR002 | تقرير العملاء النقديين (مبيعات/أرصدة IAS_CASH_CUSTMR) | ✅ | ✅ `reports/customer-statement` (فواتير/مردودات/نقاط/تحصيلات + إجماليات وذمة) + `top-customers` (2026-07-04) | 🟡 تبويب topCustomers فقط | P1 | تبويب واجهة لكشف العميل |
+| POSR003 | تقارير بقوالب مستخدم (S_RPRT_USR_TMPLT) | ✅ | ✅ `reports/export?report=…` تصدير CSV لأي تقرير مسطّح (17 تقريراً) — البديل المقرَّر للقوالب (2026-07-04) | ❌ | P2 | زر تصدير في الواجهة |
+| POSR004 | تقرير ورديات الكاشيرات (تفصيلي بالوردية) | ✅ | ✅ `reports/by-shift` (وردية-بوردية + الفرق النقدي لكل وردية + فلتر cashier/shift) + `by-cashier` (2026-07-04) | 🟡 تبويب byCashier فقط | P1 | تبويب by-shift في الواجهة |
 | POSR005 | تقرير الفواتير المحذوفة/المعلقة تاريخياً (AUDIT_DEL_ITM, HST_HUNG) | ✅ | ✅ `reports/audit` (IAS_POS_AUD_ITEM حي: 4,115 سطراً محذوفاً + اسم المستخدم العربي + AUD_DATE + fromHungBill) | ✅ تبويب "سجل الحذف" في ReportsPage (2026-07-04) | P1 | مكتملة |
-| POSR006 | تقرير مبيعات حسب نوع الصنف/الآلة (ITEM_TYPES) | 🟡 | ✅ `sales-by-category` | ✅ تبويب salesByCategory | P2 | مطابقة التصنيف مع أنواع أصناف Onyx (ITEM_TYPES) إن اختلف |
+| POSR006 | تقرير مبيعات حسب نوع الصنف/الآلة (ITEM_TYPES) | ✅ | ✅ `sales-by-category?machine=` — نوع الصنف × الآلة (التصنيف من ITEM_TYPES الحيّة أصلاً) (2026-07-04) | ✅ تبويب salesByCategory | P2 | فلتر machine في الواجهة |
 | POSR007 | تقرير نشاط الأصناف بصلاحيات الفروع (IAS_ITEMS_ACTIVITY) | ✅ | ✅ `reports/item-movement` و`reports/slow-moving` — فرع واحد | ✅ تبويبا "حركة صنف" و"الأصناف الراكدة" في ReportsPage (2026-07-04) | P2 | تعدد الفروع يبقى في Onyx |
-| POSR008 | تقرير عملاء/ذمم AR (IAS_PARA_AR, CUSTOMER) | ❌ | ❌ | ❌ | P2 | كشف ذمم آجلة — يبقى غالباً في Onyx |
-| POSR009 | تقرير الآلات/السندات بالعملات (IAS_POS_MACHINE, VAOUCHER, EX_RATE) | 🟡 | ✅ `by-machine` + vouchers list | ✅ تبويب byMachine + VouchersPage | P2 | دمج السندات بالعملات في تقرير الآلة |
-| POSR010 | تقرير نقاط الولاء (IAS_POINT_TYP_MST) | ❌ | ❌ (رصيد فردي فقط) | ❌ | P1 | `reports/loyalty` (نقاط مكتسبة/مستبدلة/منتهية لفترة) + تبويب |
-| POSR011 | تقرير المردودات والدفع النقدي للمرتجعات (PRD_BACK_HOUR) | 🟡 | ✅ `reports/returns` | ✅ تبويب returns | P1 | إضافة بُعد "مرتجعات خارج المهلة/بلا فاتورة" إن فُعّل |
-| POSR012 | تقرير مجموعات العملاء/المناديب/المناطق (CUSTMR_GRP, SALES_MAN) | ❌ | ❌ | ❌ | P2 | يتطلب أولاً بناء مجموعات العملاء (POSI009) |
+| POSR008 | تقرير عملاء/ذمم AR (IAS_PARA_AR, CUSTOMER) | ✅ | ✅ `reports/receivables` — ذمم آجلة لكل عميل (آجل/محصَّل/متبقٍ/آخر حركة) من PAYMENTS(CREDIT)+CREDIT_COLLECTIONS (2026-07-04). ذمم Onyx التاريخية تبقى في Onyx | ❌ | P2 | تبويب واجهة |
+| POSR009 | تقرير الآلات/السندات بالعملات (IAS_POS_MACHINE, VAOUCHER, EX_RATE) | ✅ | ✅ `reports/vouchers-summary` — سندات مجمّعة آلة×نوع×طريقة×عملة + صافي أثر نقدي (2026-07-04) + `by-machine` | 🟡 byMachine + VouchersPage | P2 | تبويب الملخّص في الواجهة |
+| POSR010 | تقرير نقاط الولاء (IAS_POINT_TYP_MST) | ✅ | ✅ `reports/loyalty` — نقاط الفترة بنوع الحركة (كسب/استبدال/انتهاء/تسوية) + لكل عميل + فلاتر (2026-07-04) | ❌ | P1 | تبويب واجهة |
+| POSR011 | تقرير المردودات والدفع النقدي للمرتجعات (PRD_BACK_HOUR) | ✅ | ✅ `reports/returns-window` — كل مرتجع مع ساعات التأخير عن الفاتورة الأصلية وwithinWindow مقابل PRD_BACK_HOUR (غير مفعّل حالياً = null) + `reports/returns` (2026-07-04) | 🟡 تبويب returns فقط | P1 | تبويب واجهة |
+| POSR012 | تقرير مجموعات العملاء/المناديب/المناطق (CUSTMR_GRP, SALES_MAN) | ✅ | ✅ `reports/customer-groups` — مبيعات بمجموعة العميل (IAS_CASH_CUSTMR_GRP فارغة حالياً → دلو NULL يجمع الكل؛ يتفعّل تلقائياً مع POSI009) (2026-07-04) | ❌ | P2 | بذر المجموعات (POSI009) + تبويب |
 | POSR013 | تقرير مبيعات الأصناف (IAS_ITM_MST تفصيلي) | ✅ | ✅ `by-item` + `discount` + `profit` + `comparison` | ✅ 4 تبويبات: byItem/discount + "الأرباح" و"مقارنة فترتين" (2026-07-04) | P1 | مكتمل |
-| POSR014 | تقرير الورديات والتصفية (POS_WRK_SHFT_CSHR, CASHER) | 🟡 | ✅ `z-report` + `shifts/{id}/summary` | ✅ ReconciliationPage | P1 | قائمة ورديات تاريخية (كل الورديات المقفلة + فروقها) — الحالي وردية حالية فقط |
-| POSR015 | تقرير أوامر البيع (SALES_ORDER) | ❌ | ❌ | ❌ | P2 | يتطلب أولاً POST024 |
-| POSR016 | تقرير السندات/الحسابات (ACCOUNT, PRIV_ACC) | 🟡 | ✅ `GET /vouchers` (فلاتر: وردية/نوع/كاشير/تاريخ) | ✅ VouchersPage | P2 | تقرير سندات مجمّع لفترة (إجماليات) داخل ReportsPage |
+| POSR014 | تقرير الورديات والتصفية (POS_WRK_SHFT_CSHR, CASHER) | ✅ | ✅ `reports/shifts-history` — كل الورديات التاريخية بفروقها (متوقع/فعلي/معدود/فرق التصفية + سندات قبض/صرف لكل وردية، فلتر status) + `z-report` + `shifts/{id}/summary` (2026-07-04) | 🟡 ReconciliationPage (وردية حالية) | P1 | تبويب القائمة التاريخية |
+| POSR015 | تقرير أوامر البيع (SALES_ORDER) | ✅ | ✅ `reports/sales-orders` — قراءة أوامر البيع من YSPOS23.SALES_ORDER (فلتر processed/مدى) (2026-07-04). إنشاء الأوامر (POST024) يبقى مستقلاً | ❌ | P2 | POST024 للإنشاء + تبويب |
+| POSR016 | تقرير السندات/الحسابات (ACCOUNT, PRIV_ACC) | ✅ | ✅ `reports/vouchers-summary` (إجماليات لفترة/وردية) + `GET /vouchers` (2026-07-04) | 🟡 VouchersPage | P2 | تبويب الملخّص |
 
-**POSR: ✅ 4 · 🟡 7 · ❌ 5** _(2026-07-04: التبويبات الست رُبطت بـReportsPage — POSR005/POSR007 صارتا ✅، وvat-detailed تبويب حي)_
+**POSR: ✅ 16 · 🟡 0 · ❌ 0 (backend)** _(2026-07-04 الموجة F: اكتمل backend كل تقارير POSR الـ16 — أُضيفت by-shift/shifts-history/customer-statement/receivables/vouchers-summary/loyalty/returns-window/sales-orders/customer-groups/export-CSV + فلتر machine في sales-by-category. المتبقي: ربط تبويبات الواجهة. كما أُصلح باغ P1: توحيد معادلة expected-cash بين close وreconciliation — السندات تُحتسب في المكانين)_
 
 ---
 
@@ -106,8 +106,8 @@
 | POSS001 | متغيرات وإعدادات نقاط البيع | متغيرات النظام العامة (IAS_PARA_POS) | 🟡 | ✅ `GET/PUT/POST /settings` + `machine/{no}` | ✅ SettingsPage (overrides) | **P0** | **ناقص:** تغطية كل المتغيرات المؤثرة (فحص الكمية، مهلة الإرجاع PRD_BACK_HOUR، تفعيل الشاشات الاختيارية…) — الحالي مجموعة جزئية |
 | POSS002 | صلاحيات المستخدمين | صلاحيات تفصيلية للشاشات/العمليات | 🟡 | ✅ `GET/PUT /admin/permissions` — مصفوفة role×permission (36 مدخلاً) | ✅ تبويب "الصلاحيات" في AdminPage: مصفوفة checkboxes 12×3 + حفظ ذري للفروقات (2026-07-04) | P1 | المتبقي: فرض المصفوفة ديناميكياً في حراس الـbackend (الحالي RBAC ثابت) |
 | POSS003 | النسخ الاحتياطية | نسخ احتياطي لقاعدة البيانات | ❌ | — (ops: pg_dump/cron خارج التطبيق) | ❌ | P2 | job نسخ مجدول + زر/حالة في AdminPage (أو يُوثَّق كإجراء تشغيلي) |
-| POSS004 | تغيير كلمة السر | المستخدم يغيّر كلمته | ❌ | ❌ لا endpoint | ❌ | P1 | `POST /auth/change-password` + نموذج بسيط — **جهد ساعة** |
-| POSS005 | الإعدادات الافتراضية | افتراضيات على مستوى النظام/النقطة | 🟡 | ✅ defaults + machine overrides في settings | ✅ SettingsPage | P2 | التحقق من تغطية (مستوى سعر افتراضي، عملة، مخزن افتراضي) |
+| POSS004 | تغيير كلمة السر | المستخدم يغيّر كلمته | 🟡 | ✅ `POST /auth/change-password` (تحقق القديمة + bcrypt-12 + كتابة ذرّية لـ auth-users.json تنجو من restart) | ❌ | P1 | backend مكتمل ومُثبت حياً — يتبقى نموذج واجهة بسيط |
+| POSS005 | الإعدادات الافتراضية | افتراضيات على مستوى النظام/النقطة | 🟡 | ✅ `GET/PUT /settings/defaults` (قيم POS_DFLT_STNG_MST الحية + overlay `default.<no>`، value/liveValue/overridden، admin-only للكتابة، STNG_NO مُتحقّق) + machine overrides | ✅ SettingsPage | P2 | backend مكتمل — يتبقى تبويب defaults في الواجهة |
 | POSS006 | تسجيل أجهزة WMS | ربط أجهزة مستودعات خارجية | ❌ | ❌ | ❌ | P2 | خاص بتكامل WMS قديم — غالباً N/A |
 | POSS007 | إعداد اتصال WMS للمستخدم | إعدادات اتصال WMS | ❌ | ❌ | ❌ | P2 | N/A مثل POSS006 |
 | POSS028 | تسجيل أجهزة WMS (نسخة) | نسخة مطابقة لـ POSS006 | ❌ | ❌ | ❌ | P2 | N/A (نسخة مكررة من POSS006) |
@@ -143,7 +143,7 @@
 | الفئة | العدد | ✅ كاملة | 🟡 جزئية | ❌ غير مبنية |
 |---|:---:|:---:|:---:|:---:|
 | حركات POST | 30 | **12** | 10 | 8 |
-| تقارير POSR | 16 | **4** | 7 | 5 |
+| تقارير POSR | 16 | **5** | 11 | 0 |
 | إدخال POSI | 15 | **4** | 3 | 8 |
 | إعدادات POSS | 9 | **0** | 3 | 6 |
 | أخرى | 10 | **3** | 2 | 5 |
@@ -191,7 +191,7 @@
 | 17 | POSI001 | 🟡 | ✅ backend CRUD جاهز (POST/PUT machines) — يتبقى واجهة + تصريح أجهزة |
 | 18 | POSI2000 | 🟡 | ~~وحدات/باركودات متعددة + مستويات أسعار~~ ✅ backend (units/prices/categories) — يتبقى UI |
 | 19 | POSI002+003 | ❌ | تكوين لوحات المفاتيح اللمسية وربط ItemGrid بها |
-| 20 | POSS004 | ❌ | تغيير كلمة السر (جهد ساعة) |
+| 20 | POSS004 | 🟡 | ✅ backend `POST /auth/change-password` جاهز ومُثبت — يتبقى نموذج واجهة |
 | 21 | POSS002 | 🟡 | ✅ backend مصفوفة صلاحيات جاهزة (GET/PUT /admin/permissions) — يتبقى واجهة + فرض ديناميكي |
 | 22 | POSR005 | 🟡 | ✅ backend `reports/audit` جاهز (أسطر محذوفة + مستخدم + وقت) — يتبقى تبويب واجهة |
 | 23 | POSR010 | ❌ | تقرير نقاط الولاء لفترة |
@@ -203,15 +203,15 @@
 | الشاشات | الناقص |
 |---|---|
 | POST018, POST022 | جرد الآلات وجرد المردودات |
-| POST019, POST028, POST029 | طلبات وتحويلات واستلام مخزني |
-| POST023 | الوصفة الطبية (صيدليات فقط) |
+| POST019 | ✅ backend جاهز (`/transfers`) — يتبقى POST028/POST029 (تنفيذ التحويل والاستلام) + واجهة |
+| POST023 | ✅ backend جاهز (`/prescriptions`) — يتبقى واجهة (صيدليات فقط) |
 | POST024 + POSR015 | أوامر البيع + تقريرها |
 | POST009 | دمج إحصاءات الآلة في بطاقة واحدة |
 | POSTIN_MTX, POST_WST | قيود JV/خدمي — يبقى في Onyx / N/A |
 | POSR003, POSR006, POSR007, POSR008, POSR009, POSR012, POSR016 | قوالب تقارير، أنشطة أصناف، ذمم، مجموعات/مناديب، سندات مجمّعة |
 | POSI004, POSI005, POSI006, POSI009, POSI012, POSI200 | مفاتيح مساعدة، موازين، مجموعات عملاء، أنواع بطاقات، أرصدة بطاقات |
 | POSI014, POS_INSTALL | **N/A** — migrations/seed تحل محلهما (توثيق فقط) |
-| POSS003, POSS005 | نسخ احتياطي (ops) + تدقيق الافتراضيات |
+| POSS003 | نسخ احتياطي (ops) — POSS005 ✅ backend defaults جاهز |
 | POSS006/007/028/029 | **N/A** — تكامل WMS قديم (4 شاشات) |
 | POSADVS, POSADVS2 | تغطيها PosPage (skin/ملء شاشة فقط) |
 | POS_ALRT_SCR, POS_IMPXLS_AVLQTY | تنبيهات دخول + استيراد Excel |

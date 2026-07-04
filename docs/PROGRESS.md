@@ -1,6 +1,32 @@
 # 📈 سجل تقدّم Motech POS
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
+## 2026-07-04 (الموجة G — POSS مكتملة + حركات POST متقدّمة) — subagent waveG-poss-post
+### 4 إنجازات حيّة مُثبتة (كلها curl حي + DB proof + commit منفصل):
+
+**1. تغيير كلمة السر (POSS004) ✅**
+- `POST /api/v1/auth/change-password` — تحقّق الكلمة الحالية (bcrypt مقارنة ثابتة الزمن، لا تعداد مستخدمين)، رفض إعادة نفس الكلمة (422 `password-reuse`)، تخزين bcrypt cost 12، كتابة ذرّية (tmp+rename، 0600، writes مُسلسلة) لـ `auth-users.json`.
+- **proof حي:** تغيير → دخول بالقديمة **401** + بالجديدة **200** → `pm2 restart` → الجديدة ما زالت تعمل (الديمومة مُثبتة) → أرجعنا الأصلية. حراس: قديمة خاطئة 401 · إعادة استخدام 422 · قصيرة (<8) 400 · بلا توكن 401. hash في الملف `$2b$12$` ✓
+
+**2. الوصفة الطبية (POST023) ✅** — module `prescriptions` + migration **V017** (PRESCRIPTIONS + PRESCRIPTION_LINES، مُطبّق حياً + GRANT لـMOTECH_RW)
+- `POST /prescriptions` — طبيب+مريض+تاريخ+ملاحظة عامة + أسطر (جرعة/طريقة استخدام/مدة لكل صنف) مربوطة بفاتورة بيع موجودة: الفاتورة تُتحقّق حياً من YSPOS23 (404 `prescription-bill-not-found`) وكل صنف يجب أن يكون على الفاتورة (422 `prescription-item-not-on-bill`)، الكمية + الاسم العربي snapshot من الفاتورة (لا من العميل). header+lines في معاملة واحدة.
+- `GET /prescriptions` (فلاتر billNo/patient) + `GET /prescriptions/:id` + `GET /prescriptions/bill/:billNo/items` (تعبئة مسبقة لشاشة التعليمات).
+- **proof حي (فاتورة 26201300078 حقيقية):** items بأسماء عربية → **201** (سطران مُعلّقان، qty snapshot 1و2) → GET يرجع الجرعات → فلاتر تعمل → حراس 404/422/400/401 RFC9457 → الصفوف في MOTECH_POS فقط ✓
+
+**3. طلب التحويل (POST019) ✅** — module `transfers` + migration **V018** (MATERIAL_TRANSFERS + LINES + SEQ_TRANSFER_NO، مُطبّق حياً)
+- `POST /transfers` — طلب بضاعة من مخزن مصدر إلى مخزن طالب (محاكاة IAS_OUT_REQUEST_MST/DTL): المخزنان يُتحقّقان حياً من WAREHOUSE_DETAILS (404)، مصدر≠وجهة (422 + CHECK في DB)، snapshot توفر المصدر لكل سطر من MV_ITEM_AVL_QTY + الاسم العربي. REQ_NO تسلسلي. الطلب لا يحجز/يمس المخزون.
+- `GET /transfers` (فلاتر status/warehouse) + `GET /transfers/:id` + `POST /transfers/:id/cancel` (OPEN→CANCELLED محروس، تكراره 409).
+- **proof حي:** 201 (مخزن 1→2 reqNo 1) + (2→1 reqNo 2 بـavl snapshots 29/−321 من الـMV الحي) → cancel 200 (cancelledBy=cashier1) → تكرار 409 `transfer-invalid-state` → حراس 422/404/400/401 → الصفوف في MOTECH_POS فقط ✓
+- **إصلاحان أثناء العمل:** ORA-01745 (`:by` اسم bind محجوز → `:cancelledBy`) · مفتاح meta باسم `status` في DomainError كان يطمس الـHTTP status الرقمي في جسم RFC9457 عبر spread في `problem()` → أُعيد تسميته `currentStatus` (⚠️ درس لكل الوحدات: لا تضع مفتاح `status` في meta لأخطاء الـdomain).
+
+**4. الإعدادات الافتراضية (POSS005) ✅** — توسيع settings الموجود (بلا جدول جديد — overlay `default.<no>` في SETTINGS_OVERLAY من V007)
+- `GET /settings/defaults` — قيم POS_DFLT_STNG_MST الحية مدموجة مع الـoverlay، كل صف مع `value`/`liveValue`/`overridden` (لـUI "يرجع إلى X").
+- `PUT /settings/defaults` — admin فقط (RBAC)، `value:null` يرجع للقيمة الحية، STNG_NO يُتحقّق من القائمة الحية (404 لرقم مجهول — لا مفاتيح يتيمة).
+- **proof حي:** GET → 15 إعداداً حياً → PUT admin {13→9، 2→0} → overrideCount 2 مع liveValue محفوظ → ثابت على إعادة GET → cashier PUT **403** → رقم 999 **404** → revert بـnull → overlay فاضي من مفاتيح default.* → **YSPOS23.POS_DFLT_STNG_MST لم يُمس** (2=1، 13=2 كما كانت) ✓
+
+- build ✅ · pm2 restart ✅ · **200/200 اختبار وحدة** (+19 جديدة: 4 change-password، 5 prescriptions، 6 transfers، 4 settings-defaults) · 4 commits منفصلة · لم تُلمس وحدات الوكلاء الآخرين (reports/shifts/catalog/customers/suppliers/warehouses).
+- ⚠️ ملاحظة تشغيلية: مع وكلاء متوازين حدثت سباقات build/restart (dist ناقص لحظياً — Cannot find module) — الحل دوماً: build كامل ثم restart ثم فحص /health قبل أي proof.
+
 ## 2026-07-03
 ### 6 تقارير تاريخية/متقدمة جديدة (reports 13→19 endpoint) — حيّة ومُختبَرة (subagent waveC-reports)
 كلها READ-ONLY على YSPOS23/IAS202623 (bind variables، schema-qualified، JWT، RFC9457، envelope `{data,meta}`) — نفس نمط الـ13 الموجودة:
