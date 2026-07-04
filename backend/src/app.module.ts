@@ -12,12 +12,15 @@ import { CustomersModule } from './modules/customers/customers.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { EInvoiceModule } from './modules/einvoice/einvoice.module';
 import { LoyaltyModule } from './modules/loyalty/loyalty.module';
+import { MasterDataModule } from './modules/master-data/master-data.module';
+import { SuppliersModule } from './modules/suppliers/suppliers.module';
 import { PrescriptionsModule } from './modules/prescriptions/prescriptions.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ReturnsModule } from './modules/returns/returns.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { ShiftsModule } from './modules/shifts/shifts.module';
 import { SyncModule } from './modules/sync/sync.module';
+import { TransfersModule } from './modules/transfers/transfers.module';
 import { VouchersModule } from './modules/vouchers/vouchers.module';
 
 @Module({
@@ -47,9 +50,12 @@ import { VouchersModule } from './modules/vouchers/vouchers.module';
     InventoryModule,
     AdminModule,
     LoyaltyModule,
+    MasterDataModule,
+    SuppliersModule,
     PrescriptionsModule,
     VouchersModule,
     SettingsModule,
+    TransfersModule,
     EInvoiceModule,
     SyncModule,
   ],
