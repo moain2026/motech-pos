@@ -31,6 +31,8 @@ import { BillsController } from './presentation/bills.controller';
     { provide: HELD_BILL_REPOSITORY, useClass: OracleHeldBillRepository },
     { provide: ITEM_REFERENCE, useClass: OracleItemReferenceRepository },
   ],
-  exports: [BillsService],
+  // PostBillUseCase is exported so SalesOrdersModule (POST024) can convert a
+  // customer order into a REAL bill through the ONE proven sale pipeline.
+  exports: [BillsService, PostBillUseCase],
 })
 export class BillsModule {}

@@ -356,3 +356,38 @@ export class InsufficientCardBalanceError extends DomainError {
   readonly httpStatus = 422;
   readonly title = 'Insufficient prepaid card balance';
 }
+
+/** POST024: the sales order id is unknown. */
+export class SalesOrderNotFoundError extends DomainError {
+  readonly typeSlug = 'sales-order-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Sales order not found';
+}
+
+/** POST024: invalid state transition (convert/cancel a non-OPEN order). */
+export class SalesOrderStateError extends DomainError {
+  readonly typeSlug = 'sales-order-invalid-state';
+  readonly httpStatus = 409;
+  readonly title = 'Invalid sales order state for this action';
+}
+
+/** POST029: the stock receipt id is unknown. */
+export class StockReceiptNotFoundError extends DomainError {
+  readonly typeSlug = 'stock-receipt-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Stock receipt not found';
+}
+
+/** POST029: invalid state transition (post/cancel a non-DRAFT receipt). */
+export class StockReceiptStateError extends DomainError {
+  readonly typeSlug = 'stock-receipt-invalid-state';
+  readonly httpStatus = 409;
+  readonly title = 'Invalid stock receipt state for this action';
+}
+
+/** POST029: a receipt without lines cannot be posted. */
+export class StockReceiptEmptyError extends DomainError {
+  readonly typeSlug = 'stock-receipt-empty';
+  readonly httpStatus = 422;
+  readonly title = 'Stock receipt has no lines to post';
+}

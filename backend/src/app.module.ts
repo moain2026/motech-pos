@@ -18,7 +18,9 @@ import { SuppliersModule } from './modules/suppliers/suppliers.module';
 import { PrescriptionsModule } from './modules/prescriptions/prescriptions.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ReturnsModule } from './modules/returns/returns.module';
+import { SalesOrdersModule } from './modules/sales-orders/sales-orders.module';
 import { SettingsModule } from './modules/settings/settings.module';
+import { StockReceivingModule } from './modules/stock-receiving/stock-receiving.module';
 import { ShiftsModule } from './modules/shifts/shifts.module';
 import { SyncModule } from './modules/sync/sync.module';
 import { TransfersModule } from './modules/transfers/transfers.module';
@@ -56,7 +58,9 @@ import { VouchersModule } from './modules/vouchers/vouchers.module';
     SuppliersModule,
     PrescriptionsModule,
     VouchersModule,
+    SalesOrdersModule,
     SettingsModule,
+    StockReceivingModule,
     TransfersModule,
     EInvoiceModule,
     SyncModule,
