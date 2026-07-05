@@ -145,7 +145,8 @@
     "loyaltyPoints": "نقاط الولاء",
     "methodPoints": "نقاط",
     "methodCoupon": "كوبون",
-    "weightedQty": "وزن"
+    "weightedQty": "وزن",
+    "customerDisplay": "شاشة العميل"
   },
   "bills": {
     "title": "قائمة الفواتير",

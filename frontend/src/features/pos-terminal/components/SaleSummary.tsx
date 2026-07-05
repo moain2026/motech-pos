@@ -13,6 +13,9 @@ import { useCartTotals } from '../hooks/useCartTotals';
 import { usePosSettings } from '../store/pos-settings.store';
 import { CustomerAttach } from './CustomerAttach';
 import { buildReceipt, type ReceiptModel, PrintReceiptButton } from '@/features/print';
+import { publishToDisplay } from '@/features/customer-display';
+import { encodeEInvoiceQr } from '@/shared/einvoice/zatca-tlv';
+import { storeConfigSnapshot } from '@/shared/config/store-config.store';
 import { HeldBillsControls } from './HeldBills';
 import { PaymentDialog } from './PaymentDialog';
 import { EInvoiceDialog } from '@/features/einvoice';
@@ -116,14 +119,23 @@ export function SaleSummary() {
       });
       // Build the receipt from server truth + cart names BEFORE clearing.
       const cartSnapshot: CartLine[] = lines;
-      setReceipt(
-        buildReceipt({
-          bill: { ...bill, payments: paid.payments?.length ? paid.payments : bill.payments },
-          cartLines: cartSnapshot,
-          paidAmount: bill.netAmt,
-        }),
-      );
+      const model = buildReceipt({
+        bill: { ...bill, payments: paid.payments?.length ? paid.payments : bill.payments },
+        cartLines: cartSnapshot,
+        paidAmount: bill.netAmt,
+      });
+      setReceipt(model);
       setDone({ id: bill.id, billNo: bill.billNo, net: bill.netAmt });
+      // Customer display → thank-you screen with amounts + e-invoice QR.
+      publishToDisplay({
+        type: 'sale-done',
+        billNo: bill.billNo,
+        net: bill.netAmt,
+        paid: model.totals.paid,
+        change: model.totals.change,
+        vat: bill.vatAmt,
+        qrPayload: model.qrPayload,
+      });
       clear();
     } catch (e) {
       if (e instanceof ApiError) {
@@ -165,6 +177,8 @@ export function SaleSummary() {
           onClick={() => {
             setDone(null);
             setReceipt(null);
+            // Reset the customer display back to the welcome screen.
+            publishToDisplay({ type: 'new-sale' });
           }}
         >
           {t('pos.newSale')}
@@ -190,8 +204,25 @@ export function SaleSummary() {
           netAmt={payTarget.net}
           customerCode={customer?.code ?? null}
           onClose={() => setPayTarget(null)}
-          onSettled={() => {
+          onSettled={(paidAmt) => {
             setDone({ id: payTarget.id, billNo: payTarget.billNo, net: payTarget.net });
+            // Multi-tender path has no ReceiptModel yet — encode the QR directly.
+            const cfg = storeConfigSnapshot();
+            publishToDisplay({
+              type: 'sale-done',
+              billNo: payTarget.billNo,
+              net: payTarget.net,
+              paid: paidAmt,
+              change: Math.max(0, paidAmt - payTarget.net),
+              vat: totals.vat,
+              qrPayload: encodeEInvoiceQr({
+                sellerName: cfg.storeName,
+                vatNumber: cfg.vatNumber,
+                timestamp: new Date().toISOString(),
+                total: payTarget.net,
+                vat: totals.vat,
+              }),
+            });
             setPayTarget(null);
             clear();
           }}

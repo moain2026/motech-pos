@@ -94,6 +94,11 @@ const ReturnCountsPage = lazy(() =>
 const AlertsAdminPage = lazy(() =>
   import('@/features/alerts').then((m) => ({ default: m.AlertsAdminPage })),
 );
+// Customer-facing display (POSADVS_SCND) — standalone chrome-less window on a
+// second monitor/tablet; it renders only what the cashier broadcasts.
+const CustomerDisplayPage = lazy(() =>
+  import('@/features/customer-display').then((m) => ({ default: m.CustomerDisplayPage })),
+);
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const token = useSession((s) => s.accessToken);
@@ -117,6 +122,10 @@ const ADMIN_ONLY: Role[] = ['admin'];
 
 export const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
+  // Customer display: outside AppLayout (no sidebar/header) — it must fill a
+  // second screen edge-to-edge. Auth-free by design: it holds no data of its
+  // own; everything it shows arrives over the same-origin BroadcastChannel.
+  { path: '/customer-display', element: <Lazy><CustomerDisplayPage /></Lazy> },
   {
     path: '/',
     element: (

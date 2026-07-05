@@ -1,7 +1,11 @@
 import { useTranslation } from 'react-i18next';
-import { ShoppingCart } from 'lucide-react';
+import { MonitorSmartphone, ShoppingCart } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { ShiftBar } from '@/features/shifts/components/ShiftBar';
+import {
+  openCustomerDisplay,
+  useCustomerDisplaySync,
+} from '@/features/customer-display';
 import { ItemGrid } from './ItemGrid';
 import { Cart } from './Cart';
 import { SaleSummary } from './SaleSummary';
@@ -18,6 +22,8 @@ export function PosPage() {
   const qtyCount = useCart((s) => s.lines.reduce((n, l) => n + l.qty, 0));
   // HID barcode scanner → cart (works with no search-box focus).
   const scanFeedback = useScannerToCart();
+  // Mirror the cart live to the customer-facing display (POSADVS_SCND).
+  useCustomerDisplaySync();
 
   return (
     <div className="grid h-full grid-rows-[auto_minmax(0,1fr)] gap-4 p-4">
@@ -51,9 +57,20 @@ export function PosPage() {
               <ShoppingCart className="size-5 text-[var(--color-brand-500)]" aria-hidden />
               {t('pos.cart')}
             </h2>
-            <span className="tnum rounded-full bg-[var(--color-surface-2)] px-2 py-0.5 text-xs">
-              {qtyCount}
-            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={openCustomerDisplay}
+                title={t('pos.customerDisplay')}
+                className="flex items-center gap-1.5 rounded-full bg-[var(--color-surface-2)] px-2.5 py-1 text-xs font-semibold text-[var(--color-muted)] transition-colors hover:bg-[var(--color-brand-500)]/15 hover:text-[var(--color-brand-500)]"
+              >
+                <MonitorSmartphone className="size-4" aria-hidden />
+                {t('pos.customerDisplay')}
+              </button>
+              <span className="tnum rounded-full bg-[var(--color-surface-2)] px-2 py-0.5 text-xs">
+                {qtyCount}
+              </span>
+            </div>
           </div>
           <Cart />
           <SaleSummary />

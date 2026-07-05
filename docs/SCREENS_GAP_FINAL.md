@@ -132,7 +132,7 @@
 | POSQ001 | استعلام | استعلام أسعار الصنف (IAS_POS_ITM_PRICE) | ✅ | ✅ `items/{code}` + `barcode/{bc}` | ✅ PriceCheckPage | P1 | مكتملة (تتقاطع مع POST016) |
 | POSADVS | لمس | شاشة بيع لمسية متقدمة (بديل POST001) | 🟡 | ✅ نفس bills | 🟡 PosPage حديثة لمسية أصلاً | P2 | لا حاجة لنسخة منفصلة — PosPage هي الواجهة اللمسية. يبقى: وضع ملء شاشة/سمات skin |
 | POSADVS2 | لمس | متغيّر ثانٍ من الشاشة اللمسية | ❌ | — | ❌ | P2 | N/A — تغطيها PosPage |
-| POSADVS_SCND | لمس | **شاشة العميل الثانية** (عرض للزبون) | ❌ | ❌ | ❌ | P1 | customer-facing display (نافذة ثانية تعرض الأسطر/الإجمالي/QR) — ميزة ملموسة للمتاجر |
+| POSADVS_SCND | لمس | **شاشة العميل الثانية** (عرض للزبون) | ✅ | — (لا backend — مزامنة BroadcastChannel نفس المتصفح) | ✅ `/customer-display` (features/customer-display): ترحيب + أسطر حيّة (اسم عربي/كمية/سعر/إجمالي سطر) + إجمالي كبير + ضريبة/خصم + شاشة شكر بعد الدفع مع QR الفاتورة الإلكترونية (TLV) — مزامنة لحظية من cart.store عبر BroadcastChannel + late-join handshake + زر «شاشة العميل» في PosPage يفتح نافذة ثانية (2026-07-06 Fable5) | P1 | مكتملة — ميزة تتفوق على Onyx (العرض الأصلي كان سطراً نصياً على قارئ عميل) |
 | POSAVLQTY | خدمي | الكميات المتاحة للصنف عبر المخازن | ✅ | ✅ `inventory` + `/{code}` + `low-stock` | ✅ InventoryPage + DetailDialog | P1 | مكتملة |
 | POS_ALRT_SCR | خدمي | تنبيهات/ملاحظات عند الدخول | ✅ | ✅ `POST/PUT/GET /alerts` + `GET /alerts/pending` (غير المُقرّة للمستخدم الحالي) + `POST /:id/ack` (مرة لكل مستخدم، V026) (2026-07-04 Fable5) | ✅ PendingAlertsBanner (banner تحت الهيدر لكل مستخدم + زر «علمت» ack) + AlertsAdminPage `/alerts` (إنشاء/تفعيل/إيقاف — supervisor/admin) (2026-07-04) | P2 | مكتملة |
 | POS_IMPXLS_AVLQTY | خدمي | استيراد Excel كميات + طباعة باركود | ❌ | ❌ | 🟡 barcode print موجود (print feature) | P2 | استيراد CSV/XLSX للأصناف/الكميات + ربطه بطباعة الباركود القائمة |
@@ -220,7 +220,7 @@
 | 23 | POSR010 | ✅ | تقرير الولاء — backend + تبويب loyalty في ReportsPage (2026-07-04) |
 | 24 | POSR002 | ✅ | كشف حساب عميل + by-shift + shifts-history — backend + تبويبات واجهة (2026-07-04). POSR011 returns-window ✅ تبويب واجهة (2026-07-04) |
 | 25 | POS_ITM_PRICE | ✅ | مستويات الأسعار — endpoints + UI اختيار المستوى في ItemCatalogDialog (2026-07-04) |
-| 26 | POSADVS_SCND | ❌ | شاشة عرض للعميل (نافذة ثانية) |
+| 26 | POSADVS_SCND | ✅ | شاشة عرض للعميل (نافذة ثانية) — `/customer-display` بمزامنة BroadcastChannel حيّة + QR بعد الدفع (2026-07-06) |
 
 ### 🟡 P2 — نادر/إداري/مؤجل (20 ناقصاً)
 | الشاشات | الناقص |
