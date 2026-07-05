@@ -1,0 +1,31 @@
+# Secrets — NEVER commit
+**/.env
+**/.env.local
+**/auth-users.json
+**/*credentials*
+**/*.key
+**/*.dmp
+state/
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# PM2
+.pm2/
