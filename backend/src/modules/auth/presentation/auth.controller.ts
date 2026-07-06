@@ -10,13 +10,18 @@ import {
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../application/auth.service';
+import { PermissionsService } from '../application/permissions.service';
+import { PERMISSION_CODES } from '../domain/permission';
 import { ChangePasswordDto, LoginDto, RefreshDto } from './auth.dto';
 import { AuthenticatedRequest, JwtAuthGuard } from './jwt-auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly auth: AuthService) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly permissions: PermissionsService,
+  ) {}
 
   @Post('login')
   @HttpCode(200)
@@ -45,6 +50,25 @@ export class AuthController {
     }
     const me = await this.auth.me(userId);
     return { data: me };
+  }
+
+  @Get('permissions/me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary:
+      'Effective fine-grained permissions for the current user (POSS002) — for UI gating',
+  })
+  async myPermissions(@Req() req: AuthenticatedRequest) {
+    const role = req.user?.role;
+    if (!role) {
+      throw new UnauthorizedException();
+    }
+    const entries = await Promise.all(
+      PERMISSION_CODES.map(async (p) => [p, await this.permissions.can(role, p)] as const),
+    );
+    const map = Object.fromEntries(entries) as Record<string, boolean>;
+    return { data: { role, permissions: map } };
   }
 
   @Post('change-password')

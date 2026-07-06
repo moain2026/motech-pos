@@ -140,7 +140,11 @@ class FakeWrites implements AdminWriteRepository {
 
 function makeService() {
   const writes = new FakeWrites();
-  const svc = new AdminWriteService(new FakeReads(), writes);
+  // Fake PermissionsService: only invalidate() is exercised by the service.
+  const permissions = { invalidate: () => {} } as unknown as import(
+    '../../src/modules/auth/application/permissions.service'
+  ).PermissionsService;
+  const svc = new AdminWriteService(new FakeReads(), writes, permissions);
   return { svc, writes };
 }
 

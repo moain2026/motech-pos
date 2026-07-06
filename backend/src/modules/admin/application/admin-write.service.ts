@@ -17,6 +17,7 @@ import {
   RolePermission,
   UserOverlayRow,
 } from '../domain/ports/admin-write-repository.port';
+import { PermissionsService } from '../../auth/application/permissions.service';
 
 /** A user as surfaced by the admin API: ERP row merged with local overlay. */
 export interface MergedUser extends UserRow {
@@ -71,6 +72,7 @@ export class AdminWriteService {
     @Inject(ADMIN_REPOSITORY) private readonly reads: AdminRepository,
     @Inject(ADMIN_WRITE_REPOSITORY)
     private readonly writes: AdminWriteRepository,
+    private readonly permissions: PermissionsService,
   ) {}
 
   //==========================================================================
@@ -288,6 +290,9 @@ export class AdminWriteService {
     updatedBy: number | null,
   ): Promise<{ applied: number; matrix: RolePermission[] }> {
     const applied = await this.writes.setPermissions(entries, updatedBy);
+    // Dynamic RBAC (POSS002): clear the cached matrix so the new grants take
+    // effect on the very next request instead of after the TTL expires.
+    this.permissions.invalidate();
     const matrix = await this.writes.listPermissions();
     return { applied, matrix };
   }

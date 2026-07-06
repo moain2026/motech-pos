@@ -18,6 +18,8 @@ import {
 } from '@nestjs/swagger';
 import { AuthenticatedRequest } from '../../auth/presentation/jwt-auth.guard';
 import { JwtAuthGuard } from '../../auth/presentation/jwt-auth.guard';
+import { PermissionsGuard } from '../../auth/presentation/permissions.guard';
+import { RequirePermission } from '../../auth/presentation/require-permission.decorator';
 import { Roles } from '../../auth/presentation/roles.decorator';
 import { RolesGuard } from '../../auth/presentation/roles.guard';
 import { SettingsService } from '../application/settings.service';
@@ -97,10 +99,11 @@ export class SettingsController {
   //==========================================================================
 
   @Put()
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, PermissionsGuard)
   @Roles('admin')
+  @RequirePermission('SETTINGS')
   @ApiOperation({
-    summary: 'Upsert POS setting overrides (overlay in MOTECH_POS) — admin only',
+    summary: 'Upsert POS setting overrides (overlay in MOTECH_POS) — SETTINGS permission',
   })
   @ApiOkResponse({ description: 'Envelope { data, meta } with merged settings' })
   async update(
@@ -111,10 +114,11 @@ export class SettingsController {
   }
 
   @Post()
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, PermissionsGuard)
   @Roles('admin')
+  @RequirePermission('SETTINGS')
   @ApiOperation({
-    summary: 'Create/upsert POS setting overrides (alias of PUT) — admin only',
+    summary: 'Create/upsert POS setting overrides (alias of PUT) — SETTINGS permission',
   })
   @ApiOkResponse({ description: 'Envelope { data, meta } with merged settings' })
   async create(
@@ -125,11 +129,12 @@ export class SettingsController {
   }
 
   @Put('defaults')
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, PermissionsGuard)
   @Roles('admin')
+  @RequirePermission('SETTINGS')
   @ApiOperation({
     summary:
-      'Upsert numbered-default overrides (POSS005) — admin only; value:null reverts to live',
+      'Upsert numbered-default overrides (POSS005) — SETTINGS permission; value:null reverts to live',
   })
   @ApiOkResponse({ description: 'Envelope { data, meta } with merged defaults' })
   async updateDefaults(
@@ -152,11 +157,12 @@ export class SettingsController {
   }
 
   @Put(':key')
-  @UseGuards(RolesGuard)
+  @UseGuards(RolesGuard, PermissionsGuard)
   @Roles('admin')
+  @RequirePermission('SETTINGS')
   @ApiOperation({
     summary:
-      'Upsert a single setting override by key (raw IAS_PARA_POS column or canonical key) — admin only; value:null reverts to live',
+      'Upsert a single setting override by key (raw IAS_PARA_POS column or canonical key) — SETTINGS permission; value:null reverts to live',
   })
   @ApiOkResponse({ description: 'Envelope { data } with the merged setting' })
   async updateOne(
