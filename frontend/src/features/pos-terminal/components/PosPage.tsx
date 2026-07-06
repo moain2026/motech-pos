@@ -10,10 +10,10 @@ import {
 import { Card } from '@/shared/ui/Card';
 import { formatMoney } from '@/shared/lib/format';
 import { ShiftBar } from '@/features/shifts/components/ShiftBar';
-import {
-  openCustomerDisplay,
-  useCustomerDisplaySync,
-} from '@/features/customer-display';
+// Direct module imports (not the barrel) so the customer-display PAGE (and
+// its lazy QR dep) stays out of the eager POS chunk.
+import { openCustomerDisplay } from '@/features/customer-display/channel';
+import { useCustomerDisplaySync } from '@/features/customer-display/useCustomerDisplaySync';
 import { ItemGrid } from './ItemGrid';
 import { Cart } from './Cart';
 import { SaleSummary } from './SaleSummary';

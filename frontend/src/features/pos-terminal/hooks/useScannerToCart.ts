@@ -1,6 +1,8 @@
 import { useCallback, useState } from 'react';
 import { useBarcodeScanner } from '@/shared/hooks/useBarcodeScanner';
-import { lookupBarcode } from '@/features/print';
+// Direct module import (not the print barrel) — keeps print-only deps out of
+// the critical POS path chunk.
+import { lookupBarcode } from '@/features/print/api/barcode-lookup.api';
 import type { Item } from '@/shared/lib/types';
 import { useCart } from '../store/cart.store';
 

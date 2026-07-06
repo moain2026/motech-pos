@@ -12,7 +12,7 @@
  * nothing but what the cashier broadcasts inside the same browser profile.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import QRCode from 'qrcode';
+
 import { Store, ShoppingBasket, Sparkles } from 'lucide-react';
 import { formatMoney } from '@/shared/lib/format';
 import { useStoreConfig } from '@/shared/config/store-config.store';
@@ -223,7 +223,15 @@ function DoneView({ done, footerNote }: { done: SaleDoneMessage; footerNote: str
       setQrUrl(null);
       return;
     }
-    QRCode.toDataURL(done.qrPayload, { errorCorrectionLevel: 'M', margin: 1, width: 280 })
+    // qrcode is loaded lazily (own chunk) — only needed on the thank-you view.
+    import('qrcode')
+      .then(({ default: QRCode }) =>
+        QRCode.toDataURL(done.qrPayload, {
+          errorCorrectionLevel: 'M',
+          margin: 1,
+          width: 280,
+        }),
+      )
       .then((url) => {
         if (alive) setQrUrl(url);
       })

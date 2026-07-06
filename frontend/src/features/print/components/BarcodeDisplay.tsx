@@ -22,7 +22,10 @@ export function BarcodeDisplay({
 
   useEffect(() => {
     if (ref.current && value) {
-      renderBarcodeSvg(ref.current, value, { format, height, displayValue });
+      // Async (jsbarcode lazy chunk) — guard against unmount between await
+      // and render by re-checking the ref.
+      const el = ref.current;
+      void renderBarcodeSvg(el, value, { format, height, displayValue });
     }
   }, [value, format, height, displayValue]);
 

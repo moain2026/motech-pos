@@ -13,7 +13,7 @@ import { useCartTotals } from '../hooks/useCartTotals';
 import { usePosSettings } from '../store/pos-settings.store';
 import { CustomerAttach } from './CustomerAttach';
 import { buildReceipt, type ReceiptModel, PrintReceiptButton } from '@/features/print';
-import { publishToDisplay } from '@/features/customer-display';
+import { publishToDisplay } from '@/features/customer-display/channel';
 import { encodeEInvoiceQr } from '@/shared/einvoice/zatca-tlv';
 import { storeConfigSnapshot } from '@/shared/config/store-config.store';
 import { HeldBillsControls } from './HeldBills';

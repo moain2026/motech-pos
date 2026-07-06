@@ -3,9 +3,20 @@
  * items via JsBarcode. Renders into an SVG or returns a PNG data-URL for
  * labels. Auto-picks EAN-13 when the value is 13 numeric digits, else Code-128.
  */
-import JsBarcode from 'jsbarcode';
-
 export type BarcodeFormat = 'CODE128' | 'EAN13' | 'auto';
+
+// `jsbarcode` is imported dynamically so it ships in its own lazy chunk —
+// it is only needed when a barcode is actually rendered (labels/dialogs),
+// never on the critical POS path.
+type JsBarcodeFn = (
+  el: SVGSVGElement | HTMLCanvasElement,
+  value: string,
+  opts: Record<string, unknown>,
+) => void;
+async function loadJsBarcode(): Promise<JsBarcodeFn> {
+  const mod = await import('jsbarcode');
+  return mod.default as unknown as JsBarcodeFn;
+}
 
 function resolveFormat(value: string, fmt: BarcodeFormat): 'CODE128' | 'EAN13' {
   if (fmt !== 'auto') return fmt;
@@ -21,12 +32,13 @@ export interface BarcodeOptions {
 }
 
 /** Render a barcode into an existing SVG element (for on-screen display). */
-export function renderBarcodeSvg(
+export async function renderBarcodeSvg(
   svg: SVGSVGElement,
   value: string,
   opts: BarcodeOptions = {},
-): boolean {
+): Promise<boolean> {
   try {
+    const JsBarcode = await loadJsBarcode();
     JsBarcode(svg, value, {
       format: resolveFormat(value, opts.format ?? 'auto'),
       displayValue: opts.displayValue ?? true,
@@ -42,9 +54,13 @@ export function renderBarcodeSvg(
 }
 
 /** Render a barcode to a PNG data-URL (for print labels / img src). */
-export function barcodeDataUrl(value: string, opts: BarcodeOptions = {}): string | null {
+export async function barcodeDataUrl(
+  value: string,
+  opts: BarcodeOptions = {},
+): Promise<string | null> {
   try {
     const canvas = document.createElement('canvas');
+    const JsBarcode = await loadJsBarcode();
     JsBarcode(canvas, value, {
       format: resolveFormat(value, opts.format ?? 'auto'),
       displayValue: opts.displayValue ?? true,

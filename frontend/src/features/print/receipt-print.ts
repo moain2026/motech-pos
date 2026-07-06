@@ -7,7 +7,6 @@
  * `@page { size: 80mm auto }`. Works with the OS/browser driver for any USB or
  * network thermal printer exposed to the system.
  */
-import QRCode from 'qrcode';
 import type { ReceiptModel } from './receipt-model';
 
 function esc(s: string | number | null | undefined): string {
@@ -109,8 +108,13 @@ export function buildReceiptHtml(r: ReceiptModel, qrDataUrl: string): string {
 </html>`;
 }
 
-/** Render the e-invoice QR (TLV payload) to a PNG data-URL. */
+/**
+ * Render the e-invoice QR (TLV payload) to a PNG data-URL.
+ * `qrcode` is imported dynamically so it ships in its own lazy chunk — it is
+ * only needed at print/e-invoice time, never on the critical POS path.
+ */
 export async function renderQrDataUrl(payload: string): Promise<string> {
+  const { default: QRCode } = await import('qrcode');
   return QRCode.toDataURL(payload, {
     errorCorrectionLevel: 'M',
     margin: 1,

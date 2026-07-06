@@ -66,6 +66,10 @@ export default defineConfig({
             if (/react-router|react-dom|\/react\//.test(id)) return 'react-vendor';
             if (id.includes('@tanstack')) return 'query';
             if (id.includes('i18next')) return 'i18n';
+            // Print-time libs are dynamically imported — keep them OUT of the
+            // eager vendor chunk so the critical POS path stays lean.
+            if (id.includes('jsbarcode')) return 'barcode-lib';
+            if (id.includes('qrcode') || id.includes('dijkstra')) return 'qr-lib';
             return 'vendor';
           }
           return undefined;
