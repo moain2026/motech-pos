@@ -277,6 +277,14 @@ class FakeReports implements ReportsRepository {
       },
     ]);
   }
+
+  salesOrders(): Promise<never[]> {
+    return Promise.resolve([]);
+  }
+
+  customerGroups(): Promise<never[]> {
+    return Promise.resolve([]);
+  }
 }
 
 describe('ReportsService — extended YSPOS23 reports', () => {

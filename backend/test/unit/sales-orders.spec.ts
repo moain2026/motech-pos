@@ -19,7 +19,7 @@ import {
 class FakeRepo implements SalesOrderRepository {
   items = new Map<string, OrderItemSnapshot>();
   customers = new Map<string, string>();
-  store = new Map<string, SalesOrderDetail>();
+  store = new Map<string, SalesOrderDetail & { convertKey?: string }>();
   private seq = 0;
 
   create(input: CreateSalesOrderInput): Promise<SalesOrderDetail> {
@@ -64,7 +64,7 @@ class FakeRepo implements SalesOrderRepository {
   findByConvertKey(key: string): Promise<SalesOrderDetail | null> {
     const hit = [...this.store.values()].find(
       (o) => o.status === 'CONVERTED' && o.convertKey === key,
-    ) as (SalesOrderDetail & { convertKey?: string }) | undefined;
+    );
     return Promise.resolve(hit ?? null);
   }
 
@@ -78,9 +78,7 @@ class FakeRepo implements SalesOrderRepository {
   }
 
   markConverted(input: MarkConvertedInput): Promise<SalesOrderDetail | null> {
-    const o = this.store.get(input.orderId) as
-      | (SalesOrderDetail & { convertKey?: string })
-      | undefined;
+    const o = this.store.get(input.orderId);
     if (!o || o.status !== 'OPEN') return Promise.resolve(null);
     o.status = 'CONVERTED';
     o.convertedBillId = input.billId;

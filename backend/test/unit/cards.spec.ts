@@ -36,6 +36,10 @@ class FakeCards implements CardsRepository {
     this.lastLimit = limit;
     return Promise.resolve(this.coupons);
   }
+
+  findCoupon(): Promise<null> {
+    return Promise.resolve(null);
+  }
 }
 
 describe('CardsService', () => {
