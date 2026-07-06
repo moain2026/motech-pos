@@ -22,8 +22,10 @@ import { JwtAuthGuard } from '../../auth/presentation/jwt-auth.guard';
 import { Roles } from '../../auth/presentation/roles.decorator';
 import { RolesGuard } from '../../auth/presentation/roles.guard';
 import { CreateVoucherUseCase } from '../application/create-voucher.usecase';
+import { RefundVoucherUseCase } from '../application/refund-voucher.usecase';
 import { VouchersService } from '../application/vouchers.service';
 import { CreateVoucherDto } from './create-voucher.dto';
+import { RefundVoucherDto } from './refund-voucher.dto';
 import { ListVouchersQuery } from './list-vouchers.query';
 
 /**
@@ -37,6 +39,7 @@ export class VouchersController {
   constructor(
     private readonly vouchers: VouchersService,
     private readonly createVoucher: CreateVoucherUseCase,
+    private readonly refundVoucher: RefundVoucherUseCase,
   ) {}
 
   //==========================================================================
@@ -85,6 +88,29 @@ export class VouchersController {
   }
 
   //==========================================================================
+  // POST006 — refund voucher for a return (auto-link, idempotent 1:1)
+  //==========================================================================
+
+  @Post('refunds')
+  @HttpCode(201)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('cashier', 'supervisor', 'admin')
+  @ApiOperation({
+    summary:
+      'Issue (or fetch) the cash refund voucher (سند صرف) for a MOTECH_POS return — idempotent, one voucher per return (POST006)',
+  })
+  async createRefund(@Body() body: RefundVoucherDto) {
+    const { voucher, replayed } = await this.refundVoucher.execute({
+      returnId: body.returnId,
+      cashierNo: body.cashierNo,
+      machineNo: body.machineNo,
+      note: body.note,
+    });
+    return { data: voucher, meta: { replayed } };
+  }
+
+  //==========================================================================
   // READ side — list + detail
   //==========================================================================
 
@@ -103,6 +129,19 @@ export class VouchersController {
       limit: q.limit ?? 100,
     });
     return { data: items, meta: { count: items.length } };
+  }
+
+  @Get('for-return/:returnId')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary:
+      'The refund voucher already issued for a return, or null (POST006 idempotency probe)',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async forReturn(@Param('returnId') returnId: string) {
+    const data = await this.vouchers.findByRefundReturnId(returnId);
+    return { data, meta: {} };
   }
 
   @Get(':id')

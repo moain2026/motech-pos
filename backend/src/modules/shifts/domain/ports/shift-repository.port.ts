@@ -163,9 +163,13 @@ export interface ShiftReconciliation {
   netSalesTotal: number;
   /** expected cash = opening + cash sales + cash receipts - cash expenses. */
   cashSales: number;
-  /** CASH receipt vouchers (POST025) folded into the drawer. */
+  /** CASH receipt vouchers (POST025) + net custody, folded into the drawer. */
   cashReceipts: number;
   cashExpenses: number;
+  /** POST014: custody deposits into the drawer during the shift. */
+  custodyDeposits: number;
+  /** POST014: custody withdrawals from the drawer during the shift. */
+  custodyWithdrawals: number;
   expectedCash: number;
   /** actual counted cash (closingBalance); null while still OPEN and uncounted. */
   actualCash: number | null;
@@ -177,6 +181,97 @@ export interface ShiftReconciliation {
   /** Grand total of all tenders in bill currency. */
   tenderTotal: number;
   breakdown: PaymentMethodBreakdown[];
+}
+
+//==============================================================================
+// POST014 — cashier custody movements (deposit/withdraw during a shift)
+//==============================================================================
+
+export type CustodyDirection = 'DEPOSIT' | 'WITHDRAW';
+
+/** A persisted custody movement (MOTECH_POS.CASHIER_CUSTODY). */
+export interface CustodyMovement {
+  id: string;
+  custodyNo: number;
+  shiftId: string;
+  cashierNo: number;
+  machineNo: number | null;
+  direction: CustodyDirection;
+  amount: number;
+  currency: string;
+  rate: number;
+  amountInShift: number;
+  reason: string | null;
+  status: string;
+  idempotencyKey: string;
+  clientOpId: string | null;
+  createdBy: string | null;
+  issuedAt: string;
+  createdAt: string;
+}
+
+export interface InsertCustodyInput {
+  shiftId: string;
+  cashierNo: number;
+  machineNo: number | null;
+  direction: CustodyDirection;
+  amount: number;
+  currency: string;
+  rate: number;
+  amountInShift: number;
+  reason: string | null;
+  idempotencyKey: string;
+  clientOpId: string | null;
+  createdBy: string | null;
+}
+
+/** Net custody effect on the drawer for a shift (deposits − withdrawals). */
+export interface CustodyTotals {
+  deposits: number;
+  withdrawals: number;
+  /** deposits − withdrawals (signed drawer effect). */
+  net: number;
+  depositCount: number;
+  withdrawCount: number;
+}
+
+/** Sentinel thrown by insertCustody on the idempotency UNIQUE collision. */
+export class CustodyIdempotencyUniqueViolation extends Error {
+  constructor() {
+    super('idempotency key already exists');
+    this.name = 'CustodyIdempotencyUniqueViolation';
+  }
+}
+
+//==============================================================================
+// POST015 — shift settlement variance (over/short) posted record
+//==============================================================================
+
+export interface PostedVariance {
+  id: string;
+  varianceNo: number;
+  shiftId: string;
+  cashierNo: number;
+  currency: string;
+  expectedCash: number;
+  countedCash: number;
+  difference: number;
+  kind: 'OVER' | 'SHORT' | 'BALANCED';
+  note: string | null;
+  postedBy: number | null;
+  postedAt: string;
+}
+
+export interface InsertVarianceInput {
+  shiftId: string;
+  cashierNo: number;
+  currency: string;
+  expectedCash: number;
+  countedCash: number;
+  difference: number;
+  kind: 'OVER' | 'SHORT' | 'BALANCED';
+  note: string | null;
+  postedBy: number | null;
 }
 
 export interface ShiftWriteRepository {
@@ -206,4 +301,20 @@ export interface ShiftWriteRepository {
 
   /** Persist the approved settlement (CLOSED -> SETTLED, immutable after). */
   settle(input: SettleShiftInput): Promise<ShiftRecord>;
+
+  //-- POST014 custody ---------------------------------------------------------
+  /** Insert a custody movement (deposit/withdraw). */
+  insertCustody(input: InsertCustodyInput): Promise<CustodyMovement>;
+  /** Look up a custody movement by idempotency key (replay). */
+  findCustodyByIdempotencyKey(key: string): Promise<CustodyMovement | null>;
+  /** List custody movements for a shift (newest first). */
+  listCustody(shiftId: string): Promise<CustodyMovement[]>;
+  /** Net custody totals for a shift (feeds expected-cash). */
+  custodyTotals(shiftId: string): Promise<CustodyTotals>;
+
+  //-- POST015 variance --------------------------------------------------------
+  /** Post the settlement variance record (one per shift, immutable). */
+  insertVariance(input: InsertVarianceInput): Promise<PostedVariance>;
+  /** The posted variance for a shift, or null. */
+  findVariance(shiftId: string): Promise<PostedVariance | null>;
 }

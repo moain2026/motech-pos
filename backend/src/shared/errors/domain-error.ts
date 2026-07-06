@@ -405,3 +405,38 @@ export class InsufficientStockError extends DomainError {
   readonly httpStatus = 422;
   readonly title = 'Insufficient available stock at the source warehouse';
 }
+
+/** POST020: attaching a customer to a bill that already has one. */
+export class BillAlreadyHasCustomerError extends DomainError {
+  readonly typeSlug = 'bill-already-has-customer';
+  readonly httpStatus = 409;
+  readonly title = 'Bill already has a loyalty customer attached';
+}
+
+/** POST020: retroactive attach targeted a customer that does not exist. */
+export class AttachCustomerNotFoundError extends DomainError {
+  readonly typeSlug = 'attach-customer-not-found';
+  readonly httpStatus = 404;
+  readonly title = 'Customer not found';
+}
+
+/** POST006: refunding a return that has no refundable amount. */
+export class RefundNotPayableError extends DomainError {
+  readonly typeSlug = 'refund-not-payable';
+  readonly httpStatus = 422;
+  readonly title = 'Return has no positive refund amount to pay out';
+}
+
+/** POST014: custody movement blocked because the shift is not OPEN. */
+export class ShiftNotOpenError extends DomainError {
+  readonly typeSlug = 'shift-not-open';
+  readonly httpStatus = 409;
+  readonly title = 'Shift is not open';
+}
+
+/** POST014: withdrawing more custody cash than the drawer expects to hold. */
+export class CustodyExceedsDrawerError extends DomainError {
+  readonly typeSlug = 'custody-exceeds-drawer';
+  readonly httpStatus = 422;
+  readonly title = 'Withdrawal exceeds the expected cash in the drawer';
+}

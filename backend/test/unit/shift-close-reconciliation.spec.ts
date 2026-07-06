@@ -2,8 +2,13 @@ import { describe, expect, it } from 'vitest';
 import { ShiftsService } from '../../src/modules/shifts/application/shifts.service';
 import {
   CloseShiftInput,
+  CustodyMovement,
+  CustodyTotals,
+  InsertCustodyInput,
+  InsertVarianceInput,
   OpenShiftInput,
   PaymentMethodBreakdown,
+  PostedVariance,
   SaveShiftCountInput,
   SettleShiftInput,
   ShiftCashTotals,
@@ -95,6 +100,30 @@ class FakeRepo implements ShiftWriteRepository {
   }
   settle(_i: SettleShiftInput): Promise<ShiftRecord> {
     return Promise.resolve(this.shift);
+  }
+  insertCustody(_i: InsertCustodyInput): Promise<CustodyMovement> {
+    return Promise.reject(new Error('not used'));
+  }
+  findCustodyByIdempotencyKey(): Promise<CustodyMovement | null> {
+    return Promise.resolve(null);
+  }
+  listCustody(): Promise<CustodyMovement[]> {
+    return Promise.resolve([]);
+  }
+  custodyTotals(): Promise<CustodyTotals> {
+    return Promise.resolve({
+      deposits: 0,
+      withdrawals: 0,
+      net: 0,
+      depositCount: 0,
+      withdrawCount: 0,
+    });
+  }
+  insertVariance(_i: InsertVarianceInput): Promise<PostedVariance> {
+    return Promise.reject(new Error('not used'));
+  }
+  findVariance(): Promise<PostedVariance | null> {
+    return Promise.resolve(null);
   }
 }
 

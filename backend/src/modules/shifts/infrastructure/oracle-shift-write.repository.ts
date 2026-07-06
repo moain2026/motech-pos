@@ -10,8 +10,14 @@ import {
 } from '../../../shared/errors/domain-error';
 import {
   CloseShiftInput,
+  CustodyIdempotencyUniqueViolation,
+  CustodyMovement,
+  CustodyTotals,
+  InsertCustodyInput,
+  InsertVarianceInput,
   OpenShiftInput,
   PaymentMethodBreakdown,
+  PostedVariance,
   SaveShiftCountInput,
   SettleShiftInput,
   ShiftCashTotals,
@@ -360,6 +366,216 @@ export class OracleShiftWriteRepository implements ShiftWriteRepository {
     });
   }
 
+  //==========================================================================
+  // POST014 — cashier custody movements (MOTECH_POS.CASHIER_CUSTODY)
+  //==========================================================================
+
+  private mapCustody(r: CustodyRow): CustodyMovement {
+    return {
+      id: r.ID,
+      custodyNo: Number(r.CUSTODY_NO),
+      shiftId: r.SHIFT_ID,
+      cashierNo: Number(r.CASHIER_NO),
+      machineNo: r.MACHINE_NO == null ? null : Number(r.MACHINE_NO),
+      direction: r.DIRECTION as CustodyMovement['direction'],
+      amount: Number(r.AMOUNT),
+      currency: r.CURRENCY,
+      rate: Number(r.RATE),
+      amountInShift: Number(r.AMOUNT_IN_SHIFT),
+      reason: r.REASON,
+      status: r.STATUS,
+      idempotencyKey: r.IDEMPOTENCY_KEY,
+      clientOpId: r.CLIENT_OP_ID,
+      createdBy: r.CREATED_BY,
+      issuedAt: r.ISSUED_AT.toISOString(),
+      createdAt: r.CREATED_AT.toISOString(),
+    };
+  }
+
+  private readonly custodyCols = `ID, CUSTODY_NO, SHIFT_ID, CASHIER_NO,
+    MACHINE_NO, DIRECTION, AMOUNT, CURRENCY, RATE, AMOUNT_IN_SHIFT, REASON,
+    STATUS, IDEMPOTENCY_KEY, CLIENT_OP_ID, CREATED_BY, ISSUED_AT, CREATED_AT`;
+
+  async findCustodyByIdempotencyKey(
+    key: string,
+  ): Promise<CustodyMovement | null> {
+    const row = await this.db.queryOne<CustodyRow>(
+      `SELECT ${this.custodyCols} FROM ${this.schema}.CASHIER_CUSTODY
+       WHERE IDEMPOTENCY_KEY = :k`,
+      { k: key },
+    );
+    return row ? this.mapCustody(row) : null;
+  }
+
+  async insertCustody(input: InsertCustodyInput): Promise<CustodyMovement> {
+    const id = uuidv7();
+    try {
+      await this.db.withTransaction(async (conn) => {
+        const seq = await conn.execute<{ N: number }>(
+          `SELECT ${this.schema}.SEQ_CUSTODY_NO.NEXTVAL AS N FROM DUAL`,
+          {},
+          { outFormat: oracledb.OUT_FORMAT_OBJECT },
+        );
+        const custodyNo = (seq.rows as { N: number }[])[0].N;
+        await conn.execute(
+          `INSERT INTO ${this.schema}.CASHIER_CUSTODY
+             (ID, CUSTODY_NO, SHIFT_ID, CASHIER_NO, MACHINE_NO, DIRECTION,
+              AMOUNT, CURRENCY, RATE, AMOUNT_IN_SHIFT, REASON, STATUS,
+              IDEMPOTENCY_KEY, CLIENT_OP_ID, CREATED_BY)
+           VALUES (:id, :custodyNo, :shiftId, :cashierNo, :machineNo, :direction,
+              :amount, :currency, :rate, :amountInShift, :reason, 'POSTED',
+              :idempotencyKey, :clientOpId, :createdBy)`,
+          {
+            id,
+            custodyNo,
+            shiftId: input.shiftId,
+            cashierNo: input.cashierNo,
+            machineNo: input.machineNo,
+            direction: input.direction,
+            amount: input.amount,
+            currency: input.currency,
+            rate: input.rate,
+            amountInShift: input.amountInShift,
+            reason: input.reason,
+            idempotencyKey: input.idempotencyKey,
+            clientOpId: input.clientOpId,
+            createdBy: input.createdBy,
+          },
+        );
+      });
+    } catch (err) {
+      if (this.isUniqueViolation(err)) {
+        throw new CustodyIdempotencyUniqueViolation();
+      }
+      throw err;
+    }
+    const row = await this.db.queryOne<CustodyRow>(
+      `SELECT ${this.custodyCols} FROM ${this.schema}.CASHIER_CUSTODY WHERE ID = :id`,
+      { id },
+    );
+    if (!row) throw new Error('insertCustody: row vanished after commit');
+    return this.mapCustody(row);
+  }
+
+  async listCustody(shiftId: string): Promise<CustodyMovement[]> {
+    const rows = await this.db.query<CustodyRow>(
+      `SELECT ${this.custodyCols} FROM ${this.schema}.CASHIER_CUSTODY
+       WHERE SHIFT_ID = :s AND STATUS = 'POSTED'
+       ORDER BY ISSUED_AT DESC, CUSTODY_NO DESC`,
+      { s: shiftId },
+    );
+    return rows.map((r) => this.mapCustody(r));
+  }
+
+  async custodyTotals(shiftId: string): Promise<CustodyTotals> {
+    const row = await this.db.queryOne<{
+      DEPOSITS: number;
+      WITHDRAWALS: number;
+      DEP_CNT: number;
+      WD_CNT: number;
+    }>(
+      `SELECT
+         NVL(SUM(CASE WHEN DIRECTION='DEPOSIT'  THEN AMOUNT_IN_SHIFT END),0) AS DEPOSITS,
+         NVL(SUM(CASE WHEN DIRECTION='WITHDRAW' THEN AMOUNT_IN_SHIFT END),0) AS WITHDRAWALS,
+         NVL(SUM(CASE WHEN DIRECTION='DEPOSIT'  THEN 1 ELSE 0 END),0) AS DEP_CNT,
+         NVL(SUM(CASE WHEN DIRECTION='WITHDRAW' THEN 1 ELSE 0 END),0) AS WD_CNT
+       FROM ${this.schema}.CASHIER_CUSTODY
+       WHERE SHIFT_ID = :s AND STATUS = 'POSTED'`,
+      { s: shiftId },
+    );
+    const deposits = Number(row?.DEPOSITS ?? 0);
+    const withdrawals = Number(row?.WITHDRAWALS ?? 0);
+    return {
+      deposits,
+      withdrawals,
+      net: round4(deposits - withdrawals),
+      depositCount: Number(row?.DEP_CNT ?? 0),
+      withdrawCount: Number(row?.WD_CNT ?? 0),
+    };
+  }
+
+  //==========================================================================
+  // POST015 — shift settlement variance (MOTECH_POS.SHIFT_VARIANCE)
+  //==========================================================================
+
+  private mapVariance(r: VarianceRow): PostedVariance {
+    return {
+      id: r.ID,
+      varianceNo: Number(r.VARIANCE_NO),
+      shiftId: r.SHIFT_ID,
+      cashierNo: Number(r.CASHIER_NO),
+      currency: r.CURRENCY,
+      expectedCash: Number(r.EXPECTED_CASH),
+      countedCash: Number(r.COUNTED_CASH),
+      difference: Number(r.DIFFERENCE),
+      kind: r.KIND as PostedVariance['kind'],
+      note: r.NOTE,
+      postedBy: r.POSTED_BY == null ? null : Number(r.POSTED_BY),
+      postedAt: r.POSTED_AT.toISOString(),
+    };
+  }
+
+  private readonly varianceCols = `ID, VARIANCE_NO, SHIFT_ID, CASHIER_NO,
+    CURRENCY, EXPECTED_CASH, COUNTED_CASH, DIFFERENCE, KIND, NOTE, POSTED_BY,
+    POSTED_AT`;
+
+  async findVariance(shiftId: string): Promise<PostedVariance | null> {
+    const row = await this.db.queryOne<VarianceRow>(
+      `SELECT ${this.varianceCols} FROM ${this.schema}.SHIFT_VARIANCE
+       WHERE SHIFT_ID = :s`,
+      { s: shiftId },
+    );
+    return row ? this.mapVariance(row) : null;
+  }
+
+  async insertVariance(input: InsertVarianceInput): Promise<PostedVariance> {
+    // Idempotent: one variance per shift (UX_VARIANCE_SHIFT). If it already
+    // exists (settle replay), return the existing record instead of failing.
+    const existing = await this.findVariance(input.shiftId);
+    if (existing) return existing;
+    const id = uuidv7();
+    try {
+      await this.db.withTransaction(async (conn) => {
+        const seq = await conn.execute<{ N: number }>(
+          `SELECT ${this.schema}.SEQ_VARIANCE_NO.NEXTVAL AS N FROM DUAL`,
+          {},
+          { outFormat: oracledb.OUT_FORMAT_OBJECT },
+        );
+        const varianceNo = (seq.rows as { N: number }[])[0].N;
+        await conn.execute(
+          `INSERT INTO ${this.schema}.SHIFT_VARIANCE
+             (ID, VARIANCE_NO, SHIFT_ID, CASHIER_NO, CURRENCY, EXPECTED_CASH,
+              COUNTED_CASH, DIFFERENCE, KIND, NOTE, POSTED_BY)
+           VALUES (:id, :varianceNo, :shiftId, :cashierNo, :currency,
+              :expectedCash, :countedCash, :difference, :kind, :note, :postedBy)`,
+          {
+            id,
+            varianceNo,
+            shiftId: input.shiftId,
+            cashierNo: input.cashierNo,
+            currency: input.currency,
+            expectedCash: input.expectedCash,
+            countedCash: input.countedCash,
+            difference: input.difference,
+            kind: input.kind,
+            note: input.note,
+            postedBy: input.postedBy,
+          },
+        );
+      });
+    } catch (err) {
+      // Race: another settle posted the variance first — return the winner.
+      if (this.isUniqueViolation(err)) {
+        const winner = await this.findVariance(input.shiftId);
+        if (winner) return winner;
+      }
+      throw err;
+    }
+    const row = await this.findVariance(input.shiftId);
+    if (!row) throw new Error('insertVariance: row vanished after commit');
+    return row;
+  }
+
   private isUniqueViolation(err: unknown): boolean {
     return (
       typeof err === 'object' &&
@@ -368,6 +584,41 @@ export class OracleShiftWriteRepository implements ShiftWriteRepository {
       (err as { errorNum?: number }).errorNum === 1
     );
   }
+}
+
+interface CustodyRow {
+  ID: string;
+  CUSTODY_NO: number;
+  SHIFT_ID: string;
+  CASHIER_NO: number;
+  MACHINE_NO: number | null;
+  DIRECTION: string;
+  AMOUNT: number;
+  CURRENCY: string;
+  RATE: number;
+  AMOUNT_IN_SHIFT: number;
+  REASON: string | null;
+  STATUS: string;
+  IDEMPOTENCY_KEY: string;
+  CLIENT_OP_ID: string | null;
+  CREATED_BY: string | null;
+  ISSUED_AT: Date;
+  CREATED_AT: Date;
+}
+
+interface VarianceRow {
+  ID: string;
+  VARIANCE_NO: number;
+  SHIFT_ID: string;
+  CASHIER_NO: number;
+  CURRENCY: string;
+  EXPECTED_CASH: number;
+  COUNTED_CASH: number;
+  DIFFERENCE: number;
+  KIND: string;
+  NOTE: string | null;
+  POSTED_BY: number | null;
+  POSTED_AT: Date;
 }
 
 function round4(n: number): number {

@@ -19,6 +19,8 @@ export interface PersistedVoucher {
   status: string;
   idempotencyKey: string;
   clientOpId: string | null;
+  /** POST006: the MOTECH_POS return this refund voucher pays out (or null). */
+  refundReturnId: string | null;
   issuedAt: string;
   createdAt: string;
 }
@@ -39,6 +41,8 @@ export interface InsertVoucherInput {
   category: string | null;
   idempotencyKey: string;
   clientOpId: string | null;
+  /** POST006: link a refund voucher to its return (idempotent 1:1). */
+  refundReturnId?: string | null;
 }
 
 /** Filter for listing vouchers. */
@@ -64,6 +68,9 @@ export interface VoucherRepository {
   /** Look up by idempotency key (replay), or null. */
   findByIdempotencyKey(key: string): Promise<PersistedVoucher | null>;
 
+  /** POST006: look up the refund voucher for a return, or null (idempotency). */
+  findByRefundReturnId(returnId: string): Promise<PersistedVoucher | null>;
+
   /** Fetch by id, or null. */
   findById(id: string): Promise<PersistedVoucher | null>;
 
@@ -85,5 +92,13 @@ export class VoucherIdempotencyUniqueViolation extends Error {
   constructor() {
     super('idempotency key already exists');
     this.name = 'VoucherIdempotencyUniqueViolation';
+  }
+}
+
+/** Sentinel error thrown when the UX_VOUCHERS_REFUND_RET UNIQUE index fires. */
+export class RefundReturnUniqueViolation extends Error {
+  constructor() {
+    super('a refund voucher already exists for this return');
+    this.name = 'RefundReturnUniqueViolation';
   }
 }

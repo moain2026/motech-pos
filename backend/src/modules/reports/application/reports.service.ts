@@ -129,6 +129,11 @@ export class ReportsService {
     return this.pos.paymentMethods(filter);
   }
 
+  /** POST012 — payment-method breakdown per cashier. */
+  cashierPaymentSummary(filter: PosReportFilter & { cashierNo?: number }) {
+    return this.pos.cashierPaymentSummary(filter);
+  }
+
   /** Returns aggregation. */
   returnsReport(filter: PosReportFilter) {
     return this.pos.returns(filter);

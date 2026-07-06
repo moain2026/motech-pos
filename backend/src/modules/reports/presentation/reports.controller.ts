@@ -265,6 +265,22 @@ export class ReportsController {
     return { data, meta: { count: data.length } };
   }
 
+  @Get('cashier-payment-summary')
+  @ApiOperation({
+    summary:
+      'Payment methods PER cashier (+ returns/refunds) — ملخص مبيعات الكاشيرات (POST012)',
+  })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async cashierPaymentSummary(@Query() q: ByShiftQuery) {
+    const data = await this.reports.cashierPaymentSummary({
+      from: q.from,
+      to: q.to,
+      shiftId: q.shift,
+      cashierNo: q.cashier,
+    });
+    return { data, meta: { count: data.length } };
+  }
+
   @Get('returns')
   @ApiOperation({ summary: 'Returns aggregation by day (MOTECH_POS returns)' })
   @ApiOkResponse({ description: 'Envelope { data, meta }' })

@@ -27,6 +27,11 @@ class FakeRepo implements VoucherRepository {
       this.rows.find((r) => r.idempotencyKey === key) ?? null,
     );
   }
+  findByRefundReturnId(returnId: string): Promise<PersistedVoucher | null> {
+    return Promise.resolve(
+      this.rows.find((r) => r.refundReturnId === returnId) ?? null,
+    );
+  }
   findById(id: string): Promise<PersistedVoucher | null> {
     return Promise.resolve(this.rows.find((r) => r.id === id) ?? null);
   }
@@ -50,6 +55,7 @@ class FakeRepo implements VoucherRepository {
       status: 'POSTED',
       idempotencyKey: input.idempotencyKey,
       clientOpId: input.clientOpId,
+      refundReturnId: input.refundReturnId ?? null,
       issuedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
     };

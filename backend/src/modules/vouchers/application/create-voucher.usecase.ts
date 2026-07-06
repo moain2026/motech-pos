@@ -30,6 +30,8 @@ export interface CreateVoucherInput {
   partyName?: string;
   category?: string;
   clientOperationId?: string;
+  /** POST006: link this voucher to a MOTECH_POS return (idempotent 1:1). */
+  refundReturnId?: string;
 }
 
 /**
@@ -113,6 +115,7 @@ export class CreateVoucherUseCase {
         category: input.category ?? null,
         idempotencyKey: input.idempotencyKey,
         clientOpId: requestHash,
+        refundReturnId: input.refundReturnId ?? null,
       });
       return { voucher: persisted, replayed: false };
     } catch (err) {

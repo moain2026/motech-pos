@@ -2,19 +2,34 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
+  HttpCode,
   Param,
   ParseIntPipe,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/presentation/jwt-auth.guard';
+import {
+  ApiBearerAuth,
+  ApiHeader,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
+import { isUuid, uuidv7 } from '../../../shared/domain/uuid';
+import { IdempotencyKeyRequiredError } from '../../../shared/errors/domain-error';
+import {
+  AuthenticatedRequest,
+  JwtAuthGuard,
+} from '../../auth/presentation/jwt-auth.guard';
 import { Roles } from '../../auth/presentation/roles.decorator';
 import { RolesGuard } from '../../auth/presentation/roles.guard';
 import { ShiftsService } from '../application/shifts.service';
 import {
   CloseShiftDto,
+  CustodyMovementDto,
   OpenShiftDto,
   ReconciliationQuery,
   SettleShiftDto,
@@ -139,6 +154,73 @@ export class ShiftsController {
   @ApiOperation({ summary: 'Shift summary (X/Z report: sales + cash totals)' })
   async summary(@Param('id') id: string) {
     const data = await this.shifts.summary(id);
+    return { data };
+  }
+
+  //==========================================================================
+  // POST014 — cashier custody movements (deposit/withdraw from the drawer)
+  //==========================================================================
+
+  @Post(':id/custody')
+  @HttpCode(201)
+  @Roles('cashier', 'supervisor', 'admin')
+  @ApiHeader({
+    name: 'Idempotency-Key',
+    description: 'uuid v7 — mandatory; replays return the same movement (no dup)',
+    required: true,
+  })
+  @ApiOperation({
+    summary:
+      'Record a cash custody movement (عهدة إيداع/سحب) during an open shift — feeds expected cash (POST014)',
+  })
+  async recordCustody(
+    @Param('id') id: string,
+    @Body() body: CustodyMovementDto,
+    @Req() req: AuthenticatedRequest,
+    @Headers('idempotency-key') idempotencyKey?: string,
+  ) {
+    if (!idempotencyKey || !isUuid(idempotencyKey)) {
+      throw new IdempotencyKeyRequiredError(
+        'A valid uuid Idempotency-Key header is required for custody movements',
+        {},
+      );
+    }
+    const { movement, replayed } = await this.shifts.recordCustody({
+      shiftId: id,
+      direction: body.direction,
+      amount: body.amount,
+      currency: body.currency,
+      rate: body.rate,
+      reason: body.reason,
+      idempotencyKey,
+      clientOpId: body.clientOperationId ?? uuidv7(),
+      createdBy: req.user?.username ?? undefined,
+    });
+    return { data: movement, meta: { replayed } };
+  }
+
+  @Get(':id/custody')
+  @ApiOperation({
+    summary:
+      'List cash custody movements for a shift + net totals (POST014)',
+  })
+  async listCustody(@Param('id') id: string) {
+    const movements = await this.shifts.listCustody(id);
+    const totals = await this.shifts.custodyTotals(id);
+    return { data: movements, meta: { totals } };
+  }
+
+  //==========================================================================
+  // POST015 — shift settlement variance (over/short) posted record
+  //==========================================================================
+
+  @Get(':id/variance')
+  @ApiOperation({
+    summary:
+      'The posted over/short variance record for a settled shift, or null (POST015)',
+  })
+  async variance(@Param('id') id: string) {
+    const data = await this.shifts.variance(id);
     return { data };
   }
 }

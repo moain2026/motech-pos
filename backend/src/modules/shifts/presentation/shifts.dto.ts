@@ -4,6 +4,7 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsIn,
   IsInt,
   IsNumber,
   IsOptional,
@@ -129,6 +130,41 @@ export class SettleShiftDto {
   @IsNumber({ maxDecimalPlaces: 4 })
   @Min(0)
   cashExpenses?: number;
+}
+
+/** POST014 — record a cash custody movement (deposit/withdraw). */
+export class CustodyMovementDto {
+  @ApiProperty({ enum: ['DEPOSIT', 'WITHDRAW'], example: 'DEPOSIT' })
+  @IsIn(['DEPOSIT', 'WITHDRAW'])
+  direction!: 'DEPOSIT' | 'WITHDRAW';
+
+  @ApiProperty({ example: 500, description: 'Amount (> 0), in the given currency' })
+  @IsNumber({ maxDecimalPlaces: 4 })
+  @IsPositive()
+  amount!: number;
+
+  @ApiPropertyOptional({ example: 'YER', description: 'Currency (defaults to shift currency)' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(7)
+  currency?: string;
+
+  @ApiPropertyOptional({ example: 1, description: 'Exchange rate to shift currency (default 1)' })
+  @IsOptional()
+  @IsNumber({ maxDecimalPlaces: 6 })
+  @IsPositive()
+  rate?: number;
+
+  @ApiPropertyOptional({ example: 'إيداع عهدة افتتاحية', description: 'سبب الإيداع/السحب' })
+  @IsOptional()
+  @IsString()
+  @MaxLength(400)
+  reason?: string;
+
+  @ApiPropertyOptional({ description: 'Client-generated operation id (uuid v7)' })
+  @IsOptional()
+  @IsString()
+  clientOperationId?: string;
 }
 
 export class ReconciliationQuery {

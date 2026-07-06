@@ -22,6 +22,29 @@ export interface PaymentMethodReportRow {
   amountInBill: number; // converted to bill currency
 }
 
+/** POST012 — one payment-method slice for a single cashier. */
+export interface CashierPaymentMethodSlice {
+  method: string;
+  txnCount: number;
+  amountInBill: number;
+}
+
+/** POST012 — per-cashier sales summary WITH the payment-method breakdown. */
+export interface CashierPaymentSummaryRow {
+  cashierNo: number;
+  billCount: number;
+  netAmt: number;
+  /** Payment methods for THIS cashier (CASH/CARD/CREDIT/POINTS/COUPON…). */
+  methods: CashierPaymentMethodSlice[];
+  /** Convenience roll-ups. */
+  cashTotal: number;
+  cardTotal: number;
+  creditTotal: number;
+  /** Returns/refunds attributed to this cashier in the period. */
+  returnCount: number;
+  refundTotal: number;
+}
+
 /** Returns aggregation (MOTECH_POS returns). */
 export interface ReturnsReportRow {
   day: string; // YYYY-MM-DD
@@ -242,6 +265,11 @@ export interface PosReportsRepository {
   byCashier(filter: PosReportFilter): Promise<CashierReportRow[]>;
   paymentMethods(filter: PosReportFilter): Promise<PaymentMethodReportRow[]>;
   returns(filter: PosReportFilter): Promise<ReturnsReportRow[]>;
+
+  /** POST012 — payment-method breakdown PER cashier (+ returns/refunds). */
+  cashierPaymentSummary(
+    filter: PosReportFilter & { cashierNo?: number },
+  ): Promise<CashierPaymentSummaryRow[]>;
 
   /** POSR004 — sales aggregated shift-by-shift. */
   byShift(

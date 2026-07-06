@@ -34,4 +34,9 @@ export class VouchersService {
   shiftCashTotals(shiftId: string): Promise<VoucherShiftTotals> {
     return this.repo.shiftCashTotals(shiftId);
   }
+
+  /** POST006: the refund voucher already issued for a return, or null. */
+  findByRefundReturnId(returnId: string): Promise<PersistedVoucher | null> {
+    return this.repo.findByRefundReturnId(returnId);
+  }
 }

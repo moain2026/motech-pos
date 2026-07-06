@@ -1,10 +1,12 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import {
+  CustodyExceedsDrawerError,
   NoOpenShiftError,
   ShiftAlreadySettledError,
   ShiftCountRequiredError,
   ShiftNotClosedError,
   ShiftNotFoundError,
+  ShiftNotOpenError,
 } from '../../../shared/errors/domain-error';
 import {
   VoucherCashTotalsProvider,
@@ -12,8 +14,13 @@ import {
 } from '../domain/ports/voucher-cash-totals.port';
 import {
   CloseShiftInput,
+  CustodyDirection,
+  CustodyIdempotencyUniqueViolation,
+  CustodyMovement,
+  CustodyTotals,
   DenominationLine,
   OpenShiftInput,
+  PostedVariance,
   ShiftDenomination,
   ShiftReconciliation,
   ShiftRecord,
@@ -71,9 +78,14 @@ export class ShiftsService {
    */
   async close(input: CloseShiftInput): Promise<ShiftRecord> {
     const voucherTotals = await this.voucherCashTotals(input.shiftId);
+    // POST014: custody deposits add to the drawer, withdrawals remove from it.
+    // Fold the NET custody effect into cash receipts so close() and
+    // reconciliation() keep the exact same expected-cash figure.
+    const custody = await this.repo.custodyTotals(input.shiftId);
     return this.repo.close({
       ...input,
-      cashReceipts: input.cashReceipts ?? voucherTotals.cashReceipts,
+      cashReceipts:
+        (input.cashReceipts ?? voucherTotals.cashReceipts) + custody.net,
       // Explicit override wins; else voucher-sourced cash expenses (same
       // precedence as reconciliation()).
       cashExpenses: input.cashExpenses ?? voucherTotals.cashExpenses,
@@ -109,10 +121,13 @@ export class ShiftsService {
     // Cash vouchers (POST025/POST026): receipts add to the drawer, expenses
     // remove from it. Pulled from the vouchers module when present.
     const voucherTotals = await this.voucherCashTotals(shiftId);
-    const cashReceipts = voucherTotals.cashReceipts;
+    // POST014: net custody (deposits − withdrawals) folds into cash receipts.
+    const custody = await this.repo.custodyTotals(shiftId);
+    const cashReceipts = round4(voucherTotals.cashReceipts + custody.net);
     // Expenses: explicit override wins; else voucher-sourced cash expenses.
     const cashExpenses = opts?.cashExpenses ?? voucherTotals.cashExpenses;
-    // Expected cash = opening + cash sales + cash receipts - cash expenses.
+    // Expected cash = opening + cash sales + cash receipts - cash expenses
+    // (cash receipts already include the net custody effect).
     const expectedCash = round4(
       shift.openingBalance + totals.cashTotal + cashReceipts - cashExpenses,
     );
@@ -153,6 +168,8 @@ export class ShiftsService {
       cashSales: totals.cashTotal,
       cashReceipts,
       cashExpenses,
+      custodyDeposits: custody.deposits,
+      custodyWithdrawals: custody.withdrawals,
       expectedCash,
       actualCash,
       cashDifference,
@@ -222,7 +239,7 @@ export class ShiftsService {
       );
     }
     const countedCash = sumAmounts(denominations);
-    // Expected cash from the same reconciliation math (vouchers included).
+    // Expected cash from the same reconciliation math (vouchers + custody).
     const recon = await this.reconciliation(shiftId, {
       cashExpenses: opts?.cashExpenses,
     });
@@ -235,7 +252,118 @@ export class ShiftsService {
       settledBy: opts?.settledBy,
       note: opts?.note,
     });
+    // POST015: post the over/short variance as an approved, immutable record
+    // (idempotent — one per shift). This is the accounting trace of the diff.
+    await this.repo.insertVariance({
+      shiftId,
+      cashierNo: settled.cashierNo,
+      currency: settled.currency,
+      expectedCash: recon.expectedCash,
+      countedCash,
+      difference,
+      kind: overShortOf(difference) ?? 'BALANCED',
+      note: opts?.note ?? null,
+      postedBy: opts?.settledBy ?? null,
+    });
     return this.toSettlement(settled, denominations, recon.expectedCash);
+  }
+
+  //============================================================================
+  // POST014 — عهدة الكاشيرات: cash custody movements during a shift
+  //============================================================================
+
+  /** List custody movements (deposits/withdrawals) for a shift. */
+  async listCustody(shiftId: string): Promise<CustodyMovement[]> {
+    await this.mustFind(shiftId);
+    return this.repo.listCustody(shiftId);
+  }
+
+  /** Net custody totals for a shift (deposits − withdrawals). */
+  async custodyTotals(shiftId: string): Promise<CustodyTotals> {
+    await this.mustFind(shiftId);
+    return this.repo.custodyTotals(shiftId);
+  }
+
+  /**
+   * Record a cash custody movement (deposit into / withdraw from the drawer).
+   * Only allowed while the shift is OPEN. A WITHDRAW may not exceed the cash
+   * currently expected in the drawer (guard against negative cash).
+   * Idempotent via the provided key.
+   */
+  async recordCustody(input: {
+    shiftId: string;
+    direction: CustodyDirection;
+    amount: number;
+    currency?: string;
+    rate?: number;
+    reason?: string;
+    idempotencyKey: string;
+    clientOpId?: string;
+    createdBy?: string;
+  }): Promise<{ movement: CustodyMovement; replayed: boolean }> {
+    // Idempotency replay first.
+    const existing = await this.repo.findCustodyByIdempotencyKey(
+      input.idempotencyKey,
+    );
+    if (existing) return { movement: existing, replayed: true };
+
+    const shift = await this.mustFind(input.shiftId);
+    if (shift.status !== 'OPEN') {
+      throw new ShiftNotOpenError(
+        `Shift ${input.shiftId} is not open; custody movements are only allowed during an open shift`,
+        { shiftId: input.shiftId, status: shift.status },
+      );
+    }
+    const rate = input.rate ?? 1;
+    const amountInShift = round4(input.amount * rate);
+
+    // WITHDRAW guard: don't let the drawer go negative. Expected cash BEFORE
+    // this withdrawal is the current reconciliation figure.
+    if (input.direction === 'WITHDRAW') {
+      const recon = await this.reconciliation(input.shiftId);
+      if (amountInShift > recon.expectedCash + EPS) {
+        throw new CustodyExceedsDrawerError(
+          `Withdrawal ${amountInShift} exceeds the expected drawer cash ${recon.expectedCash}`,
+          {
+            shiftId: input.shiftId,
+            amount: amountInShift,
+            expectedCash: recon.expectedCash,
+          },
+        );
+      }
+    }
+
+    try {
+      const movement = await this.repo.insertCustody({
+        shiftId: input.shiftId,
+        cashierNo: shift.cashierNo,
+        machineNo: shift.machineNo,
+        direction: input.direction,
+        amount: input.amount,
+        currency: input.currency ?? shift.currency ?? 'YER',
+        rate,
+        amountInShift,
+        reason: input.reason ?? null,
+        idempotencyKey: input.idempotencyKey,
+        clientOpId: input.clientOpId ?? null,
+        createdBy: input.createdBy ?? null,
+      });
+      return { movement, replayed: false };
+    } catch (err) {
+      if (err instanceof CustodyIdempotencyUniqueViolation) {
+        const winner = await this.repo.findCustodyByIdempotencyKey(
+          input.idempotencyKey,
+        );
+        if (winner) return { movement: winner, replayed: true };
+      }
+      throw err;
+    }
+  }
+
+  /** POST015: the posted settlement variance for a shift, or null. */
+  async variance(shiftId: string): Promise<PostedVariance | null> {
+    await this.mustFind(shiftId);
+    return this.repo.findVariance(shiftId);
   }
 
   /** Final settlement view: expected, counted (by denominations), diff, status. */

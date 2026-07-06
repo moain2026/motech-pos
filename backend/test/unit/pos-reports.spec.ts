@@ -49,6 +49,24 @@ class FakePos implements PosReportsRepository {
       { day: '2026-07-01', returnCount: 5, grossAmt: 610, vatAmt: 0, netAmt: 610, refundAmt: 610 },
     ]);
   }
+  cashierPaymentSummary(
+    f: PosReportFilter & { cashierNo?: number },
+  ): Promise<import('../../src/modules/reports/domain/ports/pos-reports-repository.port').CashierPaymentSummaryRow[]> {
+    this.lastFilter = f;
+    return Promise.resolve([
+      {
+        cashierNo: 91,
+        billCount: 1,
+        netAmt: 15600,
+        methods: [{ method: 'CASH', txnCount: 1, amountInBill: 15600 }],
+        cashTotal: 15600,
+        cardTotal: 0,
+        creditTotal: 0,
+        returnCount: 1,
+        refundTotal: 7800,
+      },
+    ]);
+  }
   byShift(
     f: PosReportFilter & { cashierNo?: number },
   ): Promise<ShiftSalesReportRow[]> {
@@ -228,6 +246,16 @@ describe('ReportsService — MOTECH_POS reports', () => {
     const rows = await svc.paymentMethods({});
     expect(rows).toHaveLength(2);
     expect(rows[0].method).toBe('CASH');
+  });
+
+  it('cashierPaymentSummary (POST012) returns per-cashier methods + refunds', async () => {
+    const pos = new FakePos();
+    const svc = new ReportsService(legacy, pos);
+    const rows = await svc.cashierPaymentSummary({ cashierNo: 91 });
+    expect(pos.lastFilter).toEqual({ cashierNo: 91 });
+    expect(rows[0].cashierNo).toBe(91);
+    expect(rows[0].methods[0].method).toBe('CASH');
+    expect(rows[0].refundTotal).toBe(7800);
   });
 
   it('returnsReport returns per-day aggregation', async () => {

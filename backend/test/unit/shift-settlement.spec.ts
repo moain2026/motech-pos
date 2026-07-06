@@ -2,8 +2,13 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { ShiftsService } from '../../src/modules/shifts/application/shifts.service';
 import {
   CloseShiftInput,
+  CustodyMovement,
+  CustodyTotals,
+  InsertCustodyInput,
+  InsertVarianceInput,
   OpenShiftInput,
   PaymentMethodBreakdown,
+  PostedVariance,
   SaveShiftCountInput,
   SettleShiftInput,
   ShiftCashTotals,
@@ -97,6 +102,46 @@ class FakeShiftRepo implements ShiftWriteRepository {
       settleNote: input.note ?? null,
     };
     return Promise.resolve(this.shift);
+  }
+  insertCustody(_i: InsertCustodyInput): Promise<CustodyMovement> {
+    return Promise.reject(new Error('not used'));
+  }
+  findCustodyByIdempotencyKey(): Promise<CustodyMovement | null> {
+    return Promise.resolve(null);
+  }
+  listCustody(): Promise<CustodyMovement[]> {
+    return Promise.resolve([]);
+  }
+  custodyTotals(): Promise<CustodyTotals> {
+    return Promise.resolve({
+      deposits: 0,
+      withdrawals: 0,
+      net: 0,
+      depositCount: 0,
+      withdrawCount: 0,
+    });
+  }
+  variance: PostedVariance | null = null;
+  insertVariance(input: InsertVarianceInput): Promise<PostedVariance> {
+    if (this.variance) return Promise.resolve(this.variance);
+    this.variance = {
+      id: 'var1',
+      varianceNo: 1,
+      shiftId: input.shiftId,
+      cashierNo: input.cashierNo,
+      currency: input.currency,
+      expectedCash: input.expectedCash,
+      countedCash: input.countedCash,
+      difference: input.difference,
+      kind: input.kind,
+      note: input.note,
+      postedBy: input.postedBy,
+      postedAt: new Date().toISOString(),
+    };
+    return Promise.resolve(this.variance);
+  }
+  findVariance(): Promise<PostedVariance | null> {
+    return Promise.resolve(this.variance);
   }
 }
 

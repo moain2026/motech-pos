@@ -5,6 +5,7 @@ import { uuidv7 } from '../../../shared/domain/uuid';
 import {
   InsertVoucherInput,
   PersistedVoucher,
+  RefundReturnUniqueViolation,
   VoucherIdempotencyUniqueViolation,
   VoucherListFilter,
   VoucherRepository,
@@ -29,6 +30,7 @@ interface VoucherRow {
   STATUS: string;
   IDEMPOTENCY_KEY: string;
   CLIENT_OP_ID: string | null;
+  REFUND_RETURN_ID: string | null;
   ISSUED_AT: Date;
   CREATED_AT: Date;
 }
@@ -50,12 +52,22 @@ export class OracleVoucherRepository implements VoucherRepository {
   private readonly cols = `ID, VOUCHER_NO, VOUCHER_TYPE, SHIFT_ID, CASHIER_NO,
     MACHINE_NO, AMOUNT, CURRENCY, RATE, AMOUNT_IN_SHIFT, PAYMENT_METHOD,
     DESCRIPTION, PARTY_NAME, CATEGORY, STATUS, IDEMPOTENCY_KEY, CLIENT_OP_ID,
-    ISSUED_AT, CREATED_AT`;
+    REFUND_RETURN_ID, ISSUED_AT, CREATED_AT`;
 
   async findByIdempotencyKey(key: string): Promise<PersistedVoucher | null> {
     const row = await this.db.queryOne<VoucherRow>(
       `SELECT ${this.cols} FROM ${this.schema}.VOUCHERS WHERE IDEMPOTENCY_KEY = :k`,
       { k: key },
+    );
+    return row ? this.map(row) : null;
+  }
+
+  async findByRefundReturnId(
+    returnId: string,
+  ): Promise<PersistedVoucher | null> {
+    const row = await this.db.queryOne<VoucherRow>(
+      `SELECT ${this.cols} FROM ${this.schema}.VOUCHERS WHERE REFUND_RETURN_ID = :r`,
+      { r: returnId },
     );
     return row ? this.map(row) : null;
   }
@@ -88,10 +100,12 @@ export class OracleVoucherRepository implements VoucherRepository {
           `INSERT INTO ${this.schema}.VOUCHERS
              (ID, VOUCHER_NO, VOUCHER_TYPE, SHIFT_ID, CASHIER_NO, MACHINE_NO,
               AMOUNT, CURRENCY, RATE, AMOUNT_IN_SHIFT, PAYMENT_METHOD,
-              DESCRIPTION, PARTY_NAME, CATEGORY, STATUS, IDEMPOTENCY_KEY, CLIENT_OP_ID)
+              DESCRIPTION, PARTY_NAME, CATEGORY, STATUS, IDEMPOTENCY_KEY, CLIENT_OP_ID,
+              REFUND_RETURN_ID)
            VALUES (:id, :voucherNo, :type, :shiftId, :cashierNo, :machineNo,
               :amount, :currency, :rate, :amountInShift, :paymentMethod,
-              :description, :partyName, :category, 'POSTED', :idempotencyKey, :clientOpId)`,
+              :description, :partyName, :category, 'POSTED', :idempotencyKey, :clientOpId,
+              :refundReturnId)`,
           {
             id,
             voucherNo,
@@ -109,11 +123,16 @@ export class OracleVoucherRepository implements VoucherRepository {
             category: input.category,
             idempotencyKey: input.idempotencyKey,
             clientOpId: input.clientOpId,
+            refundReturnId: input.refundReturnId ?? null,
           },
         );
       });
     } catch (err) {
       if (this.isUniqueViolation(err)) {
+        // Distinguish the refund-return UNIQUE index from the idempotency one.
+        if (this.isRefundReturnViolation(err)) {
+          throw new RefundReturnUniqueViolation();
+        }
         throw new VoucherIdempotencyUniqueViolation();
       }
       throw err;
@@ -223,6 +242,7 @@ export class OracleVoucherRepository implements VoucherRepository {
       status: r.STATUS,
       idempotencyKey: r.IDEMPOTENCY_KEY,
       clientOpId: r.CLIENT_OP_ID,
+      refundReturnId: r.REFUND_RETURN_ID ?? null,
       issuedAt: r.ISSUED_AT.toISOString(),
       createdAt: r.CREATED_AT.toISOString(),
     };
@@ -235,6 +255,15 @@ export class OracleVoucherRepository implements VoucherRepository {
       'errorNum' in err &&
       (err as { errorNum?: number }).errorNum === 1
     );
+  }
+
+  /** True when the ORA-00001 came from the refund-return UNIQUE index. */
+  private isRefundReturnViolation(err: unknown): boolean {
+    const msg =
+      typeof err === 'object' && err !== null && 'message' in err
+        ? String((err as { message?: unknown }).message ?? '')
+        : '';
+    return msg.includes('UX_VOUCHERS_REFUND_RET');
   }
 }
 

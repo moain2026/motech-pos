@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import oracledb from 'oracledb';
 import { OracleWriteService } from '../../../infrastructure/oracle/oracle-write.service';
 import {
+  CashierPaymentSummaryRow,
   CashierReportRow,
   CustomerStatementReport,
   LoyaltyReport,
@@ -133,6 +134,115 @@ export class OraclePosReportsRepository implements PosReportsRepository {
       amount: Number(r.AMOUNT),
       amountInBill: Number(r.AMT_IN_BILL),
     }));
+  }
+
+  async cashierPaymentSummary(
+    filter: PosReportFilter & { cashierNo?: number },
+  ): Promise<CashierPaymentSummaryRow[]> {
+    // Per-cashier payment-method breakdown: join POSTED bills to their payments,
+    // group by cashier × method. Range/shift filter on the BILL.
+    const { where, binds } = this.range(filter, 'b');
+    if (filter.cashierNo != null) {
+      binds.cashierNo = filter.cashierNo;
+    }
+    const cashierWhere =
+      filter.cashierNo != null ? `${where} AND b.CASHIER_NO = :cashierNo` : where;
+
+    const rows = await this.db.query<{
+      CASHIER_NO: number;
+      METHOD: string;
+      CNT: number;
+      AMT_IN_BILL: number;
+    }>(
+      `SELECT b.CASHIER_NO, p.METHOD,
+              COUNT(*)                     AS CNT,
+              NVL(SUM(p.AMOUNT_IN_BILL),0) AS AMT_IN_BILL
+       FROM ${this.schema}.PAYMENTS p
+       JOIN ${this.schema}.BILLS b ON b.ID = p.BILL_ID
+       WHERE ${cashierWhere}
+       GROUP BY b.CASHIER_NO, p.METHOD`,
+      binds as oracledb.BindParameters,
+    );
+
+    // Per-cashier bill counts + net (distinct from payment rows).
+    const billRows = await this.db.query<{
+      CASHIER_NO: number;
+      BILL_COUNT: number;
+      NET: number;
+    }>(
+      `SELECT b.CASHIER_NO, COUNT(*) AS BILL_COUNT, NVL(SUM(b.NET_AMT),0) AS NET
+       FROM ${this.schema}.BILLS b
+       WHERE ${cashierWhere}
+       GROUP BY b.CASHIER_NO`,
+      binds as oracledb.BindParameters,
+    );
+
+    // Per-cashier returns/refunds in the same window.
+    const retWhere = this.range(filter, 'r');
+    let retCashierWhere = retWhere.where;
+    if (filter.cashierNo != null) {
+      retWhere.binds.cashierNo = filter.cashierNo;
+      retCashierWhere = `${retWhere.where} AND r.CASHIER_NO = :cashierNo`;
+    }
+    const retRows = await this.db.query<{
+      CASHIER_NO: number;
+      RET_CNT: number;
+      REFUND: number;
+    }>(
+      `SELECT r.CASHIER_NO, COUNT(*) AS RET_CNT, NVL(SUM(r.REFUND_AMT),0) AS REFUND
+       FROM ${this.schema}.RETURNS r
+       WHERE ${retCashierWhere}
+       GROUP BY r.CASHIER_NO`,
+      retWhere.binds as oracledb.BindParameters,
+    );
+
+    const byCashier = new Map<number, CashierPaymentSummaryRow>();
+    const ensure = (no: number): CashierPaymentSummaryRow => {
+      let c = byCashier.get(no);
+      if (!c) {
+        c = {
+          cashierNo: no,
+          billCount: 0,
+          netAmt: 0,
+          methods: [],
+          cashTotal: 0,
+          cardTotal: 0,
+          creditTotal: 0,
+          returnCount: 0,
+          refundTotal: 0,
+        };
+        byCashier.set(no, c);
+      }
+      return c;
+    };
+
+    for (const b of billRows) {
+      const c = ensure(Number(b.CASHIER_NO));
+      c.billCount = Number(b.BILL_COUNT);
+      c.netAmt = Number(b.NET);
+    }
+    for (const r of rows) {
+      const c = ensure(Number(r.CASHIER_NO));
+      const amt = Number(r.AMT_IN_BILL);
+      c.methods.push({
+        method: r.METHOD,
+        txnCount: Number(r.CNT),
+        amountInBill: amt,
+      });
+      if (r.METHOD === 'CASH') c.cashTotal = round4(c.cashTotal + amt);
+      else if (r.METHOD === 'CARD') c.cardTotal = round4(c.cardTotal + amt);
+      else if (r.METHOD === 'CREDIT')
+        c.creditTotal = round4(c.creditTotal + amt);
+    }
+    for (const r of retRows) {
+      const c = ensure(Number(r.CASHIER_NO));
+      c.returnCount = Number(r.RET_CNT);
+      c.refundTotal = Number(r.REFUND);
+    }
+    for (const c of byCashier.values()) {
+      c.methods.sort((a, b) => a.method.localeCompare(b.method));
+    }
+    return [...byCashier.values()].sort((a, b) => b.netAmt - a.netAmt);
   }
 
   async returns(filter: PosReportFilter): Promise<ReturnsReportRow[]> {
