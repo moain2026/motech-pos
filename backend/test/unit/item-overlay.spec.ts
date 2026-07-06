@@ -129,7 +129,12 @@ describe('CatalogService overlay merge (POSI2000)', () => {
   beforeEach(() => {
     erp = new FakeErp();
     ov = new FakeOverlay();
-    svc = new CatalogService(erp, ov, new FakeBarcodes() as never);
+    svc = new CatalogService(
+      erp,
+      ov,
+      new FakeBarcodes() as never,
+      { decode: async () => null } as never,
+    );
   });
 
   it('creates a LOCAL item and reads it back', async () => {

@@ -4,6 +4,7 @@ import {
   ItemNotFoundError,
   OverlayConflictError,
 } from '../../../shared/errors/domain-error';
+import { PosConfigService } from '../../settings/application/pos-config.service';
 import { Item } from '../domain/entities/item.entity';
 import { parseWeightedBarcode } from '../domain/weighted-barcode';
 import {
@@ -48,6 +49,7 @@ export class CatalogService {
     private readonly overlay: ItemOverlayRepository,
     @Inject(ITEM_BARCODES_REPOSITORY)
     private readonly barcodes: ItemBarcodesRepository,
+    private readonly scales: PosConfigService,
   ) {}
 
   async list(filter: ItemListFilter) {
@@ -315,26 +317,63 @@ export class CatalogService {
     };
   }
 
+  /**
+   * Fallback scale decode using the built-in Onyx-default weighted scheme
+   * (prefix 02, 12 digits, item 5, divisor 1000) — used only when no
+   * SCALE_DEFINITIONS rows are configured, so behaviour is unchanged for
+   * stores that never open the scales screen.
+   */
+  private fallbackWeighted(barcode: string): {
+    raw: string;
+    itemCode: string;
+    quantity: number | null;
+    price: number | null;
+    mode: 'WEIGHT' | 'PRICE';
+    scaleName: string;
+  } | null {
+    const w = parseWeightedBarcode(barcode);
+    if (!w) return null;
+    return {
+      raw: w.raw,
+      itemCode: w.itemCode,
+      quantity: w.quantity,
+      price: null,
+      mode: 'WEIGHT',
+      scaleName: 'default',
+    };
+  }
+
   async getByBarcode(barcode: string) {
-    // Weighted (scale) barcode? Decode → resolve by embedded item code and
-    // surface the embedded quantity so the cashier's cart line is pre-filled.
-    const weighted = parseWeightedBarcode(barcode);
-    if (weighted) {
-      const detail = await this.resolveDetailByCode(weighted.itemCode);
+    // Scale (weighing) barcode? Decode against the configurable SCALE_DEFINITIONS
+    // (POSI005/006) — a WEIGHT scale embeds the quantity, a PRICE scale embeds
+    // the line price. Resolve by the embedded item code and surface the decoded
+    // quantity/price so the cashier's cart line is pre-filled. Falls back to the
+    // built-in default scheme when no definitions exist (backward compatible).
+    const scale =
+      (await this.scales.decode(barcode)) ?? this.fallbackWeighted(barcode);
+    if (scale) {
+      const detail = await this.resolveDetailByCode(scale.itemCode);
       if (detail) {
         return {
           ...detail,
           scanned: {
             isWeighted: true as const,
-            barcode: weighted.raw,
-            itemCode: weighted.itemCode,
-            quantity: weighted.quantity,
+            barcode: scale.raw,
+            itemCode: scale.itemCode,
+            // WEIGHT scales carry a quantity; PRICE scales default to qty 1 and
+            // carry a price override the sale layer may apply.
+            quantity: scale.quantity ?? 1,
+            ...(scale.mode === 'PRICE' && scale.price != null
+              ? { priceOverride: scale.price }
+              : {}),
+            scaleMode: scale.mode,
+            scaleName: scale.scaleName,
           },
         };
       }
       throw new ItemNotFoundError(
-        `No item for weighted barcode ${barcode} (item code ${weighted.itemCode})`,
-        { barcode, itemCode: weighted.itemCode },
+        `No item for scale barcode ${barcode} (item code ${scale.itemCode})`,
+        { barcode, itemCode: scale.itemCode },
       );
     }
     const found = await this.repo.findByBarcode(barcode);

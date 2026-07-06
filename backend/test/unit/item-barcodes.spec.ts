@@ -144,7 +144,10 @@ describe('CatalogService barcodes + stock limits (POSI006/008/009)', () => {
       inactive: false,
       origin: 'ERP',
     });
-    svc = new CatalogService(erp, ov, bcs);
+    // PosConfigService stub: no configured scales → getByBarcode falls back to
+    // the built-in weighted-barcode decoder (the behaviour this suite asserts).
+    const scales = { decode: async () => null } as unknown as import('../../src/modules/settings/application/pos-config.service').PosConfigService;
+    svc = new CatalogService(erp, ov, bcs, scales);
   });
 
   it('lists ERP + local barcodes of an item', async () => {
