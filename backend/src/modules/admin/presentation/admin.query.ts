@@ -16,3 +16,13 @@ export class SessionsQuery {
   @Max(500)
   limit?: number = 100;
 }
+
+/** Backups list query: result cap (newest first). */
+export class BackupsQuery {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(500)
+  limit?: number = 50;
+}

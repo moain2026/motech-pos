@@ -63,6 +63,20 @@ export const configSchema = z.object({
     .transform((s) => s !== 'false' && s !== '0'),
   // Cron expression for the scheduled pull (default: every 30 minutes).
   CATALOG_SYNC_CRON: z.string().default('0 */30 * * * *'),
+
+  // --- Data backup (POSS003 النسخ الاحتياطية) ---
+  // Logical export of the MOTECH_POS write schema (our own data only — the
+  // live YSPOS23/IAS202623 ERP is never exported). Files land under BACKUP_DIR.
+  BACKUP_DIR: z.string().default('backups'),
+  // Automatic scheduled backup (in-process via @nestjs/schedule).
+  BACKUP_SCHEDULE_ENABLED: z
+    .string()
+    .default('false')
+    .transform((s) => s === 'true' || s === '1'),
+  // Cron expression for the scheduled backup (default: daily at 02:00).
+  BACKUP_CRON: z.string().default('0 0 2 * * *'),
+  // Keep at most this many snapshot files on disk (older ones are pruned).
+  BACKUP_RETENTION: z.coerce.number().int().min(1).default(30),
 });
 
 export type AppConfig = z.infer<typeof configSchema>;
