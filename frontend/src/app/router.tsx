@@ -34,6 +34,9 @@ const CustomersPage = lazy(() =>
 const ReturnsPage = lazy(() =>
   import('@/features/returns').then((m) => ({ default: m.ReturnsPage })),
 );
+const ReturnDetailPage = lazy(() =>
+  import('@/features/returns').then((m) => ({ default: m.ReturnDetailPage })),
+);
 const ItemsPage = lazy(() =>
   import('@/features/items').then((m) => ({ default: m.ItemsPage })),
 );
@@ -142,6 +145,7 @@ export const router = createBrowserRouter([
       { path: 'bills', element: <Lazy><BillsPage /></Lazy> },
       { path: 'bills/:billNo', element: <Lazy><BillDetailPage /></Lazy> },
       { path: 'returns', element: <Lazy><ReturnsPage /></Lazy> },
+      { path: 'returns/:id', element: <Lazy><ReturnDetailPage /></Lazy> },
       { path: 'prescriptions', element: <Lazy><PrescriptionsPage /></Lazy> },
       { path: 'transfers', element: <Lazy><TransfersPage /></Lazy> },
       { path: 'sales-orders', element: <Lazy><SalesOrdersPage /></Lazy> },

@@ -1,10 +1,14 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Banknote } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { LoadingView, ErrorView } from '@/shared/ui/StateView';
 import { formatMoney, formatDate } from '@/shared/lib/format';
+import type { CreditBillRow } from '@/shared/lib/types';
+import { useCreditBills } from '@/features/customers/api/customers.api';
+import { CollectDialog } from '@/features/customers/components/CollectDialog';
 import { useBillDetail } from '../api/bills.api';
 
 export function BillDetailPage() {
@@ -88,10 +92,46 @@ export function BillDetailPage() {
                 {t('bills.stored')}: <span className="tnum">{formatMoney(query.data.stored.billAmt)}</span>
               </p>
             </Card>
+
+            {/* POST011 — direct سداد for credit (آجل) bills, right on the bill page */}
+            {query.data.customer.code && billNo ? (
+              <CreditCollectCard customerCode={query.data.customer.code} billNo={billNo} />
+            ) : null}
           </div>
         </div>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * POST011 — if this bill is one of the customer's open credit bills, show its
+ * outstanding balance and a direct "سداد" (collect) button.
+ */
+function CreditCollectCard({ customerCode, billNo }: { customerCode: string; billNo: string }) {
+  const { t } = useTranslation();
+  const [collectFor, setCollectFor] = useState<CreditBillRow | null>(null);
+  const bills = useCreditBills(customerCode, 'open');
+  const bill = bills.data?.bills.find((b) => b.billNo === billNo || b.billId === billNo);
+  if (!bill || bill.outstanding <= 0) return null;
+
+  return (
+    <Card className="flex flex-col gap-2 p-4">
+      <p className="text-xs font-semibold text-[var(--color-muted)]">{t('credit.title')}</p>
+      <Meta label={t('credit.outstanding')} value={formatMoney(bill.outstanding)} />
+      <Meta label={t('credit.collectedAmt')} value={formatMoney(bill.collectedAmt)} />
+      <Button variant="success" onClick={() => setCollectFor(bill)}>
+        <Banknote className="size-4" />
+        {t('credit.collect')}
+      </Button>
+      {collectFor ? (
+        <CollectDialog
+          customerCode={customerCode}
+          bill={collectFor}
+          onClose={() => setCollectFor(null)}
+        />
+      ) : null}
+    </Card>
   );
 }
 

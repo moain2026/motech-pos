@@ -33,6 +33,8 @@ import {
   useUpdateAdminMachine,
   useUpdateAdminPermissions,
 } from '../api/admin.api';
+import { useByMachineReport } from '@/features/reports/api/reports.api';
+import { formatMoney, formatNumber } from '@/shared/lib/format';
 
 type Tab = 'machines' | 'users' | 'sessions' | 'permissions';
 
@@ -135,6 +137,9 @@ function MachinesTable({ query }: { query: ReturnType<typeof useAdminMachines> }
   const { t } = useTranslation();
   const rows = query.data ?? [];
   const [dialog, setDialog] = useState<{ machine: AdminMachine | null } | null>(null);
+  // POST009 — merge live sales stats (bill count + net sales) into each machine row.
+  const stats = useByMachineReport();
+  const statOf = new Map((stats.data ?? []).map((r) => [r.machineNo, r]));
   return (
     <div className="flex h-full flex-col gap-3">
       <div className="flex justify-end">
@@ -153,6 +158,8 @@ function MachinesTable({ query }: { query: ReturnType<typeof useAdminMachines> }
             <Th end>{t('admin.branch')}</Th>
             <Th>{t('admin.ip')}</Th>
             <Th>{t('admin.lastBill')}</Th>
+            <Th end>{t('admin.billCount')}</Th>
+            <Th end>{t('admin.netSales')}</Th>
             <Th center>{t('admin.useVat')}</Th>
             <Th center>{t('adminw.origin')}</Th>
             <Th end>{t('adminw.actions')}</Th>
@@ -168,6 +175,12 @@ function MachinesTable({ query }: { query: ReturnType<typeof useAdminMachines> }
               <td className="tnum px-3 py-2 text-end">{m.defBranch ?? '—'}</td>
               <td className="tnum px-3 py-2 text-[var(--color-muted)]">{m.ipAddress ?? '—'}</td>
               <td className="tnum px-3 py-2 text-[var(--color-muted)]">{m.lastBillDate ?? '—'}</td>
+              <td className="tnum px-3 py-2 text-end">
+                {statOf.get(m.machineNo) ? formatNumber(statOf.get(m.machineNo)!.billCount) : '—'}
+              </td>
+              <td className="tnum px-3 py-2 text-end font-semibold">
+                {statOf.get(m.machineNo) ? formatMoney(statOf.get(m.machineNo)!.totalAmt) : '—'}
+              </td>
               <td className="px-3 py-2 text-center"><Bool value={m.useVat} /></td>
               <td className="px-3 py-2 text-center"><OriginBadge origin={m.origin} /></td>
               <td className="px-3 py-2 text-end">
