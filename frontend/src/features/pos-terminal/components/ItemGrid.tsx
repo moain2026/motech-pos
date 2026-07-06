@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Search, Plus, Package, Tags } from 'lucide-react';
 import { Input } from '@/shared/ui/Input';
 import { Button } from '@/shared/ui/Button';
-import { LoadingView, ErrorView, EmptyView } from '@/shared/ui/StateView';
+import { ErrorView, EmptyView } from '@/shared/ui/StateView';
+import { ItemGridSkeleton } from '@/shared/ui/Skeleton';
 import { formatMoney } from '@/shared/lib/format';
 import type { Item } from '@/shared/lib/types';
 import { useItemSearch, useCategories } from '../api/items.api';
@@ -156,7 +157,7 @@ export function ItemGrid() {
 
       <div className="min-h-0 flex-1 overflow-y-auto scroll-thin">
         {query.isLoading ? (
-          <LoadingView />
+          <ItemGridSkeleton />
         ) : query.isError ? (
           <ErrorView error={query.error} onRetry={() => query.refetch()} />
         ) : items.length === 0 ? (

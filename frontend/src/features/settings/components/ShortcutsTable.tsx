@@ -6,6 +6,7 @@ import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { LoadingView, ErrorView, EmptyView } from '@/shared/ui/StateView';
 import { ApiError } from '@/shared/lib/api-client';
+import { confirmDialog } from '@/shared/ui/ConfirmDialog';
 import {
   useShortcuts,
   useUpsertShortcut,
@@ -100,8 +101,8 @@ export function ShortcutsTable({ canEdit }: { canEdit: boolean }) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => {
-                            if (confirm(t('shortcuts.confirmDelete'))) del.mutate(s.action);
+                          onClick={async () => {
+                            if (await confirmDialog({ message: t('shortcuts.confirmDelete'), variant: 'danger' })) del.mutate(s.action);
                           }}
                           aria-label={t('shortcuts.delete')}
                         >

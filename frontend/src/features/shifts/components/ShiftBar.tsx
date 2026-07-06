@@ -8,6 +8,7 @@ import { formatMoney } from '@/shared/lib/format';
 import { useSession } from '@/features/auth';
 import { usePosSettings } from '@/features/pos-terminal/store/pos-settings.store';
 import { useCurrentShift, useOpenShift, useCloseShift } from '../api/shifts.api';
+import { confirmDialog } from '@/shared/ui/ConfirmDialog';
 
 /**
  * Shift header + open/close controls (POST027 context).
@@ -58,7 +59,7 @@ export function ShiftBar() {
 
   const onClose = async () => {
     if (!shift) return;
-    if (!window.confirm(t('shift.confirmClose'))) return;
+    if (!(await confirmDialog({ message: t('shift.confirmClose'), variant: 'danger' }))) return;
     setMsg(null);
     try {
       const s = await closeShift.mutateAsync({

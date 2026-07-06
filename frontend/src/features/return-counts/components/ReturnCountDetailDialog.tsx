@@ -13,6 +13,7 @@ import {
   useReturnCount,
 } from '../api/return-counts.api';
 import { RcStatusBadge } from './ReturnCountsPage';
+import { confirmDialog } from '@/shared/ui/ConfirmDialog';
 
 /**
  * Return-count detail (POST022) — session header, the "count one item" entry
@@ -54,7 +55,7 @@ export function ReturnCountDetailDialog({ id, onClose }: { id: string; onClose: 
 
   const approve = async () => {
     setError(null);
-    if (!window.confirm(t('returnCounts.postConfirm'))) return;
+    if (!(await confirmDialog({ message: t('returnCounts.postConfirm') }))) return;
     try {
       await post.mutateAsync(id);
     } catch (e) {

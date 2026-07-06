@@ -212,8 +212,12 @@ test.describe('Motech POS — المسارات الحرجة (live E2E)', () => {
 
     await expect(page.getByText(/وردية رقم\s*#\d+/)).toBeVisible();
     await page.getByLabel('النقد المحسوب عند الإقفال').fill('9000');
-    page.once('dialog', (d) => d.accept()); // window.confirm(إقفال الوردية الحالية؟)
     await page.getByRole('button', { name: 'إقفال الوردية' }).click();
+    // ConfirmDialog الموحّد (بديل window.confirm) — زر التأكيد داخل dialog التطبيق.
+    await page
+      .getByRole('dialog', { name: 'تأكيد' })
+      .getByRole('button', { name: 'تأكيد', exact: true })
+      .click();
 
     // Real outcome: closed + server-computed cash difference in the message.
     await expect(page.getByText(/تم إقفال الوردية — الفرق:/)).toBeVisible();

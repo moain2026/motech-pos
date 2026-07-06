@@ -4,6 +4,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { I18nextProvider } from 'react-i18next';
 import { ApiError } from '@/shared/lib/api-client';
 import i18n from '@/shared/lib/i18n';
+import { ConfirmDialogHost } from '@/shared/ui/ConfirmDialog';
 import { startSyncLoop } from '@/shared/offline/sync-queue';
 
 /** App-wide providers: TanStack Query (server state) + i18n (RTL Arabic). */
@@ -34,6 +35,7 @@ export function Providers({ children }: { children: ReactNode }) {
     <I18nextProvider i18n={i18n}>
       <QueryClientProvider client={client}>
         {children}
+        <ConfirmDialogHost />
         {import.meta.env.DEV ? <ReactQueryDevtools initialIsOpen={false} /> : null}
       </QueryClientProvider>
     </I18nextProvider>

@@ -15,6 +15,7 @@ import {
 } from '../api/sales-orders.api';
 import { SalesOrderDialog } from './SalesOrderDialog';
 import { SalesOrderDetailDialog } from './SalesOrderDetailDialog';
+import { confirmDialog } from '@/shared/ui/ConfirmDialog';
 
 type StatusFilter = 'all' | SalesOrderStatus;
 
@@ -57,7 +58,7 @@ export function SalesOrdersPage() {
   const doConvert = async (r: SalesOrderHeader) => {
     setActionError(null);
     setConvertedNo(null);
-    if (!window.confirm(t('salesOrders.convertConfirm', { no: r.orderNo }))) return;
+    if (!(await confirmDialog({ message: t('salesOrders.convertConfirm', { no: r.orderNo }) }))) return;
     try {
       const res = await convert.mutateAsync({ id: r.id, cashierNo, machineNo });
       setConvertedNo(res.convertedBillNo);
@@ -71,7 +72,7 @@ export function SalesOrdersPage() {
   const doCancel = async (r: SalesOrderHeader) => {
     setActionError(null);
     setConvertedNo(null);
-    if (!window.confirm(t('salesOrders.cancelConfirm', { no: r.orderNo }))) return;
+    if (!(await confirmDialog({ message: t('salesOrders.cancelConfirm', { no: r.orderNo }), variant: 'danger' }))) return;
     try {
       await cancel.mutateAsync(r.id);
     } catch (e) {

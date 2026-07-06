@@ -1652,5 +1652,10 @@
     "columnsPrices": "الأعمدة: code, price",
     "columnsBalances": "الأعمدة: code, qty, warehouse",
     "empty": "لا توجد عمليات سابقة"
+  },
+  "confirm": {
+    "title": "تأكيد",
+    "ok": "تأكيد",
+    "cancel": "إلغاء"
   }
 }

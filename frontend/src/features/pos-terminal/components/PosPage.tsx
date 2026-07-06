@@ -151,21 +151,23 @@ export function PosPage() {
         </button>
       </div>
 
-      {/* تغذية راجعة فورية للمسح (POS §7) */}
-      {scanFeedback ? (
-        <div
-          role="status"
-          className={`pointer-events-none fixed inset-x-0 top-4 z-[var(--z-toast)] mx-auto w-fit max-w-[90vw] rounded-full px-4 py-2 text-[length:var(--text-sm)] font-semibold shadow-[var(--shadow-lg)] ${
-            scanFeedback.kind === 'added'
-              ? 'bg-[var(--color-success)] text-white'
-              : 'bg-[var(--color-danger)] text-white'
-          }`}
-        >
-          {scanFeedback.kind === 'added'
-            ? `${t('pos.scanAdded')}: ${scanFeedback.label}`
-            : `${t('pos.scanNotFound')}: ${scanFeedback.label}`}
-        </div>
-      ) : null}
+      {/* تغذية راجعة فورية للمسح (POS §7) — live region دائمة حتى يلتقط
+          قارئ الشاشة التحديثات (U2 من EXCELLENCE_AUDIT) */}
+      <div role="status" aria-live="polite" aria-atomic="true">
+        {scanFeedback ? (
+          <div
+            className={`pointer-events-none fixed inset-x-0 top-4 z-[var(--z-toast)] mx-auto w-fit max-w-[90vw] rounded-full px-4 py-2 text-[length:var(--text-sm)] font-semibold shadow-[var(--shadow-lg)] ${
+              scanFeedback.kind === 'added'
+                ? 'bg-[var(--color-success)] text-white'
+                : 'bg-[var(--color-danger)] text-white'
+            }`}
+          >
+            {scanFeedback.kind === 'added'
+              ? `${t('pos.scanAdded')}: ${scanFeedback.label}`
+              : `${t('pos.scanNotFound')}: ${scanFeedback.label}`}
+          </div>
+        ) : null}
+      </div>
 
       {/* الشبكة: أصناف + سلة (السلة تختفي على الجوال وتظهر كـsheet) */}
       <div className="grid min-h-0 grid-cols-1 gap-3 sm:gap-4 tab:grid-cols-[minmax(0,1fr)_320px] lg:grid-cols-[minmax(0,1fr)_380px]">

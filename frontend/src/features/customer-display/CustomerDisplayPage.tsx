@@ -139,7 +139,7 @@ function CartView({
       {/* Invoice lines */}
       <section className="min-h-0 overflow-y-auto px-6 py-4 md:px-10" aria-label="أصناف الفاتورة">
         <table className="w-full border-separate border-spacing-y-2 text-lg md:text-xl">
-          <thead className="sticky top-0 z-10 bg-[#0b1a2e]/95 text-sm text-[var(--color-muted)] md:text-base">
+          <thead className="sticky top-0 z-10 bg-[var(--color-surface)]/95 text-sm text-[var(--color-muted)] md:text-base">
             <tr>
               <th className="pb-2 pe-2 text-start font-semibold">الصنف</th>
               <th className="pb-2 px-2 text-center font-semibold">الكمية</th>

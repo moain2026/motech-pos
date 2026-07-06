@@ -21,6 +21,7 @@ import { formatDateTime, formatNumber } from '@/shared/lib/format';
 import type { StockDocLine, StockDocStatus } from '@/shared/lib/types';
 import { useSession } from '@/features/auth';
 import { useWarehouses } from '@/features/master-data/api/master-data.api';
+import { confirmDialog } from '@/shared/ui/ConfirmDialog';
 
 /**
  * Shared UI for the two warehouse documents:
@@ -468,7 +469,7 @@ export function StockDocDetailDialog(props: DetailDialogProps) {
 
   const approve = async () => {
     setError(null);
-    if (!window.confirm(t(`stockDocs.${kind}.postConfirm`))) return;
+    if (!(await confirmDialog({ message: t(`stockDocs.${kind}.postConfirm`) }))) return;
     try {
       await props.onPost();
     } catch (e) {

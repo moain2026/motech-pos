@@ -9,6 +9,7 @@ import { formatDateTime, formatNumber } from '@/shared/lib/format';
 import { useSession } from '@/features/auth';
 import { usePostCount, useRecordCountLine, useStockCount } from '../api/stock-counts.api';
 import { StatusBadge } from './StockCountsTab';
+import { confirmDialog } from '@/shared/ui/ConfirmDialog';
 
 /**
  * Stock-count detail (POST018) — session header, the "count one item" entry
@@ -50,7 +51,7 @@ export function StockCountDetailDialog({ id, onClose }: { id: string; onClose: (
 
   const approve = async () => {
     setError(null);
-    if (!window.confirm(t('stockCount.postConfirm'))) return;
+    if (!(await confirmDialog({ message: t('stockCount.postConfirm') }))) return;
     try {
       await post.mutateAsync(id);
     } catch (e) {

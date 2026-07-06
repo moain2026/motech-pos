@@ -10,6 +10,7 @@ import type { TransferRow } from '@/shared/lib/types';
 import { useTransfers, useCancelTransfer, useWarehouses } from '../api/transfers.api';
 import { TransferDialog } from './TransferDialog';
 import { TransferDetailDialog } from './TransferDetailDialog';
+import { confirmDialog } from '@/shared/ui/ConfirmDialog';
 
 type StatusFilter = 'all' | 'OPEN' | 'CANCELLED';
 
@@ -39,7 +40,7 @@ export function TransfersPage() {
 
   const doCancel = async (r: TransferRow) => {
     setCancelError(null);
-    if (!window.confirm(t('transfers.cancelConfirm', { no: r.reqNo }))) return;
+    if (!(await confirmDialog({ message: t('transfers.cancelConfirm', { no: r.reqNo }), variant: 'danger' }))) return;
     try {
       await cancel.mutateAsync(r.id);
     } catch (e) {

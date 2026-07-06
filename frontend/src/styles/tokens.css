@@ -157,4 +157,9 @@
     --dur: 0ms;
     --dur-slow: 0ms;
   }
+  /* إيقاف نبض الهياكل (Skeleton) وأي حركة دوران/نبض مستمرة */
+  .animate-pulse,
+  .animate-spin {
+    animation: none;
+  }
 }

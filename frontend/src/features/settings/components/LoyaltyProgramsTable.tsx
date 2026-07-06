@@ -6,6 +6,7 @@ import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { LoadingView, ErrorView, EmptyView } from '@/shared/ui/StateView';
 import { ApiError } from '@/shared/lib/api-client';
+import { confirmDialog } from '@/shared/ui/ConfirmDialog';
 import {
   useLoyaltyPrograms,
   useCreateLoyaltyProgram,
@@ -107,8 +108,8 @@ export function LoyaltyProgramsTable({ canEdit }: { canEdit: boolean }) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => {
-                            if (confirm(t('loyaltyPrograms.confirmDelete'))) del.mutate(p.id);
+                          onClick={async () => {
+                            if (await confirmDialog({ message: t('loyaltyPrograms.confirmDelete'), variant: 'danger' })) del.mutate(p.id);
                           }}
                           aria-label={t('loyaltyPrograms.delete')}
                         >

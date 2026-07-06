@@ -6,6 +6,7 @@ import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { LoadingView, ErrorView, EmptyView } from '@/shared/ui/StateView';
 import { ApiError } from '@/shared/lib/api-client';
+import { confirmDialog } from '@/shared/ui/ConfirmDialog';
 import {
   useScales,
   useCreateScale,
@@ -116,8 +117,8 @@ export function ScalesTable({ canEdit }: { canEdit: boolean }) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => {
-                            if (confirm(t('scales.confirmDelete'))) del.mutate(s.id);
+                          onClick={async () => {
+                            if (await confirmDialog({ message: t('scales.confirmDelete'), variant: 'danger' })) del.mutate(s.id);
                           }}
                           aria-label={t('scales.delete')}
                         >

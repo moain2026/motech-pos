@@ -9,6 +9,7 @@ import {
   useStockReceipt,
   useStockReceipts,
 } from '../api/stock-docs.api';
+import { confirmDialog } from '@/shared/ui/ConfirmDialog';
 import {
   StockDocCreateDialog,
   StockDocDetailDialog,
@@ -67,7 +68,7 @@ export function StockReceiptsPage() {
 
   const doCancel = async (row: DocHeaderVM) => {
     setActionError(null);
-    if (!window.confirm(t('stockDocs.receipts.cancelConfirm', { no: row.docNo }))) return;
+    if (!(await confirmDialog({ message: t('stockDocs.receipts.cancelConfirm', { no: row.docNo }), variant: 'danger' }))) return;
     try {
       await cancel.mutateAsync(row.id);
     } catch (e) {
