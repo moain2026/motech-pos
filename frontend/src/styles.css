@@ -1,9 +1,12 @@
 @import 'tailwindcss';
 
+/* Design tokens — مصدر الحقيقة (يُستورد قبل @theme). */
+@import './styles/tokens.css';
+
 /*
- * Motech POS — Design System (STANDARDS/02 §7)
- * Touch-first, high contrast for bright cashier environments, RTL Arabic.
- * Self-hosted Arabic font (Cairo) loaded from /fonts for offline support.
+ * Motech POS — Design System (المرحلة 1)
+ * Touch-first · high contrast · RTL Arabic · mobile-first.
+ * الخط العربي (Cairo) مستضاف ذاتياً من /fonts للعمل بلا اتصال (PWA).
  */
 @font-face {
   font-family: 'Cairo';
@@ -13,34 +16,87 @@
   src: url('/fonts/cairo.woff2') format('woff2');
 }
 
+/*
+ * ربط الـtokens بنظام Tailwind v4 (@theme) — يجعل utilities مثل
+ * bg-brand-600 / text-lg / rounded-lg / shadow-md تحل من الـtokens.
+ * القيم الثابتة (clamp/px) تُعرّف مباشرة؛ الألوان تشير لمتغيّرات الـtokens.
+ */
 @theme {
   --font-sans:
     'Cairo', 'IBM Plex Sans Arabic', 'Noto Sans Arabic', system-ui, -apple-system, sans-serif;
 
-  /* Brand / surfaces (teal POS palette) */
-  --color-brand-50: #f0fdfa;
-  --color-brand-100: #ccfbf1;
-  --color-brand-500: #14b8a6;
-  --color-brand-600: #0d9488;
-  --color-brand-700: #0f766e;
-  --color-brand-800: #115e59;
+  /* Brand */
+  --color-brand-50: var(--color-brand-50);
+  --color-brand-100: var(--color-brand-100);
+  --color-brand-200: var(--color-brand-200);
+  --color-brand-300: var(--color-brand-300);
+  --color-brand-400: var(--color-brand-400);
+  --color-brand-500: var(--color-brand-500);
+  --color-brand-600: var(--color-brand-600);
+  --color-brand-700: var(--color-brand-700);
+  --color-brand-800: var(--color-brand-800);
+  --color-brand-900: var(--color-brand-900);
 
-  --color-bg: #0b1220;
-  --color-surface: #111c30;
-  --color-surface-2: #18253d;
-  --color-border: #25334d;
-  --color-fg: #e8eef7;
-  --color-muted: #93a4bf;
+  /* الأسطح والنص */
+  --color-bg: var(--color-bg);
+  --color-surface: var(--color-surface);
+  --color-surface-2: var(--color-surface-2);
+  --color-surface-3: var(--color-surface-3);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+  --color-fg: var(--color-fg);
+  --color-fg-strong: var(--color-fg-strong);
+  --color-muted: var(--color-muted);
+  --color-muted-2: var(--color-muted-2);
 
-  --color-success: #16a34a;
-  --color-warning: #d97706;
-  --color-danger: #dc2626;
+  /* دلالية */
+  --color-primary: var(--color-primary);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-danger: var(--color-danger);
+  --color-info: var(--color-info);
+  --color-stock-in: var(--color-stock-in);
+  --color-stock-low: var(--color-stock-low);
+  --color-stock-out: var(--color-stock-out);
+  --color-stock-weighed: var(--color-stock-weighed);
 
-  --radius: 0.75rem;
+  /* مقاييس الخطوط السُلّمية (responsive clamp) */
+  --text-2xs: var(--text-2xs);
+  --text-xs: var(--text-xs);
+  --text-sm: var(--text-sm);
+  --text-base: var(--text-base);
+  --text-lg: var(--text-lg);
+  --text-xl: var(--text-xl);
+  --text-2xl: var(--text-2xl);
+  --text-3xl: var(--text-3xl);
+  --text-4xl: var(--text-4xl);
+
+  /* أنصاف الأقطار */
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  /* الظلال */
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+
+  /* نقاط التوقّف المعيارية (mobile-first): 390 جوال · 820 تابلت · 1440 ديسكتوب */
+  --breakpoint-xs: 26rem;   /* 416px — أعلى الجوال الصغير */
+  --breakpoint-sm: 40rem;   /* 640px */
+  --breakpoint-md: 48rem;   /* 768px */
+  --breakpoint-tab: 51rem;  /* 816px — التابلت (~820) */
+  --breakpoint-lg: 64rem;   /* 1024px */
+  --breakpoint-xl: 80rem;   /* 1280px */
+  --breakpoint-2xl: 90rem;  /* 1440px — الديسكتوب المرجعي */
 }
 
 * {
   border-color: var(--color-border);
+  /* منع overflow أفقي غير مقصود على الجوال (390px) */
+  min-width: 0;
 }
 
 html,
@@ -49,35 +105,55 @@ body,
   height: 100%;
 }
 
+html {
+  /* منع التمرير الأفقي على مستوى الصفحة (حارس 390px) */
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   background: var(--color-bg);
   color: var(--color-fg);
   font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
-  /* Arabic numerals tuned, tabular for prices */
+  text-rendering: optimizeLegibility;
   font-feature-settings: 'tnum';
+  /* تحسين اللمس: منع التكبير المزدوج + تمييز اللمس */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
-/* Touch targets ≥ 44px (STANDARDS/02 §7) */
-button {
-  min-height: 44px;
-  cursor: pointer;
-  font-family: inherit;
+/*
+ * أهداف لمس ≥44px على كل الأزرار (خط دفاع أساسي — POS §6).
+ * داخل @layer base حتى تستطيع utilities مثل min-h-[56px] تجاوزه للأزرار
+ * الأكبر (الدفع = 56px) — لولا ذلك لطغى هذا القاعدة العامة على الـutility.
+ */
+@layer base {
+  button {
+    min-height: var(--touch-min);
+    cursor: pointer;
+    font-family: inherit;
+  }
 }
 
-/* Visible focus for keyboard / scanner workflow (a11y §8) */
+/* تركيز مرئي واضح للوحة المفاتيح/الماسح (a11y) */
 :focus-visible {
   outline: 2px solid var(--color-brand-500);
   outline-offset: 2px;
 }
 
-/* Tabular numbers for money columns */
+/* أرقام جدولية لأعمدة المبالغ */
 .tnum {
   font-variant-numeric: tabular-nums;
 }
 
-/* Hide scrollbar visually but keep scroll (item grid) */
+/* شريط تمرير رفيع (شبكة الأصناف والقوائم) */
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
 .scroll-thin::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -85,4 +161,88 @@ button {
 .scroll-thin::-webkit-scrollbar-thumb {
   background: var(--color-border);
   border-radius: 8px;
+}
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* أداة مساعدة: تمرير أفقي سلس على اللمس (شرائح الفئات/التبويبات) */
+.scroll-x-touch {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.scroll-x-touch::-webkit-scrollbar {
+  display: none;
+}
+
+/* أداة: احترام المنطقة الآمنة السفلية (شريط الجوال) */
+.pb-safe {
+  padding-bottom: calc(var(--space-2) + var(--safe-bottom));
+}
+.pt-safe {
+  padding-top: var(--safe-top);
+}
+
+/*
+ * جدول متجاوب مكدّس: على الجوال (<640px) يتحوّل كل صف إلى بطاقة label/value.
+ * الخلية تعرض data-label قبل قيمتها. على ≥640px يعود جدولاً عادياً.
+ */
+@media (max-width: 639px) {
+  .table-stack thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .table-stack tr {
+    display: block;
+    margin-bottom: var(--space-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-surface-2);
+    padding: var(--space-1) var(--space-2);
+  }
+  .table-stack td {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-1);
+    border: 0;
+    text-align: end;
+  }
+  .table-stack td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--color-muted);
+    text-align: start;
+  }
+  .table-stack td:empty {
+    display: none;
+  }
+}
+
+/* حركة انزلاق الـsheet السفلي (سلة الجوال) */
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.animate-sheet-up {
+  animation: sheet-up var(--dur-slow) var(--ease);
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fade-in {
+  animation: fade-in var(--dur) var(--ease);
 }

@@ -38,7 +38,7 @@ export function Cart() {
             <Button
               variant="outline"
               size="icon"
-              className="size-9"
+              className="size-10 shrink-0"
               onClick={() => incQty(l.code, -1)}
               aria-label={t('pos.qty') + ' -'}
             >
@@ -49,13 +49,13 @@ export function Cart() {
               min={0}
               value={l.qty}
               onChange={(e) => setQty(l.code, Number(e.target.value))}
-              className="tnum h-9 w-12 rounded-md border bg-[var(--color-surface-2)] text-center text-sm"
+              className="tnum h-10 w-12 rounded-md border bg-[var(--color-surface-2)] text-center text-[length:var(--text-sm)]"
               aria-label={t('pos.qty')}
             />
             <Button
               variant="outline"
               size="icon"
-              className="size-9"
+              className="size-10 shrink-0"
               onClick={() => incQty(l.code, 1)}
               aria-label={t('pos.qty') + ' +'}
             >
@@ -63,14 +63,14 @@ export function Cart() {
             </Button>
           </div>
 
-          <div className="tnum w-24 text-end text-sm font-bold">
+          <div className="tnum w-20 shrink-0 text-end text-[length:var(--text-sm)] font-bold sm:w-24">
             {formatMoney(lineTotal(l))}
           </div>
 
           <Button
             variant="ghost"
             size="icon"
-            className="size-9 text-[var(--color-danger)]"
+            className="size-10 shrink-0 text-[var(--color-danger)]"
             onClick={() => removeLine(l.code)}
             aria-label={t('pos.remove')}
           >

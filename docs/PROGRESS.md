@@ -1,6 +1,27 @@
 # 📈 سجل تقدّم Motech POS
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
+## 2026-07-06 (Lane D — إعادة تصميم متجاوبة mobile-first: نظام تصميم + Shell + شاشة البيع) — subagent lane-d-responsive-ux
+
+> **المحرّك:** شهادة المالك أن الواجهة غير متجاوبة مع الأجهزة. **النطاق (المراحل 1–3 فقط):** `src/app/*` · `src/shared/ui/*` · `src/styles/*` · `src/features/pos-terminal/*` — لم يُلمس أي feature آخر (مسارات أخرى تعدّلها). **ملاحظة معمارية:** Tailwind v4 (theme داخل CSS عبر `@theme` — لا `tailwind.config.js`)؛ والمكوّنات المشتركة في `src/shared/ui/*` (لا `src/components/ui`).
+
+**المرحلة 1 — نظام التصميم:**
+- `src/styles/tokens.css` جديد — مصدر الحقيقة: ألوان دلالية (brand 50–900، أسطح، success/warning/danger/info مع `-soft`، ترميز حالة المخزون in/low/out/weighed) + مقاييس مسافات/أنصاف أقطار/ظلال + **خطوط سُلّمية responsive بـclamp** (`--text-2xs`…`--text-4xl`) + أهداف لمس (`--touch`=48px، `--touch-lg`=56px) + نقاط توقّف (منها `tab`=816≈20) + مناطق آمنة.
+- `styles.css` يربط الـtokens بـ`@theme` (utilities تحل منها) + أدوات: `.scroll-x-touch` `.pb-safe/.pt-safe` `.animate-sheet-up/.animate-fade-in` + جدول متجاوب مكدّس (`.table-stack`) + حارس overflow-x. **إصلاح حرج:** نُقلت قاعدة `button{min-height}` داخل `@layer base` حتى تستطيع utilities مثل `min-h-[56px]` تجاوزها (وإلا طغت على أزرار الدفع فثبتت عند 44px).
+- **توحيد المكوّنات** على الـtokens: `Button` (+ variant `secondary` — أصلح أيضاً خطأ SyncPage؛ + أحجام `touch`≥48px و`xl`≥56px و`icon-touch`)، `Input` (+ `inputSize=touch`)، `Card` (+ CardHeader/Title/Body)، **`Dialog` جديد متجاوب** (bottom-sheet على الجوال، مركزي على الأكبر، Esc+خلفية)، **`Table` جديد** (stacked-card على الجوال). + `docs/STYLE_GUIDE.md`.
+
+**المرحلة 2 — Shell متجاوب (`AppLayout`):** إعادة بناء بـ 3 حالات من نفس الكود: جوال (<816) = محتوى كامل + hamburger يفتح **Drawer** + **bottom-nav** للأربع الأكثر استخداماً (primary) · تابلت (816–1024) = شريط جانبي أيقونات (rail) · ديسكتوب (≥1024) = شريط كامل بالنصوص. الأعمدة `minmax(0,1fr)` + `overflow-x-hidden` — صفر overflow أفقي. (+ مفتاح `nav.menu`).
+
+**المرحلة 3 — شاشة البيع mobile-first (`pos-terminal`):** إعادة بناء `PosPage` بـ 3 تخطيطات: ديسكتوب (شبكة+سلة جانبية 380px) · تابلت (سلة 320px) · **جوال = أصناف ملء الشاشة + شريط ملخّص سفلي ثابت (إجمالي+عدّاد) يفتح السلة كـsheet سفلي منزلق** بمقبض سحب. أزرار دفع كبيرة (`xl`=56px) + `ItemGrid` ببطاقات ومضة خضراء فورية عند الإضافة (تغذية راجعة) + بحث touch + أزرار كمية في Cart ≥40px.
+
+**Proof (حي عبر CDP على المتصفّح الحي، توكن admin مسكوك بسر الـbackend — بلا إزعاج للمسارات الموازية):**
+- **صفر overflow أفقي** على 390/820/1440px (pos + dashboard + bills) — مقيس بـ`scrollWidth==clientWidth` حياً، ومُثبَت على **الدومين العام بعد النشر** أيضاً.
+- **دورة بيع كاملة على الجوال (390px):** إضافة صنفين → فتح السلة كـsheet سفلي → دفع نقدي → **«تم البيع — فاتورة رقم 260700100000428»** (فاتورة حقيقية في الـbackend) + السلة فُرّغت.
+- **أهداف لمس مقاسة (computed):** دفع نقدي/بطاقة = **56px**، دفع متعدد = **48px** (كلها ≥48 — معيار POS).
+- `npx tsc -b` **صفر أخطاء** + `npm run build` ✅ (41 precache) + نُشر إلى `/var/www/motech-pos` + الدومين 200. لقطات proof للمقاسات الثلاثة في `~/.openclaw/workspace/pos-audit-shots/` (+ `prod/`).
+- **الملفات (نطاقي حصراً):** `styles/tokens.css` (جديد) · `styles.css` · `shared/ui/{Button,Input,Card}.tsx` · `shared/ui/{Dialog,Table}.tsx` (جديد) · `app/AppLayout.tsx` · `pos-terminal/components/{PosPage,ItemGrid,Cart,SaleSummary}.tsx` · `docs/STYLE_GUIDE.md`. لم يُلمس أي feature آخر.
+
+
 ## 2026-07-06 (Lane B — الولاء والبطاقات والربط الرجعي: 3 شاشات 🟡→✅) — subagent lane-b-loyalty
 
 > **النطاق:** backend modules {loyalty, cards, bills} + frontend features {settings, bills} حصراً — لم تُلمس وحدات/features الوكلاء الآخرين. migration V027 واحدة. proof-not-assumption: DDL حقيقي تُحقّق قبل كل جدول، وكل endpoint مُثبت curl حي + DB SELECT + UI حي عبر المتصفح على الدومين العام.

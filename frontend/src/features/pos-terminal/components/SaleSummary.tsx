@@ -282,17 +282,17 @@ export function SaleSummary() {
       ) : null}
 
       <div className="grid grid-cols-2 gap-2">
-        <Button size="lg" variant="success" disabled={disabled} onClick={() => sell('CASH')}>
+        <Button size="xl" variant="success" disabled={disabled} onClick={() => sell('CASH')}>
           <Banknote className="size-5" />
           {t('pos.pay')}
         </Button>
-        <Button size="lg" variant="primary" disabled={disabled} onClick={() => sell('CARD')}>
+        <Button size="xl" variant="primary" disabled={disabled} onClick={() => sell('CARD')}>
           <CreditCard className="size-5" />
           {t('pos.payCard')}
         </Button>
       </div>
 
-      <Button size="lg" variant="outline" disabled={disabled} onClick={openMultiPay}>
+      <Button size="touch" variant="outline" disabled={disabled} onClick={openMultiPay}>
         <Wallet className="size-5" />
         {t('payMulti.button')}
       </Button>

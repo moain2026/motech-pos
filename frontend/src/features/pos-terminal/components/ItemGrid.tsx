@@ -28,9 +28,17 @@ export function ItemGrid() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [subCategory, setSubCategory] = useState('');
+  const [flash, setFlash] = useState<string | null>(null);
   const debounced = useDebounced(search, 300);
   const addItem = useCart((s) => s.addItem);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // تغذية راجعة فورية بصرية عند إضافة صنف (POS §7) — ومضة قصيرة على البطاقة.
+  const add = (item: Item) => {
+    addItem(item);
+    setFlash(item.code);
+    setTimeout(() => setFlash((c) => (c === item.code ? null : c)), 320);
+  };
 
   const categories = useCategories();
   const selectedGroup = useMemo(
@@ -54,7 +62,7 @@ export function ItemGrid() {
       items.find((i) => i.barcode === term) ?? items.find((i) => i.code === term);
     const pick = exact ?? (items.length === 1 ? items[0] : undefined);
     if (pick) {
-      addItem(pick);
+      add(pick);
       setSearch('');
       inputRef.current?.focus();
     }
@@ -95,11 +103,12 @@ export function ItemGrid() {
         />
         <Input
           ref={inputRef}
+          inputSize="touch"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           onKeyDown={onKeyDown}
           placeholder={t('pos.search')}
-          className="h-12 pe-10 text-base"
+          className="pe-11"
           aria-label={t('pos.search')}
         />
       </div>
@@ -154,27 +163,35 @@ export function ItemGrid() {
           <EmptyView />
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5">
               {items.map((item) => (
                 <button
                   key={item.code}
-                  onClick={() => addItem(item)}
-                  className="flex flex-col gap-1 rounded-[var(--radius)] border bg-[var(--color-surface)] p-3 text-start transition-colors hover:border-[var(--color-brand-500)] hover:bg-[var(--color-surface-2)]"
+                  onClick={() => add(item)}
+                  className={`flex min-h-[var(--touch-lg)] flex-col gap-1 rounded-[var(--radius)] border p-3 text-start transition-all active:scale-[0.97] hover:border-[var(--color-brand-500)] hover:bg-[var(--color-surface-2)] ${
+                    flash === item.code
+                      ? 'border-[var(--color-success)] bg-[var(--color-success)]/15'
+                      : 'border-[var(--color-border)] bg-[var(--color-surface)]'
+                  }`}
                   aria-label={`${itemLabel(item, t('pos.noName'))} — ${formatMoney(item.lastPrice)}`}
                 >
                   <div className="flex items-start justify-between gap-1">
                     <Package className="size-4 shrink-0 text-[var(--color-brand-500)]" aria-hidden />
                     <Plus className="size-4 shrink-0 text-[var(--color-muted)]" aria-hidden />
                   </div>
-                  <span className="line-clamp-2 min-h-10 text-sm font-medium">
+                  <span className="line-clamp-2 min-h-10 text-[length:var(--text-sm)] font-medium">
                     {itemLabel(item, t('pos.noName'))}
                   </span>
-                  <span className="tnum text-xs text-[var(--color-muted)]">{item.code}</span>
-                  <span className="tnum mt-1 text-base font-bold text-[var(--color-brand-100)]">
+                  <span className="tnum text-[length:var(--text-xs)] text-[var(--color-muted)]">
+                    {item.code}
+                  </span>
+                  <span className="tnum mt-1 text-[length:var(--text-base)] font-bold text-[var(--color-brand-100)]">
                     {formatMoney(item.lastPrice)}
                   </span>
                   {item.unit ? (
-                    <span className="text-xs text-[var(--color-muted)]">{item.unit}</span>
+                    <span className="text-[length:var(--text-xs)] text-[var(--color-muted)]">
+                      {item.unit}
+                    </span>
                   ) : null}
                 </button>
               ))}

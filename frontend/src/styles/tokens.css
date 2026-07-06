@@ -1,0 +1,160 @@
+/*
+ * Motech POS — Design Tokens (المرحلة 1: نظام التصميم)
+ * ------------------------------------------------------------------
+ * مصدر الحقيقة الوحيد للألوان/المسافات/الخطوط/الظلال/أهداف اللمس.
+ * مبني على معايير POS العالمية (DevPro 10 UX tactics + Nielsen touch):
+ *   • أهداف لمس ≥48px لواجهة POS (أكبر من 44px الأدنى — ضغط ساعة الذروة).
+ *   • مقاييس خطوط سُلّمية responsive بـclamp (تُقرأ من مسافة ~30 بوصة).
+ *   • ألوان دلالية عالية التباين لبيئة الكاشير الساطعة.
+ *   • ترميز لوني لحالات المخزون (متوفر/منخفض/نافد/موزون).
+ *
+ * ملاحظة معمارية: هذا المشروع يستخدم Tailwind v4 (theme داخل CSS عبر @theme)
+ * — لا يوجد tailwind.config.js. توسعة الـtheme تتم في styles.css الذي يستورد
+ * هذا الملف أولاً حتى تتوفر المتغيّرات لـ@theme.
+ */
+
+:root {
+  /* ============================================================
+   * 1) الألوان الدلالية (Semantic Colors) — سمة داكنة (الافتراضية)
+   * ============================================================ */
+
+  /* العلامة التجارية (teal POS palette) */
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-200: #99f6e4;
+  --color-brand-300: #5eead4;
+  --color-brand-400: #2dd4bf;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
+  --color-brand-900: #134e4a;
+
+  /* الأسطح والخلفيات — تدرّج عمق واضح */
+  --color-bg: #0b1220;
+  --color-surface: #111c30;
+  --color-surface-2: #18253d;
+  --color-surface-3: #22324e;
+  --color-border: #25334d;
+  --color-border-strong: #34456a;
+
+  /* النص */
+  --color-fg: #e8eef7;
+  --color-fg-strong: #ffffff;
+  --color-muted: #93a4bf;
+  --color-muted-2: #6b7d9c;
+
+  /* دلالية للحالات (نسخة سطح + نص متباين) */
+  --color-primary: var(--color-brand-600);
+  --color-primary-fg: #ffffff;
+
+  --color-success: #16a34a;
+  --color-success-fg: #ffffff;
+  --color-success-soft: color-mix(in srgb, #16a34a 16%, transparent);
+
+  --color-warning: #d97706;
+  --color-warning-fg: #ffffff;
+  --color-warning-soft: color-mix(in srgb, #d97706 18%, transparent);
+
+  --color-danger: #dc2626;
+  --color-danger-fg: #ffffff;
+  --color-danger-soft: color-mix(in srgb, #dc2626 16%, transparent);
+
+  --color-info: #2563eb;
+  --color-info-fg: #ffffff;
+  --color-info-soft: color-mix(in srgb, #2563eb 16%, transparent);
+
+  /* ترميز حالات المخزون (POS: يُقرأ من بعيد) */
+  --color-stock-in: #16a34a;      /* متوفر */
+  --color-stock-low: #d97706;     /* منخفض */
+  --color-stock-out: #dc2626;     /* نافد */
+  --color-stock-weighed: #7c3aed; /* موزون (بالوزن) */
+
+  /* ============================================================
+   * 2) المسافات (Spacing scale — 4px base)
+   * ============================================================ */
+  --space-0: 0;
+  --space-1: 0.25rem;  /* 4 */
+  --space-2: 0.5rem;   /* 8 */
+  --space-3: 0.75rem;  /* 12 */
+  --space-4: 1rem;     /* 16 */
+  --space-5: 1.25rem;  /* 20 */
+  --space-6: 1.5rem;   /* 24 */
+  --space-8: 2rem;     /* 32 */
+  --space-10: 2.5rem;  /* 40 */
+  --space-12: 3rem;    /* 48 */
+
+  /* ============================================================
+   * 3) أنصاف الأقطار (Radii)
+   * ============================================================ */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius: 0.75rem;      /* الافتراضي */
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-full: 9999px;
+
+  /* ============================================================
+   * 4) الظلال (Shadows) — للأسطح الداكنة
+   * ============================================================ */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.6);
+
+  /* ============================================================
+   * 5) مقاييس الخطوط السُلّمية (Responsive type scale — clamp)
+   *    تكبر بلطف من الجوال (390px) إلى الديسكتوب (1440px).
+   *    يُقرأ من مسافة الرؤية النموذجية للـPOS (~30 بوصة).
+   * ============================================================ */
+  --text-2xs: clamp(0.625rem, 0.6rem + 0.15vw, 0.72rem);  /* شارات صغيرة */
+  --text-xs: clamp(0.72rem, 0.68rem + 0.2vw, 0.82rem);
+  --text-sm: clamp(0.82rem, 0.78rem + 0.25vw, 0.94rem);
+  --text-base: clamp(0.94rem, 0.88rem + 0.35vw, 1.06rem);
+  --text-lg: clamp(1.06rem, 0.98rem + 0.5vw, 1.22rem);
+  --text-xl: clamp(1.2rem, 1.08rem + 0.7vw, 1.42rem);
+  --text-2xl: clamp(1.45rem, 1.25rem + 1vw, 1.85rem);
+  --text-3xl: clamp(1.8rem, 1.5rem + 1.5vw, 2.4rem);      /* المبالغ الكبيرة */
+  --text-4xl: clamp(2.2rem, 1.8rem + 2vw, 3rem);
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+
+  /* ============================================================
+   * 6) أهداف اللمس (Touch targets) — معيار POS
+   *    الأدنى العالمي 44px، وقيمة POS المفضّلة 48px (ضغط سريع).
+   * ============================================================ */
+  --touch-min: 44px;
+  --touch: 48px;      /* الافتراضي لأزرار POS */
+  --touch-lg: 56px;   /* أزرار الدفع الأساسية */
+
+  /* ============================================================
+   * 7) طبقات z (z-index scale)
+   * ============================================================ */
+  --z-nav: 30;
+  --z-sticky: 40;
+  --z-overlay: 50;
+  --z-modal: 60;
+  --z-toast: 70;
+
+  /* ============================================================
+   * 8) الحركة (Motion)
+   * ============================================================ */
+  --dur-fast: 120ms;
+  --dur: 180ms;
+  --dur-slow: 260ms;
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+
+  /* مناطق آمنة (شقّ الجوال / أشرطة النظام) لتخطيطات ملء الشاشة */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* احترام تفضيل تقليل الحركة */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast: 0ms;
+    --dur: 0ms;
+    --dur-slow: 0ms;
+  }
+}
