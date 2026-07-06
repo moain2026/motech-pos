@@ -681,6 +681,10 @@ export interface ShiftReconciliation {
   cashSales: number;
   cashReceipts: number;
   cashExpenses: number;
+  /** POST014: custody deposits into the drawer during the shift. */
+  custodyDeposits: number;
+  /** POST014: custody withdrawals from the drawer during the shift. */
+  custodyWithdrawals: number;
   expectedCash: number;
   actualCash: number | null;
   cashDifference: number | null;
@@ -689,6 +693,78 @@ export interface ShiftReconciliation {
   creditTotal: number;
   tenderTotal: number;
   breakdown: ReconciliationMethodRow[];
+}
+
+// ---- POST014 cashier custody (عهدة الكاشيرات) ----
+export type CustodyDirection = 'DEPOSIT' | 'WITHDRAW';
+
+export interface CustodyMovement {
+  id: string;
+  custodyNo: number;
+  shiftId: string;
+  cashierNo: number;
+  machineNo: number | null;
+  direction: CustodyDirection;
+  amount: number;
+  currency: string;
+  rate: number;
+  amountInShift: number;
+  reason: string | null;
+  status: string;
+  createdBy: string | null;
+  issuedAt: string;
+  createdAt: string;
+}
+
+export interface CustodyTotals {
+  deposits: number;
+  withdrawals: number;
+  net: number;
+  depositCount: number;
+  withdrawCount: number;
+}
+
+export interface RecordCustodyDto {
+  direction: CustodyDirection;
+  amount: number;
+  currency?: string;
+  rate?: number;
+  reason?: string;
+  clientOperationId?: string;
+}
+
+// ---- POST015 shift settlement variance (فائض/عجز الكاشيرات) ----
+export interface ShiftVariance {
+  id: string;
+  varianceNo: number;
+  shiftId: string;
+  cashierNo: number;
+  currency: string;
+  expectedCash: number;
+  countedCash: number;
+  difference: number;
+  kind: 'OVER' | 'SHORT' | 'BALANCED';
+  note: string | null;
+  postedBy: number | null;
+  postedAt: string;
+}
+
+// ---- POST012 per-cashier payment-method summary ----
+export interface CashierPaymentMethodSlice {
+  method: string;
+  txnCount: number;
+  amountInBill: number;
+}
+export interface CashierPaymentSummaryRow {
+  cashierNo: number;
+  billCount: number;
+  netAmt: number;
+  methods: CashierPaymentMethodSlice[];
+  cashTotal: number;
+  cardTotal: number;
+  creditTotal: number;
+  returnCount: number;
+  refundTotal: number;
 }
 
 // ---- Vouchers (سند قبض / صرف) — POST /vouchers, GET /vouchers ----
@@ -713,8 +789,18 @@ export interface Voucher {
   status: string;
   idempotencyKey: string;
   clientOpId: string | null;
+  /** POST006: the return this refund voucher pays out (or null). */
+  refundReturnId: string | null;
   issuedAt: string;
   createdAt: string;
+}
+
+/** POST006 — issue the cash refund voucher for a MOTECH_POS return. */
+export interface RefundVoucherDto {
+  returnId: string;
+  cashierNo: number;
+  machineNo?: number;
+  note?: string;
 }
 
 // ---- Settings (GET/PUT /settings) — proof-verified live :3000 2026-07-01 ----
@@ -952,6 +1038,43 @@ export interface SyncRunResult {
   synced: number;
   blocked: number;
   counts: SyncStatus;
+}
+
+// ---- Downward catalog sync (POST008) — GET /sync/catalog/status·runs·items, POST /sync/catalog/pull ----
+export interface CatalogSyncRun {
+  id: string;
+  status: 'running' | 'success' | 'failed';
+  triggeredBy: 'manual' | 'scheduled';
+  sourceCount: number;
+  upserted: number;
+  staled: number;
+  durationMs: number | null;
+  error: string | null;
+  startedAt: string;
+  finishedAt: string | null;
+}
+
+export interface CatalogCacheStatus {
+  total: number;
+  active: number;
+  stale: number;
+  lastSyncedAt: string | null;
+  lastRun: CatalogSyncRun | null;
+}
+
+export interface CatalogPullResult {
+  runId: string;
+  sourceCount: number;
+  upserted: number;
+  staled: number;
+  durationMs: number;
+  skipped?: boolean;
+}
+
+// ---- Permissions (POSS002) — GET /auth/permissions/me ----
+export interface MyPermissions {
+  role: Role;
+  permissions: Record<string, boolean>;
 }
 
 // ---- Cards (GET /cards) ----

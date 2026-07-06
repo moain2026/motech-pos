@@ -3,6 +3,65 @@
     "name": "Motech POS",
     "tagline": "نقطة البيع"
   },
+  "attach": {
+    "title": "ربط بعميل نقاطي",
+    "hint": "هذه الفاتورة بلا عميل — اربطها بعميل ليُحتسب نقاطها بأثر رجعي.",
+    "button": "ربط عميل",
+    "doneWithPoints": "تم ربط {{name}} — أُضيفت {{points}} نقطة.",
+    "error": "تعذّر ربط العميل"
+  },
+  "loyaltyPrograms": {
+    "title": "برامج النقاط",
+    "subtitle": "تعريف برامج الولاء وطريقة احتساب النقاط (POSI008)",
+    "add": "برنامج جديد",
+    "edit": "تعديل البرنامج",
+    "name": "اسم البرنامج",
+    "pointTypNo": "نوع النقاط",
+    "calcType": "طريقة الاحتساب",
+    "calc1": "نقاط لكل مبلغ",
+    "calc2": "نقاط لكل وحدة مبلغ ×",
+    "amt4Point": "ريال لكل نقطة",
+    "pointCnt": "نقاط لكل وحدة",
+    "pointValue": "قيمة النقطة (ريال)",
+    "truncate": "تقريب لأسفل (TRUNC)",
+    "minBillAmt": "أدنى فاتورة للكسب",
+    "maxPointsPerBill": "حد أقصى للنقاط/فاتورة",
+    "startDate": "من تاريخ",
+    "endDate": "إلى تاريخ",
+    "active": "نشط",
+    "noLimit": "بلا حد",
+    "empty": "لا برامج نقاط بعد",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "confirmDelete": "حذف هذا البرنامج؟",
+    "rule": "القاعدة",
+    "validity": "الصلاحية",
+    "saved": "تم الحفظ",
+    "deleted": "تم الحذف",
+    "saveError": "تعذّر الحفظ"
+  },
+  "posCards": {
+    "title": "بطاقات POS",
+    "subtitle": "ترميز بطاقات الشبكة/الخصم (POSI012)",
+    "add": "بطاقة جديدة",
+    "edit": "تعديل البطاقة",
+    "cardNo": "الرقم",
+    "arName": "الاسم",
+    "enName": "الاسم (EN)",
+    "cardType": "نوع البطاقة",
+    "bankNo": "البنك",
+    "commissionPct": "العمولة %",
+    "duePeriod": "مدة التسوية (يوم)",
+    "bankAc": "حساب البنك",
+    "inactive": "موقوفة",
+    "origin": "المصدر",
+    "empty": "لا بطاقات",
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "saved": "تم الحفظ",
+    "saveError": "تعذّر الحفظ"
+  },
   "nav": {
     "dashboard": "لوحة التحكم",
     "pos": "فاتورة البيع",
@@ -32,7 +91,8 @@
     "stockReceipts": "الاستلام المخزني",
     "stockIssues": "التحويل الصادر",
     "returnCounts": "جرد المردود",
-    "alerts": "التنبيهات"
+    "alerts": "التنبيهات",
+    "menu": "القائمة"
   },
   "origin": {
     "ERP": "من النظام",
@@ -238,7 +298,8 @@
       "loyalty": "نقاط الولاء",
       "salesOrders": "أوامر البيع",
       "customerGroups": "مجموعات العملاء",
-      "returnsWindow": "نافذة الإرجاع"
+      "returnsWindow": "نافذة الإرجاع",
+      "cashierPaymentSummary": "ملخص مبيعات الكاشيرات"
     },
     "netBeforeVat": "الصافي قبل الضريبة",
     "hour": "الساعة",
@@ -251,7 +312,9 @@
     "customerCode": "كود العميل",
     "walkIn": "عميل نقدي",
     "discPct": "نسبة الخصم",
-    "category": "الفئة"
+    "category": "الفئة",
+    "methodsBreakdown": "تفصيل طرق الدفع",
+    "refundTotal": "إجمالي المرتجعات"
   },
   "customers": {
     "title": "العملاء",
@@ -436,7 +499,12 @@
     "close": "إغلاق",
     "storedTitle": "القيم المرحّلة (المخزّنة)",
     "storedAmt": "مبلغ المرتجع المرحّل",
-    "payedAmt": "المبلغ المدفوع"
+    "payedAmt": "المبلغ المدفوع",
+    "refundVoucherTitle": "سند صرف المرتجع",
+    "refundVoucherHint": "إصدار سند صرف نقدي لاسترداد قيمة المرتجع (سند واحد لكل مرتجع).",
+    "issueRefundVoucher": "إصدار سند صرف",
+    "refundIssued": "تم إصدار سند الصرف",
+    "refundVoucherNo": "رقم السند"
   },
   "errors": {
     "noOpenShift": "لا توجد وردية مفتوحة لهذا الكاشير",
@@ -524,6 +592,29 @@
       "pending": "قيد الانتظار",
       "failed": "فشلت",
       "synced": "تمّت"
+    },
+    "dn": {
+      "title": "المزامنة النزولية — كاش الأصناف والأسعار",
+      "pull": "سحب الآن",
+      "pulling": "جارٍ السحب…",
+      "skipped": "سحب جارٍ بالفعل — تم التخطّي",
+      "done": "تمّت المزامنة النزولية: {{upserted}} صنف محدّث، {{staled}} قديم ({{ms}} مللي)",
+      "error": "تعذّرت المزامنة النزولية",
+      "noPerm": "لا تملك صلاحية المزامنة",
+      "total": "إجمالي الأصناف المخزّنة",
+      "active": "نشطة",
+      "stale": "قديمة",
+      "lastSync": "آخر مزامنة",
+      "lastRun": "آخر سحب: {{trigger}} — {{status}} — {{upserted}} محدّث، {{staled}} قديم",
+      "trig": {
+        "manual": "يدوي",
+        "scheduled": "مجدول"
+      },
+      "rst": {
+        "running": "جارٍ",
+        "success": "نجح",
+        "failed": "فشل"
+      }
     }
   },
   "einvoice": {
@@ -631,7 +722,18 @@
       "OPEN": "مفتوحة",
       "CLOSED": "مقفلة",
       "SETTLED": "مصفّاة"
-    }
+    },
+    "custodyDeposits": "إيداعات العهدة",
+    "custodyWithdrawals": "سحوبات العهدة",
+    "custodyNet": "صافي العهدة",
+    "custodySection": "عهدة الكاشير",
+    "custodyDeposit": "إيداع",
+    "custodyWithdraw": "سحب",
+    "custodyReason": "السبب",
+    "custodyRecord": "تسجيل",
+    "custodySaved": "تم تسجيل حركة العهدة",
+    "custodyError": "تعذّر تسجيل حركة العهدة",
+    "variancePosted": "قيد الفائض/العجز"
   },
   "priceCheck": {
     "title": "قارئ الأسعار",
@@ -774,7 +876,7 @@
     "permsSave": "حفظ المصفوفة",
     "permsSaved": "حُفظت الصلاحيات",
     "permsError": "تعذّر حفظ الصلاحيات",
-    "permsHint": "علّم الخانة للسماح بالدور بتنفيذ العملية"
+    "permsHint": "علّم الخانة للسماح بالدور بتنفيذ العملية — تُفرَض ديناميكياً في الخادم فورًا (POSS002)"
   },
   "reports2": {
     "from": "من",
@@ -1431,5 +1533,8 @@
     "keyLabelPlaceholder": "افتراضياً اسم الصنف",
     "keyColor": "لون المفتاح",
     "linkKey": "ربط بالمفتاح"
+  },
+  "common": {
+    "saving": "جارٍ الحفظ…"
   }
 }

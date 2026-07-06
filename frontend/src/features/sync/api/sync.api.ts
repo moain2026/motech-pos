@@ -6,6 +6,9 @@ import type {
   SyncQueueEntry,
   SyncRunResult,
   SyncEntryStatus,
+  CatalogCacheStatus,
+  CatalogSyncRun,
+  CatalogPullResult,
 } from '@/shared/lib/types';
 
 /**
@@ -46,6 +49,45 @@ export function useRunSync() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['sync'] });
+    },
+  });
+}
+
+//============================================================================
+// Downward catalog sync (POST008 المزامنة النزولية)
+//============================================================================
+
+/** GET /sync/catalog/status — local catalog-cache state + last pull run. */
+export function useCatalogSyncStatus() {
+  return useQuery({
+    queryKey: ['sync', 'catalog', 'status'],
+    queryFn: () => getData<CatalogCacheStatus>('/sync/catalog/status'),
+    staleTime: 10_000,
+  });
+}
+
+/** GET /sync/catalog/runs — recent downward pull runs. */
+export function useCatalogSyncRuns() {
+  return useQuery({
+    queryKey: ['sync', 'catalog', 'runs'],
+    queryFn: () => getData<CatalogSyncRun[]>('/sync/catalog/runs'),
+    staleTime: 10_000,
+  });
+}
+
+/** POST /sync/catalog/pull — trigger a downward catalog pull now. */
+export function useRunCatalogPull() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<CatalogPullResult> => {
+      const res = await api.post<ApiEnvelope<CatalogPullResult>>(
+        '/sync/catalog/pull',
+        {},
+      );
+      return res.data.data;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['sync', 'catalog'] });
     },
   });
 }
