@@ -85,9 +85,9 @@
 ## ما أُجّل (مع السبب)
 
 - **S3 (schemas في /health):** قيمة أمنية هامشية الآن (لا وصول خارجي للقاعدة)؛ يُقيَّد عند فتح النظام لأطراف خارجية.
-- **S4 (JWT في localStorage → httpOnly cookies):** تغيير معماري (CSRF tokens، refresh flow جديد، تعديل Caddy) — لا يناسب موجة تلميع؛ الخطر الفعلي منخفض (لا XSS vectors مرصودة، React escaping + لا innerHTML).
+- ~~**S4 (JWT في localStorage → httpOnly cookies)**~~ — **نُفّذ في موجة التصلّب (2026-07-06، أدناه).**
 - **O1 (نشر ذري/CI):** بنية تحتية وليست كوداً؛ موثّق كتوصية قائمة.
-- **CSP header:** يتطلب جرد كل مصادر inline/styles في PWA + اختبار رجعي واسع — أثره الأكبر يتحقق مع S4 معاً كموجة «تصلّب متقدم» مستقلة.
+- ~~**CSP header**~~ — **نُفّذ في موجة التصلّب (2026-07-06، أدناه).**
 
 ---
 
@@ -121,3 +121,56 @@
 - النشر: `dist` → `/var/www/motech-pos/`، الدومين 200 ويقدّم `index-DUbHI6yv.js` الجديد ✅
 - pm2 online، `/health` ok (read+write connected) ✅
 - commits: `9b12b6d` (security) · `604948a` (bundle) · `b683c57` (UX) — conventional، هوية MoainAlabbasi ✅
+
+---
+
+# موجة التصلّب الأمني (2026-07-06) — CSP + httpOnly cookies + Permissions-Policy
+
+> **المنهج:** نفس proof-not-assumption — كل بند مُثبت بقياس حي (curl / CDP على النظام المنشور).
+
+## 1) CSP + رؤوس أمان للواجهة الساكنة (كانت بلا أي رؤوس)
+
+- **الفجوة المقاسة قبلاً:** الـAPI (helmet) كان مُحصّناً، لكن استجابات Caddy الساكنة (index.html/assets) لم تحمل أي رأس أمان (قياس `curl -I /` قبل التعديل: لا CSP، لا X-Frame، لا nosniff).
+- **التنفيذ (`/etc/caddy/conf.d/custom.caddy` — خارج git، نسخة احتياطية في `/var/backups/custom.caddy.bak-security-wave`):**
+  `Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; media-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests`
+  + `X-Content-Type-Options: nosniff` · `X-Frame-Options: SAMEORIGIN` · `Referrer-Policy: strict-origin-when-cross-origin` · `HSTS` · `Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(), usb=()` · `X-Robots-Tag: noindex`.
+- **لماذا هذه القيم بالذات (جرد فعلي للـdist):** لا سكربتات inline (فحص dist/index.html) → `script-src 'self'` صارم · React style attributes + طباعة الإيصال (iframe srcless يرث الـCSP ويحوي `<style>`) → `style-src 'unsafe-inline'` ضروري · QR/باركود data-URLs → `img-src data: blob:` · لا eval ولا WebSocket ولا مصادر خارجية (فحص binary لكل الـchunks).
+- **إثبات حي (CDP على الدومين):** الصفحة تحمّل كاملة تحت الـCSP — stylesheet + خط Cairo محمّلان، **service worker `activated`**، **0 أخطاء console، 0 انتهاكات CSP** · `curl -I` يُظهر كل الرؤوس على `/` و`/assets/*` · الدومين 200.
+- ⚖️ ملاحظة تشغيلية: وضع نسخة backup داخل `conf.d/` يكسر caddy reload (`ambiguous site definition` — glob import يلتقطها) — الـbackup انتقل لـ`/var/backups/`، والدومين بقي 200 طوال الوقت (الـreload الفاشل لا يُسقط التشغيل الجاري).
+
+## 2) S4 — JWT من localStorage إلى httpOnly cookies (تراجُعي/داعم للوضعين)
+
+**التصميم (dual-mode — لا كسر لأي عميل قائم):**
+- **Backend:** `auth-cookies.ts` جديد — اللوجن/الرفرش يضبطان `mp_at` (access، `Path=/`، Max-Age=TTL) و`mp_rt` (refresh، **`Path=/api/v1/auth` فقط** — لا يسافر للـendpoints العادية) — كلاهما `HttpOnly; Secure; SameSite=Strict`. التوكنات تبقى أيضاً في body الرد (توافق رجعي للسكربتات/curl/Bearer).
+- **JwtAuthGuard:** يقبل Bearer (أولوية) ثم cookie `mp_at`. **دفاع CSRF مزدوج لمسار الـcookie:** SameSite=Strict (المتصفح لا يرفقها cross-site أصلاً) + فحص `Sec-Fetch-Site` على POST/PUT/PATCH/DELETE (cross-site → 401).
+- **`POST /auth/logout` جديد** يمسح الكوكيز · `POST /auth/refresh` يقبل body أو cookie `mp_rt` · `cookie-parser` أضيف في main.ts.
+- **Frontend:** `motech-session` في localStorage صار يحفظ **profile المستخدم فقط** (partialize) — **لا JWT في localStorage إطلاقاً**. التوكنات in-memory فقط (لـBearer التوافقي بعد اللوجن)؛ بعد reload يحمل الكوكي وحده المصادقة، وانتهاء `mp_at` يُصلّح نفسه برفرش صامت عبر cookie `mp_rt` (مُثبت حياً أدناه). الخروج يستدعي `/auth/logout` (fire-and-forget) + مسح محلي. `RequireAuth` صار يُقفل على profile المستخدم (الكوكي غير مقروء لـJS بالتصميم)، وprofile بائت بلا كوكي يُصلّح نفسه: أول API → 401 → رفرش فاشل → clear → /login.
+
+**إثباتات حيّة (curl محلي + CDP عبر الدومين بعد النشر):**
+| المسار | النتيجة |
+|---|---|
+| login → Set-Cookie | `mp_at` (Path=/، 900s) + `mp_rt` (Path=/api/v1/auth، 7d) — HttpOnly/Secure/Strict ✅ |
+| محمي بالكوكي فقط (بلا Authorization) | `/auth/me` 200 · `/items` 200 ✅ |
+| refresh بالكوكي فقط (body فارغ) | 200 + كوكيز جديدة ✅ |
+| logout | الكوكيز تُمسح (Expires=1970) و`/auth/me` بعدها 401 ✅ |
+| Bearer القديم | ما زال 200 (توافق رجعي) ✅ |
+| CSRF | POST بكوكي + `Sec-Fetch-Site: cross-site` → **401**؛ same-origin → يمر ✅ |
+| **المتصفح الحي (CDP، بعد تحديث SW):** | login admin عبر الفورم → /pos ✅ · `localStorage['motech-session']` = **profile فقط، صفر JWT** (فحص regex على كل المفاتيح) ✅ · `document.cookie` لا يرى `mp_at` (httpOnly) ✅ · fetch محمي بلا header → 200 ✅ · **reload → الجلسة حيّة والـUI authed** ✅ · حذف `mp_at` وإبقاء `mp_rt` ثم reload → **رفرش صامت واستعادة الجلسة** ✅ · خروج → الكوكيز اختفت و`/auth/me` 401 ✅ |
+
+**ملاحظة توافق:** جلسات localStorage القديمة (قبل النشر) تحمل profile + توكنات قديمة — الـpartialize يمسح التوكنات عند أول كتابة، ومستخدم بلا كوكي يُعاد لـ/login طبيعياً عبر مسار 401→clear (دخول إضافي لمرة واحدة).
+
+## 3) تحسينات مرافقة
+- **E2E حُدّثت:** استدعاءات fetch داخل الاختبارات كانت تقرأ التوكن من localStorage — صارت تعتمد كوكي المتصفح (وهو بحد ذاته إثبات أن مسار الكوكي يعمل في متصفح حقيقي).
+- Pino كان أصلاً يُخفي `req.headers.cookie` من اللوغات (redact قائم) — لا تسريب للتوكنات في السجلات.
+
+## الحالة النهائية لموجة التصلّب
+- `npx tsc -b` صفر أخطاء (backend + frontend) · oxlint 0 errors ✅
+- اختبارات الوحدة: **348 تمر** (340 + 8 جديدة: auth-cookies + JwtAuthGuard cookie/CSRF) ✅
+- **E2E على النظام الحي بعد النشر: 10/10** (19.7s) ✅
+- الدومين 200 + كل الأصول/الخط/manifest/SW تحمّل تحت الـCSP · pm2 online · /health ok ✅
+
+## ما يبقى مؤجّلاً بعد هذه الموجة (مع السبب)
+- **S3 (schemas في /health)** — كما سبق (قيمة هامشية حالياً).
+- **O1 (نشر ذري/CI)** — بنية تحتية.
+- **إزالة التوكنات من body الرد نهائياً (cookie-only):** مؤجّل عمداً — الإبقاء المؤقت يحفظ توافق السكربتات/curl/أي عميل API مباشر؛ يُزال بعد دورة تشغيل كاملة بلا مشاكل (الواجهة لم تعد تخزّنها — الخطر المتبقي أن XSS نظري قد يقرأ رد لوجن طازج فقط، ولا XSS vectors مرصودة + CSP الآن فوق ذلك).
+- **CSP nonce لـstyle-src:** يتطلب SSR أو build-time injection — غير متاح لـSPA ساكنة بلا تكلفة معمارية؛ `'unsafe-inline'` للأنماط فقط (لا للسكربتات) وخطره منخفض.
