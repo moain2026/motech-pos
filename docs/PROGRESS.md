@@ -1,6 +1,34 @@
 # 📈 سجل تقدّم Motech POS
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
+## 2026-07-06 (Lane B — الولاء والبطاقات والربط الرجعي: 3 شاشات 🟡→✅) — subagent lane-b-loyalty
+
+> **النطاق:** backend modules {loyalty, cards, bills} + frontend features {settings, bills} حصراً — لم تُلمس وحدات/features الوكلاء الآخرين. migration V027 واحدة. proof-not-assumption: DDL حقيقي تُحقّق قبل كل جدول، وكل endpoint مُثبت curl حي + DB SELECT + UI حي عبر المتصفح على الدومين العام.
+
+**1. POSI008 ترميز برامج النقاط 🟡→✅** — module loyalty:
+- **جدول جديد MOTECH_POS.LOYALTY_PROGRAMS (V027):** برنامج ولاء مُسمّى = قاعدة كسب مُوسّعة (calcType 1/2، AMT_4POINT، **MIN_BILL_AMT** حد أدنى للفاتورة، **MAX_POINTS_PER_BILL** سقف للنقاط/فاتورة، **نافذة صلاحية** START/END_DATE) + **برنامج نشط واحد لكل نوع نقاط** عبر فهرس فريد دالّي (`CASE WHEN ACTIVE=1 THEN POINT_TYP_NO`).
+- `activeRule()` صار يفضّل **البرنامج النشط** (المتحقّق من نافذة الصلاحية اليوم) ثم يعود لـLOYALTY_CONFIG القديم (لا كسر). `earnPoints()` يطبّق الحد الأدنى (الفواتير الأقل تكسب صفراً) والسقف (النقاط لا تتجاوز الحد).
+- `GET/POST/PUT/DELETE /loyalty/programs` (القراءة لأي مصادَق، الكتابة supervisor/admin). 409 لبرنامج نشط ثانٍ لنفس النوع، 422 تحقّق، 404 مجهول.
+- **proof حي (supervisor على :3000 + الدومين):** إنشاء «برنامج الذهبي» (1نقطة/50ريال، min200، cap100، 2026 كامل) → تعديل amt4Point→25 → قائمة 1 → برنامج نشط ثانٍ **409** → cashier create **403** → calcType 3 **400** → DB SELECT يؤكد الصف. +11 اختبار وحدة.
+
+**2. POSI012 بطاقات POS 🟡→✅** — module cards:
+- **اكتشاف proof:** `IAS_POS_CARD` **غير موجود** في القاعدة (ALL_OBJECTS = 0 صف). المصدر الحقيقي للبطاقات هو `IAS202623.CREDIT_CARD_TYPES` (8 صفوف، **مقدّس قراءة فقط**). فبُني **CARD_TYPES_OVERLAY (V027)** + دمج **FULL OUTER JOIN** (overlay يفوز، origin ERP\|LOCAL\|EDIT) — نفس نمط V016.
+- `GET/POST/PUT /pos-cards`: الإنشاء بلا رقم يخصّص LOCAL من `SEQ_LOCAL_CARD_NO` (900+)؛ الإنشاء برقم ERP = EDIT override؛ التعديل لا يمس ERP إطلاقاً. supervisor/admin. 409 تكرار overlay، 404 مجهول، 400 تحقّق.
+- **proof حي:** list = 8 ERP (origin ERP) → إنشاء LOCAL 901 (comm 2.5) → تعديل بطاقة ERP رقم 1 = EDIT (comm 1.75، **ERP row 1 غير مُتغيّر** بـSELECT: جوالي/comm=null) → cashier 403 → dup 409 → 404 → 400. +6 اختبار وحدة.
+
+**3. POST020 ربط الفاتورة بعميل نقاطي رجعياً 🟡→✅** — module bills:
+- `POST /bills/{id}/attach-customer` (id = MOTECH uuid **أو** BILL_NO): يربط عميل ولاء بفاتورة مرحّلة بلا عميل، يُحدّث MOTECH_POS.BILLS **ويُمرّي C_CODE/C_NAME على الأونكس الحقيقي IAS_POS_BILL_MST في معاملة واحدة**، ثم **يحتسب النقاط رجعياً idempotent** (حارس UNIQUE(BILL_ID,TRNS_TYPE) — لا كسب مزدوج).
+- حرّاس: 404 فاتورة/عميل، **409 ربط مزدوج** (عميل مختلف)، **no-op replay** لنفس العميل (alreadyAttached=true, 0 نقاط).
+- **proof حي:** فاتورة net 38800 بلا عميل → attach عميل 1 → **pointsEarned=100** (البرنامج 1/25 = 1552 raw مقصوص للسقف 100)، الرصيد 214→314 → replay = alreadyAttached 0 نقاط → عميل مختلف **409** → فاتورة مجهولة **404** → عميل مجهول **404**. **مرآة الأونكس مُثبتة:** فاتورة API جديدة 260700100000425 → attach عميل 2 → **YSPOS23.IAS_POS_BILL_MST.C_CODE=2, C_NAME=المهندس انس الدبعي**. +5 اختبار وحدة.
+
+**الواجهة (frontend):**
+- **SettingsPage:** تبويب جديد **«برامج النقاط»** (جدول + حوار CRUD كامل: طريقة احتساب/ريال-لكل-نقطة/حد أدنى/سقف/صلاحية/نشط) + تبويب **«بطاقات الخصم»** صار **CRUD كامل لبطاقات POS** (جدول مدموج بشارات origin ERP/LOCAL/EDIT + حوار إنشاء/تعديل) — بدّل CardTypesTable القراءة فقط.
+- **BillDetailPage:** بطاقة **«ربط عميل»** تظهر لفاتورة مرحّلة بلا عميل → CustomerPicker → POST020 attach + عرض النقاط المكتسبة. RTL + عرض أخطاء RFC9457.
+- i18n عربي (attach/loyaltyPrograms/posCards).
+
+**الحالة:** `npx tsc -b` على src **صفر أخطاء** · **306 اختبار وحدة أخضر** (+22 من هذه الموجة) · golden 10/10 مع TEST_* env · pm2 online /health أخضر · frontend مبني ومنشور على https://nuugneol.gensparkclaw.com (chunks settings/bills 200) · **UI مُثبت حياً بالمتصفح** (لقطات: برنامج الذهبي في تبويب برامج النقاط، جدول بطاقات POS بـ8 ERP + 901 LOCAL + بطاقة 1 EDIT). 4 commits بهوية MoainAlabbasi. **POSI: 🟡2→✅ (11✅) · POST020 🟡→✅.**
+> ⚠️ ملاحظة: `tsc -b` الكامل (frontend) محجوب بـ3 أخطاء في ملفات لينات أخرى (AppLayout: X unused · PosPage: useCart unused · shifts.api: ListMeta.totals) — ليست من هذه الموجة؛ النشر تمّ عبر `vite build` (esbuild، لا typecheck) وكل ملفات Lane B نظيفة صفر أخطاء.
+
 ## 2026-07-06 (Lane A — المالية: 4 شاشات 🟡→✅ backend+frontend) — subagent lane-a-financial
 
 > **النطاق:** vouchers/shifts/returns/reports فقط (backend) + features vouchers/shifts/returns/reports (frontend). migration **V028** (بعد أن حجزت لِينات موازية V027). كل شاشة مُثبتة حياً عبر curl على :3000 + SELECT مباشر من MOTECH_POS + تحقّق نهائي عبر الدومين العام. 306 اختبار وحدة أخضر (+16 جديدة). `tsc -b` صفر أخطاء في ملفات Lane A (backend وfrontend).
