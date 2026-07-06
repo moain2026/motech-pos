@@ -11,8 +11,8 @@ import { useAckAlert, usePendingAlerts } from '../api/alerts.api';
  */
 export function PendingAlertsBanner() {
   const { t } = useTranslation();
-  const token = useSession((s) => s.accessToken);
-  const pending = usePendingAlerts(!!token);
+  const user = useSession((s) => s.user);
+  const pending = usePendingAlerts(!!user);
   const ack = useAckAlert();
 
   const alerts = pending.data ?? [];

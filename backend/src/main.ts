@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { AppModule } from './app.module';
@@ -26,6 +27,8 @@ async function bootstrap(): Promise<void> {
     .map((s) => s.trim())
     .filter(Boolean);
   app.use(helmet());
+  // httpOnly auth cookies (mp_at/mp_rt) — parsed for JwtAuthGuard + /auth/refresh.
+  app.use(cookieParser());
   app.enableCors({ origin: origins, credentials: true });
 
   const prefix = config.get('API_PREFIX');

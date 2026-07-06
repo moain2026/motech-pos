@@ -33,7 +33,7 @@ import {
   Megaphone,
   Menu,
 } from 'lucide-react';
-import { useSession, ChangePasswordDialog } from '@/features/auth';
+import { useSession, ChangePasswordDialog, serverLogout } from '@/features/auth';
 import { PendingAlertsBanner } from '@/features/alerts';
 import { OnlineBadge } from '@/shared/ui/OnlineBadge';
 import { cn } from '@/shared/lib/cn';
@@ -159,6 +159,7 @@ export function AppLayout() {
   }, [location.pathname]);
 
   const logout = () => {
+    void serverLogout(); // clear httpOnly cookies server-side (fire-and-forget)
     clear();
     navigate('/login', { replace: true });
   };

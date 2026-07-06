@@ -31,11 +31,9 @@ async function fetchCurrentShift(
   page: Page,
 ): Promise<{ id: string; shiftNo: number } | null> {
   return page.evaluate(async (cashierNo) => {
-    const raw = window.localStorage.getItem('motech-session');
-    const token = raw ? JSON.parse(raw)?.state?.accessToken : null;
-    const res = await fetch(`/api/v1/shifts/current?cashierNo=${cashierNo}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // Auth rides the httpOnly mp_at cookie — same-origin fetch sends it
+    // automatically (tokens are no longer readable from localStorage).
+    const res = await fetch(`/api/v1/shifts/current?cashierNo=${cashierNo}`);
     if (!res.ok) return null;
     const body = await res.json();
     return { id: body.data.id, shiftNo: body.data.shiftNo };
@@ -315,11 +313,8 @@ test.describe('Motech POS — المسارات الحرجة (live E2E)', () => {
 
     // 3) API enforcement (not just UI hiding): admin endpoint → 403.
     const status = await page.evaluate(async () => {
-      const raw = window.localStorage.getItem('motech-session');
-      const token = raw ? JSON.parse(raw)?.state?.accessToken : null;
-      const res = await fetch('/api/v1/admin/users', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      // httpOnly cookie auth — the browser attaches mp_at; RBAC must still 403.
+      const res = await fetch('/api/v1/admin/users');
       return res.status;
     });
     expect(status).toBe(403);

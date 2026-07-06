@@ -9,11 +9,17 @@ import { sessionStore } from '@/features/auth/store/session.store';
 /**
  * Axios API client.
  * - Base URL from VITE_API_BASE_URL (default '/api/v1' → Vite dev proxy → :3100).
- * - Request interceptor injects the Bearer access token.
+ * - Auth rides httpOnly SameSite=Strict cookies (mp_at/mp_rt) set by the
+ *   backend — the browser attaches them automatically (same-origin). The
+ *   request interceptor ALSO injects a Bearer header while a token is in
+ *   memory (fresh login) for backward compatibility; after a reload the
+ *   cookie alone authenticates — no JWT ever touches localStorage (XSS
+ *   hardening, 2026-07-06).
  * - Response interceptor:
  *    * unwraps RFC 9457 problem+json into a typed ApiError,
- *    * transparently refreshes the access token on 401 (single-flight),
- *      then retries the original request once.
+ *    * transparently refreshes the access token on 401 (single-flight,
+ *      cookie-based when no refresh token is in memory), then retries the
+ *      original request once.
  */
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '/api/v1';
 
@@ -33,7 +39,7 @@ export const api: AxiosInstance = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// ---- request: attach token ----
+// ---- request: attach token (compat — cookie auth works without it) ----
 api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
   const token = sessionStore.getState().accessToken;
   if (token) config.headers.set('Authorization', `Bearer ${token}`);
@@ -43,17 +49,19 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 // ---- single-flight refresh ----
 let refreshing: Promise<string | null> | null = null;
 
+/**
+ * Refresh the session. Uses the in-memory refresh token when present (fresh
+ * login), otherwise relies on the mp_rt httpOnly cookie the browser sends
+ * with the request (post-reload). Returns the new access token, or null and
+ * clears the session when refresh is impossible.
+ */
 async function doRefresh(): Promise<string | null> {
   const { refreshToken, setTokens, clear } = sessionStore.getState();
-  if (!refreshToken) {
-    clear();
-    return null;
-  }
   try {
     // Bare axios (no interceptor) to avoid recursion.
     const res = await axios.post<ApiEnvelope<RefreshResponse>>(
       `${BASE_URL}/auth/refresh`,
-      { refreshToken },
+      refreshToken ? { refreshToken } : {},
       { headers: { 'Content-Type': 'application/json' } },
     );
     const data = res.data.data;

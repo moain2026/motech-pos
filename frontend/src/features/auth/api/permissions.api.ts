@@ -11,7 +11,8 @@ import { useSession } from '../store/session.store';
  * this only hides/greys controls the user cannot use.
  */
 export function usePermissions() {
-  const authed = useSession((s) => !!s.accessToken);
+  // Keyed off the persisted profile — the httpOnly cookie authenticates the call.
+  const authed = useSession((s) => !!s.user);
   return useQuery({
     queryKey: ['auth', 'permissions', 'me'],
     queryFn: () => getData<MyPermissions>('/auth/permissions/me'),

@@ -44,3 +44,16 @@ export async function fetchMe(): Promise<AuthUser> {
   const res = await api.get<ApiEnvelope<AuthUser>>('/auth/me');
   return res.data.data;
 }
+
+/**
+ * POST /auth/logout — asks the server to clear the httpOnly auth cookies
+ * (mp_at/mp_rt). Fire-and-forget: local state is cleared regardless, and a
+ * network failure must never trap the user in a signed-in UI.
+ */
+export async function serverLogout(): Promise<void> {
+  try {
+    await api.post('/auth/logout');
+  } catch {
+    // Cookies expire on their own TTL; local clear() already signed the UI out.
+  }
+}

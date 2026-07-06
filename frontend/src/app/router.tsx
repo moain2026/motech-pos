@@ -104,8 +104,12 @@ const CustomerDisplayPage = lazy(() =>
 );
 
 function RequireAuth({ children }: { children: ReactNode }) {
-  const token = useSession((s) => s.accessToken);
-  if (!token) return <Navigate to="/login" replace />;
+  // Auth truth lives in the httpOnly cookie (unreadable from JS) — the
+  // persisted `user` profile is the render gate. A stale profile with a dead
+  // cookie self-heals: the first API call 401s, the cookie refresh fails and
+  // clear() bounces the user back here.
+  const user = useSession((s) => s.user);
+  if (!user) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
 
