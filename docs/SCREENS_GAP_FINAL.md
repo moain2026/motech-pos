@@ -112,7 +112,7 @@
 |---|---|---|:---:|---|---|:---:|---|
 | POSS001 | متغيرات وإعدادات نقاط البيع | متغيرات النظام العامة (IAS_PARA_POS) | ✅ | ✅ `GET /settings/all` (179 مصنّفة) + `PUT /settings/{key}` (value:null يرجع للحية) + `GET/PUT/POST /settings` + `machine/{no}` | ✅ SettingsPage **كامل UI**: 10 تبويبات عربية × 179 إعداد + بحث شامل + تحكّم حسب النوع (نص/رقم/toggle 0-1) + حفظ فوري لكل مفتاح + شارة «مُعدّل» + إرجاع للافتراضي + toast + admin-only (2026-07-04) | **P0** | مكتمل |
 | POSS002 | صلاحيات المستخدمين | صلاحيات تفصيلية للشاشات/العمليات | ✅ | ✅ `GET/PUT /admin/permissions` (مصفوفة role×permission) + **فرض ديناميكي**: `PermissionsGuard` + `@RequirePermission` يستشيران ROLE_PERMISSIONS وقتالطلب (fallback آمن + cache 15ث + invalidate عند التعديل) + `GET /auth/permissions/me` لبوابة الواجهة (2026-07-06) | ✅ تبويب "الصلاحيات" في AdminPage: مصفوفة checkboxes + حفظ ذري + **تعطيل/إخفاء عناصر حسب الصلاحية (usePermissions)** (2026-07-06) | P1 | مكتمل — الفرض ديناميكي فعلاً في الـbackend |
-| POSS003 | النسخ الاحتياطية | نسخ احتياطي لقاعدة البيانات | ❌ | — (ops: pg_dump/cron خارج التطبيق) | ❌ | P2 | job نسخ مجدول + زر/حالة في AdminPage (أو يُوثَّق كإجراء تشغيلي) |
+| POSS003 | النسخ الاحتياطية | نسخ احتياطي لقاعدة البيانات | ✅ | ✅ `POST /admin/backups` (نسخة الآن) + `GET /admin/backups` (سجل النسخ) + `GET /admin/backups/:id/download` (تنزيل JSON) — تصدير schema الكتابة **MOTECH_POS فقط** (BILLS/PAYMENTS/CATALOG_CACHE/الـoverlays/…)؛ **YSPOS23 الإنتاجي لا يُنسخ (قراءة فقط)** + سجل BACKUP_RUNS (V030) + تقليم تلقائي + **جدولة اختيارية** عبر @nestjs/schedule (BACKUP_SCHEDULE_ENABLED، افتراضي off) (2026-07-06) | ✅ تبويب «النسخ الاحتياطي» في AdminPage: زر «نسخة الآن» + تحذير النطاق + toast نجاح + جدول النسخ السابقة (رقم/نوع/حالة/تاريخ/جداول/صفوف/حجم) + تنزيل لكل صف (2026-07-06) | P2 | مكتمل — admin-only، إثبات حي على الدومين |
 | POSS004 | تغيير كلمة السر | المستخدم يغيّر كلمته | ✅ | ✅ `POST /auth/change-password` (تحقق القديمة + bcrypt-12 + كتابة ذرّية لـ auth-users.json تنجو من restart) | ✅ حوار ChangePasswordDialog من رأس الشاشة (قديمة+جديدة+تأكيد، لكل مستخدم) (2026-07-04) | P1 | مكتمل |
 | POSS005 | الإعدادات الافتراضية | افتراضيات على مستوى النظام/النقطة | ✅ | ✅ `GET/PUT /settings/defaults` (قيم POS_DFLT_STNG_MST الحية + overlay `default.<no>`، value/liveValue/overridden، admin-only للكتابة، STNG_NO مُتحقّق) + machine overrides | ✅ تبويب «الافتراضيات المرقّمة» في SettingsPage: جدول رقم/وصف/قيمة + حفظ فوري + إرجاع للحية (2026-07-04) | P2 | مكتمل |
 | POSS006 | تسجيل أجهزة WMS | ربط أجهزة مستودعات خارجية | 📄 N/A | — | — | P2 | **مغلقة معمارياً** — WMS خارج نطاق POS ([ADR-006](ADR/ADR-006-wms-device-screens.md)) |
@@ -242,7 +242,7 @@
 | POSR003, POSR006, POSR007, POSR008, POSR009, POSR012, POSR016 | ✅ backend + واجهة (2026-07-04): زر تصدير CSV لكل تقرير مسطّح + تبويبات receivables/vouchersSummary/customerGroups/salesOrders + الموجود (sales-by-category/item-movement/slow-moving) |
 | POSI004, POSI005, POSI006, POSI009, POSI012, POSI200 | مفاتيح مساعدة، موازين، مجموعات عملاء، أنواع بطاقات، أرصدة بطاقات |
 | POSI014, POS_INSTALL | **N/A** — migrations/seed تحل محلهما (توثيق فقط) |
-| POSS003 | نسخ احتياطي (ops) — POSS005 ✅ backend+UI defaults (2026-07-04) |
+| POSS003 | ✅ نسخ احتياطي (backend+UI) — تصدير MOTECH_POS كـJSON + سجل + تنزيل + جدولة اختيارية (2026-07-06) |
 | POSS006/007/028/029 | **N/A** — تكامل WMS قديم (4 شاشات) |
 | POSADVS, POSADVS2 | تغطيها PosPage (skin/ملء شاشة فقط) |
 | POS_ALRT_SCR, POS_IMPXLS_AVLQTY | تنبيهات دخول + استيراد Excel |

@@ -1,6 +1,24 @@
 # 📈 سجل تقدّم Motech POS
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
+## 2026-07-06 (Lane G — النسخ الاحتياطي P2: POSS003 ❌→✅ backend+UI) — subagent lane-g-backup
+
+> **النطاق (حصرياً):** backend modules {admin} + frontend features {admin} — لم تُلمس أي وحدة/feature أخرى. **القاعدة الذهبية (proof-not-assumption):** النسخ من **MOTECH_POS فقط** (schema الكتابة)؛ الإنتاج YSPOS23/IAS202623 **لا يُنسخ إطلاقاً ويبقى للقراءة فقط**.
+
+**POSS003 — النسخ الاحتياطي ❌→✅:**
+- **هجرة V030** (رُقّمت من V029 لتصادم مع لِينة موازية pos_shortcuts_scales): جدول `BACKUP_RUNS` (سجل كل نسخة: رقم/نوع MANUAL\|SCHEDULED/حالة RUNNING\|SUCCESS\|FAILED/الملف+حجم/عدد الجداول+الصفوف/مدة/خطأ) + `SEQ_BACKUP_NO` + GRANTs لـMOTECH_RW — مُطبّقة حياً.
+- **backend (module admin):** `BackupService` يعدّد جداول MOTECH_POS ديناميكياً (`ALL_TAB_COLUMNS WHERE OWNER='MOTECH_POS'`، CLOB→string)، يُصدّرها كلقطة JSON واحدة (التواريخ ISO) إلى `backups/`، يُسجّل الرّكضة في BACKUP_RUNS، حارس تشغيل واحد (لا تزامن)، تقليم لـBACKUP_RETENTION ملف. `OracleBackupRepository` + `BackupScheduler` (@nestjs/schedule cron، BACKUP_CRON افتراضي يومياً 02:00، معطّل افتراضياً BACKUP_SCHEDULE_ENABLED=false — نفس نمط catalog-sync).
+- **endpoints (admin-only RBAC):** `POST /admin/backups` (نسخة الآن) + `GET /admin/backups` (السجل) + `GET /admin/backups/:id/download` (StreamableFile، Content-Disposition attachment).
+- **إصلاح ORA-01745:** bind باسم `:by` محجوز في أوراكل → `:createdBy` (نفس درس V018).
+- **الواجهة (AdminPage):** تبويب جديد «النسخ الاحتياطي»: زر «نسخة الآن» + تحذير النطاق (MOTECH_POS فقط، الإنتاج للقراءة) + toast نجاح + جدول النسخ السابقة (شارة حالة ملوّنة + حجم إنساني) + تنزيل لكل صف (blob موثّق Bearer). i18n عربي backup.*.
+
+**Proof (حي):**
+- **API على :3000 (توكن admin):** `POST /admin/backups` → SUCCESS **59 جدولاً، 2819 صفاً، 916619 bytes** في 420ms · `GET` السجل يرجعه · `GET /:id/download` → 916619 bytes JSON صالح (BILLS 58 صف، BILL_NO حقيقي) + Content-Disposition attachment · **حرّاس:** cashier POST/GET → **403** · بلا توكن → **401** · id مجهول → **404**.
+- **DB:** BACKUP_RUNS يحمل الرّكضتين (CREATED_BY=3 admin) + الملفات على القرص.
+- **UI حي على الدومين العام (CDP، دخول admin):** فتح تبويب «النسخ الاحتياطي» → «نسخة الآن» → toast **«تمّت النسخة رقم 3 — 61 جدولاً، ٢٬٨٢٤ صفاً»** + الجدول يعرض النسختين (لقطة `pos-audit-shots/backup-done.png`).
+- `npx tsc -b` لملفاتي **صفر أخطاء** (backend+frontend) · **6 اختبارات وحدة جديدة** (export/date-iso/failure/list/download-404/prune) خضراء · backend مبني (worktree نظيف — لِينات موازية تركت scale-barcode.ts مكسوراً) ومُعاد نشر dist + pm2 restart /health أخضر · frontend مبني ومنشور على https://nuugneol.gensparkclaw.com (200).
+- **الملفات (نطاقي حصراً):** backend `admin/{application/backup.service,application/backup-scheduler.service,infrastructure/oracle-backup.repository,domain/ports/backup-repository.port,presentation/admin.controller,presentation/admin.query,admin.module}` + `config.schema` + `test/unit/backup.spec` · frontend `admin/{api/admin.api,components/AdminPage}` + `shared/lib/types` + `locales/ar/common` · `db/migrations/V030` · `.gitignore`. **2 commits** بهوية MoainAlabbasi. **POSS003 ❌→✅.**
+
 ## 2026-07-06 (Lane D — إعادة تصميم متجاوبة mobile-first: نظام تصميم + Shell + شاشة البيع) — subagent lane-d-responsive-ux
 
 > **المحرّك:** شهادة المالك أن الواجهة غير متجاوبة مع الأجهزة. **النطاق (المراحل 1–3 فقط):** `src/app/*` · `src/shared/ui/*` · `src/styles/*` · `src/features/pos-terminal/*` — لم يُلمس أي feature آخر (مسارات أخرى تعدّلها). **ملاحظة معمارية:** Tailwind v4 (theme داخل CSS عبر `@theme` — لا `tailwind.config.js`)؛ والمكوّنات المشتركة في `src/shared/ui/*` (لا `src/components/ui`).
