@@ -53,6 +53,16 @@ export const configSchema = z.object({
   JWT_ISSUER: z.string().default('motech-pos'),
   // Path to the local (temporary) users seed file (see auth module docs).
   AUTH_USERS_FILE: z.string().default('auth-users.json'),
+
+  // --- Downward catalog sync (POST008 المزامنة النزولية) ---
+  // Automatic pull of items/prices from the ERP into MOTECH_POS.CATALOG_CACHE.
+  // Runs in-process via @nestjs/schedule (no external broker needed).
+  CATALOG_SYNC_ENABLED: z
+    .string()
+    .default('true')
+    .transform((s) => s !== 'false' && s !== '0'),
+  // Cron expression for the scheduled pull (default: every 30 minutes).
+  CATALOG_SYNC_CRON: z.string().default('0 */30 * * * *'),
 });
 
 export type AppConfig = z.infer<typeof configSchema>;

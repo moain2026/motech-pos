@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
 import { ConfigModule } from './config/config.module';
 import { HealthModule } from './health/health.module';
@@ -31,6 +32,7 @@ import { VouchersModule } from './modules/vouchers/vouchers.module';
 @Module({
   imports: [
     ConfigModule,
+    ScheduleModule.forRoot(),
     LoggerModule.forRoot({
       pinoHttp: {
         level: process.env.LOG_LEVEL ?? 'info',

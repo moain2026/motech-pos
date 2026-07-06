@@ -16,8 +16,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/presentation/jwt-auth.guard';
+import { PermissionsGuard } from '../../auth/presentation/permissions.guard';
+import { RequirePermission } from '../../auth/presentation/require-permission.decorator';
 import { Roles } from '../../auth/presentation/roles.decorator';
 import { RolesGuard } from '../../auth/presentation/roles.guard';
+import { CatalogPullService } from '../../catalog/application/catalog-pull.service';
 import { SyncService } from '../application/sync.service';
 
 class EnqueueSyncDto {
@@ -47,6 +50,19 @@ class SyncRunDto {
   limit?: number = 100;
 }
 
+class CatalogCachedQuery {
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(500)
+  limit?: number = 100;
+}
+
 /**
  * SyncController — manage the internal-transfer queue to the center
  * (المزامنة). The transfer is SIMULATED (no live-Onyx write). Enqueue is
@@ -57,7 +73,10 @@ class SyncRunDto {
 @ApiBearerAuth()
 @Controller('sync')
 export class SyncController {
-  constructor(private readonly sync: SyncService) {}
+  constructor(
+    private readonly sync: SyncService,
+    private readonly pull: CatalogPullService,
+  ) {}
 
   @Get('status')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -107,5 +126,53 @@ export class SyncController {
         counts: result.counts,
       },
     };
+  }
+
+  //==========================================================================
+  // Downward sync (catalog pull) — POST008 المزامنة النزولية
+  //==========================================================================
+
+  @Get('catalog/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('cashier', 'supervisor', 'admin')
+  @ApiOperation({
+    summary:
+      'Downward catalog-cache status (total/active/stale + last pull run)',
+  })
+  async catalogStatus() {
+    const data = await this.pull.status();
+    return { data, meta: { running: this.pull.isRunning() } };
+  }
+
+  @Get('catalog/runs')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('cashier', 'supervisor', 'admin')
+  @ApiOperation({ summary: 'Recent downward catalog-pull runs (newest first)' })
+  async catalogRuns() {
+    const data = await this.pull.listRuns(20);
+    return { data, meta: { count: data.length } };
+  }
+
+  @Get('catalog/items')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('cashier', 'supervisor', 'admin')
+  @ApiOperation({ summary: 'Cached catalog items (local snapshot from the ERP)' })
+  async catalogItems(@Query() q: CatalogCachedQuery) {
+    const data = await this.pull.listCached(q.search, q.limit ?? 100);
+    return { data, meta: { count: data.length } };
+  }
+
+  @Post('catalog/pull')
+  @HttpCode(200)
+  @UseGuards(JwtAuthGuard, RolesGuard, PermissionsGuard)
+  @Roles('supervisor', 'admin')
+  @RequirePermission('EINVOICE')
+  @ApiOperation({
+    summary:
+      'Trigger a downward catalog pull now (items/prices ERP → local cache). Idempotent while running.',
+  })
+  async catalogPull() {
+    const result = await this.pull.pull('manual');
+    return { data: result, meta: { skipped: result.skipped ?? false } };
   }
 }

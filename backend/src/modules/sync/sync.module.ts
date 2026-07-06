@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { CatalogModule } from '../catalog/catalog.module';
 import { EInvoiceModule } from '../einvoice/einvoice.module';
+import { CatalogSyncScheduler } from './application/catalog-sync-scheduler.service';
 import { SyncService } from './application/sync.service';
 import { SYNC_REPOSITORY } from './domain/ports/sync-repository.port';
 import { OracleSyncRepository } from './infrastructure/oracle-sync.repository';
@@ -12,10 +14,11 @@ import { SyncController } from './presentation/sync.controller';
  * bill cannot be synced before its e-invoice is issued.
  */
 @Module({
-  imports: [AuthModule, EInvoiceModule],
+  imports: [AuthModule, EInvoiceModule, CatalogModule],
   controllers: [SyncController],
   providers: [
     SyncService,
+    CatalogSyncScheduler,
     { provide: SYNC_REPOSITORY, useClass: OracleSyncRepository },
   ],
   exports: [SyncService],
