@@ -1,13 +1,20 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import {
   EarnedPointsBalance,
+  LoyaltyProgramRow,
   LoyaltyRepository,
   LOYALTY_REPOSITORY,
   LoyaltySummary,
   PointsLedgerRow,
+  UpsertLoyaltyProgramInput,
 } from '../domain/ports/loyalty-repository.port';
 import { earnPoints } from '../domain/points-policy';
-import { InsufficientPointsError } from '../../../shared/errors/domain-error';
+import {
+  InsufficientPointsError,
+  InvalidOverlayError,
+  OverlayConflictError,
+  OverlayNotFoundError,
+} from '../../../shared/errors/domain-error';
 
 export interface EarnOnSaleInput {
   customerCode: string;
@@ -180,6 +187,103 @@ export class LoyaltyService {
   summary(): Promise<LoyaltySummary> {
     return this.repo.summary();
   }
+
+  //========================================================================
+  // POSI008 — loyalty programs CRUD (ترميز برامج نقاطي)
+  //========================================================================
+
+  listPrograms(): Promise<LoyaltyProgramRow[]> {
+    return this.repo.listPrograms();
+  }
+
+  async getProgram(id: string): Promise<LoyaltyProgramRow> {
+    const p = await this.repo.findProgramById(id);
+    if (!p) {
+      throw new OverlayNotFoundError(`Loyalty program ${id} not found`, { id });
+    }
+    return p;
+  }
+
+  async createProgram(
+    input: UpsertLoyaltyProgramInput,
+  ): Promise<LoyaltyProgramRow> {
+    this.validateProgram(input);
+    try {
+      return await this.repo.insertProgram(input);
+    } catch (err) {
+      if (isUniqueViolation(err)) {
+        throw new OverlayConflictError(
+          `Another active loyalty program already exists for point type ${input.pointTypNo}`,
+          { pointTypNo: input.pointTypNo },
+        );
+      }
+      throw err;
+    }
+  }
+
+  async updateProgram(
+    id: string,
+    input: UpsertLoyaltyProgramInput,
+  ): Promise<LoyaltyProgramRow> {
+    this.validateProgram(input);
+    await this.getProgram(id); // 404 if missing
+    try {
+      const updated = await this.repo.updateProgram(id, input);
+      if (!updated) {
+        throw new OverlayNotFoundError(`Loyalty program ${id} not found`, { id });
+      }
+      return updated;
+    } catch (err) {
+      if (isUniqueViolation(err)) {
+        throw new OverlayConflictError(
+          `Another active loyalty program already exists for point type ${input.pointTypNo}`,
+          { pointTypNo: input.pointTypNo },
+        );
+      }
+      throw err;
+    }
+  }
+
+  async deleteProgram(id: string): Promise<void> {
+    const removed = await this.repo.deleteProgram(id);
+    if (!removed) {
+      throw new OverlayNotFoundError(`Loyalty program ${id} not found`, { id });
+    }
+  }
+
+  private validateProgram(input: UpsertLoyaltyProgramInput): void {
+    if (!input.name || !input.name.trim()) {
+      throw new InvalidOverlayError('Program name is required', {});
+    }
+    if (![1, 2].includes(input.calcType)) {
+      throw new InvalidOverlayError('calcType must be 1 or 2', {});
+    }
+    if (!(input.amt4Point > 0)) {
+      throw new InvalidOverlayError('amt4Point must be > 0', {});
+    }
+    if (!(input.pointCnt > 0)) {
+      throw new InvalidOverlayError('pointCnt must be > 0', {});
+    }
+    if (input.minBillAmt < 0 || input.maxPointsPerBill < 0) {
+      throw new InvalidOverlayError('limits must be >= 0', {});
+    }
+    if (
+      input.startDate &&
+      input.endDate &&
+      input.endDate < input.startDate
+    ) {
+      throw new InvalidOverlayError('endDate must be on/after startDate', {});
+    }
+  }
+}
+
+function isUniqueViolation(err: unknown): boolean {
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'errorNum' in err &&
+    (err as { errorNum?: number }).errorNum === 1
+  );
 }
 
 function kindOf(trnsType: number): LedgerEntryWithBalance['kind'] {

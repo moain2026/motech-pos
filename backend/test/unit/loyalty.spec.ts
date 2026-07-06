@@ -4,9 +4,11 @@ import {
   EarnedPointsBalance,
   InsertEarnInput,
   InsertRedeemInput,
+  LoyaltyProgramRow,
   LoyaltyRepository,
   LoyaltySummary,
   PointsLedgerRow,
+  UpsertLoyaltyProgramInput,
 } from '../../src/modules/loyalty/domain/ports/loyalty-repository.port';
 import { earnPoints, LoyaltyRule } from '../../src/modules/loyalty/domain/points-policy';
 
@@ -35,13 +37,88 @@ describe('earnPoints (Get_Point_Cnt calc types)', () => {
     expect(earnPoints(0, RULE_1).points).toBe(0);
     expect(earnPoints(50, { ...RULE_1, amt4Point: 0 }).points).toBe(0);
   });
+  it('POSI008 minBillAmt floor: bills below the minimum earn nothing', () => {
+    const rule: LoyaltyRule = { ...RULE_1, minBillAmt: 5000 };
+    expect(earnPoints(4999, rule).points).toBe(0);
+    expect(earnPoints(5000, rule).points).toBe(50);
+  });
+  it('POSI008 maxPointsPerBill cap: points are capped per bill', () => {
+    const rule: LoyaltyRule = { ...RULE_1, maxPointsPerBill: 10 };
+    expect(earnPoints(23400, rule).points).toBe(10); // would be 234, capped to 10
+    expect(earnPoints(500, rule).points).toBe(5); // below cap, unchanged
+  });
 });
 
 class FakeRepo implements LoyaltyRepository {
   rows: PointsLedgerRow[] = [];
   rule: LoyaltyRule | null = RULE_1;
-  activeRule(): Promise<LoyaltyRule | null> {
+  programs: LoyaltyProgramRow[] = [];
+  private pid = 0;
+  activeRule(pointTypNo = 1): Promise<LoyaltyRule | null> {
+    // Mirror the Oracle repo: an active program supersedes the config rule.
+    const p = this.programs.find(
+      (x) => x.pointTypNo === pointTypNo && x.active,
+    );
+    if (p) {
+      return Promise.resolve({
+        calcType: p.calcType,
+        amt4Point: p.amt4Point,
+        pointCnt: p.pointCnt,
+        truncate: p.truncate,
+        pointValue: p.pointValue,
+        minBillAmt: p.minBillAmt,
+        maxPointsPerBill: p.maxPointsPerBill,
+      });
+    }
     return Promise.resolve(this.rule);
+  }
+  listPrograms(): Promise<LoyaltyProgramRow[]> {
+    return Promise.resolve(this.programs.slice().reverse());
+  }
+  findProgramById(id: string): Promise<LoyaltyProgramRow | null> {
+    return Promise.resolve(this.programs.find((p) => p.id === id) ?? null);
+  }
+  activeProgram(pointTypNo: number): Promise<LoyaltyProgramRow | null> {
+    return Promise.resolve(
+      this.programs.find((p) => p.pointTypNo === pointTypNo && p.active) ?? null,
+    );
+  }
+  insertProgram(input: UpsertLoyaltyProgramInput): Promise<LoyaltyProgramRow> {
+    if (
+      input.active &&
+      this.programs.some((p) => p.pointTypNo === input.pointTypNo && p.active)
+    ) {
+      const e = new Error('ORA-00001') as Error & { errorNum: number };
+      e.errorNum = 1;
+      return Promise.reject(e);
+    }
+    const row: LoyaltyProgramRow = {
+      id: `p${++this.pid}`,
+      ...input,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    this.programs.push(row);
+    return Promise.resolve(row);
+  }
+  updateProgram(
+    id: string,
+    input: UpsertLoyaltyProgramInput,
+  ): Promise<LoyaltyProgramRow | null> {
+    const idx = this.programs.findIndex((p) => p.id === id);
+    if (idx < 0) return Promise.resolve(null);
+    const row: LoyaltyProgramRow = {
+      ...this.programs[idx],
+      ...input,
+      updatedAt: new Date().toISOString(),
+    };
+    this.programs[idx] = row;
+    return Promise.resolve(row);
+  }
+  deleteProgram(id: string): Promise<boolean> {
+    const before = this.programs.length;
+    this.programs = this.programs.filter((p) => p.id !== id);
+    return Promise.resolve(this.programs.length < before);
   }
   insertEarn(input: InsertEarnInput): Promise<PointsLedgerRow | null> {
     if (!(input.pointCnt > 0)) return Promise.resolve(null);
@@ -208,6 +285,82 @@ describe('LoyaltyService.customerLedger (POST021 movement history)', () => {
     const view = await svc.customerLedger('NOBODY', 100);
     expect(view.balance.earnedPoints).toBe(0);
     expect(view.entries).toEqual([]);
+  });
+});
+
+describe('LoyaltyService loyalty programs CRUD (POSI008)', () => {
+  let repo: FakeRepo;
+  let svc: LoyaltyService;
+  const base = {
+    name: 'برنامج الذهبي',
+    pointTypNo: 1,
+    calcType: 1 as const,
+    amt4Point: 100,
+    pointCnt: 1,
+    truncate: true,
+    pointValue: 1,
+    minBillAmt: 0,
+    maxPointsPerBill: 0,
+    startDate: null,
+    endDate: null,
+    active: true,
+    createdBy: 3,
+  };
+  beforeEach(() => {
+    repo = new FakeRepo();
+    svc = new LoyaltyService(repo);
+  });
+
+  it('creates, lists, gets, updates, deletes a program', async () => {
+    const created = await svc.createProgram(base);
+    expect(created.name).toBe('برنامج الذهبي');
+    const list = await svc.listPrograms();
+    expect(list).toHaveLength(1);
+    const got = await svc.getProgram(created.id);
+    expect(got.id).toBe(created.id);
+    const updated = await svc.updateProgram(created.id, {
+      ...base,
+      amt4Point: 50,
+    });
+    expect(updated.amt4Point).toBe(50);
+    await svc.deleteProgram(created.id);
+    await expect(svc.listPrograms()).resolves.toHaveLength(0);
+  });
+
+  it('rejects a second ACTIVE program for the same point type (409)', async () => {
+    await svc.createProgram(base);
+    await expect(svc.createProgram({ ...base, name: 'ثاني' })).rejects.toThrow(
+      /already exists/i,
+    );
+  });
+
+  it('validates payload (422 on bad calcType / amounts / dates)', async () => {
+    await expect(
+      svc.createProgram({ ...base, calcType: 3 as unknown as 1 }),
+    ).rejects.toThrow(/calcType/i);
+    await expect(svc.createProgram({ ...base, amt4Point: 0 })).rejects.toThrow(
+      /amt4Point/i,
+    );
+    await expect(
+      svc.createProgram({ ...base, startDate: '2026-12-01', endDate: '2026-01-01' }),
+    ).rejects.toThrow(/endDate/i);
+  });
+
+  it('getProgram / deleteProgram throw 404 for unknown id', async () => {
+    await expect(svc.getProgram('nope')).rejects.toThrow(/not found/i);
+    await expect(svc.deleteProgram('nope')).rejects.toThrow(/not found/i);
+  });
+
+  it('an active program supersedes the config rule in earnOnSale', async () => {
+    // program: 1 point per 50 riyals (double the default 100).
+    await svc.createProgram({ ...base, amt4Point: 50 });
+    const row = await svc.earnOnSale({
+      customerCode: 'C1',
+      billId: 'b1',
+      billNo: 'B1',
+      billAmount: 1000,
+    });
+    expect(row?.pointCnt).toBe(20); // 1000/50 = 20 (not 10 from the config rule)
   });
 });
 

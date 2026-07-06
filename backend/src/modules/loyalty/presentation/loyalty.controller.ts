@@ -1,4 +1,16 @@
-import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Max, Min } from 'class-validator';
 import {
@@ -7,8 +19,15 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../../auth/presentation/jwt-auth.guard';
+import {
+  AuthenticatedRequest,
+  JwtAuthGuard,
+} from '../../auth/presentation/jwt-auth.guard';
+import { Roles } from '../../auth/presentation/roles.decorator';
+import { RolesGuard } from '../../auth/presentation/roles.guard';
 import { LoyaltyService } from '../application/loyalty.service';
+import { UpsertLoyaltyProgramDto } from './loyalty-program.dto';
+import { UpsertLoyaltyProgramInput } from '../domain/ports/loyalty-repository.port';
 
 class LedgerQuery {
   @IsOptional()
@@ -63,5 +82,85 @@ export class LoyaltyController {
   async summary() {
     const data = await this.loyalty.summary();
     return { data, meta: {} };
+  }
+
+  //==========================================================================
+  // POSI008 — loyalty programs CRUD (ترميز برامج نقاطي)
+  // Reads: any authenticated user. Writes: supervisor/admin (RBAC).
+  //==========================================================================
+
+  @Get('programs')
+  @ApiOperation({ summary: 'List loyalty programs (POSI008)' })
+  @ApiOkResponse({ description: 'Envelope { data, meta }' })
+  async listPrograms() {
+    const data = await this.loyalty.listPrograms();
+    return { data, meta: { count: data.length } };
+  }
+
+  @Get('programs/:id')
+  @ApiOperation({ summary: 'One loyalty program by id (POSI008)' })
+  async getProgram(@Param('id') id: string) {
+    const data = await this.loyalty.getProgram(id);
+    return { data };
+  }
+
+  @Post('programs')
+  @HttpCode(201)
+  @UseGuards(RolesGuard)
+  @Roles('supervisor', 'admin')
+  @ApiOperation({ summary: 'Create a loyalty program (POSI008, supervisor/admin)' })
+  async createProgram(
+    @Body() body: UpsertLoyaltyProgramDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.loyalty.createProgram(
+      this.toInput(body, req),
+    );
+    return { data };
+  }
+
+  @Put('programs/:id')
+  @UseGuards(RolesGuard)
+  @Roles('supervisor', 'admin')
+  @ApiOperation({ summary: 'Update a loyalty program (POSI008, supervisor/admin)' })
+  async updateProgram(
+    @Param('id') id: string,
+    @Body() body: UpsertLoyaltyProgramDto,
+    @Req() req: AuthenticatedRequest,
+  ) {
+    const data = await this.loyalty.updateProgram(id, this.toInput(body, req));
+    return { data };
+  }
+
+  @Delete('programs/:id')
+  @HttpCode(204)
+  @UseGuards(RolesGuard)
+  @Roles('supervisor', 'admin')
+  @ApiOperation({ summary: 'Delete a loyalty program (POSI008, supervisor/admin)' })
+  async deleteProgram(@Param('id') id: string) {
+    await this.loyalty.deleteProgram(id);
+  }
+
+  private toInput(
+    body: UpsertLoyaltyProgramDto,
+    req: AuthenticatedRequest,
+  ): UpsertLoyaltyProgramInput {
+    const sub = req.user?.sub;
+    const createdBy = typeof sub === 'number' ? sub : null;
+    return {
+      name: body.name.trim(),
+      pointTypNo: body.pointTypNo ?? 1,
+      calcType: body.calcType,
+      amt4Point: body.amt4Point,
+      pointCnt: body.pointCnt ?? 1,
+      truncate: body.truncate ?? true,
+      pointValue: body.pointValue ?? 1,
+      minBillAmt: body.minBillAmt ?? 0,
+      maxPointsPerBill: body.maxPointsPerBill ?? 0,
+      startDate: body.startDate ?? null,
+      endDate: body.endDate ?? null,
+      active: body.active ?? true,
+      createdBy,
+    };
   }
 }

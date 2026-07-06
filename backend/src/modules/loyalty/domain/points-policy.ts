@@ -18,6 +18,10 @@ export interface LoyaltyRule {
   pointCnt: number; // points per unit (calc 2)
   truncate: boolean;
   pointValue: number; // monetary value of 1 point (redeem)
+  /** Ignore bills below this net amount (0/undefined = no minimum). */
+  minBillAmt?: number;
+  /** Cap points granted per bill (0/undefined = no cap). */
+  maxPointsPerBill?: number;
 }
 
 export interface EarnResult {
@@ -37,7 +41,15 @@ export function earnPoints(billAmount: number, rule: LoyaltyRule): EarnResult {
     // calc-type 1 (default): one point block per AMT_4POINT riyals.
     raw = billAmount / rule.amt4Point;
   }
-  const points = rule.truncate ? Math.trunc(raw) : round4(raw);
+  // Program floor: bills below MIN_BILL_AMT earn nothing.
+  if (rule.minBillAmt && rule.minBillAmt > 0 && billAmount < rule.minBillAmt) {
+    return { points: 0, docAmt: billAmount };
+  }
+  let points = rule.truncate ? Math.trunc(raw) : round4(raw);
+  // Program cap: never grant more than MAX_POINTS_PER_BILL per bill.
+  if (rule.maxPointsPerBill && rule.maxPointsPerBill > 0) {
+    points = Math.min(points, rule.maxPointsPerBill);
+  }
   return { points, docAmt: billAmount };
 }
 
