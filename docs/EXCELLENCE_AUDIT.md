@@ -91,4 +91,33 @@
 
 ---
 
-## النتائج النهائية (أُكملت بعد التنفيذ — انظر آخر الملف)
+## النتائج النهائية — إثباتات حيّة بعد التنفيذ (2026-07-06)
+
+### الأمان (before → after، قياس حي)
+| البند | قبل | بعد |
+|---|---|---|
+| S1 brute force | 6 محاولات خاطئة → `401×6` بلا حد | 5×401 ثم **429** + `Retry-After: 900` + body RFC 9457 `too-many-login-attempts` (retryAfterSeconds) · دخول admin الصحيح عبر الدومين → 200 (لا أثر جانبي) |
+| S2 Swagger | `/api/v1/docs` → 200 عبر الدومين | `/api/v1/docs` و`/docs-json` → **404** محلياً وعبر الدومين (NODE_ENV=production) |
+
+### البندل (before → after، أرقام vite الفعلية)
+| chunk | قبل (gz) | بعد (gz) |
+|---|---|---|
+| vendor | 381.9KB (113.1KB) — يحوي JsBarcode+QRCode | 294.3KB (**95.5KB**) — بلا أي منهما (فحص binary: 0 مطابقة JsBarcode) |
+| index (eager) | 183.4KB (44.5KB) | 185.3KB (45.5KB) — +ConfirmDialog/Skeleton/focus-trap |
+| qr-lib (lazy جديد) | — (كان eager) | 23.5KB (8.9KB) — يُحمّل فقط عند الطباعة/QR |
+| jsbarcode | كان داخل vendor eager | **خرج من الـeager graph كلياً** (tree-shaken — لا chunk حتى يُستدعى) |
+| **إجمالي أول تحميل gz** | **~273.7KB** | **~258.5KB** (−15.2KB، −5.6%) + إزاحة مكتبتين عن المسار الحرج |
+
+### UX/a11y (إثبات باللقطات + E2E)
+- **ConfirmDialog**: لقطة `pos-audit-shots/excellence-confirm-dialog.png` — حوار داكن RTL بعنوان «تأكيد» + أيقونة تحذير + زر تأكيد أحمر (danger) وإلغاء outline — بدل صندوق النظام؛ استبدل كل الـ**12** موقع window.confirm (فحص آلي: 0 متبقّ).
+- **Skeleton**: لقطة `excellence-skeleton.png` — شبكة بطاقات هيكلية نابضة مكان الـspinner أثناء تحميل الكتالوج (مُثبتة بإبطاء الشبكة حياً).
+- **Focus trap**: مطبّق في Dialog المشترك — يستفيد منه كل حوار (30+) تلقائياً.
+- **aria-live**: تغذية المسح في live region دائمة `role=status aria-live=polite`.
+
+### الحالة النهائية
+- `npx tsc -b` **صفر أخطاء** backend + frontend ✅
+- اختبارات الوحدة: **340 تمر** (337 + 3 جديدة لـLoginThrottle) ✅
+- **E2E على النظام الحي بعد النشر: 10/10** (20.1s، منها اختبار إقفال الوردية المُحدَّث للـConfirmDialog الجديد) ✅
+- النشر: `dist` → `/var/www/motech-pos/`، الدومين 200 ويقدّم `index-DUbHI6yv.js` الجديد ✅
+- pm2 online، `/health` ok (read+write connected) ✅
+- commits: `9b12b6d` (security) · `604948a` (bundle) · `b683c57` (UX) — conventional، هوية MoainAlabbasi ✅
