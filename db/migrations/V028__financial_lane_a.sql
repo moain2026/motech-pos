@@ -1,8 +1,8 @@
 --------------------------------------------------------------------------------
--- V027 — Financial Lane A: refund vouchers, cashier custody, shift variance
+-- V028 — Financial Lane A: refund vouchers, cashier custody, shift variance
 --------------------------------------------------------------------------------
 -- Run as MOTECH_POS:
---   sudo docker exec -i oracle12 sqlplus -S "MOTECH_POS/motech_pos_2026@//localhost:1521/xe" @V027__financial_lane_a.sql
+--   sudo docker exec -i oracle12 sqlplus -S "MOTECH_POS/motech_pos_2026@//localhost:1521/xe" @V028__financial_lane_a.sql
 --
 -- Covers four Onyx screens (all MOTECH_POS only — YSPOS23 is never touched):
 --
@@ -106,4 +106,4 @@ GRANT SELECT ON SEQ_VARIANCE_NO TO MOTECH_RW;
 
 COMMIT;
 
-PROMPT V027 applied — refund voucher link + cashier custody + shift variance.
+PROMPT V028 applied — refund voucher link + cashier custody + shift variance.
