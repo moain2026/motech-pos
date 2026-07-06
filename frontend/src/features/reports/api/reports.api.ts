@@ -29,6 +29,7 @@ import type {
   SalesOrderRow,
   CustomerGroupReportRow,
   ReturnsWindowReport,
+  CashierPaymentSummaryRow,
 } from '@/shared/lib/types';
 
 function rangeParams(from?: string, to?: string): string {
@@ -91,6 +92,20 @@ export function usePaymentMethodsReport(from?: string, to?: string) {
     queryKey: ['report', 'payment-methods', { from, to }],
     queryFn: () =>
       getData<PaymentMethodRow[]>(`/reports/payment-methods${rangeParams(from, to)}`),
+  });
+}
+
+/**
+ * GET /reports/cashier-payment-summary — payment methods PER cashier
+ * (+ returns/refunds). POST012 ملخص مبيعات الكاشيرات.
+ */
+export function useCashierPaymentSummaryReport(from?: string, to?: string) {
+  return useQuery({
+    queryKey: ['report', 'cashier-payment-summary', { from, to }],
+    queryFn: () =>
+      getData<CashierPaymentSummaryRow[]>(
+        `/reports/cashier-payment-summary${rangeParams(from, to)}`,
+      ),
   });
 }
 

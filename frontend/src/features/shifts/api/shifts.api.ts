@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api, getData, ApiError } from '@/shared/lib/api-client';
+import { newIdempotencyKey } from '@/shared/lib/idempotency';
 import type {
   ApiEnvelope,
   Shift,
@@ -9,6 +10,10 @@ import type {
   ShiftCountDto,
   SettleShiftDto,
   ShiftSettlement,
+  CustodyMovement,
+  CustodyTotals,
+  RecordCustodyDto,
+  ShiftVariance,
 } from '@/shared/lib/types';
 
 /**
@@ -129,6 +134,7 @@ export function useSettleShift() {
     },
     onSuccess: (_s, vars) => {
       qc.invalidateQueries({ queryKey: ['shift', 'settlement', vars.id] });
+      qc.invalidateQueries({ queryKey: ['shift', 'variance', vars.id] });
       qc.invalidateQueries({ queryKey: ['shift'] });
     },
   });
@@ -144,6 +150,67 @@ export function useShiftSettlement(shiftId: string | null, enabled = true) {
     enabled: !!shiftId && enabled,
     queryFn: () =>
       getData<ShiftSettlement>(`/shifts/${encodeURIComponent(shiftId!)}/settlement`),
+  });
+}
+
+/**
+ * GET /shifts/{id}/custody — list cash custody movements (عهدة) + net totals.
+ * POST014. Returns the envelope so meta.totals is available.
+ */
+export function useShiftCustody(shiftId: string | null, enabled = true) {
+  return useQuery({
+    queryKey: ['shift', 'custody', shiftId],
+    enabled: !!shiftId && enabled,
+    queryFn: async (): Promise<{ movements: CustodyMovement[]; totals: CustodyTotals }> => {
+      const res = await api.get<ApiEnvelope<CustodyMovement[]>>(
+        `/shifts/${encodeURIComponent(shiftId!)}/custody`,
+      );
+      const meta = res.data.meta as { totals?: CustodyTotals } | undefined;
+      return {
+        movements: res.data.data,
+        totals: meta?.totals ?? {
+          deposits: 0, withdrawals: 0, net: 0, depositCount: 0, withdrawCount: 0,
+        },
+      };
+    },
+  });
+}
+
+/**
+ * POST /shifts/{id}/custody — record a custody movement (deposit/withdraw).
+ * Idempotency-Key mandatory (open shift required, withdraw guarded).
+ */
+export function useRecordCustody() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: { id: string; dto: RecordCustodyDto }): Promise<CustodyMovement> => {
+      const res = await api.post<ApiEnvelope<CustodyMovement>>(
+        `/shifts/${encodeURIComponent(vars.id)}/custody`,
+        vars.dto,
+        { headers: { 'Idempotency-Key': newIdempotencyKey() } },
+      );
+      return res.data.data;
+    },
+    onSuccess: (_m, vars) => {
+      qc.invalidateQueries({ queryKey: ['shift', 'custody', vars.id] });
+      qc.invalidateQueries({ queryKey: ['shift', 'reconciliation', vars.id] });
+      qc.invalidateQueries({ queryKey: ['shift', 'settlement', vars.id] });
+    },
+  });
+}
+
+/**
+ * GET /shifts/{id}/variance — the posted over/short variance for a settled
+ * shift, or null (POST015).
+ */
+export function useShiftVariance(shiftId: string | null, enabled = true) {
+  return useQuery({
+    queryKey: ['shift', 'variance', shiftId],
+    enabled: !!shiftId && enabled,
+    queryFn: () =>
+      getData<ShiftVariance | null>(
+        `/shifts/${encodeURIComponent(shiftId!)}/variance`,
+      ),
   });
 }
 

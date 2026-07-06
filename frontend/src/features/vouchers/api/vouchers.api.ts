@@ -6,6 +6,7 @@ import type {
   Voucher,
   VoucherType,
   CreateVoucherDto,
+  RefundVoucherDto,
 } from '@/shared/lib/types';
 
 /**
@@ -57,6 +58,39 @@ export function useCreateVoucher() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['vouchers'] });
+    },
+  });
+}
+
+/**
+ * GET /vouchers/for-return/:returnId — the refund voucher already issued for a
+ * return, or null (POST006 idempotency probe; drives the button state).
+ */
+export function useRefundVoucherForReturn(returnId: string | null) {
+  return useQuery({
+    queryKey: ['voucher', 'for-return', returnId],
+    enabled: !!returnId,
+    queryFn: () =>
+      getData<Voucher | null>(
+        `/vouchers/for-return/${encodeURIComponent(returnId!)}`,
+      ),
+  });
+}
+
+/**
+ * POST /vouchers/refunds — issue (or fetch) the cash refund voucher (سند صرف)
+ * for a MOTECH_POS return. Idempotent: one return = one voucher (no header key).
+ */
+export function useCreateRefundVoucher() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (dto: RefundVoucherDto): Promise<Voucher> => {
+      const res = await api.post<ApiEnvelope<Voucher>>('/vouchers/refunds', dto);
+      return res.data.data;
+    },
+    onSuccess: (v) => {
+      qc.invalidateQueries({ queryKey: ['vouchers'] });
+      qc.invalidateQueries({ queryKey: ['voucher', 'for-return', v.refundReturnId] });
     },
   });
 }

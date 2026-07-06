@@ -48,6 +48,7 @@ import {
   useByMachineReport,
   useByCashierReport,
   usePaymentMethodsReport,
+  useCashierPaymentSummaryReport,
   useReturnsReport,
   useTaxReport,
   useHourlySalesReport,
@@ -84,6 +85,7 @@ type Tab =
   | 'byMachine'
   | 'byCashier'
   | 'paymentMethods'
+  | 'cashierPaymentSummary'
   | 'returns'
   | 'tax'
   | 'hourly'
@@ -114,6 +116,7 @@ const TABS: { key: Tab; icon: typeof CalendarDays }[] = [
   { key: 'byMachine', icon: MonitorSmartphone },
   { key: 'byCashier', icon: UserCog },
   { key: 'paymentMethods', icon: CreditCard },
+  { key: 'cashierPaymentSummary', icon: UserCog },
   { key: 'returns', icon: Undo2 },
   { key: 'tax', icon: Landmark },
   { key: 'hourly', icon: Clock },
@@ -173,6 +176,7 @@ export function ReportsPage() {
   const byMachine = useByMachineReport();
   const byCashier = useByCashierReport();
   const paymentMethods = usePaymentMethodsReport();
+  const cashierPaymentSummary = useCashierPaymentSummaryReport();
   const returns = useReturnsReport();
   const tax = useTaxReport();
   const hourly = useHourlySalesReport();
@@ -217,6 +221,9 @@ export function ReportsPage() {
         {tab === 'byMachine' && <ByMachineReport query={byMachine} />}
         {tab === 'byCashier' && <ByCashierReport query={byCashier} />}
         {tab === 'paymentMethods' && <PaymentMethodsReport query={paymentMethods} />}
+        {tab === 'cashierPaymentSummary' && (
+          <CashierPaymentSummaryReport query={cashierPaymentSummary} />
+        )}
         {tab === 'returns' && <ReturnsReport query={returns} />}
         {tab === 'tax' && <TaxReport query={tax} />}
         {tab === 'hourly' && <HourlyReport query={hourly} />}
@@ -509,6 +516,66 @@ function ByCashierReport({ query }: { query: ReturnType<typeof useByCashierRepor
               <td className="tnum px-3 py-2 text-end">{formatMoney(r.cashCollected)}</td>
               <td className="tnum px-3 py-2 text-end">{formatMoney(r.cardCollected)}</td>
               <td className="tnum px-3 py-2 text-end">{formatMoney(r.creditCollected)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </TableCard>
+    </ReportShell>
+  );
+}
+
+/* ---------- POST012 cashier payment summary (per-cashier methods) ---------- */
+
+function CashierPaymentSummaryReport({
+  query,
+}: {
+  query: ReturnType<typeof useCashierPaymentSummaryReport>;
+}) {
+  const { t } = useTranslation();
+  const rows = useMemo(() => query.data ?? [], [query.data]);
+  const kpis = useMemo(
+    () => ({
+      totalAmt: rows.reduce((n, r) => n + r.netAmt, 0),
+      totalBills: rows.reduce((n, r) => n + r.billCount, 0),
+      totalRefunds: rows.reduce((n, r) => n + r.refundTotal, 0),
+    }),
+    [rows],
+  );
+  return (
+    <ReportShell query={query} empty={rows.length === 0}>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <Kpi icon={<Coins className="size-6" />} label={t('reports.totalAmt')} value={formatMoney(kpis.totalAmt)} />
+        <Kpi icon={<Receipt className="size-6" />} label={t('reports.billCount')} value={formatNumber(kpis.totalBills)} />
+        <Kpi icon={<Undo2 className="size-6" />} label={t('reports.refundTotal')} value={formatMoney(kpis.totalRefunds)} />
+      </div>
+      <TableCard>
+        <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+          <tr>
+            <Th>{t('reports.cashierNo')}</Th>
+            <Th end>{t('reports.billCount')}</Th>
+            <Th end>{t('reports.netAmt')}</Th>
+            <Th end>{t('reports.cashCollected')}</Th>
+            <Th end>{t('reports.cardCollected')}</Th>
+            <Th end>{t('reports.creditCollected')}</Th>
+            <Th>{t('reports.methodsBreakdown')}</Th>
+            <Th end>{t('reports.refundTotal')}</Th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {rows.map((r) => (
+            <tr key={r.cashierNo} className="hover:bg-[var(--color-surface-2)]">
+              <td className="tnum px-3 py-2 font-medium">{r.cashierNo}</td>
+              <td className="tnum px-3 py-2 text-end">{formatNumber(r.billCount)}</td>
+              <td className="tnum px-3 py-2 text-end font-bold">{formatMoney(r.netAmt)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.cashTotal)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.cardTotal)}</td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.creditTotal)}</td>
+              <td className="px-3 py-2 text-xs">
+                {r.methods
+                  .map((m) => `${m.method}: ${formatMoney(m.amountInBill)} (${m.txnCount})`)
+                  .join(' · ')}
+              </td>
+              <td className="tnum px-3 py-2 text-end">{formatMoney(r.refundTotal)}</td>
             </tr>
           ))}
         </tbody>

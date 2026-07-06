@@ -12,6 +12,10 @@ import {
   BadgeCheck,
   Star,
   Ticket,
+  Wallet,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  AlertTriangle,
 } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
@@ -22,12 +26,16 @@ import { formatDateTime, formatMoney, formatNumber } from '@/shared/lib/format';
 import { usePosSettings } from '@/features/pos-terminal/store/pos-settings.store';
 import { useSession } from '@/features/auth';
 import type { PaymentMethod } from '@/shared/lib/types';
+import type { CustodyDirection } from '@/shared/lib/types';
 import {
   useCurrentShift,
   useShiftReconciliation,
   useShiftCount,
   useSettleShift,
   useShiftSettlement,
+  useShiftCustody,
+  useRecordCustody,
+  useShiftVariance,
 } from '../api/shifts.api';
 
 /**
@@ -154,6 +162,11 @@ export function ReconciliationPage() {
               <Line label={t('recon.cashSales')} value={formatMoney(r.cashSales)} />
               <Line label={t('recon.cashReceipts')} value={formatMoney(r.cashReceipts)} />
               <Line label={t('recon.cashExpenses')} value={`- ${formatMoney(r.cashExpenses)}`} />
+              <Line label={t('recon.custodyDeposits')} value={formatMoney(r.custodyDeposits)} />
+              <Line
+                label={t('recon.custodyWithdrawals')}
+                value={`- ${formatMoney(r.custodyWithdrawals)}`}
+              />
               <Line label={t('recon.expectedCash')} value={formatMoney(r.expectedCash)} strong />
               <Line
                 label={t('recon.actualCash')}
@@ -196,6 +209,9 @@ export function ReconciliationPage() {
               <Line label={t('recon.tenderTotal')} value={formatMoney(r.tenderTotal)} strong />
             </div>
           </Card>
+
+          {/* POST014 — cashier custody (deposit/withdraw during the shift) */}
+          <CustodyPanel shiftId={shift.id} currency={shift.currency} />
 
           {/* POST013 — cash count by denominations + approved settlement */}
           <DenominationSettlement shiftId={shift.id} currency={shift.currency} />
@@ -249,6 +265,151 @@ export function ReconciliationPage() {
         </>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * POST014 — عهدة الكاشيرات: record cash deposits into / withdrawals from the drawer
+ * during an open shift. Each movement adjusts the expected cash used by the
+ * settlement. POST /shifts/{id}/custody + GET /shifts/{id}/custody.
+ */
+function CustodyPanel({ shiftId, currency }: { shiftId: string; currency: string }) {
+  const { t } = useTranslation();
+  const custodyQ = useShiftCustody(shiftId);
+  const record = useRecordCustody();
+  const [dir, setDir] = useState<CustodyDirection>('DEPOSIT');
+  const [amountStr, setAmountStr] = useState('');
+  const [reason, setReason] = useState('');
+  const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
+
+  const totals = custodyQ.data?.totals;
+  const movements = custodyQ.data?.movements ?? [];
+
+  const onRecord = async () => {
+    setMsg(null);
+    const amount = Number(amountStr);
+    if (!(amount > 0)) return;
+    try {
+      await record.mutateAsync({
+        id: shiftId,
+        dto: { direction: dir, amount, currency, reason: reason.trim() || undefined },
+      });
+      setAmountStr('');
+      setReason('');
+      setMsg({ kind: 'ok', text: t('recon.custodySaved') });
+    } catch (e) {
+      const detail = e instanceof ApiError ? e.problem.detail || e.problem.title : '';
+      setMsg({ kind: 'err', text: `${t('recon.custodyError')}${detail ? ` — ${detail}` : ''}` });
+    }
+  };
+
+  return (
+    <Card className="p-4">
+      <h2 className="mb-3 flex items-center gap-2 font-bold">
+        <Wallet className="size-5 text-[var(--color-brand-500)]" aria-hidden />
+        {t('recon.custodySection')}
+      </h2>
+
+      <div className="flex flex-wrap items-end gap-2">
+        <div className="flex overflow-hidden rounded-[var(--radius)] border">
+          <button
+            type="button"
+            onClick={() => setDir('DEPOSIT')}
+            className={`flex items-center gap-1 px-3 py-2 text-sm ${
+              dir === 'DEPOSIT'
+                ? 'bg-[var(--color-success)]/20 font-bold text-[var(--color-success)]'
+                : 'text-[var(--color-muted)]'
+            }`}
+          >
+            <ArrowDownToLine className="size-4" />
+            {t('recon.custodyDeposit')}
+          </button>
+          <button
+            type="button"
+            onClick={() => setDir('WITHDRAW')}
+            className={`flex items-center gap-1 px-3 py-2 text-sm ${
+              dir === 'WITHDRAW'
+                ? 'bg-[var(--color-danger)]/20 font-bold text-[var(--color-danger)]'
+                : 'text-[var(--color-muted)]'
+            }`}
+          >
+            <ArrowUpFromLine className="size-4" />
+            {t('recon.custodyWithdraw')}
+          </button>
+        </div>
+        <label className="flex flex-col gap-1">
+          <span className="text-sm text-[var(--color-muted)]">{t('bills.amount')}</span>
+          <Input
+            type="number"
+            min={0}
+            value={amountStr}
+            onChange={(e) => setAmountStr(e.target.value)}
+            className="tnum h-10 w-32 text-end"
+            placeholder="0"
+          />
+        </label>
+        <label className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className="text-sm text-[var(--color-muted)]">{t('recon.custodyReason')}</span>
+          <Input
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="h-10 w-full min-w-0"
+          />
+        </label>
+        <Button
+          className="h-10"
+          disabled={record.isPending || !(Number(amountStr) > 0)}
+          onClick={onRecord}
+        >
+          {record.isPending ? t('common.saving') : t('recon.custodyRecord')}
+        </Button>
+      </div>
+
+      {totals ? (
+        <div className="mt-3 grid gap-2 sm:grid-cols-3">
+          <Line label={t('recon.custodyDeposits')} value={formatMoney(totals.deposits)} />
+          <Line label={t('recon.custodyWithdrawals')} value={formatMoney(totals.withdrawals)} />
+          <Line label={t('recon.custodyNet')} value={formatMoney(totals.net)} strong />
+        </div>
+      ) : null}
+
+      {movements.length > 0 ? (
+        <ul className="mt-3 flex flex-col gap-1 text-sm">
+          {movements.map((m) => (
+            <li
+              key={m.id}
+              className="flex items-center justify-between rounded-[var(--radius)] bg-[var(--color-surface-2)] px-3 py-1.5"
+            >
+              <span className="flex items-center gap-2">
+                {m.direction === 'DEPOSIT' ? (
+                  <ArrowDownToLine className="size-4 text-[var(--color-success)]" aria-hidden />
+                ) : (
+                  <ArrowUpFromLine className="size-4 text-[var(--color-danger)]" aria-hidden />
+                )}
+                <span>{m.reason || (m.direction === 'DEPOSIT' ? t('recon.custodyDeposit') : t('recon.custodyWithdraw'))}</span>
+              </span>
+              <span className="tnum font-semibold">
+                {m.direction === 'WITHDRAW' ? '- ' : ''}
+                {formatMoney(m.amountInShift)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
+      {msg ? (
+        <p
+          role={msg.kind === 'err' ? 'alert' : 'status'}
+          className={`mt-3 rounded-md p-2 text-center text-xs ${
+            msg.kind === 'ok'
+              ? 'bg-[var(--color-success)]/15 text-[var(--color-success)]'
+              : 'bg-[var(--color-danger)]/15 text-[var(--color-danger)]'
+          }`}
+        >
+          {msg.text}
+        </p>
+      ) : null}
+    </Card>
   );
 }
 
@@ -358,6 +519,9 @@ function DenominationSettlement({ shiftId, currency }: { shiftId: string; curren
             ) : null}
             {s.settleNote ? <Line label={t('recon.settleNote')} value={s.settleNote} /> : null}
           </div>
+
+          {/* POST015 — posted over/short variance record */}
+          <VarianceBadge shiftId={shiftId} />
           {s.denominations.length > 0 ? (
             <table className="mt-2 w-full text-sm">
               <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
@@ -505,6 +669,32 @@ function DenominationSettlement({ shiftId, currency }: { shiftId: string; curren
         </p>
       ) : null}
     </Card>
+  );
+}
+
+/**
+ * POST015 — فائض/عجز الكاشيرات: shows the posted over/short variance record
+ * for a settled shift (GET /shifts/{id}/variance).
+ */
+function VarianceBadge({ shiftId }: { shiftId: string }) {
+  const { t } = useTranslation();
+  const q = useShiftVariance(shiftId);
+  const v = q.data;
+  if (!v) return null;
+  const tone =
+    v.kind === 'BALANCED'
+      ? 'bg-[var(--color-success)]/15 text-[var(--color-success)]'
+      : v.kind === 'OVER'
+        ? 'bg-[var(--color-brand-600)]/15 text-[var(--color-brand-100)]'
+        : 'bg-[var(--color-danger)]/15 text-[var(--color-danger)]';
+  return (
+    <div className={`mt-1 flex items-center justify-between rounded-[var(--radius)] p-3 ${tone}`}>
+      <span className="flex items-center gap-2 font-bold">
+        <AlertTriangle className="size-4" aria-hidden />
+        {t('recon.variancePosted')} #{v.varianceNo} · {t(`recon.status.${v.kind}`)}
+      </span>
+      <span className="tnum text-lg font-extrabold">{formatMoney(v.difference)}</span>
+    </div>
   );
 }
 

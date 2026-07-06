@@ -1,10 +1,16 @@
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowRight, Undo2 } from 'lucide-react';
+import { ArrowRight, Undo2, Receipt, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { LoadingView, ErrorView } from '@/shared/ui/StateView';
 import { formatMoney, formatDate } from '@/shared/lib/format';
+import { usePosSettings } from '@/features/pos-terminal/store/pos-settings.store';
+import {
+  useRefundVoucherForReturn,
+  useCreateRefundVoucher,
+} from '@/features/vouchers/api/vouchers.api';
+import { ApiError } from '@/shared/lib/api-client';
 import { useReturnDetail } from '../api/returns.api';
 
 /**
@@ -119,10 +125,71 @@ export function ReturnDetailPage() {
               <Meta label={t('pos.discount')} value={formatMoney(d.stored.discAmt)} />
               <Meta label={t('returns.payedAmt')} value={formatMoney(d.stored.payedAmt)} />
             </Card>
+
+            {/* POST006 — cash refund voucher (سند صرف) for this return */}
+            <RefundVoucherCard returnId={id ?? null} />
           </div>
         </div>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * POST006 — issue the cash refund voucher (سند صرف) for this return. Works only
+ * for MOTECH_POS returns (UUID id). Idempotent: once issued, shows the voucher
+ * number. Legacy YSPOS23 RT numbers return 404 (handled gracefully).
+ */
+function RefundVoucherCard({ returnId }: { returnId: string | null }) {
+  const { t } = useTranslation();
+  const cashierNo = usePosSettings((s) => s.cashierNo);
+  const machineNo = usePosSettings((s) => s.machineNo);
+  const probe = useRefundVoucherForReturn(returnId);
+  const create = useCreateRefundVoucher();
+
+  // Legacy RT numbers are all-digits; MOTECH_POS returns are UUIDs.
+  const isMotechReturn = !!returnId && returnId.includes('-');
+  if (!isMotechReturn) return null;
+
+  const voucher = create.data ?? probe.data ?? null;
+  const err =
+    create.error instanceof ApiError ? create.error.message : null;
+
+  return (
+    <Card className="flex flex-col gap-2 p-4">
+      <p className="mb-1 flex items-center gap-2 text-xs font-semibold text-[var(--color-muted)]">
+        <Receipt className="size-4" aria-hidden />
+        {t('returns.refundVoucherTitle')}
+      </p>
+      {voucher ? (
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2 text-sm font-semibold text-[var(--color-success,#16a34a)]">
+            <CheckCircle2 className="size-4" aria-hidden />
+            {t('returns.refundIssued')}
+          </div>
+          <Meta label={t('returns.refundVoucherNo')} value={voucher.voucherNo} />
+          <Meta label={t('bills.amount')} value={formatMoney(voucher.amount)} />
+        </div>
+      ) : (
+        <>
+          <p className="text-xs text-[var(--color-muted)]">
+            {t('returns.refundVoucherHint')}
+          </p>
+          <Button
+            disabled={create.isPending || cashierNo == null}
+            onClick={() =>
+              returnId &&
+              cashierNo != null &&
+              create.mutate({ returnId, cashierNo, machineNo: machineNo ?? undefined })
+            }
+          >
+            <Receipt className="size-4" aria-hidden />
+            {create.isPending ? t('common.saving') : t('returns.issueRefundVoucher')}
+          </Button>
+          {err && <p className="text-xs text-[var(--color-danger,#dc2626)]">{err}</p>}
+        </>
+      )}
+    </Card>
   );
 }
 
