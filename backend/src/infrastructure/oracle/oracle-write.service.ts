@@ -159,6 +159,34 @@ export class OracleWriteService implements OnModuleInit, OnApplicationShutdown {
     throw lastErr;
   }
 
+  /**
+   * Run `work` inside a single READ COMMITTED transaction (the Oracle default)
+   * on one connection — commit on success, rollback on throw. Unlike
+   * `withTransaction` this does NOT escalate to SERIALIZABLE, so it suits
+   * large single-writer bulk refreshes (e.g. the downward catalog pull) that
+   * would otherwise hit ORA-08177 under SERIALIZABLE contention. Use only when
+   * serializable isolation is not required for correctness.
+   */
+  async withWork<T>(
+    work: (conn: oracledb.Connection) => Promise<T>,
+  ): Promise<T> {
+    const conn = await this.getPool().getConnection();
+    try {
+      const result = await work(conn);
+      await conn.commit();
+      return result;
+    } catch (err) {
+      try {
+        await conn.rollback();
+      } catch {
+        /* ignore rollback errors */
+      }
+      throw err;
+    } finally {
+      await conn.close();
+    }
+  }
+
   private isSerializationFailure(err: unknown): boolean {
     if (typeof err !== 'object' || err === null) return false;
     const e = err as { errorNum?: number; message?: string };

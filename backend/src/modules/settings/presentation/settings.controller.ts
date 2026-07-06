@@ -20,8 +20,6 @@ import { AuthenticatedRequest } from '../../auth/presentation/jwt-auth.guard';
 import { JwtAuthGuard } from '../../auth/presentation/jwt-auth.guard';
 import { PermissionsGuard } from '../../auth/presentation/permissions.guard';
 import { RequirePermission } from '../../auth/presentation/require-permission.decorator';
-import { Roles } from '../../auth/presentation/roles.decorator';
-import { RolesGuard } from '../../auth/presentation/roles.guard';
 import { SettingsService } from '../application/settings.service';
 import {
   isAllowedSettingKey,
@@ -99,8 +97,7 @@ export class SettingsController {
   //==========================================================================
 
   @Put()
-  @UseGuards(RolesGuard, PermissionsGuard)
-  @Roles('admin')
+  @UseGuards(PermissionsGuard)
   @RequirePermission('SETTINGS')
   @ApiOperation({
     summary: 'Upsert POS setting overrides (overlay in MOTECH_POS) — SETTINGS permission',
@@ -114,8 +111,7 @@ export class SettingsController {
   }
 
   @Post()
-  @UseGuards(RolesGuard, PermissionsGuard)
-  @Roles('admin')
+  @UseGuards(PermissionsGuard)
   @RequirePermission('SETTINGS')
   @ApiOperation({
     summary: 'Create/upsert POS setting overrides (alias of PUT) — SETTINGS permission',
@@ -129,8 +125,7 @@ export class SettingsController {
   }
 
   @Put('defaults')
-  @UseGuards(RolesGuard, PermissionsGuard)
-  @Roles('admin')
+  @UseGuards(PermissionsGuard)
   @RequirePermission('SETTINGS')
   @ApiOperation({
     summary:
@@ -157,8 +152,7 @@ export class SettingsController {
   }
 
   @Put(':key')
-  @UseGuards(RolesGuard, PermissionsGuard)
-  @Roles('admin')
+  @UseGuards(PermissionsGuard)
   @RequirePermission('SETTINGS')
   @ApiOperation({
     summary:

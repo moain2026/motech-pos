@@ -133,7 +133,9 @@ export class OracleCatalogCacheRepository implements CatalogCacheRepository {
     items: CatalogSourceItem[],
   ): Promise<{ upserted: number; staled: number }> {
     const table = `${this.wschema}.CATALOG_CACHE`;
-    return this.write.withTransaction(async (conn) => {
+    // READ COMMITTED (not SERIALIZABLE): a bulk single-writer cache refresh over
+    // thousands of rows would spuriously hit ORA-08177 under SERIALIZABLE.
+    return this.write.withWork(async (conn) => {
       let upserted = 0;
       for (const it of items) {
         await conn.execute(
