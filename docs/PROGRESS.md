@@ -1,6 +1,31 @@
 # 📈 سجل تقدّم Motech POS
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
+## 2026-07-06 (Lane C — الصلاحيات الديناميكية + المزامنة النزولية + توثيق N/A) — subagent lane-c-rbac-sync-adr
+
+> **النطاق:** backend modules {auth, settings, admin(read-only edit), sync, catalog} + config + app.module + frontend features {auth, sync} + docs/ADR + SCREENS_GAP. لم تُلمس وحدات الوكلاء الآخرين (loyalty/vouchers/reports/shifts/bills/…). **proof-not-assumption: كل بند مُثبت حياً على :3000 ببيانات حقيقية.**
+
+**1. POSS002 — الفرض الديناميكي للصلاحيات (RBAC) ✅**
+- كانت المصفوفة `ROLE_PERMISSIONS` + `GET/PUT /admin/permissions` موجودة لكن **بلا فرض ديناميكي** (الحراس كانت RBAC ثابتة). بُني الآن:
+  - `permission.ts` (domain): قائمة الأكواد الرسمية (12) + `fallbackAllows` (افتراضات خشنة آمنة تطابق seed V013 — admin=كل شيء، غير‑admin يُمنع SETTINGS/PRICE_OVERRIDE/VOID).
+  - `PermissionsService`: يقرأ ROLE_PERMISSIONS (cache 15ث، `invalidate()` عند تعديل المصفوفة) ويجيب `can(role,perm)` — **fallback آمن** عند غياب صف أو تعذّر DB (المصفوفة تُقيّد فقط، لا تمنح فوق الأساس).
+  - `@RequirePermission(code)` + `PermissionsGuard` (يفرض وقت الطلب) — طُبّق على كتابات settings (SETTINGS) بديلاً عن `@Roles('admin')` الثابت.
+  - `GET /auth/permissions/me` (خريطة صلاحيات المستخدم لبوابة الواجهة) + `AdminWriteService.setPermissions` يستدعي `invalidate()`.
+- **proof حي:** cashier PUT /settings → **403** · admin → **200** · admin يمنح cashier SETTINGS عبر PUT /admin/permissions → cashier PUT /settings **فوراً 200** (ديناميكي، بلا restart) · admin يسحب → cashier **403 ثانيةً** · بلا توكن **401** · GET /auth/permissions/me (cashier) يُظهر SETTINGS:false PRICE_OVERRIDE:false.
+
+**2. POST008 — المزامنة النزولية (catalog pull) ✅**
+- **هجرة V027** (مُطبّقة حياً + GRANT لـMOTECH_RW): `CATALOG_CACHE` (لقطة صنف: اسم/باركود/وحدة/سعر/مجموعة/كمية/STALE) + `CATALOG_SYNC_RUNS` (تدقيق كل سحبة).
+- `OracleCatalogCacheRepository` يقرأ ERP الحي (IAS_ITM_MST + IAS_ITEM_PRICE LEV_NO=1 + MV_ITEM_AVL_QTY — قراءة فقط) ويعمل MERGE للكاش؛ الصفوف الغائبة عن السحبة تُعلَّم STALE (لا تُحذف). `CatalogPullService` بحارس تشغيل واحد (لا سحب متزامن) + تسجيل نجاح/فشل.
+- **الجدولة:** `CatalogSyncScheduler` عبر `@nestjs/schedule` cron (CATALOG_SYNC_CRON افتراضي */30د، CATALOG_SYNC_ENABLED) — داخل العملية، **بلا Redis/BullMQ** (غير متوفّر على الـVM). endpoints: `GET /sync/catalog/status·runs·items` + `POST /sync/catalog/pull` (supervisor/admin).
+- **إصلاح ORA-08177:** السحب الكتلي (2391 صنف) كان يفشل تحت SERIALIZABLE → أُضيف `OracleWriteService.withWork` (READ COMMITTED للعمل الكتلي أحادي الكاتب).
+- **proof حي:** سحب يدوي → **2391 مصدر → 2391 upserted في ~966ms** · الكاش يحمل أسماء عربية حقيقية (`1020060001 → بيض` سعر 50) · سحبة ثانية idempotent (2391، 0 stale) · إدراج صنف وهمي ثم سحب → **staled:1** والصف STALE=1 · cashier POST pull **403** · supervisor **200** · بلا توكن **401** · cashier يقرأ status **200** · السجل يسجّل 4 سحبات · **السكيدولر مُسجّل** بالإقلاع (لوق: `Catalog downward sync scheduled: "0 */30 * * * *"`).
+
+**3. توثيق ADR لشاشات N/A ✅**
+- `docs/ADR/` + README فهرس + **6 ADRs (MADR)** مبنية على فحص فعلي للشاشات المفكوكة: ADR-006 (WMS: POSS006/007/028/029 — `WMS_REG_DEVICE`) · ADR-007 (POS_INSTALL → migrations) · ADR-008 (POSI014 → migrations) · ADR-009 (POSTIN_MTX → المحاسبة تبقى في Onyx، `MTX_JV_DTLS`) · ADR-010 (POST_WST+POSADVS2 → لا منطق/تغطيها PosPage) · ADR-011 (POS_IMPXLS → **مؤجّل قابل للبناء، ليس N/A**).
+- **SCREENS_GAP_FINAL:** 8 شاشات → 📄 N/A مع رابط ADR؛ POS_IMPXLS → ⏳ مؤجّل؛ POSS002 → ✅ و POST008 → ✅.
+
+**الحصيلة:** `npm run build` (backend) ✅ صفر أخطاء · `pm2 restart` ✅ online (health يفحص القاعدتين) · **306 اختبار وحدة أخضر** (+15 جديدة: permissions 11 + catalog-pull 4، +تحديث admin-write) · frontend يبني في نطاقي بلا أخطاء (النشر الكامل محجوب مؤقّتاً بأخطاء lint في ملفات وكلاء آخرين — AppLayout/PosPage/ReportsPage/shifts، ليست ملفاتي). 6 commits بهوية MoainAlabbasi. **الاختباران golden integration الفاشلان بيئيان** (يحتاجان TEST_*_PASSWORD للدخول الحي — ليسا من هذا العمل).
+
 ## 2026-07-04 (الموجة H backend — إغلاق كل شاشات POST القابلة للبناء) — subagent backend-remaining-12 (Fable 5)
 
 > **النطاق:** backend فقط — 5 modules جديدة + 6 هجرات (V021–V026). لم تُلمس وحدات الوكلاء الآخرين (inventory/keypads/items/reports/settings). **24 موديول · 186 endpoint · 240 اختبار أخضر (كان 214) · lint 0**.
