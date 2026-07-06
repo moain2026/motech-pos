@@ -1,15 +1,18 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowRight, Banknote } from 'lucide-react';
+import { ArrowRight, Banknote, UserPlus, X, CheckCircle2 } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { LoadingView, ErrorView } from '@/shared/ui/StateView';
+import { ApiError } from '@/shared/lib/api-client';
 import { formatMoney, formatDate } from '@/shared/lib/format';
-import type { CreditBillRow } from '@/shared/lib/types';
-import { useCreditBills } from '@/features/customers/api/customers.api';
+import type { CreditBillRow, Customer } from '@/shared/lib/types';
+import { useCreditBills, customerLabel } from '@/features/customers/api/customers.api';
 import { CollectDialog } from '@/features/customers/components/CollectDialog';
-import { useBillDetail } from '../api/bills.api';
+import { CustomerPicker } from '@/features/customers/components/CustomerPicker';
+import { usePosSettings } from '@/features/pos-terminal/store/pos-settings.store';
+import { useAttachCustomer, useBillDetail } from '../api/bills.api';
 
 export function BillDetailPage() {
   const { t } = useTranslation();
@@ -75,6 +78,15 @@ export function BillDetailPage() {
               />
             </Card>
 
+            {/* POST020 — retroactively attach a loyalty customer to a posted
+                bill that has none, earning its points. */}
+            {!query.data.customer.code && billNo ? (
+              <AttachCustomerCard
+                billNo={billNo}
+                onAttached={() => query.refetch()}
+              />
+            ) : null}
+
             <Card className="flex flex-col gap-2 p-4">
               <p className="mb-1 text-xs font-semibold text-[var(--color-muted)]">
                 {t('bills.recomputed')}
@@ -132,6 +144,128 @@ function CreditCollectCard({ customerCode, billNo }: { customerCode: string; bil
         />
       ) : null}
     </Card>
+  );
+}
+
+/**
+ * POST020 — ربط الفاتورة بعميل نقاطي رجعياً. Shows a "ربط عميل" button on a
+ * posted bill with no customer; opens a picker, attaches, earns points.
+ */
+function AttachCustomerCard({
+  billNo,
+  onAttached,
+}: {
+  billNo: string;
+  onAttached: () => void;
+}) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [done, setDone] = useState<{ points: number; name: string } | null>(null);
+
+  return (
+    <Card className="flex flex-col gap-2 p-4">
+      <p className="text-xs font-semibold text-[var(--color-muted)]">
+        {t('attach.title')}
+      </p>
+      {done ? (
+        <p className="flex items-center gap-2 text-sm text-[var(--color-success)]">
+          <CheckCircle2 className="size-4" aria-hidden />
+          {t('attach.doneWithPoints', {
+            name: done.name,
+            points: done.points,
+          })}
+        </p>
+      ) : (
+        <>
+          <p className="text-xs text-[var(--color-muted)]">{t('attach.hint')}</p>
+          <Button variant="primary" onClick={() => setOpen(true)}>
+            <UserPlus className="size-4" />
+            {t('attach.button')}
+          </Button>
+        </>
+      )}
+      {open ? (
+        <AttachCustomerDialog
+          billNo={billNo}
+          onClose={() => setOpen(false)}
+          onAttached={(points, name) => {
+            setDone({ points, name });
+            setOpen(false);
+            onAttached();
+          }}
+        />
+      ) : null}
+    </Card>
+  );
+}
+
+function AttachCustomerDialog({
+  billNo,
+  onClose,
+  onAttached,
+}: {
+  billNo: string;
+  onClose: () => void;
+  onAttached: (points: number, name: string) => void;
+}) {
+  const { t } = useTranslation();
+  const cashierNo = usePosSettings((s) => s.cashierNo);
+  const attach = useAttachCustomer();
+  const [error, setError] = useState<string | null>(null);
+
+  const pick = async (c: Customer) => {
+    setError(null);
+    try {
+      const res = await attach.mutateAsync({
+        billId: billNo,
+        customerCode: c.code,
+        cashierNo: cashierNo ?? undefined,
+      });
+      onAttached(res.pointsEarned, customerLabel(c, c.code));
+    } catch (e) {
+      if (e instanceof ApiError) {
+        const trace = e.problem.traceId ? ` (traceId: ${e.problem.traceId})` : '';
+        setError(`${e.problem.detail || e.problem.title}${trace}`);
+      } else {
+        setError(t('attach.error'));
+      }
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={t('attach.title')}
+    >
+      <div className="flex h-[80vh] w-full max-w-md flex-col overflow-hidden rounded-[var(--radius)] border bg-[var(--color-surface)] shadow-xl">
+        <div className="flex items-center justify-between border-b px-4 py-3">
+          <h2 className="font-bold">
+            {t('attach.title')} · {billNo}
+          </h2>
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label={t('returns.close')}>
+            <X className="size-5" />
+          </Button>
+        </div>
+        {error ? (
+          <p
+            role="alert"
+            className="m-3 rounded-md bg-[var(--color-danger)]/15 p-2 text-center text-xs text-[var(--color-danger)]"
+          >
+            {error}
+          </p>
+        ) : null}
+        <div className="min-h-0 flex-1 p-3">
+          <CustomerPicker onSelect={pick} />
+        </div>
+        {attach.isPending ? (
+          <p className="border-t px-4 py-2 text-center text-xs text-[var(--color-muted)]">
+            {t('status.loading')}
+          </p>
+        ) : null}
+      </div>
+    </div>
   );
 }
 

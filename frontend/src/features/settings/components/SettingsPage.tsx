@@ -35,7 +35,8 @@ import {
   type SettingGroup,
 } from '../api/settings.api';
 import type { DefaultSetting } from '@/shared/lib/types';
-import { useCards } from '../api/cards.api';
+import { LoyaltyProgramsTable } from './LoyaltyProgramsTable';
+import { PosCardsTable } from './PosCardsTable';
 
 /**
  * الإعدادات (POSS001) — full admin settings screen. Renders ALL 179
@@ -82,7 +83,7 @@ function SettingsView({
   const role = useSession((s) => s.user?.role);
   const canEdit = role === 'admin';
 
-  const [tab, setTab] = useState<SettingGroup | 'defaults'>('numbering');
+  const [tab, setTab] = useState<SettingGroup | 'defaults' | 'programs'>('numbering');
   const [query, setQuery] = useState('');
   const [toast, setToast] = useState<ToastState>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -116,7 +117,8 @@ function SettingsView({
     return out;
   }, [groups, searching, trimmed]);
 
-  const visible = searching || tab === 'defaults' ? searchResults : (groups[tab] ?? []);
+  const specialTab = tab === 'defaults' || tab === 'programs';
+  const visible = searching || specialTab ? searchResults : (groups[tab as SettingGroup] ?? []);
 
   return (
     <div className="mx-auto flex h-full max-w-5xl flex-col gap-4 p-4">
@@ -204,6 +206,21 @@ function SettingsView({
             <ListOrdered className="size-4" aria-hidden />
             {t('settings.group.defaults')}
           </button>
+          {/* POSI008 — loyalty programs CRUD */}
+          <button
+            role="tab"
+            aria-selected={tab === 'programs'}
+            onClick={() => setTab('programs')}
+            className={
+              'flex items-center gap-2 rounded-[var(--radius)] border px-3 py-2 text-sm font-medium transition-colors ' +
+              (tab === 'programs'
+                ? 'border-[var(--color-brand-500)] bg-[var(--color-brand-600)] text-white'
+                : 'text-[var(--color-muted)] hover:bg-[var(--color-surface-2)]')
+            }
+          >
+            <Award className="size-4" aria-hidden />
+            {t('loyaltyPrograms.title')}
+          </button>
         </div>
       ) : (
         <p className="text-sm text-[var(--color-muted)]" role="status">
@@ -215,6 +232,8 @@ function SettingsView({
       <div className="min-h-0 flex-1 overflow-y-auto">
         {!searching && tab === 'defaults' ? (
           <DefaultsTable canEdit={canEdit} onToast={showToast} />
+        ) : !searching && tab === 'programs' ? (
+          <LoyaltyProgramsTable canEdit={role === 'admin' || role === 'supervisor'} />
         ) : visible.length === 0 ? (
           <EmptyView label={t('settings.noResults')} />
         ) : (
@@ -230,7 +249,9 @@ function SettingsView({
             ))}
           </div>
         )}
-        {!searching && tab === 'cards' ? <CardTypesTable /> : null}
+        {!searching && tab === 'cards' ? (
+          <PosCardsTable canEdit={role === 'admin' || role === 'supervisor'} />
+        ) : null}
       </div>
 
       {/* Toast */}
@@ -413,51 +434,6 @@ function SettingRow({
           {t('settings.liveValue')}: <span className="tnum" dir="ltr">{s.liveValue ?? '—'}</span>
         </p>
       ) : null}
-    </Card>
-  );
-}
-
-//============================================================================
-// Payment-card types (GET /cards) — read-only table under the cards tab
-//============================================================================
-
-function CardTypesTable() {
-  const { t } = useTranslation();
-  const q = useCards();
-  const cards = q.data ?? [];
-  if (q.isLoading || q.isError || cards.length === 0) return null;
-  return (
-    <Card className="mt-3 p-4">
-      <h2 className="mb-3 flex items-center gap-2 font-bold text-[var(--color-fg)]">
-        <CreditCard className="size-5 text-[var(--color-brand-500)]" aria-hidden />
-        {t('settings.cardsSection')}
-      </h2>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-[var(--color-surface-2)] text-[var(--color-muted)]">
-            <tr>
-              <th className="px-3 py-2 text-start font-semibold">{t('settings.cardName')}</th>
-              <th className="px-3 py-2 text-end font-semibold">{t('settings.cardType')}</th>
-              <th className="px-3 py-2 text-end font-semibold">{t('settings.cardCommission')}</th>
-              <th className="px-3 py-2 text-end font-semibold">{t('settings.cardBank')}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {cards.map((c) => (
-              <tr key={c.cardNo} className="hover:bg-[var(--color-surface-2)]">
-                <td className="px-3 py-2 font-medium">
-                  {c.cardName?.trim() || c.cardEName?.trim() || `#${c.cardNo}`}
-                </td>
-                <td className="tnum px-3 py-2 text-end text-[var(--color-muted)]">{c.cardType}</td>
-                <td className="tnum px-3 py-2 text-end">{c.commissionPct}%</td>
-                <td className="tnum px-3 py-2 text-end text-[var(--color-muted)]">
-                  {c.bankNo ?? '—'}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </Card>
   );
 }

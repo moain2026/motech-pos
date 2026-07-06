@@ -82,6 +82,38 @@ export function usePayBill() {
   });
 }
 
+/**
+ * POST /bills/{id}/attach-customer (POST020) — attach a loyalty customer to a
+ * posted bill retroactively; the backend earns its points idempotently. The
+ * {id} may be the MOTECH_POS bill id OR the display BILL_NO. Returns the
+ * updated bill + { pointsEarned, alreadyAttached } in meta.
+ */
+export function useAttachCustomer() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (vars: {
+      billId: string;
+      customerCode: string;
+      cashierNo?: number;
+    }): Promise<{ bill: PostedBill; pointsEarned: number; alreadyAttached: boolean }> => {
+      const res = await api.post<ApiEnvelope<PostedBill>>(
+        `/bills/${encodeURIComponent(vars.billId)}/attach-customer`,
+        { customerCode: vars.customerCode, cashierNo: vars.cashierNo },
+      );
+      return {
+        bill: res.data.data,
+        pointsEarned: (res.data.meta as { pointsEarned?: number })?.pointsEarned ?? 0,
+        alreadyAttached:
+          (res.data.meta as { alreadyAttached?: boolean })?.alreadyAttached ?? false,
+      };
+    },
+    onSuccess: (_r, vars) => {
+      qc.invalidateQueries({ queryKey: ['bill', vars.billId] });
+      qc.invalidateQueries({ queryKey: ['bills'] });
+    },
+  });
+}
+
 /** GET /bills/{billNo} — header + lines + recomputed totals. */
 export function useBillDetail(billNo: string | null) {
   return useQuery({
