@@ -26,8 +26,9 @@ export class AuthController {
   @Post('login')
   @HttpCode(200)
   @ApiOperation({ summary: 'Login (username + password) → access & refresh JWT' })
-  async login(@Body() dto: LoginDto) {
-    const result = await this.auth.login(dto.username, dto.password);
+  async login(@Body() dto: LoginDto, @Req() req: AuthenticatedRequest) {
+    // req.ip honours `trust proxy` (Caddy on loopback forwards the real IP).
+    const result = await this.auth.login(dto.username, dto.password, req.ip);
     return { data: result };
   }
 

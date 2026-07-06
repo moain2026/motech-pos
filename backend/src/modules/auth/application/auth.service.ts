@@ -9,6 +9,7 @@ import {
   UserRepository,
   USER_REPOSITORY,
 } from '../domain/user-repository.port';
+import { LoginThrottleService } from './login-throttle.service';
 import { TokenService } from './token.service';
 
 export interface LoginResult {
@@ -27,9 +28,20 @@ export class AuthService {
   constructor(
     @Inject(USER_REPOSITORY) private readonly users: UserRepository,
     private readonly tokens: TokenService,
+    private readonly throttle: LoginThrottleService,
   ) {}
 
-  async login(username: string, password: string): Promise<LoginResult> {
+  /**
+   * Login with brute-force throttling (§A07): after 5 failed attempts for
+   * the same username+IP within 15 minutes → RFC 9457 429 until the window
+   * expires. `ip` comes from the trusted proxy chain (Caddy on loopback).
+   */
+  async login(
+    username: string,
+    password: string,
+    ip = 'unknown',
+  ): Promise<LoginResult> {
+    this.throttle.assertAllowed(username, ip);
     const user = await this.users.findByUsername(username);
     // Always run a bcrypt compare to avoid timing-based enumeration.
     const hash =
@@ -37,8 +49,10 @@ export class AuthService {
       '$2a$10$0000000000000000000000000000000000000000000000000000u';
     const ok = await bcrypt.compare(password, hash);
     if (!user || !ok) {
+      this.throttle.recordFailure(username, ip);
       throw new InvalidCredentialsError('Invalid username or password');
     }
+    this.throttle.recordSuccess(username, ip);
     return this.issue(user);
   }
 

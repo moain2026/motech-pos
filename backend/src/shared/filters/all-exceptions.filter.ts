@@ -40,6 +40,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
       );
     }
 
+    // 429 throttling — advertise when the client may retry (§A07).
+    const retryAfter =
+      exception instanceof DomainError &&
+      exception.httpStatus === 429 &&
+      typeof exception.meta?.retryAfterSeconds === 'number'
+        ? exception.meta.retryAfterSeconds
+        : undefined;
+    if (retryAfter !== undefined) {
+      res.setHeader('Retry-After', String(retryAfter));
+    }
+
     res
       .status(body.status)
       .type('application/problem+json')

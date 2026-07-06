@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { describe, expect, it } from 'vitest';
 import { TypedConfigService } from '../../src/config/config.module';
 import { AuthService } from '../../src/modules/auth/application/auth.service';
+import { LoginThrottleService } from '../../src/modules/auth/application/login-throttle.service';
 import { TokenService } from '../../src/modules/auth/application/token.service';
 import { AuthUser } from '../../src/modules/auth/domain/user.entity';
 import { UserRepository } from '../../src/modules/auth/domain/user-repository.port';
@@ -84,7 +85,7 @@ describe('TokenService', () => {
 });
 
 describe('AuthService', () => {
-  const svc = new AuthService(fakeUserRepo(), new TokenService(fakeConfig()));
+  const svc = new AuthService(fakeUserRepo(), new TokenService(fakeConfig()), new LoginThrottleService());
 
   it('logs in with correct credentials and issues tokens', async () => {
     const res = await svc.login('cashier1', 'secret123');
@@ -122,7 +123,7 @@ describe('AuthService', () => {
 describe('AuthService.changePassword (POSS004)', () => {
   it('changes the password: old stops working, new works, hash is bcrypt-12', async () => {
     const repo = fakeUserRepo();
-    const svc2 = new AuthService(repo, new TokenService(fakeConfig()));
+    const svc2 = new AuthService(repo, new TokenService(fakeConfig()), new LoginThrottleService());
     const res = await svc2.changePassword(7, 'secret123', 'NewPass456!');
     expect(res.username).toBe('cashier1');
     expect(repo.persisted).toHaveLength(1);
@@ -137,7 +138,7 @@ describe('AuthService.changePassword (POSS004)', () => {
 
   it('rejects a wrong current password (401, no persist)', async () => {
     const repo = fakeUserRepo();
-    const svc2 = new AuthService(repo, new TokenService(fakeConfig()));
+    const svc2 = new AuthService(repo, new TokenService(fakeConfig()), new LoginThrottleService());
     await expect(
       svc2.changePassword(7, 'wrong-old', 'NewPass456!'),
     ).rejects.toThrow(/Current password is incorrect/);
@@ -146,7 +147,7 @@ describe('AuthService.changePassword (POSS004)', () => {
 
   it('rejects reusing the same password (422)', async () => {
     const repo = fakeUserRepo();
-    const svc2 = new AuthService(repo, new TokenService(fakeConfig()));
+    const svc2 = new AuthService(repo, new TokenService(fakeConfig()), new LoginThrottleService());
     await expect(
       svc2.changePassword(7, 'secret123', 'secret123'),
     ).rejects.toThrow(/must differ/);
@@ -155,7 +156,7 @@ describe('AuthService.changePassword (POSS004)', () => {
 
   it('rejects an unknown user id with invalid-credentials', async () => {
     const repo = fakeUserRepo();
-    const svc2 = new AuthService(repo, new TokenService(fakeConfig()));
+    const svc2 = new AuthService(repo, new TokenService(fakeConfig()), new LoginThrottleService());
     await expect(
       svc2.changePassword(999, 'secret123', 'NewPass456!'),
     ).rejects.toThrow(/Current password is incorrect/);

@@ -1,5 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { Logger as PinoLogger } from 'nestjs-pino';
@@ -8,10 +9,16 @@ import { TypedConfigService } from './config/config.module';
 import { AllExceptionsFilter } from './shared/filters/all-exceptions.filter';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true,
+  });
 
   app.useLogger(app.get(PinoLogger));
   const config = app.get(TypedConfigService);
+
+  // Behind Caddy on loopback — trust it so req.ip reflects the real client
+  // (used by the login brute-force throttle, §A07).
+  app.set('trust proxy', 'loopback');
 
   const origins = config
     .get('CORS_ORIGINS')
@@ -35,14 +42,23 @@ async function bootstrap(): Promise<void> {
   app.useGlobalFilters(new AllExceptionsFilter());
   app.enableShutdownHooks();
 
-  const swaggerCfg = new DocumentBuilder()
-    .setTitle('Motech POS API')
-    .setDescription('NestJS backend (Oracle-first, Clean/Hexagonal) — read-only phase')
-    .setVersion('0.1.0')
-    .addBearerAuth()
-    .build();
-  const doc = SwaggerModule.createDocument(app, swaggerCfg);
-  SwaggerModule.setup(`${prefix}/docs`, app, doc);
+  // SECURITY: Swagger is an API map for attackers — disabled in production
+  // unless explicitly re-enabled (SWAGGER_ENABLED=true).
+  const swaggerOn =
+    config.get('NODE_ENV') !== 'production' ||
+    process.env.SWAGGER_ENABLED === 'true';
+  if (swaggerOn) {
+    const swaggerCfg = new DocumentBuilder()
+      .setTitle('Motech POS API')
+      .setDescription(
+        'NestJS backend (Oracle-first, Clean/Hexagonal) — read-only phase',
+      )
+      .setVersion('0.1.0')
+      .addBearerAuth()
+      .build();
+    const doc = SwaggerModule.createDocument(app, swaggerCfg);
+    SwaggerModule.setup(`${prefix}/docs`, app, doc);
+  }
 
   const port = config.get('PORT');
   // SECURITY: bind loopback by default — public access goes through Caddy

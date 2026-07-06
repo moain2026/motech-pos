@@ -301,6 +301,16 @@ export class PasswordReuseError extends DomainError {
   readonly title = 'New password must differ from the current password';
 }
 
+/**
+ * §A07: too many failed login attempts for a username+IP inside the
+ * throttle window — mapped to RFC 9457 429 by the global filter.
+ */
+export class TooManyLoginAttemptsError extends DomainError {
+  readonly typeSlug = 'too-many-login-attempts';
+  readonly httpStatus = 429;
+  readonly title = 'Too many failed login attempts';
+}
+
 /** POST023: the referenced sale bill does not exist in YSPOS23. */
 export class PrescriptionBillNotFoundError extends DomainError {
   readonly typeSlug = 'prescription-bill-not-found';
