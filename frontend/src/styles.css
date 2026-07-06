@@ -246,3 +246,30 @@ body {
 .animate-fade-in {
   animation: fade-in var(--dur) var(--ease);
 }
+
+/* ============================================================
+ * POSADVS — وضع اللمس الكامل (kiosk): أهداف لمس أكبر + خطوط أوضح
+ * يُفعّل بإضافة .pos-kiosk على حاوية شاشة البيع (PosPage). يستخدم
+ * الـtokens الموجودة ولا يكسر التصميم المتجاوب — فقط يضخّم داخل POS.
+ * ============================================================ */
+.pos-kiosk {
+  /* خطوط أكبر داخل شاشة البيع للرؤية من مسافة (~30 بوصة، معيار POS). */
+  font-size: 1.05rem;
+}
+/* أزرار اللمس (كمية/دفع) داخل الكيوسك ≥ --touch-lg. */
+.pos-kiosk button:not([aria-label*='-']):not([aria-label*='+']) {
+  min-height: var(--touch-lg);
+}
+/* أزرار الكمية +/- ومربّعاتها أكبر. */
+.pos-kiosk input[type='number'] {
+  min-height: var(--touch);
+  font-size: var(--text-lg);
+}
+/* بطاقات الأصناف في الشبكة أكبر قليلاً للّمس السريع. */
+.pos-kiosk .item-card {
+  min-height: var(--touch-lg);
+}
+/* عناصر السلة بمسافة لمس أوسع. */
+.pos-kiosk li {
+  padding-block: 0.25rem;
+}

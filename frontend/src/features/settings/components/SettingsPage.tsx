@@ -20,6 +20,8 @@ import {
   Lock,
   CalendarClock,
   ListOrdered,
+  Keyboard,
+  Scale,
 } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Input } from '@/shared/ui/Input';
@@ -37,6 +39,8 @@ import {
 import type { DefaultSetting } from '@/shared/lib/types';
 import { LoyaltyProgramsTable } from './LoyaltyProgramsTable';
 import { PosCardsTable } from './PosCardsTable';
+import { ShortcutsTable } from './ShortcutsTable';
+import { ScalesTable } from './ScalesTable';
 
 /**
  * الإعدادات (POSS001) — full admin settings screen. Renders ALL 179
@@ -83,7 +87,9 @@ function SettingsView({
   const role = useSession((s) => s.user?.role);
   const canEdit = role === 'admin';
 
-  const [tab, setTab] = useState<SettingGroup | 'defaults' | 'programs'>('numbering');
+  const [tab, setTab] = useState<
+    SettingGroup | 'defaults' | 'programs' | 'shortcuts' | 'scales'
+  >('numbering');
   const [query, setQuery] = useState('');
   const [toast, setToast] = useState<ToastState>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -117,7 +123,11 @@ function SettingsView({
     return out;
   }, [groups, searching, trimmed]);
 
-  const specialTab = tab === 'defaults' || tab === 'programs';
+  const specialTab =
+    tab === 'defaults' ||
+    tab === 'programs' ||
+    tab === 'shortcuts' ||
+    tab === 'scales';
   const visible = searching || specialTab ? searchResults : (groups[tab as SettingGroup] ?? []);
 
   return (
@@ -221,6 +231,36 @@ function SettingsView({
             <Award className="size-4" aria-hidden />
             {t('loyaltyPrograms.title')}
           </button>
+          {/* POSI004 — keyboard shortcuts */}
+          <button
+            role="tab"
+            aria-selected={tab === 'shortcuts'}
+            onClick={() => setTab('shortcuts')}
+            className={
+              'flex items-center gap-2 rounded-[var(--radius)] border px-3 py-2 text-sm font-medium transition-colors ' +
+              (tab === 'shortcuts'
+                ? 'border-[var(--color-brand-500)] bg-[var(--color-brand-600)] text-white'
+                : 'text-[var(--color-muted)] hover:bg-[var(--color-surface-2)]')
+            }
+          >
+            <Keyboard className="size-4" aria-hidden />
+            {t('shortcuts.title')}
+          </button>
+          {/* POSI005/006 — scale barcode schemes */}
+          <button
+            role="tab"
+            aria-selected={tab === 'scales'}
+            onClick={() => setTab('scales')}
+            className={
+              'flex items-center gap-2 rounded-[var(--radius)] border px-3 py-2 text-sm font-medium transition-colors ' +
+              (tab === 'scales'
+                ? 'border-[var(--color-brand-500)] bg-[var(--color-brand-600)] text-white'
+                : 'text-[var(--color-muted)] hover:bg-[var(--color-surface-2)]')
+            }
+          >
+            <Scale className="size-4" aria-hidden />
+            {t('scales.title')}
+          </button>
         </div>
       ) : (
         <p className="text-sm text-[var(--color-muted)]" role="status">
@@ -234,6 +274,10 @@ function SettingsView({
           <DefaultsTable canEdit={canEdit} onToast={showToast} />
         ) : !searching && tab === 'programs' ? (
           <LoyaltyProgramsTable canEdit={role === 'admin' || role === 'supervisor'} />
+        ) : !searching && tab === 'shortcuts' ? (
+          <ShortcutsTable canEdit={canEdit} />
+        ) : !searching && tab === 'scales' ? (
+          <ScalesTable canEdit={canEdit} />
         ) : visible.length === 0 ? (
           <EmptyView label={t('settings.noResults')} />
         ) : (

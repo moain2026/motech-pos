@@ -38,9 +38,23 @@ export interface CartCustomer {
   name: string;
 }
 
+/** A promotion-granted free item to display in the cart (POST001). */
+export interface CartFreeItem {
+  itemCode: string;
+  itemUnit: string | null;
+  freeQty: number;
+  description: string | null;
+}
+
 interface CartState {
   lines: CartLine[];
   billDiscount: number;
+  /** Auto discount from the promotions engine (POST001). */
+  promoDiscount: number;
+  /** Promotion nos that fired (for display). */
+  promoNos: number[];
+  /** Free items granted by promotions (display only). */
+  promoFreeItems: CartFreeItem[];
   customer: CartCustomer | null;
   /** Add an item; `qty` defaults to 1 (weighted barcodes pass the scanned kg). */
   addItem: (item: Item, qty?: number) => void;
@@ -50,6 +64,12 @@ interface CartState {
   incQty: (code: string, delta: number) => void;
   removeLine: (code: string) => void;
   setBillDiscount: (amount: number) => void;
+  /** Set the promotions-engine result (discount + free items + fired nos). */
+  setPromotions: (
+    promoDiscount: number,
+    promoNos: number[],
+    freeItems: CartFreeItem[],
+  ) => void;
   setCustomer: (c: CartCustomer | null) => void;
   clear: () => void;
 }
@@ -66,6 +86,9 @@ function round3(n: number): number {
 export const useCart = create<CartState>((set) => ({
   lines: [],
   billDiscount: 0,
+  promoDiscount: 0,
+  promoNos: [],
+  promoFreeItems: [],
   customer: null,
   addItem: (item, qty = 1) =>
     set((state) => {
@@ -107,12 +130,30 @@ export const useCart = create<CartState>((set) => ({
   removeLine: (code) =>
     set((state) => ({ lines: state.lines.filter((l) => l.code !== code) })),
   setBillDiscount: (amount) => set({ billDiscount: Math.max(0, amount) }),
+  setPromotions: (promoDiscount, promoNos, freeItems) =>
+    set({
+      promoDiscount: Math.max(0, promoDiscount),
+      promoNos,
+      promoFreeItems: freeItems,
+    }),
   setCustomer: (c) => set({ customer: c }),
-  clear: () => set({ lines: [], billDiscount: 0, customer: null }),
+  clear: () =>
+    set({
+      lines: [],
+      billDiscount: 0,
+      promoDiscount: 0,
+      promoNos: [],
+      promoFreeItems: [],
+      customer: null,
+    }),
 }));
 
 /** Pure totals selector (used by useCartTotals hook). */
-export function computeTotals(lines: CartLine[], billDiscount: number): CartTotals {
+export function computeTotals(
+  lines: CartLine[],
+  billDiscount: number,
+  promoDiscount = 0,
+): CartTotals {
   let gross = 0;
   let lineDisc = 0;
   let vat = 0;
@@ -123,7 +164,9 @@ export function computeTotals(lines: CartLine[], billDiscount: number): CartTota
     vat += l.lineVat;
     qtyCount += l.qty;
   }
-  const discount = lineDisc + billDiscount;
+  // Promo discount is capped so the net never goes negative.
+  const cappedPromo = Math.min(promoDiscount, Math.max(0, gross - lineDisc - billDiscount));
+  const discount = lineDisc + billDiscount + cappedPromo;
   const net = Math.max(0, gross - discount + vat);
   return {
     gross: round2(gross),

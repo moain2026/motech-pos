@@ -112,7 +112,14 @@ export class PostBillDto {
   lines!: PostBillLineDto[];
 }
 
-const PAYMENT_METHODS = ['CASH', 'CARD', 'CREDIT', 'POINTS', 'COUPON'] as const;
+const PAYMENT_METHODS = [
+  'CASH',
+  'CARD',
+  'CREDIT',
+  'POINTS',
+  'COUPON',
+  'PREPAID',
+] as const;
 type PaymentMethodDto = (typeof PAYMENT_METHODS)[number];
 
 export class AddPaymentDto {

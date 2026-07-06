@@ -1,10 +1,12 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { CardsService } from '../../cards/application/cards.service';
+import { PrepaidCardsService } from '../../cards/application/prepaid-cards.service';
 import { LoyaltyService } from '../../loyalty/application/loyalty.service';
 import {
   BillImmutableError,
   BillNotFoundError,
   CouponNotFoundError,
+  InsufficientCardBalanceError,
   InsufficientPointsError,
   InvalidBillError,
   PaymentExceedsBalanceError,
@@ -83,6 +85,7 @@ export class AddPaymentUseCase {
     @Inject(BILL_WRITE_REPOSITORY) private readonly repo: BillWriteRepository,
     @Optional() private readonly loyalty?: LoyaltyService,
     @Optional() private readonly cards?: CardsService,
+    @Optional() private readonly prepaid?: PrepaidCardsService,
   ) {}
 
   /** Add a single payment tender. */
@@ -146,6 +149,19 @@ export class AddPaymentUseCase {
           });
         }
       }
+      if (t.method === 'PREPAID') {
+        if (!t.cardNo) {
+          throw new InvalidBillError(
+            'Prepaid payment requires a cardNo (prepaid/gift card)',
+            { billId: req.billId },
+          );
+        }
+        if (!this.prepaid) {
+          throw new InvalidBillError('Prepaid payment is not available', {
+            billId: req.billId,
+          });
+        }
+      }
       if (t.method !== 'COUPON' || t.amount != null) {
         if (!Number.isFinite(t.amount) || (t.amount as number) <= 0) {
           throw new InvalidBillError('Payment amount must be positive', {
@@ -205,6 +221,28 @@ export class AddPaymentUseCase {
           );
         }
         resolved.push({ tender: t, amount });
+      } else if (t.method === 'PREPAID') {
+        // Validate the card + balance up front (the redeem runs on write).
+        const card = await this.prepaid!.get(t.cardNo as string);
+        const amount = t.amount as number;
+        // Only surface a balance shortfall if this bill hasn't already
+        // redeemed against the card (idempotent replay covers re-submits).
+        const already = await this.prepaid!.redeemedForBillProbe(
+          t.cardNo as string,
+          bill.billNo,
+        );
+        if (!already && card.remaining + EPS < amount) {
+          throw new InsufficientCardBalanceError(
+            `Card ${t.cardNo} balance ${card.remaining} is insufficient for ${amount}`,
+            {
+              billId: req.billId,
+              cardNo: t.cardNo,
+              remaining: card.remaining,
+              requested: amount,
+            },
+          );
+        }
+        resolved.push({ tender: t, amount });
       } else {
         resolved.push({ tender: t, amount: t.amount as number });
       }
@@ -248,6 +286,18 @@ export class AddPaymentUseCase {
           shiftId: bill.shiftId,
           cashierNo: bill.cashierNo,
         });
+      }
+
+      // PREPAID: redeem from the stored-value card FIRST (row-locked, balance-
+      // guarded, idempotent per bill via REF=billNo) — if it fails, no payment
+      // row is written.
+      if (t.method === 'PREPAID') {
+        await this.prepaid!.redeemForBill(
+          t.cardNo as string,
+          r.amount,
+          bill.billNo,
+          String(bill.cashierNo),
+        );
       }
 
       const input: AddPaymentInput = {

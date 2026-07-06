@@ -472,7 +472,13 @@ export interface CloseShiftDto {
 
 // ---- Bills (write path) ----
 /** Tender methods. POINTS = loyalty redeem (amount = points); COUPON = IAS_CPN_MST voucher. */
-export type PaymentMethod = 'CASH' | 'CARD' | 'CREDIT' | 'POINTS' | 'COUPON';
+export type PaymentMethod =
+  | 'CASH'
+  | 'CARD'
+  | 'CREDIT'
+  | 'POINTS'
+  | 'COUPON'
+  | 'PREPAID';
 
 /** POST /bills line (request). itemCode + qty required; price/vat optional
  *  overrides (else backend uses reference price). */
@@ -640,6 +646,7 @@ export interface PaymentTenderDto {
   amount?: number;
   currency?: string;
   rate?: number;
+  /** CARD: network card no. PREPAID: prepaid/gift card no to redeem from. */
   cardNo?: string;
   /** POINTS: the loyalty customer whose balance is deducted. */
   customerCode?: string;
@@ -649,6 +656,40 @@ export interface PaymentTenderDto {
 
 export interface AddPaymentsDto {
   tenders: PaymentTenderDto[];
+}
+
+// ---- Promotions (POST001 — GNR_QTN_PRM_PKG) ----
+export interface PromoLineDiscount {
+  itemCode: string;
+  quotNo: number;
+  rcrdNo: number;
+  discountAmount: number;
+  kind: 'tier-price' | 'tier-discount' | 'invoice-discount' | 'free-as-discount';
+  description: string | null;
+}
+
+export interface PromoFreeItem {
+  itemCode: string;
+  itemUnit: string | null;
+  quotNo: number;
+  rcrdNo: number;
+  freeQty: number;
+  sameItem: boolean;
+  description: string | null;
+}
+
+export interface PromotionResult {
+  lineDiscounts: PromoLineDiscount[];
+  freeItems: PromoFreeItem[];
+  totalDiscount: number;
+  appliedPromoNos: number[];
+}
+
+export interface ApplyPromotionLineDto {
+  itemCode: string;
+  itemUnit?: string | null;
+  qty: number;
+  unitPrice: number;
 }
 
 // ---- Shift reconciliation / Z-X report (GET /shifts/{id}/reconciliation) ----

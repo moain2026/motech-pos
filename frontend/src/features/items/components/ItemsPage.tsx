@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Package, Search, Plus, Pencil, Layers } from 'lucide-react';
+import { Package, Search, Plus, Pencil, Layers, FileSpreadsheet } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
@@ -11,6 +11,7 @@ import type { Item } from '@/shared/lib/types';
 import { useItemSearch, useCategories } from '@/features/pos-terminal/api/items.api';
 import { ItemDialog } from './ItemDialog';
 import { ItemCatalogDialog } from './ItemCatalogDialog';
+import { ImportXlsDialog } from './ImportXlsDialog';
 
 function useDebounced<T>(value: T, ms: number): T {
   const [v, setV] = useState(value);
@@ -36,6 +37,7 @@ export function ItemsPage() {
 
   const [dialog, setDialog] = useState<{ item: Item | null } | null>(null);
   const [catalogItem, setCatalogItem] = useState<Item | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
 
   const items = useMemo(
     () => query.data?.pages.flatMap((p) => p.data) ?? [],
@@ -49,10 +51,16 @@ export function ItemsPage() {
           <Package className="size-6 text-[var(--color-brand-500)]" aria-hidden />
           {t('items.title')}
         </h1>
-        <Button variant="primary" onClick={() => setDialog({ item: null })}>
-          <Plus className="size-4" />
-          {t('items.new')}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" onClick={() => setImportOpen(true)}>
+            <FileSpreadsheet className="size-4" />
+            {t('importXls.title')}
+          </Button>
+          <Button variant="primary" onClick={() => setDialog({ item: null })}>
+            <Plus className="size-4" />
+            {t('items.new')}
+          </Button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
@@ -164,6 +172,8 @@ export function ItemsPage() {
       {catalogItem ? (
         <ItemCatalogDialog item={catalogItem} onClose={() => setCatalogItem(null)} />
       ) : null}
+
+      {importOpen ? <ImportXlsDialog onClose={() => setImportOpen(false)} /> : null}
     </div>
   );
 }

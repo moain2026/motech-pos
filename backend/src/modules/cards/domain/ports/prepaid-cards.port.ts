@@ -69,4 +69,13 @@ export interface PrepaidCardsRepository {
   ): Promise<PrepaidCardRow>;
   setStatus(cardNo: string, inactive: boolean): Promise<PrepaidCardRow | null>;
   listMovements(cardNo: string, limit: number): Promise<PrepaidMovementRow[]>;
+  /**
+   * Idempotency probe: an existing REDEEM movement on this card whose REF
+   * matches (e.g. a bill no), or null. Used to make a prepaid payment
+   * idempotent per bill (replay returns the same movement, no double-charge).
+   */
+  findRedeemByRef(
+    cardNo: string,
+    ref: string,
+  ): Promise<PrepaidMovementRow | null>;
 }

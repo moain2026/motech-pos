@@ -1,6 +1,12 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MonitorSmartphone, ShoppingCart, X } from 'lucide-react';
+import {
+  Maximize2,
+  Minimize2,
+  MonitorSmartphone,
+  ShoppingCart,
+  X,
+} from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { formatMoney } from '@/shared/lib/format';
 import { ShiftBar } from '@/features/shifts/components/ShiftBar';
@@ -11,8 +17,10 @@ import {
 import { ItemGrid } from './ItemGrid';
 import { Cart } from './Cart';
 import { SaleSummary } from './SaleSummary';
+import { PromotionsBanner } from './PromotionsBanner';
 import { useCartTotals } from '../hooks/useCartTotals';
 import { useScannerToCart } from '../hooks/useScannerToCart';
+import { usePosSettings } from '../store/pos-settings.store';
 
 /**
  * POST001 — شاشة فاتورة البيع (قلب النظام) — mobile-first (المرحلة 3).
@@ -29,6 +37,45 @@ export function PosPage() {
   const totals = useCartTotals();
   const qtyCount = totals.qtyCount;
   const [sheetOpen, setSheetOpen] = useState(false);
+
+  // POSADVS — full touch/kiosk mode: enlarges targets + requests browser
+  // Fullscreen. Persisted so a dedicated touch terminal stays in kiosk mode.
+  const kioskMode = usePosSettings((s) => s.kioskMode);
+  const setKioskMode = usePosSettings((s) => s.setKioskMode);
+
+  const enterFullscreen = useCallback(async () => {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen?.();
+      }
+    } catch {
+      /* fullscreen may be blocked (no gesture / iframe) — kiosk skin still applies */
+    }
+  }, []);
+
+  const exitFullscreen = useCallback(async () => {
+    try {
+      if (document.fullscreenElement) await document.exitFullscreen?.();
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  const toggleKiosk = useCallback(() => {
+    const next = !kioskMode;
+    setKioskMode(next);
+    if (next) void enterFullscreen();
+    else void exitFullscreen();
+  }, [kioskMode, setKioskMode, enterFullscreen, exitFullscreen]);
+
+  // Keep the kiosk skin in sync if the user leaves fullscreen via Esc/F11.
+  useEffect(() => {
+    const onFsChange = () => {
+      if (!document.fullscreenElement && kioskMode) setKioskMode(false);
+    };
+    document.addEventListener('fullscreenchange', onFsChange);
+    return () => document.removeEventListener('fullscreenchange', onFsChange);
+  }, [kioskMode, setKioskMode]);
 
   // HID barcode scanner → cart (works with no search-box focus).
   const scanFeedback = useScannerToCart();
@@ -67,15 +114,42 @@ export function PosPage() {
           </button>
         </div>
       </div>
+      <PromotionsBanner />
       <Cart />
       <SaleSummary />
     </>
   );
 
   return (
-    <div className="grid h-full grid-rows-[auto_minmax(0,1fr)] gap-3 p-3 sm:gap-4 sm:p-4">
-      {/* رأس الوردية/الكاشير (سياق POST027) */}
-      <ShiftBar />
+    <div
+      data-kiosk={kioskMode ? 'on' : undefined}
+      className={`pos-terminal grid h-full grid-rows-[auto_minmax(0,1fr)] gap-3 p-3 sm:gap-4 sm:p-4 ${
+        kioskMode ? 'pos-kiosk' : ''
+      }`}
+    >
+      {/* رأس الوردية/الكاشير (سياق POST027) + زر وضع اللمس */}
+      <div className="flex items-center gap-2">
+        <div className="min-w-0 flex-1">
+          <ShiftBar />
+        </div>
+        <button
+          type="button"
+          onClick={toggleKiosk}
+          title={kioskMode ? t('pos.kioskExit') : t('pos.kiosk')}
+          aria-pressed={kioskMode}
+          className={`grid size-11 shrink-0 place-items-center rounded-full transition-colors ${
+            kioskMode
+              ? 'bg-[var(--color-brand-600)] text-white'
+              : 'bg-[var(--color-surface-2)] text-[var(--color-muted)] hover:bg-[var(--color-brand-500)]/15 hover:text-[var(--color-brand-500)]'
+          }`}
+        >
+          {kioskMode ? (
+            <Minimize2 className="size-5" aria-hidden />
+          ) : (
+            <Maximize2 className="size-5" aria-hidden />
+          )}
+        </button>
+      </div>
 
       {/* تغذية راجعة فورية للمسح (POS §7) */}
       {scanFeedback ? (

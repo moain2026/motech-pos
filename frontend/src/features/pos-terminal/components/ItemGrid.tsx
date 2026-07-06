@@ -168,7 +168,7 @@ export function ItemGrid() {
                 <button
                   key={item.code}
                   onClick={() => add(item)}
-                  className={`flex min-h-[var(--touch-lg)] flex-col gap-1 rounded-[var(--radius)] border p-3 text-start transition-all active:scale-[0.97] hover:border-[var(--color-brand-500)] hover:bg-[var(--color-surface-2)] ${
+                  className={`item-card flex min-h-[var(--touch-lg)] flex-col gap-1 rounded-[var(--radius)] border p-3 text-start transition-all active:scale-[0.97] hover:border-[var(--color-brand-500)] hover:bg-[var(--color-surface-2)] ${
                     flash === item.code
                       ? 'border-[var(--color-success)] bg-[var(--color-success)]/15'
                       : 'border-[var(--color-border)] bg-[var(--color-surface)]'

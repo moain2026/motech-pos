@@ -19,7 +19,13 @@ export interface PersistedBillLine {
 }
 
 /** Supported tender methods (CK_PAYMENTS_METHOD). */
-export type PaymentMethod = 'CASH' | 'CARD' | 'CREDIT' | 'POINTS' | 'COUPON';
+export type PaymentMethod =
+  | 'CASH'
+  | 'CARD'
+  | 'CREDIT'
+  | 'POINTS'
+  | 'COUPON'
+  | 'PREPAID';
 
 /** A persisted payment line. */
 export interface PersistedPayment {

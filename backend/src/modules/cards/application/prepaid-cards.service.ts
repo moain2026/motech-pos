@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import {
   CreatePrepaidCardInput,
+  PrepaidCardRow,
   PrepaidCardsRepository,
   PrepaidCardType,
   PREPAID_CARDS_REPOSITORY,
@@ -75,6 +76,51 @@ export class PrepaidCardsService {
       ref ?? null,
       note ?? null,
     );
+  }
+
+  /**
+   * Redeem from a card as a bill payment, IDEMPOTENT per (card, billNo).
+   * A prior REDEEM movement with ref=billNo → replay (no double-charge). The
+   * card must be active, not expired, and hold enough balance.
+   */
+  async redeemForBill(
+    cardNo: string,
+    amount: number,
+    billNo: string,
+    actor: string,
+  ): Promise<{ card: PrepaidCardRow; replayed: boolean }> {
+    const existing = await this.repo.findRedeemByRef(cardNo, billNo);
+    if (existing) {
+      const card = await this.get(cardNo);
+      return { card, replayed: true };
+    }
+    const card = await this.get(cardNo);
+    if (card.inactive) {
+      throw new ConflictException(`Card ${cardNo} is inactive`);
+    }
+    if (
+      card.expireDate &&
+      card.expireDate < new Date().toISOString().slice(0, 10)
+    ) {
+      throw new ConflictException(
+        `Card ${cardNo} expired on ${card.expireDate}`,
+      );
+    }
+    const updated = await this.repo.move(
+      cardNo,
+      'REDEEM',
+      amount,
+      actor,
+      billNo,
+      `Redeem as payment for bill ${billNo}`,
+    );
+    return { card: updated, replayed: false };
+  }
+
+  /** True if this bill already redeemed against the card (idempotency probe). */
+  async redeemedForBillProbe(cardNo: string, billNo: string): Promise<boolean> {
+    const mv = await this.repo.findRedeemByRef(cardNo, billNo);
+    return mv != null;
   }
 
   async setStatus(cardNo: string, inactive: boolean) {

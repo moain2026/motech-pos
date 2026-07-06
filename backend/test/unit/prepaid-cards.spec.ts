@@ -81,6 +81,12 @@ class FakeRepo implements PrepaidCardsRepository {
       this.moves.filter((m) => m.cardNo === cardNo).slice(0, limit),
     );
   }
+  findRedeemByRef(cardNo: string, ref: string) {
+    const mv = this.moves.find(
+      (m) => m.cardNo === cardNo && m.moveType === 'REDEEM' && m.ref === ref,
+    );
+    return Promise.resolve(mv ?? null);
+  }
   private recordMove(
     cardNo: string,
     moveType: PrepaidMoveType,

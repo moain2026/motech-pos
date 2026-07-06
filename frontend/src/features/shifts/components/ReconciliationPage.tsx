@@ -75,6 +75,7 @@ export function ReconciliationPage() {
       CREDIT: { icon: Clock, label: t('pos.methodCredit') },
       POINTS: { icon: Star, label: t('pos.methodPoints') },
       COUPON: { icon: Ticket, label: t('pos.methodCoupon') },
+      PREPAID: { icon: CreditCard, label: t('pos.methodPrepaid') },
     }),
     [t],
   );

@@ -35,6 +35,12 @@ export function SaleSummary() {
   const clear = useCart((s) => s.clear);
   const lines = useCart((s) => s.lines);
   const customer = useCart((s) => s.customer);
+  const promoDiscount = useCart((s) => s.promoDiscount);
+  const promoNos = useCart((s) => s.promoNos);
+
+  // Header discount sent to the server = manual bill discount + promo discount
+  // (POST001 GNR_QTN_PRM_PKG auto discount), so the posted bill reflects it.
+  const effectiveHeaderDiscount = (billDiscount || 0) + (promoDiscount || 0);
 
   const cashierNo = usePosSettings((s) => s.cashierNo);
   const machineNo = usePosSettings((s) => s.machineNo);
@@ -77,7 +83,7 @@ export function SaleSummary() {
         customerName: customer?.name ?? 'Walk-in',
         currency: 'YER',
         taxCalcType: 2,
-        headerDiscount: billDiscount || 0,
+        headerDiscount: effectiveHeaderDiscount,
         lines: billLinesDto(),
       });
       setPayTarget({ id: bill.id, billNo: bill.billNo, net: bill.netAmt });
@@ -109,7 +115,7 @@ export function SaleSummary() {
         customerName: customer?.name ?? 'Walk-in',
         currency: 'YER',
         taxCalcType: 2,
-        headerDiscount: billDiscount || 0,
+        headerDiscount: effectiveHeaderDiscount,
         lines: billLines,
       });
       // 2) Pay the full net amount with the chosen method.
@@ -247,6 +253,20 @@ export function SaleSummary() {
           placeholder="0"
         />
       </div>
+
+      {promoDiscount > 0 ? (
+        <div className="flex items-center justify-between text-sm text-[var(--color-success)]">
+          <span className="flex items-center gap-1">
+            {t('pos.promoDiscount')}
+            {promoNos.length > 0 ? (
+              <span className="tnum text-[10px] text-[var(--color-muted)]">
+                (#{promoNos.join(', #')})
+              </span>
+            ) : null}
+          </span>
+          <span className="tnum font-semibold">−{formatMoney(promoDiscount)}</span>
+        </div>
+      ) : null}
 
       {totals.vat > 0 ? <Row label={t('pos.vat')} value={formatMoney(totals.vat)} /> : null}
 

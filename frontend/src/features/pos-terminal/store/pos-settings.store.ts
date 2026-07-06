@@ -16,10 +16,14 @@ interface PosSettingsState {
   /** Last known shift (kept after close so settlement/POST013 stays reachable). */
   lastShiftId: string | null;
   lastShiftNo: number | null;
+  /** POSADVS — full touch/kiosk mode (larger targets, immersive layout). */
+  kioskMode: boolean;
   setCashierNo: (n: number) => void;
   setMachineNo: (n: number) => void;
   setShiftCode: (c: string) => void;
   setLastShift: (id: string | null, no?: number | null) => void;
+  setKioskMode: (on: boolean) => void;
+  toggleKioskMode: () => void;
 }
 
 export const usePosSettings = create<PosSettingsState>()(
@@ -30,10 +34,13 @@ export const usePosSettings = create<PosSettingsState>()(
       shiftCode: 'M',
       lastShiftId: null,
       lastShiftNo: null,
+      kioskMode: false,
       setCashierNo: (n) => set({ cashierNo: Math.max(0, Math.floor(n) || 0) }),
       setMachineNo: (n) => set({ machineNo: Math.max(0, Math.floor(n) || 0) }),
       setShiftCode: (c) => set({ shiftCode: c || 'M' }),
       setLastShift: (id, no = null) => set({ lastShiftId: id, lastShiftNo: no }),
+      setKioskMode: (on) => set({ kioskMode: on }),
+      toggleKioskMode: () => set((s) => ({ kioskMode: !s.kioskMode })),
     }),
     { name: 'motech-pos-settings' },
   ),

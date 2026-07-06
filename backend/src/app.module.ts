@@ -18,6 +18,7 @@ import { LoyaltyModule } from './modules/loyalty/loyalty.module';
 import { MasterDataModule } from './modules/master-data/master-data.module';
 import { SuppliersModule } from './modules/suppliers/suppliers.module';
 import { PrescriptionsModule } from './modules/prescriptions/prescriptions.module';
+import { PromotionsModule } from './modules/promotions/promotions.module';
 import { ReportsModule } from './modules/reports/reports.module';
 import { ReturnCountsModule } from './modules/return-counts/return-counts.module';
 import { ReturnsModule } from './modules/returns/returns.module';
@@ -62,6 +63,7 @@ import { VouchersModule } from './modules/vouchers/vouchers.module';
     MasterDataModule,
     SuppliersModule,
     PrescriptionsModule,
+    PromotionsModule,
     VouchersModule,
     ReturnCountsModule,
     SalesOrdersModule,

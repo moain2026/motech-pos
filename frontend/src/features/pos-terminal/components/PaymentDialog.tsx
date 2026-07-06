@@ -1,6 +1,17 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Banknote, CreditCard, Clock, Plus, Trash2, X, CheckCircle2, Star, Ticket } from 'lucide-react';
+import {
+  Banknote,
+  CreditCard,
+  Clock,
+  Plus,
+  Trash2,
+  X,
+  CheckCircle2,
+  Star,
+  Ticket,
+  Wallet,
+} from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
 import { Input } from '@/shared/ui/Input';
 import { ApiError } from '@/shared/lib/api-client';
@@ -98,6 +109,14 @@ export function PaymentDialog({
       setError(t('payMulti.needCustomerForPoints'));
       return;
     }
+    if (
+      rows.some(
+        (r) => r.method === 'PREPAID' && !(r.cardNo ?? '').trim(),
+      )
+    ) {
+      setError(t('payMulti.needCardForPrepaid'));
+      return;
+    }
     const tenders: PaymentTenderDto[] = rows
       .filter((r) =>
         r.method === 'COUPON'
@@ -111,7 +130,10 @@ export function PaymentDialog({
           r.method === 'COUPON' && !(Number(r.amount) > 0) ? undefined : Number(r.amount),
         currency: r.currency || billCurrency,
         rate: Number(r.rate) || 1,
-        cardNo: r.method === 'CARD' && r.cardNo ? r.cardNo : undefined,
+        cardNo:
+          (r.method === 'CARD' || r.method === 'PREPAID') && r.cardNo
+            ? r.cardNo.trim()
+            : undefined,
         customerCode: r.method === 'POINTS' ? (customerCode ?? undefined) : undefined,
         couponNo: r.method === 'COUPON' ? r.couponNo?.trim() : undefined,
       }));
@@ -138,6 +160,7 @@ export function PaymentDialog({
     CREDIT: { icon: Clock, label: t('pos.methodCredit') },
     POINTS: { icon: Star, label: t('pos.methodPoints') },
     COUPON: { icon: Ticket, label: t('pos.methodCoupon') },
+    PREPAID: { icon: Wallet, label: t('pos.methodPrepaid') },
   };
 
   return (
@@ -190,6 +213,7 @@ export function PaymentDialog({
                         {t('pos.methodPoints')}
                       </option>
                       <option value="COUPON">{t('pos.methodCoupon')}</option>
+                      <option value="PREPAID">{t('pos.methodPrepaid')}</option>
                     </select>
                     <Input
                       type="number"
@@ -235,12 +259,16 @@ export function PaymentDialog({
                         aria-label={t('payMulti.rate')}
                       />
                     </label>
-                    {r.method === 'CARD' ? (
+                    {r.method === 'CARD' || r.method === 'PREPAID' ? (
                       <Input
                         value={r.cardNo ?? ''}
                         onChange={(e) => setRow(i, { cardNo: e.target.value })}
                         className="h-8 flex-1"
-                        placeholder={t('payMulti.cardNo')}
+                        placeholder={
+                          r.method === 'PREPAID'
+                            ? t('payMulti.prepaidCardNo')
+                            : t('payMulti.cardNo')
+                        }
                         aria-label={t('payMulti.cardNo')}
                       />
                     ) : null}
@@ -264,6 +292,11 @@ export function PaymentDialog({
                       {t('payMulti.couponHint')}
                     </p>
                   ) : null}
+                  {r.method === 'PREPAID' ? (
+                    <p className="mt-1 text-[10px] text-[var(--color-muted)]">
+                      {t('payMulti.prepaidHint')}
+                    </p>
+                  ) : null}
                 </li>
               );
             })}
@@ -271,7 +304,9 @@ export function PaymentDialog({
 
           {/* Add-tender shortcuts */}
           <div className="mt-3 flex flex-wrap gap-2">
-            {(['CASH', 'CARD', 'CREDIT', 'POINTS', 'COUPON'] as PaymentMethod[]).map((m) => {
+            {(
+              ['CASH', 'CARD', 'CREDIT', 'POINTS', 'COUPON', 'PREPAID'] as PaymentMethod[]
+            ).map((m) => {
               const Icon = methodMeta[m].icon;
               return (
                 <Button

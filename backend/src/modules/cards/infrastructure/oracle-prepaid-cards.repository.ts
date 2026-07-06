@@ -239,6 +239,32 @@ export class OraclePrepaidCardsRepository implements PrepaidCardsRepository {
     }));
   }
 
+  async findRedeemByRef(
+    cardNo: string,
+    ref: string,
+  ): Promise<PrepaidMovementRow | null> {
+    const row = await this.db.queryOne<MoveDb>(
+      `SELECT ID, CARD_NO, MOVE_TYPE, AMOUNT, BALANCE, REF, NOTE,
+              CREATED_BY, CREATED_AT
+       FROM ${this.schema}.PREPAID_CARD_MOVEMENTS
+       WHERE CARD_NO = :no AND MOVE_TYPE = 'REDEEM' AND REF = :ref
+       ORDER BY CREATED_AT ASC FETCH FIRST 1 ROWS ONLY`,
+      { no: cardNo, ref },
+    );
+    if (!row) return null;
+    return {
+      id: row.ID,
+      cardNo: row.CARD_NO,
+      moveType: row.MOVE_TYPE,
+      amount: Number(row.AMOUNT),
+      balance: Number(row.BALANCE),
+      ref: row.REF ?? null,
+      note: row.NOTE ?? null,
+      createdBy: row.CREATED_BY,
+      createdAt: row.CREATED_AT.toISOString(),
+    };
+  }
+
   private mapCard(r: CardDb): PrepaidCardRow {
     return {
       id: r.ID,
