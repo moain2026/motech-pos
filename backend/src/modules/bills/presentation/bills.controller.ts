@@ -26,6 +26,7 @@ import {
 import { Roles } from '../../auth/presentation/roles.decorator';
 import { RolesGuard } from '../../auth/presentation/roles.guard';
 import { AddPaymentUseCase } from '../application/add-payment.usecase';
+import { AttachCustomerUseCase } from '../application/attach-customer.usecase';
 import { BillsService } from '../application/bills.service';
 import { HoldBillUseCase } from '../application/hold-bill.usecase';
 import { PostBillUseCase } from '../application/post-bill.usecase';
@@ -34,6 +35,7 @@ import { DailySummaryQuery, ListBillsQuery } from './list-bills.query';
 import {
   AddPaymentDto,
   AddPaymentsDto,
+  AttachCustomerDto,
   HoldBillDto,
   PostBillDto,
   ResumeBillDto,
@@ -47,6 +49,7 @@ export class BillsController {
     private readonly postBill: PostBillUseCase,
     private readonly addPayment: AddPaymentUseCase,
     private readonly holdBill: HoldBillUseCase,
+    private readonly attachCustomer: AttachCustomerUseCase,
   ) {}
 
   //==========================================================================
@@ -131,6 +134,30 @@ export class BillsController {
       tenders: body.tenders,
     });
     return { data };
+  }
+
+  @Post(':id/attach-customer')
+  @HttpCode(200)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('cashier', 'supervisor', 'admin')
+  @ApiOperation({
+    summary:
+      'POST020 — attach a loyalty customer to a posted bill retroactively (earns points, idempotent)',
+  })
+  async attach(@Param('id') id: string, @Body() body: AttachCustomerDto) {
+    const result = await this.attachCustomer.execute({
+      billId: id,
+      customerCode: body.customerCode,
+      cashierNo: body.cashierNo,
+    });
+    return {
+      data: result.bill,
+      meta: {
+        pointsEarned: result.pointsEarned,
+        alreadyAttached: result.alreadyAttached,
+      },
+    };
   }
 
   //==========================================================================

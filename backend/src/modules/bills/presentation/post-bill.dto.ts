@@ -329,3 +329,17 @@ export class ResumeBillDto {
   @IsPositive()
   cashierNo!: number;
 }
+
+/** POST020 — attach a loyalty customer to a posted bill retroactively. */
+export class AttachCustomerDto {
+  @ApiProperty({ example: '1', description: 'Customer code (C_CODE) to attach' })
+  @IsString()
+  @MaxLength(15)
+  customerCode!: string;
+
+  @ApiPropertyOptional({ example: 3, description: 'Cashier number (for the ledger)' })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  cashierNo?: number;
+}

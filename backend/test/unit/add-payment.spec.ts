@@ -59,6 +59,9 @@ class FakeRepo implements BillWriteRepository {
   findById(id: string): Promise<PersistedBill | null> {
     return Promise.resolve(id === this.bill.id ? this.bill : null);
   }
+  findByBillNo(billNo: string): Promise<PersistedBill | null> {
+    return Promise.resolve(billNo === this.bill.billNo ? this.bill : null);
+  }
   insertBill(_i: InsertBillInput): Promise<PersistedBill> {
     return Promise.resolve(this.bill);
   }
@@ -81,6 +84,15 @@ class FakeRepo implements BillWriteRepository {
       Math.round(
         this.bill.payments.reduce((a, p) => a + p.amountInBill, 0) * 10000,
       ) / 10000;
+    return Promise.resolve(this.bill);
+  }
+  attachCustomer(
+    _billId: string,
+    customerCode: string,
+    customerName: string | null,
+  ): Promise<PersistedBill> {
+    this.bill.customerCode = customerCode;
+    this.bill.customerName = customerName;
     return Promise.resolve(this.bill);
   }
 }

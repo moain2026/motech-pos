@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { CardsModule } from '../cards/cards.module';
+import { CustomersModule } from '../customers/customers.module';
 import { ShiftsModule } from '../shifts/shifts.module';
 import { AddPaymentUseCase } from './application/add-payment.usecase';
+import { AttachCustomerUseCase } from './application/attach-customer.usecase';
 import { BillsService } from './application/bills.service';
 import { HoldBillUseCase } from './application/hold-bill.usecase';
 import { PostBillUseCase } from './application/post-bill.usecase';
@@ -18,7 +20,7 @@ import { OracleItemReferenceRepository } from './infrastructure/oracle-item-refe
 import { BillsController } from './presentation/bills.controller';
 
 @Module({
-  imports: [AuthModule, CardsModule, ShiftsModule],
+  imports: [AuthModule, CardsModule, CustomersModule, ShiftsModule],
   controllers: [BillsController],
   providers: [
     BillsService,
@@ -26,6 +28,7 @@ import { BillsController } from './presentation/bills.controller';
     PricePolicyService,
     AddPaymentUseCase,
     HoldBillUseCase,
+    AttachCustomerUseCase,
     { provide: BILL_REPOSITORY, useClass: OracleBillRepository },
     { provide: BILL_WRITE_REPOSITORY, useClass: OracleBillWriteRepository },
     { provide: HELD_BILL_REPOSITORY, useClass: OracleHeldBillRepository },

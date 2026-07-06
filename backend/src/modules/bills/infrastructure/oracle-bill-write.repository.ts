@@ -105,6 +105,14 @@ export class OracleBillWriteRepository implements BillWriteRepository {
     return row ? this.assemble(row) : null;
   }
 
+  async findByBillNo(billNo: string): Promise<PersistedBill | null> {
+    const row = await this.db.queryOne<BillRow>(
+      `SELECT * FROM ${this.schema}.BILLS WHERE BILL_NO = :b`,
+      { b: billNo },
+    );
+    return row ? this.assemble(row) : null;
+  }
+
   async insertBill(input: InsertBillInput): Promise<PersistedBill> {
     const id = uuidv7();
     // Sequence NEXTVAL is non-transactional; fetch it OUTSIDE the serializable
@@ -338,6 +346,34 @@ export class OracleBillWriteRepository implements BillWriteRepository {
     });
     const persisted = await this.findById(input.billId);
     if (!persisted) throw new Error('addPayment: bill not found');
+    return persisted;
+  }
+
+  async attachCustomer(
+    billId: string,
+    customerCode: string,
+    customerName: string | null,
+  ): Promise<PersistedBill> {
+    await this.db.withTransaction(async (conn) => {
+      // 1) MOTECH_POS tracking header.
+      await conn.execute(
+        `UPDATE ${this.schema}.BILLS
+           SET CUSTOMER_CODE = :customerCode, CUSTOMER_NAME = :customerName
+         WHERE ID = :billId`,
+        { billId, customerCode, customerName },
+      );
+      // 2) Mirror onto the real Onyx header (IAS_POS_BILL_MST.C_CODE/C_NAME).
+      await conn.execute(
+        `UPDATE ${this.onyx}.IAS_POS_BILL_MST
+           SET C_CODE = :customerCode, C_NAME = :customerName
+         WHERE BILL_NO = (
+             SELECT TO_NUMBER(BILL_NO) FROM ${this.schema}.BILLS
+             WHERE ID = :billId)`,
+        { billId, customerCode, customerName },
+      );
+    });
+    const persisted = await this.findById(billId);
+    if (!persisted) throw new Error('attachCustomer: bill not found');
     return persisted;
   }
 

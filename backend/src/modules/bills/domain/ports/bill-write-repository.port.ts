@@ -99,6 +99,9 @@ export interface BillWriteRepository {
   /** Fetch a full bill (header+lines+payments) by id, or null. */
   findById(id: string): Promise<PersistedBill | null>;
 
+  /** Fetch a full bill by its BILL_NO (display number), or null. */
+  findByBillNo(billNo: string): Promise<PersistedBill | null>;
+
   /**
    * Atomically insert a bill header + its lines, generating a safe BILL_NO.
    * Returns the persisted bill. Throws on idempotency UNIQUE violation so the
@@ -108,6 +111,17 @@ export interface BillWriteRepository {
 
   /** Append a payment to an existing posted bill, updating PAID_AMT. */
   addPayment(input: AddPaymentInput): Promise<PersistedBill>;
+
+  /**
+   * POST020 — attach a customer to a posted bill retroactively. Updates
+   * MOTECH_POS.BILLS + mirrors C_CODE/C_NAME onto the real Onyx header
+   * (IAS_POS_BILL_MST) in one transaction. Returns the refreshed bill.
+   */
+  attachCustomer(
+    billId: string,
+    customerCode: string,
+    customerName: string | null,
+  ): Promise<PersistedBill>;
 }
 
 /** Sentinel error thrown by insertBill on idempotency UNIQUE collision. */
