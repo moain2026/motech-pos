@@ -1,6 +1,35 @@
 # 📈 سجل تقدّم Motech POS
 > يُحدّث بعد كل خطوة. الأحدث أعلى. (ضد النسيان — يُقرأ كل جلسة)
 
+## 2026-07-06 (Lane A — المالية: 4 شاشات 🟡→✅ backend+frontend) — subagent lane-a-financial
+
+> **النطاق:** vouchers/shifts/returns/reports فقط (backend) + features vouchers/shifts/returns/reports (frontend). migration **V028** (بعد أن حجزت لِينات موازية V027). كل شاشة مُثبتة حياً عبر curl على :3000 + SELECT مباشر من MOTECH_POS + تحقّق نهائي عبر الدومين العام. 306 اختبار وحدة أخضر (+16 جديدة). `tsc -b` صفر أخطاء في ملفات Lane A (backend وfrontend).
+
+**1. POST006 الدفع النقدي للمرتجعات ✅**
+- عمود `VOUCHERS.REFUND_RETURN_ID` + فهرس فريد `UX_VOUCHERS_REFUND_RET` (سند واحد لكل مرتجع — idempotency على مستوى DB). المرتجع = صرف نقدي (EXPENSE، CATEGORY='REFUND') فيدخل تلقائياً في تصفية الوردية كمصروف نقدي.
+- `POST /vouchers/refunds` (idempotent بلا مفتاح header — returnId هو المفتاح الطبيعي) + `GET /vouchers/for-return/:id` (probe). يرفض مرتجعات YSPOS23 القديمة (404) والمرتجع بلا مبلغ استرداد موجب (422).
+- **UI:** بطاقة «سند صرف المرتجع» في ReturnDetailPage (probe → زر إصدار أو عرض رقم السند؛ مخفية لأرقام RT القديمة).
+- **proof حي:** مرتجع 019f34d8… (7800) → EXP260700100000007 (REFUND، 7800) → replay=true نفس السند → probe يرجعه → SELECT في VOUCHERS يؤكد REFUND_RETURN_ID.
+
+**2. POST014 عهدة الكاشيرات ✅** — جدول `CASHIER_CUSTODY` (V028)
+- `POST /shifts/{id}/custody` (DEPOSIT/WITHDRAW، Idempotency-Key، وردية OPEN شرط، حارس السحب لا يتجاوز نقد الدرج → 422) + `GET /shifts/{id}/custody` (حركات + إجماليات). صافي العهدة (إيداعات−سحوبات) يُطوى في cashReceipts بنفس معادلة close/reconciliation.
+- **UI:** لوحة «عهدة الكاشير» في ReconciliationPage (تبويب إيداع/سحب + مبلغ/سبب + إجماليات حيّة + سجل حركات) + سطرا العهدة في بطاقة النقد.
+- **proof حي:** إيداع 2000 + سحب 500 → net 1500 → expectedCash 8800→10300 · replay=true · سحب 999999 → 422 custody-exceeds-drawer · وردية مغلقة → 409 · بلا مفتاح → 422.
+
+**3. POST015 فائض/عجز الكاشيرات ✅** — جدول `SHIFT_VARIANCE` (V028)
+- عند settle: يُرحَّل فرق التصفية (over/short) كسجل معتمد ثابت (سجل واحد لكل وردية عبر UX_VARIANCE_SHIFT، idempotent) + `GET /shifts/{id}/variance`.
+- **UI:** شارة «قيد الفائض/العجز» في ReconciliationPage بعد الاعتماد (ملوّنة OVER/SHORT/BALANCED).
+- **proof حي:** متوقّع 10300 / معدود 10250 → settle → variance #1 SHORT −50 postedBy=2 → SELECT في SHIFT_VARIANCE يؤكده.
+
+**4. POST012 ملخص مبيعات الكاشيرات ✅**
+- `GET /reports/cashier-payment-summary?cashier=` — تفصيل طرق الدفع **لكل كاشير** (CASH/CARD/CREDIT/…) + عدد الفواتير + الصافي + مرتجعات/استرداد لكل كاشير (فلتر اختياري بالكاشير).
+- **UI:** تبويب «ملخص مبيعات الكاشيرات» في ReportsPage (KPIs + جدول بأعمدة طرق الدفع المفصّلة والاسترداد).
+- **proof حي:** كاشير 91 → CASH 15600 (فاتورة واحدة) + refundTotal 7800 · كل الكاشيرات → 22 صفاً.
+
+- **حالة عامة:** migration V028 مُطبّقة (+GRANTs لـMOTECH_RW) · build backend ✅ · pm2 restart ✅ /health online · **frontend build+deploy عبر worktree نظيف** (لأن لِينات موازية تركت AppLayout/PosPage/SettingsPage غير مكتملة في شجرة العمل — بُني ونُشر من commit نظيف) → https://nuugneol.gensparkclaw.com 200 والحزم الجديدة تحوي endpoints الأربعة · التحقّق النهائي للأربعة عبر الدومين العام ✅.
+- **ملاحظة تصادم:** ثلاث لِينات أنشأت V027 بنفس الوقت — رُقِّمت هجرتي إلى **V028**. types.ts + common.json الخاصتان بي اكتُسِحتا في commit لِينة المزامنة (82008bf) لكن محتواي موجود في HEAD.
+- **commits (هوية MoainAlabbasi):** feat(financial) backend · chore(db) renumber V028 · feat(ui) frontend.
+
 ## 2026-07-06 (Lane C — الصلاحيات الديناميكية + المزامنة النزولية + توثيق N/A) — subagent lane-c-rbac-sync-adr
 
 > **النطاق:** backend modules {auth, settings, admin(read-only edit), sync, catalog} + config + app.module + frontend features {auth, sync} + docs/ADR + SCREENS_GAP. لم تُلمس وحدات الوكلاء الآخرين (loyalty/vouchers/reports/shifts/bills/…). **proof-not-assumption: كل بند مُثبت حياً على :3000 ببيانات حقيقية.**
