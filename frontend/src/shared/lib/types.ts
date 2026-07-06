@@ -995,6 +995,26 @@ export interface AdminSession {
   branchNo: number | null;
 }
 
+// ---- Data backup (POSS003) — GET/POST /admin/backups, /:id/download ----
+export interface BackupRun {
+  id: string;
+  backupNo: number;
+  triggerKind: 'MANUAL' | 'SCHEDULED';
+  format: 'JSON' | 'SQL';
+  status: 'RUNNING' | 'SUCCESS' | 'FAILED';
+  fileName: string | null;
+  filePath: string | null;
+  fileBytes: number | null;
+  tableCount: number | null;
+  rowCount: number | null;
+  schemaName: string | null;
+  errorMessage: string | null;
+  createdBy: string | null;
+  startedAt: string;
+  finishedAt: string | null;
+  durationMs: number | null;
+}
+
 // ---- E-invoice (POST /einvoice/generate/{billId}, GET /einvoice/{billId}) ----
 export interface EInvoice {
   id: string;

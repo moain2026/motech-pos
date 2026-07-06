@@ -5,6 +5,7 @@ import type {
   AdminUser,
   AdminSession,
   ApiEnvelope,
+  BackupRun,
   CreateAdminMachineDto,
   CreateAdminUserDto,
   RolePermission,
@@ -147,4 +148,52 @@ export function useUpdateAdminPermissions() {
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'permissions'] }),
   });
+}
+
+// ---------------------------------------------------------------------------
+// Data backup (POSS003) — export the MOTECH_POS write schema; ERP untouched
+// ---------------------------------------------------------------------------
+
+/** GET /admin/backups — past backup runs (newest first). */
+export function useAdminBackups(limit = 50) {
+  return useQuery({
+    queryKey: ['admin', 'backups', { limit }],
+    queryFn: () => getData<BackupRun[]>(`/admin/backups?limit=${limit}`),
+    staleTime: 10_000,
+  });
+}
+
+/** POST /admin/backups — take a backup now; returns the recorded run. */
+export function useCreateBackup() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (): Promise<BackupRun> => {
+      const res = await api.post<ApiEnvelope<BackupRun>>('/admin/backups', {});
+      return res.data.data;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin', 'backups'] }),
+  });
+}
+
+/**
+ * GET /admin/backups/{id}/download — downloads the JSON snapshot through the
+ * authed axios client (Bearer token) and triggers a browser download.
+ */
+export async function downloadBackup(
+  id: string,
+  fileName: string,
+): Promise<void> {
+  const res = await api.get<Blob>(`/admin/backups/${id}/download`, {
+    responseType: 'blob',
+  });
+  const url = URL.createObjectURL(
+    new Blob([res.data], { type: 'application/json;charset=utf-8' }),
+  );
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = fileName || `motech-backup-${id}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }

@@ -12,6 +12,9 @@ import {
   X,
   KeyRound,
   Power,
+  DatabaseBackup,
+  Download,
+  AlertTriangle,
 } from 'lucide-react';
 import { Card } from '@/shared/ui/Card';
 import { Button } from '@/shared/ui/Button';
@@ -32,17 +35,22 @@ import {
   useCreateAdminMachine,
   useUpdateAdminMachine,
   useUpdateAdminPermissions,
+  useAdminBackups,
+  useCreateBackup,
+  downloadBackup,
 } from '../api/admin.api';
 import { useByMachineReport } from '@/features/reports/api/reports.api';
-import { formatMoney, formatNumber } from '@/shared/lib/format';
+import { formatMoney, formatNumber, formatDateTime } from '@/shared/lib/format';
+import type { BackupRun } from '@/shared/lib/types';
 
-type Tab = 'machines' | 'users' | 'sessions' | 'permissions';
+type Tab = 'machines' | 'users' | 'sessions' | 'permissions' | 'backup';
 
 const TABS: { key: Tab; icon: typeof Users }[] = [
   { key: 'machines', icon: MonitorSmartphone },
   { key: 'users', icon: Users },
   { key: 'sessions', icon: History },
   { key: 'permissions', icon: KeyRound },
+  { key: 'backup', icon: DatabaseBackup },
 ];
 
 /**
@@ -91,6 +99,7 @@ export function AdminPage() {
         {tab === 'users' && <UsersTable query={users} />}
         {tab === 'sessions' && <SessionsTable query={sessions} />}
         {tab === 'permissions' && <PermissionsMatrix />}
+        {tab === 'backup' && <BackupPanel />}
       </div>
     </div>
   );
@@ -685,6 +694,160 @@ function PermissionsMatrix() {
           </tbody>
         </table>
       </Card>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------------ */
+/* POSS003 — data backup. POST/GET /admin/backups + /:id/download.          */
+/* Exports the MOTECH_POS write schema only (our data) — the live YSPOS23    */
+/* ERP is never exported (production stays read-only).                       */
+/* ------------------------------------------------------------------------ */
+function humanBytes(n: number | null): string {
+  if (n == null) return '—';
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+  return `${(n / (1024 * 1024)).toFixed(2)} MB`;
+}
+
+function BackupStatusBadge({ status }: { status: BackupRun['status'] }) {
+  const { t } = useTranslation();
+  const cls =
+    status === 'SUCCESS'
+      ? 'bg-[var(--color-success)]/15 text-[var(--color-success)]'
+      : status === 'FAILED'
+        ? 'bg-[var(--color-danger)]/15 text-[var(--color-danger)]'
+        : 'bg-[var(--color-muted)]/15 text-[var(--color-muted)]';
+  return (
+    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}>
+      {t(`backup.status.${status}`)}
+    </span>
+  );
+}
+
+function BackupPanel() {
+  const { t } = useTranslation();
+  const query = useAdminBackups();
+  const create = useCreateBackup();
+  const [msg, setMsg] = useState<{ kind: 'ok' | 'err'; text: string } | null>(null);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  const onBackupNow = async () => {
+    setMsg(null);
+    try {
+      const run = await create.mutateAsync();
+      if (run.status === 'FAILED') {
+        setMsg({ kind: 'err', text: run.errorMessage || t('backup.failed') });
+      } else {
+        setMsg({
+          kind: 'ok',
+          text: t('backup.doneMsg', {
+            no: run.backupNo,
+            tables: run.tableCount ?? 0,
+            rows: formatNumber(run.rowCount ?? 0),
+          }),
+        });
+      }
+    } catch (e) {
+      const detail = e instanceof ApiError ? e.problem.detail || e.problem.title : '';
+      setMsg({ kind: 'err', text: `${t('backup.failed')}${detail ? ` — ${detail}` : ''}` });
+    }
+  };
+
+  const onDownload = async (run: BackupRun) => {
+    if (!run.fileName) return;
+    setDownloadingId(run.id);
+    try {
+      await downloadBackup(run.id, run.fileName);
+    } catch (e) {
+      const detail = e instanceof ApiError ? e.problem.detail || e.problem.title : '';
+      setMsg({ kind: 'err', text: `${t('backup.dlError')}${detail ? ` — ${detail}` : ''}` });
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  const rows = query.data ?? [];
+
+  return (
+    <div className="flex h-full flex-col gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="max-w-2xl text-sm text-[var(--color-muted)]">{t('backup.hint')}</p>
+        <Button variant="primary" disabled={create.isPending} onClick={onBackupNow}>
+          <DatabaseBackup className="size-4" />
+          {create.isPending ? t('backup.running') : t('backup.now')}
+        </Button>
+      </div>
+
+      <div className="flex items-start gap-2 rounded-[var(--radius)] bg-[var(--color-warning)]/10 p-2 text-xs text-[var(--color-warning)]">
+        <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
+        <span>{t('backup.scopeNote')}</span>
+      </div>
+
+      {msg ? (
+        <p
+          role={msg.kind === 'err' ? 'alert' : 'status'}
+          className={`rounded-md p-2 text-center text-xs ${
+            msg.kind === 'ok'
+              ? 'bg-[var(--color-success)]/15 text-[var(--color-success)]'
+              : 'bg-[var(--color-danger)]/15 text-[var(--color-danger)]'
+          }`}
+        >
+          {msg.text}
+        </p>
+      ) : null}
+
+      {query.isLoading ? (
+        <LoadingView />
+      ) : query.isError ? (
+        <ErrorView error={query.error} onRetry={() => query.refetch()} />
+      ) : rows.length === 0 ? (
+        <EmptyView />
+      ) : (
+        <Card className="min-h-0 flex-1 overflow-auto scroll-thin">
+          <table className="w-full text-sm">
+            <thead className="sticky top-0 bg-[var(--color-surface-2)] text-[var(--color-muted)]">
+              <tr>
+                <Th>{t('backup.no')}</Th>
+                <Th>{t('backup.trigger')}</Th>
+                <Th center>{t('backup.statusL')}</Th>
+                <Th>{t('backup.startedAt')}</Th>
+                <Th end>{t('backup.tables')}</Th>
+                <Th end>{t('backup.rows')}</Th>
+                <Th end>{t('backup.size')}</Th>
+                <Th end>{t('adminw.actions')}</Th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {rows.map((r) => (
+                <tr key={r.id} className="hover:bg-[var(--color-surface-2)]">
+                  <td className="tnum px-3 py-2 font-medium">#{r.backupNo}</td>
+                  <td className="px-3 py-2 text-[var(--color-muted)]">
+                    {t(`backup.triggerKind.${r.triggerKind}`)}
+                  </td>
+                  <td className="px-3 py-2 text-center"><BackupStatusBadge status={r.status} /></td>
+                  <td className="tnum px-3 py-2">{formatDateTime(r.startedAt)}</td>
+                  <td className="tnum px-3 py-2 text-end">{r.tableCount ?? '—'}</td>
+                  <td className="tnum px-3 py-2 text-end">{formatNumber(r.rowCount ?? 0)}</td>
+                  <td className="tnum px-3 py-2 text-end text-[var(--color-muted)]">{humanBytes(r.fileBytes)}</td>
+                  <td className="px-3 py-2 text-end">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t('backup.download')}
+                      title={t('backup.download')}
+                      disabled={r.status !== 'SUCCESS' || downloadingId === r.id}
+                      onClick={() => onDownload(r)}
+                    >
+                      <Download className="size-4" />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      )}
     </div>
   );
 }
