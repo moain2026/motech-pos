@@ -94,6 +94,15 @@
     "alerts": "التنبيهات",
     "menu": "القائمة"
   },
+  "navGroups": {
+    "dashboard": "لوحة التحكم",
+    "sales": "المبيعات",
+    "cashShift": "الصندوق والوردية",
+    "inventory": "المخزون",
+    "customersLoyalty": "العملاء والولاء",
+    "reports": "التقارير",
+    "adminSystem": "الإدارة والنظام"
+  },
   "origin": {
     "ERP": "من النظام",
     "ERPHint": "سجل مرجعي من نظام YemenSoft (قراءة فقط)",

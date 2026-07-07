@@ -32,6 +32,9 @@ import {
   PackageSearch,
   Megaphone,
   Menu,
+  Wallet,
+  ChevronDown,
+  type LucideIcon,
 } from 'lucide-react';
 import { useSession, ChangePasswordDialog, serverLogout } from '@/features/auth';
 import { PendingAlertsBanner } from '@/features/alerts';
@@ -82,6 +85,93 @@ const NAV: NavItem[] = [
   { to: '/admin', key: 'nav.admin', icon: ShieldCheck, roles: ['admin'] },
   { to: '/settings', key: 'nav.settings', icon: Settings2, roles: ['admin'] },
 ];
+
+/**
+ * Accounting-hierarchy grouping (2026-07-08) — 7 محاسبية:
+ *  1) لوحة التحكم    2) المبيعات    3) الصندوق والوردية
+ *  4) المخزون        5) العملاء والولاء    6) التقارير
+ *  7) الإدارة والنظام
+ * Each group references NAV entries by `to`. RBAC is inherited from the underlying NAV items.
+ * The rail (tablet, 72px) skips group headers and renders a flat icon list.
+ * Documented in docs/NAV_HIERARCHY_PLAN.md.
+ */
+interface NavGroup {
+  key: string; // 'dashboard' | 'sales' | 'cashShift' | 'inventory' | 'customersLoyalty' | 'reports' | 'adminSystem'
+  icon: LucideIcon;
+  paths: string[]; // NAV `to` values, in display order
+  defaultOpen?: boolean;
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  { key: 'dashboard', icon: LayoutDashboard, paths: ['/'], defaultOpen: true },
+  {
+    key: 'sales',
+    icon: ShoppingCart,
+    paths: ['/pos', '/price-check', '/bills', '/returns', '/sales-orders', '/prescriptions'],
+    defaultOpen: true,
+  },
+  {
+    key: 'cashShift',
+    icon: Wallet,
+    paths: ['/vouchers', '/reconciliation'],
+    defaultOpen: true,
+  },
+  {
+    key: 'inventory',
+    icon: Boxes,
+    paths: [
+      '/items',
+      '/inventory',
+      '/transfers',
+      '/stock-receipts',
+      '/stock-issues',
+      '/return-counts',
+      '/keypads',
+      '/warehouses',
+      '/suppliers',
+      '/groups-units',
+      '/currencies',
+    ],
+  },
+  {
+    key: 'customersLoyalty',
+    icon: Users,
+    paths: ['/customers', '/customer-groups', '/prepaid-cards'],
+  },
+  {
+    key: 'reports',
+    icon: BarChart3,
+    paths: ['/reports'],
+  },
+  {
+    key: 'adminSystem',
+    icon: Settings2,
+    paths: ['/admin', '/settings', '/alerts', '/sync'],
+  },
+];
+
+const NAV_GROUPS_STATE_KEY = 'mp_nav_groups_state_v1';
+
+function loadGroupsState(): Record<string, boolean> {
+  try {
+    const raw = typeof window !== 'undefined' ? window.localStorage.getItem(NAV_GROUPS_STATE_KEY) : null;
+    if (!raw) return {};
+    const v = JSON.parse(raw) as unknown;
+    return v && typeof v === 'object' ? (v as Record<string, boolean>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveGroupsState(state: Record<string, boolean>) {
+  try {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(NAV_GROUPS_STATE_KEY, JSON.stringify(state));
+    }
+  } catch {
+    /* localStorage unavailable — ignore silently */
+  }
+}
 
 /** عنصر تنقّل واحد — يعرض الأيقونة دائماً والنص على الديسكتوب (lg+) أو عند full. */
 function NavRow({
@@ -152,6 +242,22 @@ export function AppLayout() {
   const role = user?.role;
   const nav = NAV.filter((n) => !role || n.roles.includes(role));
   const bottomNav = nav.filter((n) => n.primary).slice(0, 4);
+  const navByPath = new Map(nav.map((n) => [n.to, n]));
+
+  // Groups visible to this role (after RBAC filtering of their items).
+  const visibleGroups = NAV_GROUPS.map((g) => ({
+    ...g,
+    items: g.paths.map((p) => navByPath.get(p)).filter((x): x is NavItem => Boolean(x)),
+  })).filter((g) => g.items.length > 0);
+
+  // Persisted open/closed state per group.
+  const [groupsState, setGroupsState] = useState<Record<string, boolean>>(() => loadGroupsState());
+  useEffect(() => {
+    saveGroupsState(groupsState);
+  }, [groupsState]);
+  const toggleGroup = (key: string, currentlyOpen: boolean) => {
+    setGroupsState((s) => ({ ...s, [key]: !currentlyOpen }));
+  };
 
   // إغلاق الـDrawer عند تغيّر المسار.
   useEffect(() => {
@@ -168,9 +274,62 @@ export function AppLayout() {
     <>
       <Brand full={full} />
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto scroll-thin p-2">
-        {nav.map((item) => (
-          <NavRow key={item.to} item={item} full={full} onClick={() => setDrawer(false)} />
-        ))}
+        {full
+          ? visibleGroups.map((group) => {
+              const { icon: GroupIcon, key, items, defaultOpen } = group;
+              const persisted = groupsState[key];
+              const isOpen = persisted === undefined ? Boolean(defaultOpen) : persisted;
+              // Single-item groups (e.g. Dashboard, Reports) render as one row, no toggle.
+              if (items.length === 1) {
+                return (
+                  <NavRow
+                    key={key}
+                    item={items[0]}
+                    full={full}
+                    onClick={() => setDrawer(false)}
+                  />
+                );
+              }
+              return (
+                <div key={key} className="flex flex-col">
+                  <button
+                    type="button"
+                    onClick={() => toggleGroup(key, isOpen)}
+                    aria-expanded={isOpen}
+                    aria-controls={`nav-group-${key}`}
+                    className={cn(
+                      'flex items-center gap-3 rounded-[var(--radius)] px-3 text-[length:var(--text-sm)] font-semibold transition-colors',
+                      'min-h-[var(--touch)] text-[var(--color-fg)] hover:bg-[var(--color-surface-2)]',
+                    )}
+                  >
+                    <GroupIcon className="size-5 shrink-0" aria-hidden />
+                    <span className="flex-1 text-start">{t(`navGroups.${key}`)}</span>
+                    <ChevronDown
+                      className={cn(
+                        'size-4 shrink-0 text-[var(--color-muted)] transition-transform',
+                        isOpen ? 'rotate-180' : '',
+                      )}
+                      aria-hidden
+                    />
+                  </button>
+                  {isOpen ? (
+                    <div id={`nav-group-${key}`} className="mt-1 flex flex-col gap-1 ps-4">
+                      {items.map((item) => (
+                        <NavRow
+                          key={item.to}
+                          item={item}
+                          full={full}
+                          onClick={() => setDrawer(false)}
+                        />
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })
+          : nav.map((item) => (
+              <NavRow key={item.to} item={item} full={full} onClick={() => setDrawer(false)} />
+            ))}
       </nav>
       <button
         onClick={logout}
