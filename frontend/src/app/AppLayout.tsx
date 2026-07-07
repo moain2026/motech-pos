@@ -270,11 +270,16 @@ export function AppLayout() {
     navigate('/login', { replace: true });
   };
 
-  const SidebarInner = ({ full }: { full: boolean }) => (
+  // variant:
+  //   'rail' → tablet 72px icon-only flat list (no group headers at icon size)
+  //   'full' → desktop lg (228px) + mobile drawer: accounting groups with labels
+  const SidebarInner = ({ variant }: { variant: 'rail' | 'full' }) => {
+    const full = variant === 'full';
+    return (
     <>
       <Brand full={full} />
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto scroll-thin p-2">
-        {full
+        {variant === 'full'
           ? visibleGroups.map((group) => {
               const { icon: GroupIcon, key, items, defaultOpen } = group;
               const persisted = groupsState[key];
@@ -343,13 +348,17 @@ export function AppLayout() {
         <span className={full ? 'inline' : 'hidden lg:inline'}>{t('nav.logout')}</span>
       </button>
     </>
-  );
+    );
+  };
 
   return (
     <div className="grid h-full grid-cols-1 tab:grid-cols-[72px_minmax(0,1fr)] lg:grid-cols-[228px_minmax(0,1fr)]">
-      {/* شريط جانبي — يظهر من التابلت فأعلى (rail على التابلت، كامل على الديسكتوب) */}
-      <aside className="hidden flex-col border-e bg-[var(--color-surface)] tab:flex">
-        <SidebarInner full={false} />
+      {/* شريط جانبي — rail أيقونات على التابلت، مجموعات محاسبية بالنصوص على الديسكتوب (lg+) */}
+      <aside className="hidden flex-col border-e bg-[var(--color-surface)] tab:flex lg:hidden">
+        <SidebarInner variant="rail" />
+      </aside>
+      <aside className="hidden flex-col border-e bg-[var(--color-surface)] lg:flex">
+        <SidebarInner variant="full" />
       </aside>
 
       {/* Drawer للجوال */}
@@ -363,7 +372,7 @@ export function AppLayout() {
         >
           <div className="absolute inset-0 bg-black/50 animate-fade-in" />
           <div className="absolute inset-y-0 start-0 flex w-[80%] max-w-[280px] flex-col border-e bg-[var(--color-surface)] shadow-[var(--shadow-xl)]">
-            <SidebarInner full />
+            <SidebarInner variant="full" />
           </div>
         </div>
       ) : null}
