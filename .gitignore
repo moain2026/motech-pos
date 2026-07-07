@@ -29,3 +29,7 @@ npm-debug.log*
 
 # PM2
 .pm2/
+
+# QA sweep artifacts (screenshots + JSON, keep out of repo)
+frontend/e2e/.qa-sweep/
+

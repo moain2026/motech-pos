@@ -1,0 +1,16 @@
+import { chromium } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+const CREDS = JSON.parse(readFileSync('/home/work/.openclaw/workspace/state/motech-pos-credentials.json','utf8'));
+const BASE='https://nuugneol.gensparkclaw.com';
+const b = await chromium.launch({channel:'chrome',headless:true});
+const c = await b.newContext({baseURL:BASE,locale:'ar',ignoreHTTPSErrors:true,serviceWorkers:'block',viewport:{width:390,height:844}});
+const p = await c.newPage();
+await p.goto(BASE+'/login',{waitUntil:'networkidle'});
+await p.locator('#username').fill('cashier1');
+await p.locator('#password').fill(CREDS.cashier1.password);
+await p.getByRole('button',{name:'دخول'}).click();
+await p.waitForURL(/\/pos$/);
+await p.waitForTimeout(1500);
+const chips = await p.evaluate(()=>[...document.querySelectorAll('button')].map(b=>b.innerText.trim()).filter(t=>t.includes('(')).slice(0,6));
+console.log(JSON.stringify(chips, null, 1));
+await b.close();
