@@ -131,7 +131,7 @@ function SettingsView({
   const visible = searching || specialTab ? searchResults : (groups[tab as SettingGroup] ?? []);
 
   return (
-    <div className="mx-auto flex h-full max-w-5xl flex-col gap-4 p-4">
+    <div className="mx-auto flex min-h-full max-w-5xl flex-col gap-4 p-4 lg:h-full">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="flex items-center gap-2 text-xl font-bold">
@@ -269,7 +269,7 @@ function SettingsView({
       )}
 
       {/* Settings list */}
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 lg:overflow-y-auto">
         {!searching && tab === 'defaults' ? (
           <DefaultsTable canEdit={canEdit} onToast={showToast} />
         ) : !searching && tab === 'programs' ? (
