@@ -15,6 +15,26 @@ export {
   HEAD_WIDTH_58MM,
 } from './rasterize';
 export { isWebUsbSupported, sendEscPosOverWebUsb } from './webusb-printer';
+export {
+  detectTransports,
+  getTransport,
+  resolveActiveTransport,
+  getPreferredTransportId,
+  setPreferredTransportId,
+  printViaTransport,
+  buildPrintBytes,
+  WebSerialTransport,
+  WebUsbTransport,
+  BrowserPrintTransport,
+  isWebSerialSupported,
+  getSerialBaudRate,
+  setSerialBaudRate,
+  SERIAL_BAUD_RATES,
+  type PrintTransport,
+  type TransportId,
+  type PrintViaTransportOptions,
+} from './transport';
+export { usePrinter, type UsePrinter, type PrintOutcome } from './hooks/usePrinter';
 export { renderBarcodeSvg, barcodeDataUrl, type BarcodeFormat } from './barcode';
 export { lookupBarcode, cacheItems } from './api/barcode-lookup.api';
 export { PrintReceiptButton } from './components/PrintReceiptButton';

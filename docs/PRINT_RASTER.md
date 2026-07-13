@@ -14,9 +14,11 @@
   - `canRasterize()` — يتحقق من توفر Canvas (المتصفح).
 
 ## المسارات الثلاثة للطباعة (بالأولوية)
-1. **Raster (الجديد، الأفضل للعربي):** `rasterizeReceipt` → WebUSB → طباعة صورة مضمونة عربياً.
-2. **المتصفح (`window.print`):** إيصال HTML عربي RTL + QR — موثوق عبر درايفر النظام.
-3. **ESC/POS نصي (CP1256):** للطابعات التي تدعم صفحة عربية فقط.
+1. **Raster (الافتراضي، الأفضل للعربي):** `rasterizeReceipt` → طبقة النقل الموحّدة (Web Serial بلوتوث SPP / WebUSB — انظر `PRINT_TRANSPORT.md`) → طباعة صورة مضمونة عربياً.
+2. **المتصفح (`window.print`):** إيصال HTML عربي RTL + QR — موثوق عبر درايفر النظام، وfallback تلقائي عند فشل الناقل الخام.
+3. **ESC/POS نصي (CP1256):** للطابعات التي تدعم صفحة عربية فقط (`raster:false`).
+
+> **تحديث 2026-07-13:** النقل صار عبر طبقة `PrintTransport` موحّدة (`frontend/src/features/print/transport/`) — Web Serial (بلوتوث SPP كلاسيكي مثل Bixolon SPP-R310 + USB-serial) → WebUSB → المتصفح، باختيار تلقائي وزر «إعداد الطابعة». التفاصيل في `PRINT_TRANSPORT.md`.
 
 ## التحقق المُنجز (برمجي)
 - ترويسة `GS v 0` بايت-ببايت صحيحة (29,118,48,0,xL,xH,yL,yH) للأبعاد.
