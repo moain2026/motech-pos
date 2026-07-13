@@ -5,7 +5,15 @@
  */
 export { buildReceipt, type ReceiptModel } from './receipt-model';
 export { printReceipt, buildReceiptHtml, renderQrDataUrl } from './receipt-print';
-export { encodeReceiptEscPos, toHex } from './escpos-encoder';
+export { encodeReceiptEscPos, encodeRasterImage, toHex } from './escpos-encoder';
+export {
+  rasterizeReceipt,
+  renderReceiptToImageData,
+  packMonochrome,
+  canRasterize,
+  HEAD_WIDTH_80MM,
+  HEAD_WIDTH_58MM,
+} from './rasterize';
 export { isWebUsbSupported, sendEscPosOverWebUsb } from './webusb-printer';
 export { renderBarcodeSvg, barcodeDataUrl, type BarcodeFormat } from './barcode';
 export { lookupBarcode, cacheItems } from './api/barcode-lookup.api';

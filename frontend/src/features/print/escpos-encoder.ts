@@ -74,6 +74,40 @@ function toCp1256(s: string): Uint8Array | null {
   return Uint8Array.from(out);
 }
 
+/**
+ * GS v 0 — raster bit image. Encodes a 1-bpp monochrome bitmap (MSB-first,
+ * row-major, 1 = black dot) into an ESC/POS raster print command. This is the
+ * ROBUST Arabic path: the receipt is rendered to a bitmap by the browser
+ * canvas (perfect Arabic shaping) then printed as dots — works on ANY thermal
+ * printer regardless of its codepage. (STANDARDS/13 §3 — documented fix.)
+ *
+ * @param mono   packed 1-bpp rows: each row is ceil(width/8) bytes, MSB=leftmost
+ * @param width  image width in dots (≤ the printer head width, 576 for 80mm)
+ * @param height image height in dots
+ */
+export function encodeRasterImage(
+  mono: Uint8Array,
+  width: number,
+  height: number,
+): Uint8Array {
+  const bytesPerRow = Math.ceil(width / 8);
+  if (mono.length !== bytesPerRow * height) {
+    throw new Error(
+      `raster: expected ${bytesPerRow * height} bytes (${bytesPerRow}×${height}), got ${mono.length}`,
+    );
+  }
+  const xL = bytesPerRow & 0xff;
+  const xH = (bytesPerRow >> 8) & 0xff;
+  const yL = height & 0xff;
+  const yH = (height >> 8) & 0xff;
+  // GS v 0 m xL xH yL yH [data]   (m=0 : normal density)
+  const header = [GS, 0x76, 0x30, 0x00, xL, xH, yL, yH];
+  const out = new Uint8Array(header.length + mono.length);
+  out.set(header, 0);
+  out.set(mono, header.length);
+  return out;
+}
+
 function ESCPOS_ALIGN(w: ByteWriter, mode: 0 | 1 | 2) {
   w.raw(ESC, 0x61, mode); // ESC a n : 0=left 1=center 2=right
 }
